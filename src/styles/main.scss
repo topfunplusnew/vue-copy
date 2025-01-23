@@ -1,0 +1,48 @@
+@charset "UTF-8";
+
+@import './mixin';
+@import './utils';
+
+html {
+  box-sizing: border-box;
+  line-height: normal;
+  font-family: $font-family-default;
+  padding: 0;
+  margin: 0;
+  @include screen-mobile {
+    font-size: getRootRem(750);
+  }
+  @include screen-pad {
+    font-size: getRootRem(900);
+  }
+  @include screen-pc {
+    font-size: 16px;
+    body {
+      font-size: 16px;
+    }
+  }
+}
+
+a {
+  color: $font-color-link;
+  text-decoration: none;
+  &:hover {
+    // color: $font-color-link-hover;
+    text-decoration: underline;
+  }
+  &:not([href]):not([class]),
+  a:not([href]):not([class]):hover {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.text-ellipsis {
+  // 文字省略
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+@import 'home';

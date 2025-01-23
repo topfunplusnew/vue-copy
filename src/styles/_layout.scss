@@ -1,0 +1,221 @@
+@import './mixin';
+@import './variables';
+
+.layout {
+}
+
+@include screen-pc {
+  .layout {
+    width: 750px;
+  }
+}
+@include screen-pad {
+  .layout {
+    > header {
+      .container {
+        margin: 0 rpx(24);
+      }
+      .bar {
+        .container {
+          font-size: rpx(8);
+        }
+        ul.link {
+          li {
+            font-size: rpx(12);
+          }
+        }
+        .user {
+          font-size: rpx(14);
+        }
+      }
+      nav {
+        ul {
+          font-size: rpx(18);
+          li {
+            .nav-text {
+              font-size: rpx(18);
+            }
+          }
+        }
+      }
+    }
+    > main {
+      aside {
+        .title {
+          min-width: rpx(250);
+          h2 {
+            font-size: rpx(22);
+          }
+        }
+        ul {
+          li {
+            a {
+              font-size: rpx(18);
+            }
+          }
+        }
+      }
+    }
+    > footer {
+      .container {
+        width: 100%;
+        padding: rpx(24);
+        section {
+          font-size: rpx(14);
+          font-weight: 400;
+        }
+      }
+    }
+  }
+}
+@include screen-mobile {
+  .layout {
+    > header {
+      .container {
+        margin: 0 rpx(16);
+      }
+      .bar {
+        .container {
+          font-size: rpx(8);
+        }
+        ul.link {
+          li {
+            font-size: rpx(12);
+          }
+        }
+        .user {
+          font-size: rpx(12);
+        }
+      }
+      .content {
+        background: linear-gradient(90deg, #02234e 0%, #028c82 100%);
+        .container {
+          padding: 0;
+        }
+        .logo {
+          &-img {
+            display: block;
+            display: flex;
+            align-items: center;
+            margin: rpx(14) 0 rpx(14) rpx(16);
+            .menu {
+              display: block;
+              font-size: rpx(16);
+              color: #fff;
+              padding-right: rpx(16);
+              margin-right: rpx(16);
+              border-right: rpx(1) solid #fff;
+            }
+            img {
+              height: rpx(30);
+            }
+          }
+          &-text {
+            display: none;
+          }
+        }
+      }
+      nav {
+        .overlay {
+          position: absolute;
+          z-index: 10;
+          left: 0;
+          top: 0;
+          width: 100vw;
+          height: 100vh;
+          background-color: rgba(0, 0, 0, 0.5);
+          visibility: hidden;
+          &.show {
+            visibility: visible;
+          }
+        }
+        ul {
+          position: absolute;
+          z-index: 11;
+          left: 0;
+          top: 0;
+          height: 100vh;
+          background-color: #fff;
+          padding: rpx(24);
+          visibility: hidden;
+          &.show {
+            visibility: visible;
+          }
+          li {
+            display: block;
+            &:hover {
+              .nav-text {
+                background-color: #f1f2f3;
+              }
+            }
+            &.nav-single,
+            &.nav-mutiple {
+              border-bottom: 1px solid #f1f2f3;
+              .nav-text {
+                margin: 0;
+              }
+            }
+            .nav-text {
+              font-size: rpx(18);
+              font-weight: 500;
+              color: #0a1625;
+            }
+            ol {
+              position: static;
+              transform: scale(1, 1);
+              box-shadow: none;
+              li {
+                .nav-list-text {
+                  color: #3c4448;
+                  font-size: rpx(16);
+                  padding: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    > main {
+      flex-direction: column;
+      width: 100%;
+      aside {
+        padding: rpx(16);
+        .title {
+          padding: 0;
+          background: none;
+          border: none;
+          h2 {
+            font-size: rpx(22);
+          }
+        }
+        ul {
+          li {
+            padding: rpx(10) 0 rpx(11) rpx(16);
+            margin-top: rpx(8);
+            background: linear-gradient(
+              90deg,
+              #f1f2f3 0%,
+              rgba(241, 242, 243, 0.196702) 85.21%,
+              rgba(241, 242, 243, 0) 100%
+            );
+            a {
+              font-size: rpx(16);
+            }
+          }
+        }
+      }
+    }
+    > footer {
+      .container {
+        width: 100%;
+        padding: rpx(2) rpx(16);
+        display: block;
+        section {
+          font-size: rpx(14);
+          font-weight: 400;
+        }
+      }
+    }
+  }
+}
