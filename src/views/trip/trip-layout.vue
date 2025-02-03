@@ -1,3 +1,7 @@
+<script setup lang="ts">
+// ...existing code...
+</script>
+
 <template>
   <div class="trip">
     <aside>aside</aside>

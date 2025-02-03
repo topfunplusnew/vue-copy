@@ -1,48 +1,80 @@
 @charset "UTF-8";
 
-@import './mixin';
-@import './utils';
+// 基础配置优化
+@import 'variables';  // 确保变量文件最先导入
+@import 'mixins';     // 混合宏
+@import 'utils';      // 工具类
 
+// 标准化增强
 html {
   box-sizing: border-box;
-  line-height: normal;
+  line-height: 1.5;     // 推荐使用无单位值
   font-family: $font-family-default;
   padding: 0;
   margin: 0;
-  @include screen-mobile {
-    font-size: getRootRem(750);
+  font-size: 62.5%;     // 1rem = 10px (基于16px基准)
+
+  // 响应式字体优化方案
+  @include respond(mobile) {
+    font-size: 50%;     // 1rem = 8px (小屏适配)
   }
-  @include screen-pad {
-    font-size: getRootRem(900);
+  
+  @include respond(tablet) {
+    font-size: 56.25%;  // 1rem = 9px
   }
-  @include screen-pc {
-    font-size: 16px;
-    body {
-      font-size: 16px;
-    }
+  
+  @include respond(desktop) {
+    font-size: 62.5%;   // 1rem = 10px
+  }
+
+  // 统一body字体设置
+  body {
+    @include font-base;
+    color: $text-primary;
+    background: $bg-body;
   }
 }
 
+// 增强链接样式
 a {
-  color: $font-color-link;
+  color: $link-primary;
   text-decoration: none;
+  transition: color 0.3s ease;
+
   &:hover {
-    // color: $font-color-link-hover;
+    color: $link-hover;
     text-decoration: underline;
   }
-  &:not([href]):not([class]),
-  a:not([href]):not([class]):hover {
+
+  &:focus {
+    @include focus-ring;
+  }
+
+  // 处理空链接状态
+  &:not([href]):not([class]) {
     color: inherit;
-    text-decoration: none;
+    cursor: not-allowed;
+    opacity: 0.7;
   }
 }
 
+// 增强文本截断
 .text-ellipsis {
-  // 文字省略
-  width: 100%;
+  display: inline-block;  // 关键补充属性
+  max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+
+  // 多行截断扩展
+  &--multiline {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+  }
 }
 
-@import 'home';
+// 模块导入
+@import 'layouts/home';    // 推荐使用分层结构
+@import 'components/card'; // 组件级样式分离
