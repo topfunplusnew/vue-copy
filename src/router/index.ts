@@ -5,6 +5,7 @@ import BlogView from '@/views/trip/trip-blog.vue';
 import ContactView from '@/views/trip/trip-contact.vue';
 import LoginView from '@/views/trip/Login-view.vue';
 import SignupView from '@/views/trip/Signup-view.vue';
+import Generator from '@/views/trip/generator.vue';
 
 
 const router = createRouter({
@@ -39,6 +40,11 @@ const router = createRouter({
       path: '/signup',
       name: 'signup',
       component: SignupView
+    },
+    {
+      path: '/generator',
+      name: 'generator',
+      component: Generator
     },
     {
       path: '/blog2',

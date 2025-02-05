@@ -1,113 +1,631 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useRoute } from 'vue-router';
-
-const route = useRoute();
-const userContent = ref(route.query.requirements);
-const generatedContent = ref('');
-const selectedTools = ref<string[]>([]);
-
-const agentDialogue = computed(() => {
-  return [
-    `User Requirements: ${userContent.value}`,
-    `Selected Options: ${route.query.options}`,
-    `Generated Plan: ${generatedContent.value}`
-  ].join('\n\n');
-});
-</script>
-
 <template>
-  <div class="generator-container">
-    <div class="editor-section">
-      <h2>Itinerary Editor</h2>
-      <el-input
-        v-model="userContent"
-        type="textarea"
-        rows="6"
-        placeholder="Edit your requirements"
-      />
-
-      <div class="dialogue-box">
-        <pre>{{ agentDialogue }}</pre>
-      </div>
-    </div>
-
-    <div class="tools-section">
-      <h3>Agentic Tools</h3>
-      <el-checkbox-group v-model="selectedTools">
-        <el-checkbox label="Date" />
-        <el-checkbox label="Transportation" />
-        <el-checkbox label="Hotel" />
-        <el-checkbox label="Budget" />
-        <el-checkbox label="Activities" />
-      </el-checkbox-group>
-
-      <div class="map-container">
-        <h3>iPoloGO Map</h3>
-        <div class="map-options">
-          <el-radio-group v-model="selectedMap">
-            <el-radio label="navigation">Navigation</el-radio>
-            <el-radio label="traffic">Traffic</el-radio>
-            <el-radio label="route">Route</el-radio>
-          </el-radio-group>
+  <div class="home">
+    <!-- Header -->
+    <header class="header">
+      <div class="nav-container">
+        <div class="left-nav">
+          <router-link :to="{ name: 'home' }">
+            <el-button class="nav-button">HOME</el-button>
+          </router-link>
+          <router-link :to="{ name: 'about' }">
+            <el-button class="nav-button">ABOUT</el-button>
+          </router-link>
+          <router-link :to="{ name: 'blog' }">
+            <el-button class="nav-button">BLOG</el-button>
+          </router-link>
+          <router-link :to="{ name: 'contact' }">
+            <el-button class="nav-button">CONTACT</el-button>
+          </router-link>
         </div>
-        <div class="map-view">
-          <!-- 这里集成实际地图组件 -->
-          <div class="mock-map">{{ selectedMap }} Map View</div>
+        <div class="right-nav">
+          <wallet-item />
+          <router-link :to="{ name: 'login' }">
+            <el-button class="nav-button">Login</el-button>
+          </router-link>
+          <router-link :to="{ name: 'signup' }">
+            <el-button class="nav-button">Sign Up</el-button>
+          </router-link>
+          <!-- History 切换按钮 -->
+          <el-button class="nav-button" @click="toggleHistory">
+            {{ historyVisible ? 'Hide History' : 'Show History' }}
+          </el-button>
+        </div>
+      </div>
+      <h1 class="header-title">Have Fun in iPoloGO</h1>
+    </header>
+
+    <!-- 整体内容区域 -->
+    <div class="content-wrapper">
+      <!-- History 抽屉 -->
+      <transition name="slide-left">
+        <div class="history-drawer" v-if="historyVisible">
+          <h3>History</h3>
+          <ul>
+            <li v-for="(record, idx) in historyRecords" :key="idx" @click="loadHistory(idx)" class="history-item">
+              {{ record.summary }}
+            </li>
+          </ul>
+          <el-button type="text" @click="toggleHistory">Close</el-button>
+        </div>
+      </transition>
+
+      <!-- 中间：Chat 模块 -->
+      <div class="center-panel">
+        <h3>Chat with iPoloGO</h3>
+        <div class="chat-box">
+          <div v-for="(msg, index) in chatMessages" :key="index" class="chat-message" :class="msg.sender" contenteditable="true" @blur="updateMessage(index, $event)">
+            {{ msg.text }}
+          </div>
+        </div>
+        <div class="chat-input">
+          <el-input v-model="userChatInput" placeholder="Type your message..." clearable @keydown.native.enter="sendMessage" />
+          <el-button type="warning" @click="finishConversation">Finish Conversation</el-button>
+        </div>
+      </div>
+
+      <!-- 右侧：Trip Options 与 Map 模块 -->
+      <div class="right-panel">
+        <div class="options-panel">
+          <h3>Trip Options</h3>
+          <!-- Date 模块 -->
+          <div class="trip-option date-option">
+            <label>Date:</label>
+            <div class="date-picker-container">
+              <el-date-picker v-model="tripSelections.DateFrom" type="date" placeholder="From" />
+              <span class="date-separator">to</span>
+              <el-date-picker v-model="tripSelections.DateTo" type="date" placeholder="To" />
+            </div>
+          </div>
+
+          <!-- Transportation 模块（整合在同一框内） -->
+          <div class="trip-option">
+            <label>
+              <i class="el-icon-airplane" style="margin-right:5px"></i>
+              Transportation:
+            </label>
+            <div class="trans-container">
+              <el-select v-model="tripSelections.Transportation" multiple placeholder="Select transportation" filterable allow-create class="futuristic-select">
+                <el-option v-for="item in tripOptionsData.Transportation" :key="item.name" :label="item.name" :value="item.name">
+                  <template #default>
+                    <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
+                  </template>
+                </el-option>
+              </el-select>
+              <!-- 仅当单一交通工具选中时显示 Travel Class -->
+              <div v-if="tripSelections.Transportation.length === 1" class="transport-class">
+                <label>Class:</label>
+                <el-select v-model="tripSelections.TransportationClass" placeholder="Select travel class" filterable class="futuristic-select">
+                  <el-option v-for="option in availableTransportationClasses" :key="option" :label="option" :value="option" />
+                </el-select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hotel 模块 -->
+          <div class="trip-option">
+            <label>
+              <i class="el-icon-star-on" style="margin-right:5px"></i>
+              Hotel:
+            </label>
+            <el-select v-model="tripSelections.Hotel" multiple placeholder="Select hotel options" filterable allow-create class="futuristic-select">
+              <el-option-group v-for="group in groupedHotels" :key="group.label" :label="group.label">
+                <el-option v-for="item in group.options" :key="item.name" :label="item.name" :value="item.name">
+                  <template #default>
+                    <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
+                  </template>
+                </el-option>
+              </el-option-group>
+            </el-select>
+          </div>
+
+          <!-- Budget 模块 -->
+          <div class="trip-option">
+            <label>
+              <i class="el-icon-money" style="margin-right:5px"></i>
+              Budget:
+            </label>
+            <div class="budget-container">
+              <!-- 第一行：货币与总预算 -->
+              <div class="budget-row">
+                <el-select v-model="tripSelections.Budget.Currency" placeholder="Select currency" style="width:150px" filterable class="futuristic-select">
+                  <el-option v-for="currency in allCurrencies" :key="currency.name" :label="currency.flag + ' ' + currency.name" :value="currency.name" />
+                </el-select>
+                <el-input v-model="tripSelections.Budget.Total" placeholder="Enter total amount" style="width:150px; margin-left:10px;" />
+              </div>
+              <!-- 预算比例拖动条 -->
+              <div class="budget-row">
+                <label>Budget Proportions:</label>
+              </div>
+              <div class="budget-row slider-row">
+                <span>Transportation:</span>
+                <el-slider v-model="tripSelections.Budget.Transportation" :min="0" :max="100" show-input @change="updateBudgetProportions('Transportation', $event)" />
+              </div>
+              <div class="budget-row slider-row">
+                <span>Hotel:</span>
+                <el-slider v-model="tripSelections.Budget.Hotel" :min="0" :max="100" show-input @change="updateBudgetProportions('Hotel', $event)" />
+              </div>
+              <div class="budget-row slider-row">
+                <span>Tickets:</span>
+                <el-slider v-model="tripSelections.Budget.Tickets" :min="0" :max="100" show-input @change="updateBudgetProportions('Tickets', $event)" />
+              </div>
+              <div class="budget-row slider-row">
+                <span>Activities:</span>
+                <el-slider v-model="tripSelections.Budget.Activities" :min="0" :max="100" show-input @change="updateBudgetProportions('Activities', $event)" />
+              </div>
+              <p class="budget-totals">Total: {{ budgetTotal }}% (Must equal 100%)</p>
+            </div>
+          </div>
+
+          <!-- Tickets 模块 -->
+          <div class="trip-option">
+            <label>
+              <i class="el-icon-tickets" style="margin-right:5px"></i>
+              Tickets:
+            </label>
+            <el-select v-model="tripSelections.Tickets" multiple placeholder="Select ticket options" filterable allow-create class="futuristic-select">
+              <el-option v-for="item in tripOptionsData.Tickets" :key="item.name" :label="item.name" :value="item.name">
+                <template #default>
+                  <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
+                </template>
+              </el-option>
+            </el-select>
+          </div>
+
+          <!-- Activities 模块 -->
+          <div class="trip-option">
+            <label>
+              <i class="el-icon-s-custom" style="margin-right:5px"></i>
+              Activities:
+            </label>
+            <el-select v-model="tripSelections.Activities" multiple placeholder="Select activities" filterable allow-create class="futuristic-select">
+              <el-option-group v-for="(group, groupName) in tripOptionsData.Activities" :key="groupName" :label="groupName">
+                <el-option v-for="item in group" :key="item.name" :label="item.name" :value="item.name">
+                  <template #default>
+                    <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
+                  </template>
+                </el-option>
+              </el-option-group>
+            </el-select>
+          </div>
+
+          <!-- 自动生成的 Prompt -->
+          <div class="trip-prompt">
+            <p><strong>Constructed Prompt:</strong></p>
+            <p>{{ tripPrompt }}</p>
+            <el-button type="primary" @click="insertTripPrompt">Insert Prompt into Chat</el-button>
+          </div>
+        </div>
+
+        <!-- Map 模块 -->
+        <div class="map-panel">
+          <h3>Map</h3>
+          <div class="map-controls">
+            <el-radio-group v-model="selectedMapType">
+              <el-radio-button label="World Map">World Map</el-radio-button>
+              <el-radio-button label="City Navigation">City Navigation</el-radio-button>
+              <el-radio-button label="City Traffic">City Traffic</el-radio-button>
+            </el-radio-group>
+          </div>
+          <div class="map-display">
+            <p>Displaying: {{ selectedMapType }}</p>
+            <p>From: {{ userLocation }} To: {{ selectedDestination }}</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue';
+import { ElMessage } from 'element-plus';
+import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
+
+
+/* ===============================
+   Chat 与 History 数据
+============================== */
+interface ChatMessage { sender: string; text: string; }
+interface HistoryRecord { summary: string; messages: ChatMessage[]; }
+const chatMessages = ref<ChatMessage[]>([
+  { sender: 'user', text: "Hi, I'm planning a trip." },
+  { sender: 'agent', text: "Hello! How can I help you today?" }
+]);
+const historyRecords = ref<HistoryRecord[]>([]);
+const userChatInput = ref('');
+const updateMessage = (index: number, event: Event) => {
+  const target = event.target as HTMLElement;
+  chatMessages.value[index].text = target.innerText;
+};
+const sendMessage = () => {
+  if (!userChatInput.value.trim()) return;
+  chatMessages.value.push({ sender: 'user', text: userChatInput.value });
+  const agentReply = "Agent reply to: " + userChatInput.value;
+  chatMessages.value.push({ sender: 'agent', text: agentReply });
+  userChatInput.value = '';
+};
+const finishConversation = () => {
+  if (chatMessages.value.length === 0) {
+    ElMessage.info("No conversation to finish.");
+    return;
+  }
+  const summary = generateSummary(chatMessages.value);
+  historyRecords.value.push({ summary, messages: [...chatMessages.value] });
+  chatMessages.value = [];
+};
+const generateSummary = (messages: ChatMessage[]): string => {
+  let summary = "General Conversation";
+  if (messages.some(m => m.text.toLowerCase().includes("trip"))) {
+    summary = "Trip planning: location to destination";
+  }
+  return summary;
+};
+const loadHistory = (index: number) => {
+  const record = historyRecords.value[index];
+  if (record) {
+    chatMessages.value = [...record.messages];
+  }
+};
+
+/* ===============================
+   Trip Options 数据
+============================== */
+const tripSelections = ref({
+  DateFrom: '',
+  DateTo: '',
+  Transportation: [] as string[],
+  TransportationClass: '', // 交通舱位
+  Hotel: [] as string[],
+  Tickets: [] as string[],
+  Activities: [] as string[],
+  Budget: {
+    Currency: '',
+    Total: '',
+    Transportation: 25,
+    Hotel: 25,
+    Tickets: 25,
+    Activities: 25
+  }
+});
+
+// Transportation：如果只选择了一项，则显示 Travel Class
+const availableTransportationClasses = computed(() => {
+  if (tripSelections.value.Transportation.length === 1) {
+    const t = tripSelections.value.Transportation[0];
+    if (t === "Flight") {
+      return ["First Class", "Business Class", "Economy"];
+    } else if (t === "Train") {
+      return ["First Class", "Second Class"];
+    } else if (t === "Bus") {
+      return ["Standard"];
+    } else {
+      return ["Economy"];
+    }
+  }
+  return [];
+});
+
+// Hotels 分组，根据 hotel 数据中的 group 属性
+const groupedHotels = computed(() => {
+  const groups: { [key: string]: any[] } = {};
+  tripOptionsData.Hotel.forEach(item => {
+    const group = item.group || "Other";
+    if (!groups[group]) {
+      groups[group] = [];
+    }
+    groups[group].push(item);
+  });
+  return Object.keys(groups).map(key => ({ label: key, options: groups[key] }));
+});
+
+// Budget 部分：确保四个比例之和为 100%
+const updateBudgetProportions = (changedKey: keyof typeof tripSelections.value.Budget, newValue: number) => {
+  const keys: (keyof typeof tripSelections.value.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
+  const otherKeys = keys.filter(k => k !== changedKey);
+  tripSelections.value.Budget[changedKey] = newValue;
+  const remaining = 100 - newValue;
+  const equalValue = Math.round(remaining / otherKeys.length);
+  otherKeys.forEach(k => {
+    tripSelections.value.Budget[k] = equalValue;
+  });
+};
+
+watch(() => tripSelections.value.Budget.Transportation, (val) => { updateBudgetProportions("Transportation", val); });
+watch(() => tripSelections.value.Budget.Hotel, (val) => { updateBudgetProportions("Hotel", val); });
+watch(() => tripSelections.value.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
+watch(() => tripSelections.value.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
+
+const budgetTotal = computed(() => {
+  const b = tripSelections.value.Budget;
+  return b.Transportation + b.Hotel + b.Tickets + b.Activities;
+});
+
+// 生成标准英文 Prompt，仅包含用户选择的内容
+const tripPrompt = computed(() => {
+  let parts: string[] = [];
+  if (tripSelections.value.DateFrom || tripSelections.value.DateTo) {
+    const from = tripSelections.value.DateFrom || "a certain date";
+    const to = tripSelections.value.DateTo || "a certain destination";
+    parts.push(`I plan to travel from ${from} to ${to}.`);
+  }
+  if (tripSelections.value.Transportation.length) {
+    const trans = tripSelections.value.Transportation.join(", ");
+    const tClass = tripSelections.value.TransportationClass ? ` (${tripSelections.value.TransportationClass})` : "";
+    parts.push(`My chosen transportation is ${trans}${tClass}.`);
+  }
+  if (tripSelections.value.Hotel.length) {
+    parts.push(`I prefer to stay at ${tripSelections.value.Hotel.join(", ")}.`);
+  }
+  if (tripSelections.value.Budget.Currency || tripSelections.value.Budget.Total) {
+    const currency = tripSelections.value.Budget.Currency || "";
+    const total = tripSelections.value.Budget.Total || "";
+    parts.push(`My total budget is ${currency} ${total} with proportions: Transportation ${tripSelections.value.Budget.Transportation}%, Hotel ${tripSelections.value.Budget.Hotel}%, Tickets ${tripSelections.value.Budget.Tickets}%, Activities ${tripSelections.value.Budget.Activities}%.`);
+  }
+  if (tripSelections.value.Tickets.length) {
+    parts.push(`I plan to purchase ${tripSelections.value.Tickets.join(", ")}.`);
+  }
+  if (tripSelections.value.Activities.length) {
+    parts.push(`I intend to participate in ${tripSelections.value.Activities.join(", ")}.`);
+  }
+  return parts.join(" ");
+});
+const insertTripPrompt = () => {
+  if (tripPrompt.value) {
+    userChatInput.value = tripPrompt.value;
+  }
+};
+
+/* ===============================
+   Map 模块数据
+============================== */
+const selectedMapType = ref('World Map');
+const userLocation = ref('Current Location');
+const selectedDestination = ref('Destination');
+
+/* ===============================
+   History 面板控制
+============================== */
+const historyVisible = ref(false);
+const toggleHistory = () => {
+  historyVisible.value = !historyVisible.value;
+};
+</script>
+
 <style scoped>
-.generator-container {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  max-width: 1400px;
-  margin: 2rem auto;
-  padding: 2rem;
-}
-
-.editor-section {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  border-radius: 15px;
-}
-
-.dialogue-box {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background: #1a1a2e;
-  border-radius: 10px;
-  white-space: pre-wrap;
-}
-
-.tools-section {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 2rem;
-  border-radius: 15px;
-}
-
-.map-container {
-  margin-top: 2rem;
-}
-
-.mock-map {
-  height: 400px;
-  background: #16213e;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  margin-top: 1rem;
-}
-
-.el-checkbox-group, .el-radio-group {
+/* -------------------------------
+   基础背景样式
+------------------------------- */
+.home {
+  background: linear-gradient(45deg, #3a7bd5, #00d2ff, #6a82fb);
+  background-size: 300% 300%;
+  animation: gradient-animation 5s ease infinite;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  padding-top: 20px;
+  width: 100%;
+}
+@keyframes gradient-animation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.ipologo-intro p,
+h1,
+h3 {
+  max-width: 90%;
+  margin: 0 auto;
+  text-align: center;
+}
+/* Header 样式 */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 1rem;
+}
+.left-nav,
+.right-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+.nav-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+.el-button {
+  font-size: 1rem;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.el-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+.nav-buttons {
+  display: flex;
+  justify-content: center;
   gap: 1rem;
+  margin-bottom: 20px;
+}
+/* -------------------------------
+   Content Wrapper：包含 History 抽屉、Center 和 Right 区域
+------------------------------- */
+.content-wrapper {
+  display: flex;
+  width: 100%;
+}
+/* History 抽屉 */
+.history-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+.slide-left-enter-active, .slide-left-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-left-enter-from, .slide-left-leave-to {
+  transform: translateX(-100%);
+}
+/* Center Panel */
+.center-panel {
+  flex: 1;
+  margin-left: 320px; /* 留出 History 抽屉宽度 */
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  justify-content: space-between;
+}
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.05);
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.chat-message {
+  padding: 8px;
+  border-radius: 8px;
+  max-width: 70%;
+}
+.chat-message.user {
+  background: rgba(0,210,255,0.2);
+  align-self: flex-end;
+  text-align: right;
+}
+.chat-message.agent {
+  background: rgba(255,255,255,0.2);
+  align-self: flex-start;
+  text-align: left;
+}
+.chat-input {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+/* Right Panel */
+.right-panel {
+  width: 30%;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  height: 80vh;
+}
+.options-panel {
+  background: rgba(255,255,255,0.1);
+  padding: 10px;
+  border-radius: 8px;
+  overflow-y: auto;
+  flex: 1;
+  text-align: left;
+}
+.trip-option {
+  margin-bottom: 10px;
+}
+.trip-option label {
+  display: inline-block;
+  width: 120px;
+  font-weight: bold;
+}
+.date-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.date-separator {
+  font-weight: bold;
+}
+.trans-container {
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+.budget-container {
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 8px;
+}
+.budget-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.budget-row label {
+  width: 130px;
+  font-weight: normal;
+}
+.budget-totals {
+  font-size: 12px;
+  color: #0ff;
+}
+.trip-prompt {
+  margin-top: 10px;
+  word-break: break-all;
+}
+/* 自定义未来感下拉菜单 */
+.futuristic-select .el-input__inner {
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  color: #0ff;
+  font-weight: bold;
+  border-radius: 4px;
+}
+/* Map Panel */
+.map-panel {
+  background: rgba(255,255,255,0.1);
+  padding: 10px;
+  border-radius: 8px;
+  overflow-y: auto;
+  max-height: 40vh;
+  text-align: left;
+}
+.map-controls {
+  margin-bottom: 10px;
+}
+.map-display {
+  background: rgba(0,0,0,0.1);
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+}
+.history-item {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-bottom: 1px dashed rgba(255,255,255,0.3);
+}
+.history-item:hover {
+  background: rgba(255,255,255,0.2);
+}
+.header-title {
+  text-align: center;
+  width: 100%;
 }
 </style>

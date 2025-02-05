@@ -230,6 +230,7 @@ onMounted(() => {
             @keydown.enter="handleEnter"
           />
         </div>
+        <router-link :to="{ name: 'generator' }"><el-button class="nav-button">Start Now</el-button></router-link>
       </div>
     </main>
 
