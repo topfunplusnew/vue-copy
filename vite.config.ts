@@ -19,15 +19,15 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()],
     }),
   ],
-  css: {
-    preprocessorOptions: {
-      sass: {
-        additionalData: `
-          @import "@/styles/main.scss";
-        `,
-      },
-    },
-  },
+  // css: {
+  //   preprocessorOptions: {
+  //     sass: {
+  //       additionalData: `
+  //         @import "@/styles/main.scss";
+  //       `,
+  //     },
+  //   },
+  // },
   server: {
     host: '0.0.0.0',
     port: 9021,

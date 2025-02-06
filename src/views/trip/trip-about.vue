@@ -3,18 +3,36 @@ import { ref } from 'vue';
 
 // FAQ 数据
 const faqs = ref([
-  { question: 'How to design your personal itinerary?',
-  answer: 'You can design your personal itinerary by using iPoloGO’s AI-powered interface. Simply input your preferences, destinations, and interests, and the platform will help you create a personalized travel plan.' },
-  { question: 'How to connect your Web3 wallet?', answer: 'To connect your Web3 wallet, click on the "Connect Wallet" button on the platform. Select your wallet provider, follow the prompts, and your wallet will be securely connected to iPoloGO.' },
-  { question: 'How to share my itinerary in iPoloGO?', answer: 'To share your itinerary in iPoloGO, go to the "Share" section within your plan and choose how you would like to share your trip (via social media or directly with other users).' },
-  { question: 'How can I benefit from sharing my itinerary?', answer: 'By sharing your itinerary, you can earn iPoloCoins based on the number of people who view or interact with your plan. You can also gain access to exclusive rewards and features by sharing travel tips and experiences.' },
-  { question: 'How is the weight of obtaining iPoloCoin calculated?', answer: 'The weight for obtaining iPoloCoin is calculated based on several factors, including the popularity of your shared itinerary, the level of interaction it receives, and the value of the knowledge shared with other users.' }
+  {
+    question: 'How to design your personal itinerary?',
+    answer:
+      'You can design your personal itinerary by using iPoloGO’s AI-powered interface. Simply input your preferences, destinations, and interests, and the platform will help you create a personalized travel plan.',
+  },
+  {
+    question: 'How to connect your Web3 wallet?',
+    answer:
+      'To connect your Web3 wallet, click on the "Connect Wallet" button on the platform. Select your wallet provider, follow the prompts, and your wallet will be securely connected to iPoloGO.',
+  },
+  {
+    question: 'How to share my itinerary in iPoloGO?',
+    answer: 'To share your itinerary in iPoloGO, go to the "Share" section within your plan and choose how you would like to share your trip (via social media or directly with other users).',
+  },
+  {
+    question: 'How can I benefit from sharing my itinerary?',
+    answer:
+      'By sharing your itinerary, you can earn iPoloCoins based on the number of people who view or interact with your plan. You can also gain access to exclusive rewards and features by sharing travel tips and experiences.',
+  },
+  {
+    question: 'How is the weight of obtaining iPoloCoin calculated?',
+    answer:
+      'The weight for obtaining iPoloCoin is calculated based on several factors, including the popularity of your shared itinerary, the level of interaction it receives, and the value of the knowledge shared with other users.',
+  },
 ]);
 </script>
 
 <template>
   <div class="about-us">
-      <header class="header">
+    <header class="header">
       <div class="nav-buttons">
         <div class="left-nav">
           <router-link :to="{ name: 'home' }"><el-button class="nav-button">HOME</el-button></router-link>
@@ -34,7 +52,9 @@ const faqs = ref([
     <div class="ipologo-intro">
       <h2>Welcome to iPoloGO</h2>
       <p>
-        iPoloGO is an innovative travel assistant powered by artificial intelligence, designed to help you plan, book, and manage your travel experiences effortlessly. From booking your flights and hotels to guiding you through the entire journey, iPoloGO ensures that your travel experience is seamless and enjoyable. Our intelligent AI agent, Adeva, personalizes your trip, offers suggestions, and helps with loyalty memberships to make your travel experience unforgettable.
+        iPoloGO is an innovative travel assistant powered by artificial intelligence, designed to help you plan, book, and manage your travel experiences effortlessly. From booking your flights and
+        hotels to guiding you through the entire journey, iPoloGO ensures that your travel experience is seamless and enjoyable. Our intelligent AI agent, Adeva, personalizes your trip, offers
+        suggestions, and helps with loyalty memberships to make your travel experience unforgettable.
       </p>
     </div>
 
@@ -59,11 +79,11 @@ const faqs = ref([
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  text-align: center;  /* 设置两端对齐 */
+  text-align: center; /* 设置两端对齐 */
   color: #fff;
   font-family: 'Roboto', sans-serif;
   padding-top: 20px;
-  width: 100%;  /* 使容器宽度为 100% */
+  width: 100%; /* 使容器宽度为 100% */
 }
 
 .ipologo-intro p,
@@ -72,20 +92,6 @@ h3 {
   max-width: 90%; /* 限制文本最大宽度，确保文本不会过宽 */
   margin-left: auto;
   margin-right: auto;
-}
-
-
-/* 动态背景动画 */
-@keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
 }
 
 /* 中心对齐按钮 */
@@ -109,7 +115,8 @@ h3 {
   padding: 1rem;
 }
 
-.left-nav, .right-nav {
+.left-nav,
+.right-nav {
   display: flex;
   gap: 1.5rem;
   align-items: center;
@@ -127,7 +134,9 @@ h3 {
   background-color: rgba(255, 255, 255, 0.15);
   border: none;
   color: #fff;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .el-button:hover {
@@ -143,7 +152,8 @@ h3 {
 }
 
 /* 设置标题样式 */
-h1, h3 {
+h1,
+h3 {
   font-size: 2.5rem;
   margin-top: 20px;
 }
@@ -154,7 +164,6 @@ p {
   line-height: 1.6;
 }
 
-
 /* 添加 iPoloGO 介绍部分样式 */
 .ipologo-intro {
   margin-bottom: 20px;
@@ -164,7 +173,7 @@ p {
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
   width: 80%;
   max-width: 900px;
-  text-align:justify; /* 使文本左对齐 */
+  text-align: justify; /* 使文本左对齐 */
 }
 
 .ipologo-intro h2 {
@@ -190,7 +199,6 @@ p {
   max-width: 100% !important;
   min-width: 100% !important;
 }
-
 
 /* 纯净模式折叠面板 */
 :deep(.clean-collapse) {
@@ -227,7 +235,7 @@ p {
   font-size: 1rem;
   border: transparent;
   transition: all 0.9s ease;
-  text-align:justify;
+  text-align: justify;
 }
 :deep(.el-collapse-item__content) {
   background: transparent !important;
@@ -240,8 +248,6 @@ p {
   box-shadow: none !important;
   border: none !important;
 }
-
-
 
 /* 修复箭头图标颜色 */
 :deep(.el-collapse-item__arrow) {
@@ -268,5 +274,4 @@ p {
   transform: translateX(5px);
   background: rgba(255, 255, 255, 0.15) !important;
 }
-
 </style>
