@@ -1,5 +1,5 @@
 // /src/components/geolocationService.js
-export async function getReverseGeocoding(lat, lon) {
+export async function getReverseGeocoding(lat: number, lon: number) {
   // 使用 OpenStreetMap Nominatim API 进行反向地理编码
   const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=en`;
   const response = await fetch(url);
@@ -15,9 +15,7 @@ export async function getReverseGeocoding(lat, lon) {
   if (country) {
     try {
       // 通过 Rest Countries API 获取国家国旗
-      const flagResponse = await fetch(
-        `https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`
-      );
+      const flagResponse = await fetch(`https://restcountries.com/v3.1/name/${encodeURIComponent(country)}?fullText=true`);
       if (flagResponse.ok) {
         const countryData = await flagResponse.json();
         flagUrl = countryData[0]?.flags?.svg || countryData[0]?.flags?.png || '';

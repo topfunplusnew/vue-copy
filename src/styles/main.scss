@@ -1,30 +1,30 @@
 @charset "UTF-8";
 
 // 基础配置优化
-@import 'variables';  // 确保变量文件最先导入
-@import 'mixins';     // 混合宏
-@import 'utils';      // 工具类
+@import 'variables'; // 确保变量文件最先导入
+@import 'mixins'; // 混合宏
+@import 'utils'; // 工具类
 
 // 标准化增强
 html {
   box-sizing: border-box;
-  line-height: 1.5;     // 推荐使用无单位值
+  line-height: 1.5; // 推荐使用无单位值
   font-family: $font-family-default;
   padding: 0;
   margin: 0;
-  font-size: 62.5%;     // 1rem = 10px (基于16px基准)
+  font-size: 62.5%; // 1rem = 10px (基于16px基准)
 
   // 响应式字体优化方案
   @include respond(mobile) {
-    font-size: 50%;     // 1rem = 8px (小屏适配)
+    font-size: 50%; // 1rem = 8px (小屏适配)
   }
-  
+
   @include respond(tablet) {
-    font-size: 56.25%;  // 1rem = 9px
+    font-size: 56.25%; // 1rem = 9px
   }
-  
+
   @include respond(desktop) {
-    font-size: 62.5%;   // 1rem = 10px
+    font-size: 62.5%; // 1rem = 10px
   }
 
   // 统一body字体设置
@@ -60,7 +60,7 @@ a {
 
 // 增强文本截断
 .text-ellipsis {
-  display: inline-block;  // 关键补充属性
+  display: inline-block; // 关键补充属性
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
@@ -76,5 +76,5 @@ a {
 }
 
 // 模块导入
-@import 'layouts/home';    // 推荐使用分层结构
+@import 'layouts/home'; // 推荐使用分层结构
 @import 'components/card'; // 组件级样式分离
