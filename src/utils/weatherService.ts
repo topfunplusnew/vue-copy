@@ -1,7 +1,7 @@
 // /src/components/weatherService.js
 const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'; // 请替换成你的 API key
 
-export async function getWeatherData(city) {
+export async function getWeatherData(city: string) {
   const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=zh_cn`;
   const response = await fetch(url);
   if (!response.ok) {

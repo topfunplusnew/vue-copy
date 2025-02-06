@@ -1,40 +1,43 @@
 <template>
   <div class="wallet-item">
-    <button @click="connectWallet">CONNECT WALLET</button>
+    <div v-if="status == WALLET_STATUS.CONNECTED" class="wallet-item-address" v-text="address"></div>
+    <div v-else-if="status == WALLET_STATUS.NO_PROVIDER" class="wallet-item-address"><a href="https://metamask.io/download/">install MetaMask</a></div>
+    <button v-else @click="onConnect">CONNECT WALLET</button>
   </div>
 </template>
 
-<script lang="ts">
-import { ref } from 'vue';
-import Web3 from 'web3';
+<script lang="ts" setup>
+import { onMounted, computed } from 'vue';
+import { useWalletStore, WALLET_STATUS } from '@/stores/wallet';
 
-export default {
-  name: 'WalletItem',
-  setup() {
-    const web3 = ref<Web3 | null>(null);
+const store = useWalletStore();
 
-    const connectWallet = async () => {
-      if (window.ethereum) {
-        try {
-          await window.ethereum.request({ method: 'eth_requestAccounts' });
-          web3.value = new Web3(window.ethereum);
-          console.log('Wallet connected');
-        } catch (error) {
-          console.error('User denied account access');
-        }
-      } else {
-        console.error('No Ethereum provider found');
-      }
-    };
+const status = computed(() => store.status);
+const address = computed(() => store.address);
 
-    return {
-      connectWallet,
-    };
-  },
-};
+const WALLET_EVENT = {
+  CONNECTED: 'connected',
+  USER_DENIED: 'user_denied',
+  NO_PROVIDER: 'no_provider',
+} as const;
+
+const emit = defineEmits<{
+  (e: 'connected', address: string): void;
+  (e: 'user_denied'): void;
+  (e: 'no_provider'): void;
+}>();
+
+function onConnect() {
+  store.connect();
+  emit(WALLET_EVENT.CONNECTED, address.value);
+}
+
+onMounted(() => {
+  store.init();
+});
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .wallet-item {
   button {
     background-color: rgba(255, 255, 255, 0.4);
@@ -50,6 +53,9 @@ export default {
     &:hover {
       background-color: #e6b800;
     }
+  }
+  &-address {
+    display: inline-block;
   }
 }
 </style>

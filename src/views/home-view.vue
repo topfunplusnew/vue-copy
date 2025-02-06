@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
-import { destinations } from '/src/assets/destinations.js'; // 确保路径正确
-import { getReverseGeocoding } from '/src/components/geolocationService.js'; // 导入地理位置服务
-import { getWeatherData } from '/src/components/weatherService.js'; // 导入天气服务
+import { destinations } from '@/assets/destinations'; // 确保路径正确
+import { getReverseGeocoding } from '@/utils/geolocationService'; // 导入地理位置服务
+import { getWeatherData } from '@/utils/weatherService'; // 导入天气服务
+import router from '@/router';
 
 const selectedLocation = ref('');
 const selectedDestination = ref('');
@@ -13,7 +14,8 @@ const userFlag = ref('');
 const msg = 'Welcome to iPoloGO!';
 const isLoading = ref(false);
 const errorMessage = ref('');
-const searchQuery = ref('');
+// const searchQuery = ref('');
+const generatedPrompt = ref();
 
 const preferenceOptions = ref([
   { name: 'Sightseeing', icon: '🌆' },
@@ -21,7 +23,7 @@ const preferenceOptions = ref([
   { name: 'Business', icon: '💼' },
   { name: 'Medical', icon: '🏥' },
   { name: 'Gastronomy', icon: '🍴' },
-  { name: 'Culture', icon: '🎭' }
+  { name: 'Culture', icon: '🎭' },
 ]);
 
 const selectedOptions = ref<string[]>([]);
@@ -36,14 +38,11 @@ const handleLocationClick = async () => {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         enableHighAccuracy: true,
-        timeout: 5000
+        timeout: 5000,
       });
     });
 
-    const { city, country, flagUrl } = await getReverseGeocoding(
-      position.coords.latitude,
-      position.coords.longitude
-    );
+    const { city, country, flagUrl } = await getReverseGeocoding(position.coords.latitude, position.coords.longitude);
 
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
@@ -52,7 +51,6 @@ const handleLocationClick = async () => {
     // 获取天气
     const weatherData = await getWeatherData(city);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
   } finally {
@@ -67,6 +65,7 @@ const handleDestinationSelect = async (value: string) => {
     const weatherData = await getWeatherData(value);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
   } catch (error) {
+    console.log(error);
     weather.value = '天气数据不可用';
   }
 };
@@ -84,18 +83,16 @@ const generatePrompt = () => {
 };
 
 // 处理回车事件：阻止换行，生成 prompt 并跳转到对话界面
-const handleEnter = (event: KeyboardEvent) => {
-  // 阻止 textarea 插入换行
-  event.preventDefault();
-  const prompt = generatePrompt();
-  // 跳转到对话界面（假设路由名称为 'conversation'，并通过 query 参数传递 prompt）
-  router.push({ name: 'conversation', query: { prompt } });
+const handleEnter = (event: Event | KeyboardEvent) => {
+  if (event instanceof KeyboardEvent) {
+    event.preventDefault();
+    const prompt = generatePrompt();
+    router.push({ name: 'conversation', query: { prompt } });
+  }
 };
 
 onMounted(() => {
   handleLocationClick();
-
-
 });
 </script>
 
@@ -130,12 +127,7 @@ onMounted(() => {
               <div class="current-location">
                 <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
                 <el-select v-model="selectedLocation" class="location-select">
-                  <el-option
-                    v-for="(loc, index) in destinations"
-                    :key="index"
-                    :label="loc.label"
-                    :value="loc.value"
-                  />
+                  <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
                 </el-select>
               </div>
               <p class="coordinates">{{ userLocation }}</p>
@@ -145,7 +137,7 @@ onMounted(() => {
           <!-- 改进的飞机图标 -->
           <div class="flight-animation">
             <svg class="airplane" viewBox="0 0 24 24">
-              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
             </svg>
           </div>
 
@@ -153,19 +145,8 @@ onMounted(() => {
           <div class="destination-card">
             <h2>Destination</h2>
             <div class="destination-content">
-              <el-select
-                v-model="selectedDestination"
-                placeholder="Select destination"
-                class="destination-select"
-                filterable
-                @change="handleDestinationSelect"
-              >
-                <el-option
-                  v-for="(destination, index) in destinations"
-                  :key="index"
-                  :label="destination.label"
-                  :value="destination.value"
-                />
+              <el-select v-model="selectedDestination" placeholder="Select destination" class="destination-select" filterable @change="handleDestinationSelect">
+                <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
               </el-select>
               <div v-if="weather" class="weather-info">
                 <i class="weather-icon"></i>
@@ -180,14 +161,8 @@ onMounted(() => {
           <h2>Design Your Own Itinerary Agent</h2>
           <div class="visualization-panel">
             <div v-if="selectedOptions.length > 0" class="tags-container">
-              <el-tag
-                v-for="(option, index) in selectedOptions"
-                :key="index"
-                class="preference-tag"
-                closable
-                @close="selectedOptions.splice(index, 1)"
-              >
-                {{ preferenceOptions.find(o => o.name === option)?.icon }}
+              <el-tag v-for="(option, index) in selectedOptions" :key="index" class="preference-tag" closable @close="selectedOptions.splice(index, 1)">
+                {{ preferenceOptions.find((o) => o.name === option)?.icon }}
                 {{ option }}
               </el-tag>
             </div>
@@ -196,19 +171,8 @@ onMounted(() => {
             </div>
           </div>
 
-          <el-select
-            v-model="selectedOptions"
-            multiple
-            filterable
-            placeholder="🗺️ Select preferences to start planning"
-            class="preference-select"
-          >
-            <el-option
-              v-for="option in preferenceOptions"
-              :key="option.name"
-              :label="option.name"
-              :value="option.name"
-            >
+          <el-select v-model="selectedOptions" multiple filterable placeholder="🗺️ Select preferences to start planning" class="preference-select">
+            <el-option v-for="option in preferenceOptions" :key="option.name" :label="option.name" :value="option.name">
               <span class="option-content">
                 <span class="option-icon">{{ option.icon }}</span>
                 {{ option.name }}
@@ -216,25 +180,15 @@ onMounted(() => {
             </el-option>
           </el-select>
 
-    <div class="prompt-preview" v-if="selectedOptions.length > 0 || userInput">
-      <pre>{{ generatedPrompt }}</pre>
-    </div>
+          <div class="prompt-preview" v-if="selectedOptions.length > 0 || userInput">
+            <pre>{{ generatedPrompt }}</pre>
+          </div>
 
-
-          <el-input
-            v-model="userInput"
-            placeholder="Enter your travel requirements..."
-            class="requirements-input"
-            type="textarea"
-            :rows="6"
-            @keydown.enter="handleEnter"
-          />
+          <el-input v-model="userInput" placeholder="Enter your travel requirements..." class="requirements-input" type="textarea" :rows="6" @keydown.enter="handleEnter" />
         </div>
         <router-link :to="{ name: 'generator' }"><el-button class="nav-button">Start Now</el-button></router-link>
       </div>
     </main>
-
-
   </div>
 </template>
 
@@ -248,11 +202,11 @@ onMounted(() => {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  text-align: center;  /* 设置两端对齐 */
+  text-align: center; /* 设置两端对齐 */
   color: #fff;
   font-family: 'Roboto', sans-serif;
   padding-top: 20px;
-  width: 100%;  /* 使容器宽度为 100% */
+  width: 100%; /* 使容器宽度为 100% */
 }
 
 .ipologo-intro p,
@@ -287,7 +241,8 @@ h3 {
   padding: 1rem;
 }
 
-.left-nav, .right-nav {
+.left-nav,
+.right-nav {
   display: flex;
   gap: 1.5rem;
   align-items: center;
@@ -305,7 +260,9 @@ h3 {
   background-color: rgba(255, 255, 255, 0.15);
   border: none;
   color: #fff;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .el-button:hover {
@@ -334,7 +291,8 @@ h3 {
   gap: 3rem;
 }
 
-.location-card, .destination-card {
+.location-card,
+.destination-card {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
   border-radius: 9px;
@@ -358,8 +316,13 @@ h3 {
 }
 
 @keyframes fly {
-  0%, 100% { transform: translateX(0) rotate(0); }
-  50% { transform: translateX(20px) rotate(10deg); }
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  50% {
+    transform: translateX(20px) rotate(10deg);
+  }
 }
 
 /* 定位选择样式 */
@@ -381,7 +344,8 @@ h3 {
   border-radius: 4px;
 }
 
-.location-select, .destination-select {
+.location-select,
+.destination-select {
   width: 100%;
 }
 
@@ -431,7 +395,9 @@ h3 {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
@@ -512,5 +478,4 @@ h3 {
   border-color: rgba(0, 210, 255, 0.5);
   box-shadow: 0 0 8px rgba(0, 210, 255, 0.2);
 }
-
 </style>
