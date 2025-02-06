@@ -221,7 +221,6 @@ import { ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
 
-
 /* ===============================
    Chat 与 History 数据
 ============================== */
