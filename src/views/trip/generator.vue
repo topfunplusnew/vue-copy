@@ -217,10 +217,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted} from 'vue';
+import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
 
+const route = useRoute();
+const prompt = ref('');
+
+onMounted(() => {
+  prompt.value = (route.quey.prompt as string) || '';
+});
 /* ===============================
    Chat 与 History 数据
 ============================== */
@@ -389,13 +396,3 @@ const toggleHistory = () => {
   historyVisible.value = !historyVisible.value;
 };
 </script>
-
-<!-- <style scoped>
-
-
-
-/* -------------------------------
-   Content Wrapper：包含 History 抽屉、Center 和 Right 区域
-------------------------------- */
-
-</style> -->
