@@ -31,7 +31,7 @@ const faqs = ref([
 </script>
 
 <template>
-  <div class="about-us">
+  <div class="home">
     <header class="header">
       <div class="nav-buttons">
         <div class="left-nav">
@@ -69,100 +69,7 @@ const faqs = ref([
 </template>
 
 <style scoped>
-/* 设置动态背景 */
-.about-us {
-  background: linear-gradient(45deg, #3a7bd5, #00d2ff, #6a82fb);
-  background-size: 300% 300%;
-  animation: gradient-animation 5s ease infinite;
-  min-height: 100vh; /* Full viewport height */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  text-align: center; /* 设置两端对齐 */
-  color: #fff;
-  font-family: 'Roboto', sans-serif;
-  padding-top: 20px;
-  width: 100%; /* 使容器宽度为 100% */
-}
 
-.ipologo-intro p,
-h1,
-h3 {
-  max-width: 90%; /* 限制文本最大宽度，确保文本不会过宽 */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* 中心对齐按钮 */
-.button-container {
-  display: flex;
-  justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
-  gap: 2rem; /* 按钮之间的间距 */
-  margin-bottom: 30px; /* 按钮区与标题之间的间距 */
-}
-
-/* 按钮自定义样式 */
-/* 统一Header样式 */
-.nav-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.left-nav,
-.right-nav {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-.nav-button {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-}
-
-.el-button {
-  font-size: 1rem;
-  padding: 10px 20px;
-  background-color: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: #fff;
-  transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
-}
-
-.el-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-}
-
-.nav-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 20px;
-}
-
-/* 设置标题样式 */
-h1,
-h3 {
-  font-size: 2.5rem;
-  margin-top: 20px;
-}
-
-p {
-  font-size: 1rem;
-  color: #ddd;
-  line-height: 1.6;
-}
 
 /* 添加 iPoloGO 介绍部分样式 */
 .ipologo-intro {
