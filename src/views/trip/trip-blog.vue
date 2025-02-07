@@ -56,10 +56,7 @@ const posts = ref(blogPosts)
         </div>
       </div>
     </div>
-
-
   </div>
-
 </template>
 
 

@@ -6,7 +6,7 @@ const faqs = ref([
   {
     question: 'How to design your personal itinerary?',
     answer:
-      'You can design your personal itinerary by using iPoloGO’s AI-powered interface. Simply input your preferences, destinations, and interests, and the platform will help you create a personalized travel plan.',
+      'You can design your personal itinerary by using iPoloGO. Simply input your preferences, destinations, and interests, and the platform will help you create a personalized travel plan.',
   },
   {
     question: 'How to connect your Web3 wallet?',
@@ -70,7 +70,6 @@ const faqs = ref([
 
 <style scoped>
 
-
 /* 添加 iPoloGO 介绍部分样式 */
 .ipologo-intro {
   margin-bottom: 20px;
@@ -89,7 +88,7 @@ const faqs = ref([
 }
 
 .ipologo-intro p {
-  font-size: 1.2rem;
+  font-size: 1.8rem;
   color: #ddd;
   line-height: 1.6;
 }
@@ -126,7 +125,7 @@ const faqs = ref([
   border-radius: 8px !important;
   color: #fff !important;
   padding: 16px 24px !important;
-  font-size: 1.1rem;
+  font-size: 2.2rem;
   border: 1px solid transparent;
   transition: all 0.3s ease;
 }
@@ -139,7 +138,7 @@ const faqs = ref([
   border-radius: 8px !important;
   color: #fff !important;
   padding: 16px 24px !important;
-  font-size: 1rem;
+  font-size: 2.2rem;
   border: transparent;
   transition: all 0.9s ease;
   text-align: justify;
