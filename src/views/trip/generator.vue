@@ -217,17 +217,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted} from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
 
-const route = useRoute();
-const prompt = ref('');
-
-onMounted(() => {
-  prompt.value = (route.quey.prompt as string) || '';
-});
 /* ===============================
    Chat 与 History 数据
 ============================== */
