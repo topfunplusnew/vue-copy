@@ -53,12 +53,24 @@
       <div class="center-panel">
         <h3>Chat with iPoloGO</h3>
         <div class="chat-box">
-          <div v-for="(msg, index) in chatMessages" :key="index" class="chat-message" :class="msg.sender" contenteditable="true" @blur="updateMessage(index, $event)">
+          <div
+            v-for="(msg, index) in chatMessages"
+            :key="index"
+            class="chat-message"
+            :class="msg.sender"
+            contenteditable="true"
+            @blur="updateMessage(index, $event)"
+          >
             {{ msg.text }}
           </div>
         </div>
         <div class="chat-input">
-          <el-input v-model="userChatInput" placeholder="Type your message..." clearable @keydown.native.enter="sendMessage" />
+          <el-input
+            v-model="userChatInput"
+            placeholder="Type your message..."
+            clearable
+            @keydown.native.enter="sendMessage"
+          />
           <el-button type="warning" @click="finishConversation">Finish Conversation</el-button>
         </div>
       </div>
@@ -77,15 +89,27 @@
             </div>
           </div>
 
-          <!-- Transportation 模块（整合在同一框内） -->
+          <!-- Transportation 模块 -->
           <div class="trip-option">
             <label>
               <i class="el-icon-airplane" style="margin-right:5px"></i>
               Transportation:
             </label>
             <div class="trans-container">
-              <el-select v-model="tripSelections.Transportation" multiple placeholder="Select transportation" filterable allow-create class="futuristic-select">
-                <el-option v-for="item in tripOptionsData.Transportation" :key="item.name" :label="item.name" :value="item.name">
+              <el-select
+                v-model="tripSelections.Transportation"
+                multiple
+                placeholder="Select transportation"
+                filterable
+                allow-create
+                class="futuristic-select"
+              >
+                <el-option
+                  v-for="item in tripOptionsData.Transportation"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name"
+                >
                   <template #default>
                     <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
                   </template>
@@ -94,8 +118,18 @@
               <!-- 仅当单一交通工具选中时显示 Travel Class -->
               <div v-if="tripSelections.Transportation.length === 1" class="transport-class">
                 <label>Class:</label>
-                <el-select v-model="tripSelections.TransportationClass" placeholder="Select travel class" filterable class="futuristic-select">
-                  <el-option v-for="option in availableTransportationClasses" :key="option" :label="option" :value="option" />
+                <el-select
+                  v-model="tripSelections.TransportationClass"
+                  placeholder="Select travel class"
+                  filterable
+                  class="futuristic-select"
+                >
+                  <el-option
+                    v-for="option in availableTransportationClasses"
+                    :key="option"
+                    :label="option"
+                    :value="option"
+                  />
                 </el-select>
               </div>
             </div>
@@ -107,9 +141,25 @@
               <i class="el-icon-star-on" style="margin-right:5px"></i>
               Hotel:
             </label>
-            <el-select v-model="tripSelections.Hotel" multiple placeholder="Select hotel options" filterable allow-create class="futuristic-select">
-              <el-option-group v-for="group in groupedHotels" :key="group.label" :label="group.label">
-                <el-option v-for="item in group.options" :key="item.name" :label="item.name" :value="item.name">
+            <el-select
+              v-model="tripSelections.Hotel"
+              multiple
+              placeholder="Select hotel options"
+              filterable
+              allow-create
+              class="futuristic-select"
+            >
+              <el-option-group
+                v-for="group in groupedHotels"
+                :key="group.label"
+                :label="group.label"
+              >
+                <el-option
+                  v-for="item in group.options"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name"
+                >
                   <template #default>
                     <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
                   </template>
@@ -125,12 +175,27 @@
               Budget:
             </label>
             <div class="budget-container">
-              <!-- 第一行：货币与总预算 -->
+              <!-- 货币与总预算 -->
               <div class="budget-row">
-                <el-select v-model="tripSelections.Budget.Currency" placeholder="Select currency" style="width:150px" filterable class="futuristic-select">
-                  <el-option v-for="currency in allCurrencies" :key="currency.name" :label="currency.flag + ' ' + currency.name" :value="currency.name" />
+                <el-select
+                  v-model="tripSelections.Budget.Currency"
+                  placeholder="Select currency"
+                  style="width:150px"
+                  filterable
+                  class="futuristic-select"
+                >
+                  <el-option
+                    v-for="currency in allCurrencies"
+                    :key="currency.name"
+                    :label="currency.flag + ' ' + currency.name"
+                    :value="currency.name"
+                  />
                 </el-select>
-                <el-input v-model="tripSelections.Budget.Total" placeholder="Enter total amount" style="width:150px; margin-left:10px;" />
+                <el-input
+                  v-model="tripSelections.Budget.Total"
+                  placeholder="Enter total amount"
+                  style="width:150px; margin-left:10px;"
+                />
               </div>
               <!-- 预算比例拖动条 -->
               <div class="budget-row">
@@ -138,19 +203,43 @@
               </div>
               <div class="budget-row slider-row">
                 <span>Transportation:</span>
-                <el-slider v-model="tripSelections.Budget.Transportation" :min="0" :max="100" show-input @change="updateBudgetProportions('Transportation', $event)" />
+                <el-slider
+                  v-model="tripSelections.Budget.Transportation"
+                  :min="0"
+                  :max="100"
+                  show-input
+                  @change="updateBudgetProportions('Transportation', $event)"
+                />
               </div>
               <div class="budget-row slider-row">
                 <span>Hotel:</span>
-                <el-slider v-model="tripSelections.Budget.Hotel" :min="0" :max="100" show-input @change="updateBudgetProportions('Hotel', $event)" />
+                <el-slider
+                  v-model="tripSelections.Budget.Hotel"
+                  :min="0"
+                  :max="100"
+                  show-input
+                  @change="updateBudgetProportions('Hotel', $event)"
+                />
               </div>
               <div class="budget-row slider-row">
                 <span>Tickets:</span>
-                <el-slider v-model="tripSelections.Budget.Tickets" :min="0" :max="100" show-input @change="updateBudgetProportions('Tickets', $event)" />
+                <el-slider
+                  v-model="tripSelections.Budget.Tickets"
+                  :min="0"
+                  :max="100"
+                  show-input
+                  @change="updateBudgetProportions('Tickets', $event)"
+                />
               </div>
               <div class="budget-row slider-row">
                 <span>Activities:</span>
-                <el-slider v-model="tripSelections.Budget.Activities" :min="0" :max="100" show-input @change="updateBudgetProportions('Activities', $event)" />
+                <el-slider
+                  v-model="tripSelections.Budget.Activities"
+                  :min="0"
+                  :max="100"
+                  show-input
+                  @change="updateBudgetProportions('Activities', $event)"
+                />
               </div>
               <p class="budget-totals">Total: {{ budgetTotal }}% (Must equal 100%)</p>
             </div>
@@ -162,8 +251,20 @@
               <i class="el-icon-tickets" style="margin-right:5px"></i>
               Tickets:
             </label>
-            <el-select v-model="tripSelections.Tickets" multiple placeholder="Select ticket options" filterable allow-create class="futuristic-select">
-              <el-option v-for="item in tripOptionsData.Tickets" :key="item.name" :label="item.name" :value="item.name">
+            <el-select
+              v-model="tripSelections.Tickets"
+              multiple
+              placeholder="Select ticket options"
+              filterable
+              allow-create
+              class="futuristic-select"
+            >
+              <el-option
+                v-for="item in tripOptionsData.Tickets"
+                :key="item.name"
+                :label="item.name"
+                :value="item.name"
+              >
                 <template #default>
                   <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
                 </template>
@@ -177,22 +278,31 @@
               <i class="el-icon-s-custom" style="margin-right:5px"></i>
               Activities:
             </label>
-            <el-select v-model="tripSelections.Activities" multiple placeholder="Select activities" filterable allow-create class="futuristic-select">
-              <el-option-group v-for="(group, groupName) in tripOptionsData.Activities" :key="groupName" :label="groupName">
-                <el-option v-for="item in group" :key="item.name" :label="item.name" :value="item.name">
+            <el-select
+              v-model="tripSelections.Activities"
+              multiple
+              placeholder="Select activities"
+              filterable
+              allow-create
+              class="futuristic-select"
+            >
+              <el-option-group
+                v-for="(group, groupName) in tripOptionsData.Activities"
+                :key="groupName"
+                :label="groupName"
+              >
+                <el-option
+                  v-for="item in group"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name"
+                >
                   <template #default>
                     <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
                   </template>
                 </el-option>
               </el-option-group>
             </el-select>
-          </div>
-
-          <!-- 自动生成的 Prompt -->
-          <div class="trip-prompt">
-            <p><strong>Constructed Prompt:</strong></p>
-            <p>{{ tripPrompt }}</p>
-            <el-button type="primary" @click="insertTripPrompt">Insert Prompt into Chat</el-button>
           </div>
         </div>
 
@@ -217,25 +327,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
+import { generateUserPrompt } from '@/stores/userprompt';
 
-/* ===============================
-   Chat 与 History 数据
-============================== */
 interface ChatMessage { sender: string; text: string; }
 interface HistoryRecord { summary: string; messages: ChatMessage[]; }
-const chatMessages = ref<ChatMessage[]>([
-  { sender: 'user', text: "Hi, I'm planning a trip." },
-  { sender: 'agent', text: "Hello! How can I help you today?" }
-]);
+
+const chatMessages = ref<ChatMessage[]>([]);
 const historyRecords = ref<HistoryRecord[]>([]);
 const userChatInput = ref('');
+
 const updateMessage = (index: number, event: Event) => {
   const target = event.target as HTMLElement;
   chatMessages.value[index].text = target.innerText;
 };
+
 const sendMessage = () => {
   if (!userChatInput.value.trim()) return;
   chatMessages.value.push({ sender: 'user', text: userChatInput.value });
@@ -243,6 +352,7 @@ const sendMessage = () => {
   chatMessages.value.push({ sender: 'agent', text: agentReply });
   userChatInput.value = '';
 };
+
 const finishConversation = () => {
   if (chatMessages.value.length === 0) {
     ElMessage.info("No conversation to finish.");
@@ -252,6 +362,7 @@ const finishConversation = () => {
   historyRecords.value.push({ summary, messages: [...chatMessages.value] });
   chatMessages.value = [];
 };
+
 const generateSummary = (messages: ChatMessage[]): string => {
   let summary = "General Conversation";
   if (messages.some(m => m.text.toLowerCase().includes("trip"))) {
@@ -259,6 +370,7 @@ const generateSummary = (messages: ChatMessage[]): string => {
   }
   return summary;
 };
+
 const loadHistory = (index: number) => {
   const record = historyRecords.value[index];
   if (record) {
@@ -266,14 +378,11 @@ const loadHistory = (index: number) => {
   }
 };
 
-/* ===============================
-   Trip Options 数据
-============================== */
 const tripSelections = ref({
   DateFrom: '',
   DateTo: '',
   Transportation: [] as string[],
-  TransportationClass: '', // 交通舱位
+  TransportationClass: '',
   Hotel: [] as string[],
   Tickets: [] as string[],
   Activities: [] as string[],
@@ -287,7 +396,6 @@ const tripSelections = ref({
   }
 });
 
-// Transportation：如果只选择了一项，则显示 Travel Class
 const availableTransportationClasses = computed(() => {
   if (tripSelections.value.Transportation.length === 1) {
     const t = tripSelections.value.Transportation[0];
@@ -304,7 +412,6 @@ const availableTransportationClasses = computed(() => {
   return [];
 });
 
-// Hotels 分组，根据 hotel 数据中的 group 属性
 const groupedHotels = computed(() => {
   const groups: { [key: string]: any[] } = {};
   tripOptionsData.Hotel.forEach(item => {
@@ -317,7 +424,6 @@ const groupedHotels = computed(() => {
   return Object.keys(groups).map(key => ({ label: key, options: groups[key] }));
 });
 
-// Budget 部分：确保四个比例之和为 100%
 const updateBudgetProportions = (changedKey: keyof typeof tripSelections.value.Budget, newValue: number) => {
   const keys: (keyof typeof tripSelections.value.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
   const otherKeys = keys.filter(k => k !== changedKey);
@@ -339,7 +445,7 @@ const budgetTotal = computed(() => {
   return b.Transportation + b.Hotel + b.Tickets + b.Activities;
 });
 
-// 生成标准英文 Prompt，仅包含用户选择的内容
+// 以下 tripPrompt 作为备用生成逻辑（homeview 已生成的 prompt 通过 query 传递时优先使用）
 const tripPrompt = computed(() => {
   let parts: string[] = [];
   if (tripSelections.value.DateFrom || tripSelections.value.DateTo) {
@@ -368,24 +474,36 @@ const tripPrompt = computed(() => {
   }
   return parts.join(" ");
 });
+
 const insertTripPrompt = () => {
   if (tripPrompt.value) {
     userChatInput.value = tripPrompt.value;
   }
 };
 
-/* ===============================
-   Map 模块数据
-============================== */
 const selectedMapType = ref('World Map');
 const userLocation = ref('Current Location');
 const selectedDestination = ref('Destination');
 
-/* ===============================
-   History 面板控制
-============================== */
 const historyVisible = ref(false);
 const toggleHistory = () => {
   historyVisible.value = !historyVisible.value;
 };
+
+const route = useRoute();
+// 页面加载时：如果路由 query 中传入了 prompt，则直接使用；否则调用 generateUserPrompt 生成默认文本
+onMounted(() => {
+  const initialPrompt = route.query.prompt as string;
+  if (initialPrompt) {
+    userChatInput.value = initialPrompt;
+  } else {
+    // 这里使用 generateUserPrompt 的默认值；你可以根据实际需要调整传入的参数
+    userChatInput.value = generateUserPrompt("Current Location", "Destination", []);
+  }
+  // 自动发起首轮对话（延时 200ms 可根据需要调整）
+  setTimeout(() => {
+    sendMessage();
+  }, 200);
+});
 </script>
+
