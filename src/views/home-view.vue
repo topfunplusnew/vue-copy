@@ -1,16 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
 import { getWeatherData } from '@/utils/weatherService';
 import router from '@/router';
+import { generateUserPrompt } from '@/stores/userprompt';
 
 const selectedLocation = ref('');
 const selectedDestination = ref('');
 const weather = ref('');
 const userLocation = ref('');
 const userFlag = ref('');
+const destinationFlag = ref('');
 const msg = 'Welcome to iPoloGO!';
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -24,29 +26,31 @@ const preferenceOptions = ref([
   { name: 'Culture', icon: '🎭' },
 ]);
 
-// 用户选择的偏好
+// 用户选择的旅游类型（偏好）
 const selectedOptions = ref<string[]>([]);
-// 用户额外输入的要求
+// 用户可编辑的 prompt 内容
 const userInput = ref('');
 
-// 自动生成 prompt，采用结构化格式，更利于 ChatGPT 理解
-const generatedPrompt = computed(() => {
-  let prompt = "I need help planning a trip. Here are my details:\n";
-  prompt += `- Preferences: ${selectedOptions.value.length > 0 ? selectedOptions.value.join(", ") : "None"}\n`;
-  prompt += `- Current Location: ${selectedLocation.value || "Unknown"}\n`;
-  prompt += `- Destination: ${selectedDestination.value || "Unknown"}\n`;
-  if (userInput.value) {
-    prompt += `- Additional Requirements: ${userInput.value}\n`;
+// 根据 Localization、Destination 和旅游类型生成 prompt
+const updateUserInput = () => {
+  userInput.value = generateUserPrompt(
+    selectedLocation.value || 'Unknown',
+    selectedDestination.value || 'Unknown',
+    selectedOptions.value
+  );
+};
+
+// 当 Localization、Destination 或偏好发生变化时（且用户未手动编辑时）自动更新
+watch([selectedLocation, selectedDestination, selectedOptions], () => {
+  if (!userInput.value) {
+    updateUserInput();
   }
-  prompt += "Please provide a detailed itinerary taking into account local weather conditions and any relevant travel tips.";
-  return prompt;
 });
 
-// 获取用户位置及天气
+// 初始定位及天气获取
 const handleLocationClick = async () => {
   isLoading.value = true;
   errorMessage.value = '';
-
   try {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
@@ -54,14 +58,13 @@ const handleLocationClick = async () => {
         timeout: 5000,
       });
     });
-
     const { city, country, flagUrl } = await getReverseGeocoding(position.coords.latitude, position.coords.longitude);
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
-
     const weatherData = await getWeatherData(city);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
+    updateUserInput();
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
   } finally {
@@ -69,9 +72,26 @@ const handleLocationClick = async () => {
   }
 };
 
-// 目的地选择后更新天气数据
+// 当用户在 Localization 部分修改定位时更新国旗和显示信息
+const handleLocationChange = (value: string) => {
+  selectedLocation.value = value;
+  const loc = destinations.find(item => item.value === value);
+  if (loc) {
+    userFlag.value = loc.flagUrl || '';
+    userLocation.value = loc.label;
+  }
+  updateUserInput();
+};
+
+// 目的地选择后更新天气和国旗
 const handleDestinationSelect = async (value: string) => {
   selectedDestination.value = value;
+  const dest = destinations.find(item => item.value === value);
+  if (dest) {
+    destinationFlag.value = dest.flagUrl || '';
+  } else {
+    destinationFlag.value = '';
+  }
   try {
     const weatherData = await getWeatherData(value);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
@@ -79,12 +99,13 @@ const handleDestinationSelect = async (value: string) => {
     console.log(error);
     weather.value = '天气数据不可用';
   }
+  updateUserInput();
 };
 
-// 按下回车时，使用最新生成的 prompt 跳转到对话页面
+// 按下回车时，使用当前 userInput 文本跳转到对话页面
 const handleEnter = (event: Event | KeyboardEvent) => {
   event.preventDefault();
-  router.push({ name: 'conversation', query: { prompt: generatedPrompt.value } });
+  router.push({ name: 'conversation', query: { prompt: userInput.value } });
 };
 
 onMounted(() => {
@@ -115,13 +136,13 @@ onMounted(() => {
     <main class="main">
       <div class="destination-container">
         <div class="location-flow">
-          <!-- 定位模块 -->
+          <!-- Localization 模块 -->
           <div class="location-card">
             <h2>Localization</h2>
             <div class="location-content">
               <div class="current-location">
                 <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
-                <el-select v-model="selectedLocation" class="location-select">
+                <el-select v-model="selectedLocation" class="location-select" @change="handleLocationChange">
                   <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
                 </el-select>
               </div>
@@ -136,13 +157,16 @@ onMounted(() => {
             </svg>
           </div>
 
-          <!-- 目的地选择模块 -->
+          <!-- Destination 模块 -->
           <div class="destination-card">
             <h2>Destination</h2>
             <div class="destination-content">
-              <el-select v-model="selectedDestination" placeholder="Select destination" class="destination-select" filterable @change="handleDestinationSelect">
-                <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
-              </el-select>
+              <div class="destination-select-wrapper">
+                <el-select v-model="selectedDestination" placeholder="Select destination" class="destination-select" filterable @change="handleDestinationSelect">
+                  <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
+                </el-select>
+                <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
+              </div>
               <div v-if="weather" class="weather-info">
                 <i class="weather-icon"></i>
                 <span>{{ weather }}</span>
@@ -151,10 +175,10 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- 行程规划模块：仅使用 el-select 内置展示已选内容，并在下方预览自动生成的 prompt -->
+        <!-- 行程规划模块 -->
         <div class="itinerary-section">
           <h2>Design Your Own Itinerary Agent</h2>
-          <el-select v-model="selectedOptions" multiple filterable placeholder="🗺️ Select preferences to start planning" class="preference-select">
+          <el-select v-model="selectedOptions" multiple filterable placeholder="🗺️ Select preferences to start planning" class="preference-select" @change="updateUserInput">
             <el-option v-for="option in preferenceOptions" :key="option.name" :label="option.name" :value="option.name">
               <span class="option-content">
                 <span class="option-icon">{{ option.icon }}</span>
@@ -162,15 +186,12 @@ onMounted(() => {
               </span>
             </el-option>
           </el-select>
-
-          <!-- 自动生成 prompt 预览区域 -->
-          <div class="prompt-preview" v-if="selectedOptions.length || userInput">
-            <pre>{{ generatedPrompt }}</pre>
-          </div>
-
-          <el-input v-model="userInput" placeholder="Enter your travel requirements..." class="requirements-input" type="textarea" :rows="6" @keydown.enter="handleEnter" />
+          <!-- 可编辑的 Prompt 文本框，初始内容由 generateUserPrompt 生成 -->
+          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="requirements-input" type="textarea" :rows="6" @keydown.enter="handleEnter" />
         </div>
-        <router-link :to="{ name: 'generator' }"><el-button class="nav-button">Start Now</el-button></router-link>
+        <router-link :to="{ name: 'generator' }">
+          <el-button class="nav-button">Start Now</el-button>
+        </router-link>
       </div>
     </main>
   </div>
