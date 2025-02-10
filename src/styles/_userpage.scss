@@ -1,0 +1,109 @@
+.user-page {
+  display: flex;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 20px;
+
+  // 左侧：侧边栏
+  .sidebar {
+    width: 250px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+
+    .user-info {
+      text-align: center;
+
+      .avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 8px; // 方形带圆角
+        object-fit: cover;
+        margin: 0 auto 10px;
+        display: block;
+      }
+
+      .username {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .bio {
+        font-size: 14px;
+        margin-bottom: 15px;
+        color: #ccc;
+      }
+
+      .stats {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+
+        .stat {
+          flex: 1 1 45%;
+          background: rgba(0, 0, 0, 0.3);
+          padding: 8px;
+          border-radius: 4px;
+          text-align: center;
+
+          .number {
+            font-size: 18px;
+            font-weight: bold;
+            display: block;
+          }
+
+          .label {
+            font-size: 12px;
+            color: #ccc;
+          }
+        }
+      }
+    }
+  }
+
+  // 右侧：帖子区域
+  .posts {
+    flex: 1;
+
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+
+      .post-card {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s;
+
+        &:hover {
+          transform: scale(1.02);
+        }
+
+        .post-image {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+        }
+
+        .post-stats {
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          padding: 10px;
+          background: rgba(0, 0, 0, 0.2);
+
+          .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}

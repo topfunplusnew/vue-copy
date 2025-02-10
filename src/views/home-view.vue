@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
@@ -7,9 +8,12 @@ import { getWeatherData } from '@/utils/weatherService';
 import router from '@/router';
 import { generateUserPrompt } from '@/stores/userprompt';
 
+// -------------------
+// Trip Options 部分（保持原有代码不变）
 const selectedLocation = ref('');
 const selectedDestination = ref('');
 const weather = ref('');
+const weatherIcon = ref(''); // 存储天气图标 URL
 const userLocation = ref('');
 const userFlag = ref('');
 const destinationFlag = ref('');
@@ -26,12 +30,11 @@ const preferenceOptions = ref([
   { name: 'Culture', icon: '🎭' },
 ]);
 
-// 用户选择的旅游类型（偏好）
+// 用户选择的旅游偏好
 const selectedOptions = ref<string[]>([]);
-// 用户可编辑的 prompt 内容
+// 自动生成的 prompt 文本
 const userInput = ref('');
 
-// 根据 Localization、Destination 和旅游类型生成 prompt
 const updateUserInput = () => {
   userInput.value = generateUserPrompt(
     selectedLocation.value || 'Unknown',
@@ -40,14 +43,12 @@ const updateUserInput = () => {
   );
 };
 
-// 当 Localization、Destination 或偏好发生变化时（且用户未手动编辑时）自动更新
 watch([selectedLocation, selectedDestination, selectedOptions], () => {
   if (!userInput.value) {
     updateUserInput();
   }
 });
 
-// 初始定位及天气获取
 const handleLocationClick = async () => {
   isLoading.value = true;
   errorMessage.value = '';
@@ -58,12 +59,16 @@ const handleLocationClick = async () => {
         timeout: 5000,
       });
     });
-    const { city, country, flagUrl } = await getReverseGeocoding(position.coords.latitude, position.coords.longitude);
+    const { city, country, flagUrl } = await getReverseGeocoding(
+      position.coords.latitude,
+      position.coords.longitude
+    );
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
     const weatherData = await getWeatherData(city);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
+    weatherIcon.value = weatherData.icon;
     updateUserInput();
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
@@ -72,7 +77,6 @@ const handleLocationClick = async () => {
   }
 };
 
-// 当用户在 Localization 部分修改定位时更新国旗和显示信息
 const handleLocationChange = (value: string) => {
   selectedLocation.value = value;
   const loc = destinations.find(item => item.value === value);
@@ -83,7 +87,6 @@ const handleLocationChange = (value: string) => {
   updateUserInput();
 };
 
-// 目的地选择后更新天气和国旗
 const handleDestinationSelect = async (value: string) => {
   selectedDestination.value = value;
   const dest = destinations.find(item => item.value === value);
@@ -95,21 +98,108 @@ const handleDestinationSelect = async (value: string) => {
   try {
     const weatherData = await getWeatherData(value);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
+    weatherIcon.value = weatherData.icon;
   } catch (error) {
     console.log(error);
     weather.value = '天气数据不可用';
+    weatherIcon.value = '';
   }
   updateUserInput();
 };
 
-// 按下回车时，使用当前 userInput 文本跳转到对话页面
+const togglePreference = (optionName: string) => {
+  const index = selectedOptions.value.indexOf(optionName);
+  if (index > -1) {
+    selectedOptions.value.splice(index, 1);
+  } else {
+    selectedOptions.value.push(optionName);
+  }
+  updateUserInput();
+};
+
 const handleEnter = (event: Event | KeyboardEvent) => {
   event.preventDefault();
   router.push({ name: 'conversation', query: { prompt: userInput.value } });
 };
 
+const submitItinerary = () => {
+  router.push({ name: 'generator', query: { prompt: userInput.value } });
+};
+
 onMounted(() => {
   handleLocationClick();
+});
+
+// -----------------------------
+// 社交帖子模块部分
+
+import { blogPosts } from '@/data/blogData';
+
+// 多选筛选：选中的标签数组
+const socialFilters = ref([
+  'Recommendation',
+  'Most Popular',
+  'Sightseeing',
+  'Educational',
+  'Business',
+  'Medical',
+  'Gastronomy',
+  'Culture'
+]);
+const selectedFilters = ref<string[]>([]);
+
+const toggleSocialFilter = (filter: string) => {
+  const idx = selectedFilters.value.indexOf(filter);
+  if (idx > -1) {
+    selectedFilters.value.splice(idx, 1);
+  } else {
+    selectedFilters.value.push(filter);
+  }
+};
+
+const filteredPosts = computed(() => {
+  if (selectedFilters.value.length === 0) {
+    return blogPosts;
+  }
+  if (selectedFilters.value.includes('Recommendation')) {
+    return blogPosts;
+  } else if (selectedFilters.value.includes('Most Popular')) {
+    return [...blogPosts].sort((a, b) => b.likes - a.likes);
+  } else {
+    return blogPosts.filter(post =>
+      post.tags.some(tag => selectedFilters.value.includes(tag))
+    );
+  }
+});
+
+// 用于控制加载更多的显示（默认显示12个帖子）
+const postsToShow = ref(12);
+const postsDisplayed = computed(() => {
+  return filteredPosts.value.slice(0, postsToShow.value);
+});
+
+// 下拉菜单（加载更多）控制
+const showMore = ref(false);
+const loadMorePosts = () => {
+  // 每次加载6个帖子
+  postsToShow.value += 6;
+};
+
+// 使用 IntersectionObserver 检测用户是否滚动到帖子区域底部
+const bottomTrigger = ref<HTMLElement | null>(null);
+onMounted(() => {
+  if (bottomTrigger.value) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          showMore.value = true;
+        } else {
+          showMore.value = false;
+        }
+      });
+    });
+    observer.observe(bottomTrigger.value);
+  }
 });
 </script>
 
@@ -119,82 +209,116 @@ onMounted(() => {
     <header class="header">
       <div class="nav-container">
         <div class="left-nav">
-          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
-          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
-          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
+          <router-link :to="{ name: 'about' }">
+            <el-button class="nav-button">ABOUT</el-button>
+          </router-link>
+          <router-link :to="{ name: 'blog' }">
+            <el-button class="nav-button">BLOG</el-button>
+          </router-link>
+          <router-link :to="{ name: 'contact' }">
+            <el-button class="nav-button">CONTACT</el-button>
+          </router-link>
         </div>
         <div class="right-nav">
           <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">Login</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">Sign Up</el-button></router-link>
+          <router-link :to="{ name: 'login' }">
+            <el-button class="nav-button">Login</el-button>
+          </router-link>
+          <router-link :to="{ name: 'signup' }">
+            <el-button class="nav-button">Sign Up</el-button>
+          </router-link>
         </div>
       </div>
-      <h1 class="header-title">{{ msg }}</h1>
+      <h1 class="header-title">Have Fun in iPoloGO</h1>
     </header>
 
-    <!-- 定位与目的地选择区域 -->
+    <!-- 主体区域 -->
     <main class="main">
-      <div class="destination-container">
-        <div class="location-flow">
-          <!-- Localization 模块 -->
-          <div class="location-card">
-            <h2>Localization</h2>
-            <div class="location-content">
-              <div class="current-location">
-                <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
-                <el-select v-model="selectedLocation" class="location-select" @change="handleLocationChange">
-                  <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
-                </el-select>
-              </div>
-              <p class="coordinates">{{ userLocation }}</p>
+      <!-- Trip Options / Localization 与 Destination 卡片 -->
+      <div class="combined-card">
+        <div class="location-destination-row">
+          <!-- Localization -->
+          <div class="field location-field">
+            <div class="field-label">Localization</div>
+            <el-select v-model="selectedLocation" placeholder="Select location" class="select" @change="handleLocationChange">
+              <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
+            </el-select>
+            <div class="info">
+              <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
+              <span>{{ userLocation }}</span>
             </div>
           </div>
-
-          <!-- 飞机动画 -->
-          <div class="flight-animation">
-            <svg class="airplane" viewBox="0 0 24 24">
-              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
-            </svg>
-          </div>
-
-          <!-- Destination 模块 -->
-          <div class="destination-card">
-            <h2>Destination</h2>
-            <div class="destination-content">
-              <div class="destination-select-wrapper">
-                <el-select v-model="selectedDestination" placeholder="Select destination" class="destination-select" filterable @change="handleDestinationSelect">
-                  <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
-                </el-select>
-                <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
-              </div>
-              <div v-if="weather" class="weather-info">
-                <i class="weather-icon"></i>
-                <span>{{ weather }}</span>
-              </div>
+          <!-- Destination -->
+          <div class="field destination-field">
+            <div class="field-label">Destination</div>
+            <el-select v-model="selectedDestination" placeholder="Select destination" class="select" filterable @change="handleDestinationSelect">
+              <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
+            </el-select>
+            <div class="info">
+              <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
+              <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" />
+              <span v-if="weather">{{ weather }}</span>
             </div>
           </div>
         </div>
-
-        <!-- 行程规划模块 -->
-        <div class="itinerary-section">
-          <h2>Design Your Own Itinerary Agent</h2>
-          <el-select v-model="selectedOptions" multiple filterable placeholder="🗺️ Select preferences to start planning" class="preference-select" @change="updateUserInput">
-            <el-option v-for="option in preferenceOptions" :key="option.name" :label="option.name" :value="option.name">
-              <span class="option-content">
-                <span class="option-icon">{{ option.icon }}</span>
-                {{ option.name }}
-              </span>
-            </el-option>
-          </el-select>
-          <!-- 可编辑的 Prompt 文本框，初始内容由 generateUserPrompt 生成 -->
-          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="requirements-input" type="textarea" :rows="6" @keydown.enter="handleEnter" />
-        </div>
-        <router-link :to="{ name: 'generator' }">
-          <el-button class="nav-button">Start Now</el-button>
-        </router-link>
       </div>
+
+      <!-- 行程规划模块 -->
+      <div class="itinerary-section">
+        <h3>Plan Your Itinerary</h3>
+        <div class="preference-options">
+          <span v-for="option in preferenceOptions" :key="option.name" class="preference-option"
+            :class="{ selected: selectedOptions.includes(option.name) }"
+            @click="togglePreference(option.name)">
+            <span class="option-icon">{{ option.icon }}</span>
+            <span class="option-name">{{ option.name }}</span>
+          </span>
+        </div>
+        <div class="input-container">
+          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="itinerary-input" type="textarea" :rows="4" @keydown.enter="handleEnter" />
+          <button class="submit-button" @click="submitItinerary">Start Now</button>
+        </div>
+      </div>
+
+      <!-- 社交帖子模块 -->
+      <section class="social-feed">
+        <h3>Explore iPoloGO Community</h3>
+        <!-- 横向分割线 -->
+        <hr class="horizontal-divider" />
+        <div class="social-container">
+          <!-- 左侧筛选区域（多选） -->
+          <div class="social-filter-panel">
+            <button v-for="filter in socialFilters" :key="filter"
+              :class="{ active: selectedFilters.includes(filter) }"
+              @click="toggleSocialFilter(filter)">
+              {{ filter }}
+            </button>
+          </div>
+          <!-- 竖直分隔线 -->
+          <div class="vertical-divider"></div>
+          <!-- 右侧博客展示区域 -->
+          <div class="social-posts-panel">
+            <div class="social-post" v-for="post in postsDisplayed" :key="post.id">
+              <img :src="post.image" alt="Post Image" class="post-image" />
+              <div class="post-footer">
+                <img :src="post.avatar" alt="Avatar" class="post-avatar" />
+                <div class="post-stats">
+                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <span class="comments">💬 {{ post.comments }}</span>
+                  <span class="coins">💰 {{ post.coins }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- 下拉加载更多按钮，仅在滚动到底部时显示 -->
+            <div ref="bottomTrigger"></div>
+            <div v-if="showMore && postsToShow < blogPosts.length" class="explore-more">
+              <button class="explore-more-btn" @click="loadMorePosts">
+                Explore More
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </template>
-
-

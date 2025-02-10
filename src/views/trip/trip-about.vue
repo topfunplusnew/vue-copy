@@ -50,7 +50,7 @@ const faqs = ref([
 
     <!-- iPoloGO 介绍段落 -->
     <div class="ipologo-intro">
-      <h2>Welcome to iPoloGO</h2>
+      <h3>Welcome to iPoloGO</h3>
       <p>
         iPoloGO is an innovative travel assistant powered by artificial intelligence, designed to help you plan, book, and manage your travel experiences effortlessly. From booking your flights and
         hotels to guiding you through the entire journey, iPoloGO ensures that your travel experience is seamless and enjoyable. Our intelligent AI agent, Adeva, personalizes your trip, offers
@@ -70,30 +70,6 @@ const faqs = ref([
 
 <style scoped>
 
-/* 添加 iPoloGO 介绍部分样式 */
-.ipologo-intro {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  max-width: 900px;
-  text-align: justify; /* 使文本左对齐 */
-}
-
-.ipologo-intro h2 {
-  font-size: 2rem;
-  margin-bottom: 15px;
-}
-
-.ipologo-intro p {
-  font-size: 1.8rem;
-  color: #ddd;
-  line-height: 1.6;
-}
-
-/* FAQ 容器 */
 .faq-container {
   max-width: 900px;
   min-width: 900px; /* 新增最小宽度锁定 */
