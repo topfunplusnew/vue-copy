@@ -1,7 +1,29 @@
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 统一 Header 样式 */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .home {
-  /* 整体背景采用渐变，营造未来感 */
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-  min-height: 100vh;
+  /* 整体背景采用渐变 */
+  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
+  background-size: 200% 150%;
+  animation: gradientAnimation 10s ease infinite;
+  min-height: 150vh;
+  width: 100%;
   color: #fff;
   font-family: 'Helvetica Neue', sans-serif;
 }
@@ -67,19 +89,19 @@
 /* 行程规划模块 */
 .itinerary-section {
   margin-top: 100px;
-  width: 100%;
+  
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   text-align: center;
-  margin-bottom: rem;
+  margin-bottom: 2rem;
 }
 .itinerary-section h3 {
   margin-top: 0.01rem;
   margin-bottom: 3rem;
-  font-size:3rem;
+  font-size: 3rem;
   color: #fff;
 }
 
@@ -128,7 +150,6 @@
 
 .itinerary-input {
   position: relative;
-
   /* 伪元素实现动态渐变边框效果 */
   &::after {
     content: "";
@@ -144,13 +165,14 @@
     transition: opacity 0.3s ease;
     border-radius: 12px;
   }
-
   &:hover::after {
     opacity: 1;
   }
 }
 
 .itinerary-input ::v-deep .el-textarea__inner {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
   border: 2px solid transparent;
   border-radius: 12px;
   padding: 1.2rem;
@@ -162,7 +184,7 @@
   z-index: 1;
 }
 
-.itinerary-input{
+.itinerary-input {
   font-size: 20px;
   font-family: 'Courier New', Courier, monospace;
 }
@@ -178,7 +200,7 @@
   font-style: italic;
 }
 
-/* 提交按钮，放置在输入框内 */
+/* 提交按钮 */
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -193,8 +215,8 @@
 
 .submit-button {
   position: absolute;
-  bottom: 22px;
-  right: 25px;
+  bottom: 5px;
+  right: 5px;
   padding: 0.75rem 1.5rem;
   font-size: 3rem;
   font-family: 'Helvetica Neue', sans-serif;
@@ -214,4 +236,151 @@
   transform: scale(1.05);
 }
 
+/*-----------------------------------------------------*/
+/* 社交帖子模块 */
 
+/* 横向分隔线 */
+.horizontal-divider {
+  width: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+  margin: 2rem 0;
+}
+
+/* 社交帖子模块 */
+.social-feed {
+  width: 95vw;
+  max-width: 100%;  /* 与全屏等宽 */
+  margin: 3rem 0;
+  padding: 2rem 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.social-feed h3 {
+  font-size: 3rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* 社交模块整体采用左右两栏布局 */
+.social-container {
+  display: flex;
+  gap: 2rem;
+}
+
+/* 左侧筛选区域（多选） */
+.social-filter-panel {
+  flex: 0 0 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;  /* 往左对齐 */
+  gap: 1rem;
+}
+
+.social-filter-panel button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 2rem;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.social-filter-panel button:hover {
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.social-filter-panel button.active {
+  background: #fff;
+  color: #1a2a6c;
+  font-weight: bold;
+}
+
+/* 竖直分隔线 */
+.vertical-divider {
+  width: 2px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* 右侧区域 */
+.social-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Explore More 按钮 */
+.explore-more-btn {
+  padding: 1rem 2rem;
+  font-size: 2rem;
+  background: #fff;
+  color: #1a2a6c;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin-top: 2rem;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.explore-more-btn:hover {
+  background: #f0f0f0;
+  transform: scale(1.05);
+}
+
+/* 右侧帖子展示区域 */
+.social-posts-panel {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.social-post {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.social-post:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+.post-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+.post-footer {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+}
+.post-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.post-stats {
+  display: flex;
+  gap: 1rem;
+  font-size: 1.8rem;
+  color: #1a2a6c;
+}
+
+/* 下拉加载更多区域 */
+.explore-more {
+  text-align: center;
+  margin-top: 2rem;
+}

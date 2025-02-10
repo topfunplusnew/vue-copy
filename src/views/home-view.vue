@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
@@ -7,6 +8,8 @@ import { getWeatherData } from '@/utils/weatherService';
 import router from '@/router';
 import { generateUserPrompt } from '@/stores/userprompt';
 
+// -------------------
+// Trip Options 部分（保持原有代码不变）
 const selectedLocation = ref('');
 const selectedDestination = ref('');
 const weather = ref('');
@@ -27,12 +30,11 @@ const preferenceOptions = ref([
   { name: 'Culture', icon: '🎭' },
 ]);
 
-// 用户选择的旅游类型（偏好）
+// 用户选择的旅游偏好
 const selectedOptions = ref<string[]>([]);
-// 用户可编辑的 prompt 内容
+// 自动生成的 prompt 文本
 const userInput = ref('');
 
-// 根据 Localization、Destination 和旅游类型生成 prompt
 const updateUserInput = () => {
   userInput.value = generateUserPrompt(
     selectedLocation.value || 'Unknown',
@@ -41,14 +43,12 @@ const updateUserInput = () => {
   );
 };
 
-// 当 Localization、Destination 或偏好变化时自动更新
 watch([selectedLocation, selectedDestination, selectedOptions], () => {
   if (!userInput.value) {
     updateUserInput();
   }
 });
 
-// 初始定位及天气获取
 const handleLocationClick = async () => {
   isLoading.value = true;
   errorMessage.value = '';
@@ -66,10 +66,9 @@ const handleLocationClick = async () => {
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
-    // 获取当前城市天气
     const weatherData = await getWeatherData(city);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon; // 设置天气图标
+    weatherIcon.value = weatherData.icon;
     updateUserInput();
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
@@ -78,7 +77,6 @@ const handleLocationClick = async () => {
   }
 };
 
-// 当用户修改 Localization 时更新国旗与地址信息
 const handleLocationChange = (value: string) => {
   selectedLocation.value = value;
   const loc = destinations.find(item => item.value === value);
@@ -89,7 +87,6 @@ const handleLocationChange = (value: string) => {
   updateUserInput();
 };
 
-// 目的地选择后更新天气和目的地国旗，同时设置天气图标
 const handleDestinationSelect = async (value: string) => {
   selectedDestination.value = value;
   const dest = destinations.find(item => item.value === value);
@@ -110,7 +107,6 @@ const handleDestinationSelect = async (value: string) => {
   updateUserInput();
 };
 
-// 旅游偏好切换函数：点击后添加或移除选项
 const togglePreference = (optionName: string) => {
   const index = selectedOptions.value.indexOf(optionName);
   if (index > -1) {
@@ -121,7 +117,6 @@ const togglePreference = (optionName: string) => {
   updateUserInput();
 };
 
-// 按下回车时，使用当前 userInput 文本跳转到对话页面
 const handleEnter = (event: Event | KeyboardEvent) => {
   event.preventDefault();
   router.push({ name: 'conversation', query: { prompt: userInput.value } });
@@ -133,6 +128,78 @@ const submitItinerary = () => {
 
 onMounted(() => {
   handleLocationClick();
+});
+
+// -----------------------------
+// 社交帖子模块部分
+
+import { blogPosts } from '@/data/blogData';
+
+// 多选筛选：选中的标签数组
+const socialFilters = ref([
+  'Recommendation',
+  'Most Popular',
+  'Sightseeing',
+  'Educational',
+  'Business',
+  'Medical',
+  'Gastronomy',
+  'Culture'
+]);
+const selectedFilters = ref<string[]>([]);
+
+const toggleSocialFilter = (filter: string) => {
+  const idx = selectedFilters.value.indexOf(filter);
+  if (idx > -1) {
+    selectedFilters.value.splice(idx, 1);
+  } else {
+    selectedFilters.value.push(filter);
+  }
+};
+
+const filteredPosts = computed(() => {
+  if (selectedFilters.value.length === 0) {
+    return blogPosts;
+  }
+  if (selectedFilters.value.includes('Recommendation')) {
+    return blogPosts;
+  } else if (selectedFilters.value.includes('Most Popular')) {
+    return [...blogPosts].sort((a, b) => b.likes - a.likes);
+  } else {
+    return blogPosts.filter(post =>
+      post.tags.some(tag => selectedFilters.value.includes(tag))
+    );
+  }
+});
+
+// 用于控制加载更多的显示（默认显示12个帖子）
+const postsToShow = ref(12);
+const postsDisplayed = computed(() => {
+  return filteredPosts.value.slice(0, postsToShow.value);
+});
+
+// 下拉菜单（加载更多）控制
+const showMore = ref(false);
+const loadMorePosts = () => {
+  // 每次加载6个帖子
+  postsToShow.value += 6;
+};
+
+// 使用 IntersectionObserver 检测用户是否滚动到帖子区域底部
+const bottomTrigger = ref<HTMLElement | null>(null);
+onMounted(() => {
+  if (bottomTrigger.value) {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          showMore.value = true;
+        } else {
+          showMore.value = false;
+        }
+      });
+    });
+    observer.observe(bottomTrigger.value);
+  }
 });
 </script>
 
@@ -162,40 +229,30 @@ onMounted(() => {
           </router-link>
         </div>
       </div>
-      <h1 class="header-title">{{ msg }}</h1>
+      <h1 class="header-title">Have Fun in iPoloGO</h1>
     </header>
 
     <!-- 主体区域 -->
     <main class="main">
-      <!-- 合并后的 Localization 与 Destination 卡片（同一行排列） -->
+      <!-- Trip Options / Localization 与 Destination 卡片 -->
       <div class="combined-card">
         <div class="location-destination-row">
-          <!-- Localization 列 -->
+          <!-- Localization -->
           <div class="field location-field">
             <div class="field-label">Localization</div>
             <el-select v-model="selectedLocation" placeholder="Select location" class="select" @change="handleLocationChange">
-              <el-option
-                v-for="(loc, index) in destinations"
-                :key="index"
-                :label="loc.label"
-                :value="loc.value"
-              />
+              <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
             </el-select>
             <div class="info">
               <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
               <span>{{ userLocation }}</span>
             </div>
           </div>
-          <!-- Destination 列 -->
+          <!-- Destination -->
           <div class="field destination-field">
             <div class="field-label">Destination</div>
             <el-select v-model="selectedDestination" placeholder="Select destination" class="select" filterable @change="handleDestinationSelect">
-              <el-option
-                v-for="(destination, index) in destinations"
-                :key="index"
-                :label="destination.label"
-                :value="destination.value"
-              />
+              <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
             </el-select>
             <div class="info">
               <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
@@ -206,36 +263,62 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- 行程规划模块：改为横排展示选项，及美化用户输入模块 -->
+      <!-- 行程规划模块 -->
       <div class="itinerary-section">
         <h3>Plan Your Itinerary</h3>
-        <!-- 旅游偏好横排选择 -->
         <div class="preference-options">
-          <span
-            v-for="option in preferenceOptions"
-            :key="option.name"
-            class="preference-option"
+          <span v-for="option in preferenceOptions" :key="option.name" class="preference-option"
             :class="{ selected: selectedOptions.includes(option.name) }"
-            @click="togglePreference(option.name)"
-          >
+            @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
           </span>
         </div>
-        <!-- 美化后的用户输入模块 -->
-        <el-input
-          v-model="userInput"
-          placeholder="Edit your trip prompt..."
-          class="itinerary-input"
-          type="textarea"
-          :rows="4"
-          @keydown.enter="handleEnter"
-        />
-        <button class="submit-button" @click="submitItinerary">Start Now</button>
+        <div class="input-container">
+          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="itinerary-input" type="textarea" :rows="4" @keydown.enter="handleEnter" />
+          <button class="submit-button" @click="submitItinerary">Start Now</button>
+        </div>
       </div>
+
+      <!-- 社交帖子模块 -->
+      <section class="social-feed">
+        <h3>Explore iPoloGO Community</h3>
+        <!-- 横向分割线 -->
+        <hr class="horizontal-divider" />
+        <div class="social-container">
+          <!-- 左侧筛选区域（多选） -->
+          <div class="social-filter-panel">
+            <button v-for="filter in socialFilters" :key="filter"
+              :class="{ active: selectedFilters.includes(filter) }"
+              @click="toggleSocialFilter(filter)">
+              {{ filter }}
+            </button>
+          </div>
+          <!-- 竖直分隔线 -->
+          <div class="vertical-divider"></div>
+          <!-- 右侧博客展示区域 -->
+          <div class="social-posts-panel">
+            <div class="social-post" v-for="post in postsDisplayed" :key="post.id">
+              <img :src="post.image" alt="Post Image" class="post-image" />
+              <div class="post-footer">
+                <img :src="post.avatar" alt="Avatar" class="post-avatar" />
+                <div class="post-stats">
+                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <span class="comments">💬 {{ post.comments }}</span>
+                  <span class="coins">💰 {{ post.coins }}</span>
+                </div>
+              </div>
+            </div>
+            <!-- 下拉加载更多按钮，仅在滚动到底部时显示 -->
+            <div ref="bottomTrigger"></div>
+            <div v-if="showMore && postsToShow < blogPosts.length" class="explore-more">
+              <button class="explore-more-btn" @click="loadMorePosts">
+                Explore More
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
-
-
 </template>
-

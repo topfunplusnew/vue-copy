@@ -1,4 +1,4 @@
-// src/data/blogPosts.ts
+// src/data/blogPosts.ts for iPologo blog data in blogview.vue
 import type { BlogPost } from '/src/data/blog'
 
 export const blogPosts: BlogPost[] = [
