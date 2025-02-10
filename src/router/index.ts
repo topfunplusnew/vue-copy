@@ -5,12 +5,13 @@ import BlogView from '@/views/trip/trip-blog.vue';
 import ContactView from '@/views/trip/trip-contact.vue';
 import LoginView from '@/views/trip/Login-view.vue';
 import SignupView from '@/views/trip/Signup-view.vue';
-
+import Forgetpassword from '@/views/trip/Forgetpassword.vue'; 
 
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+ 
     {
       path: '/',
       name: 'home',
@@ -40,6 +41,11 @@ const router = createRouter({
       path: '/signup',
       name: 'signup',
       component: SignupView
+    },
+    {
+      path: '/forgetpassword', 
+      name: 'forgetpassword',
+      component: Forgetpassword, 
     },
     {
       path: '/generator',

@@ -1,9 +1,3 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
-const msg= 'Welcome back to iPoloGO';
-</script>
-
 <template>
   <div class="home">
     <!-- 改进后的 Header -->
@@ -24,91 +18,40 @@ const msg= 'Welcome back to iPoloGO';
 
       <h1 class="header-title">{{ msg }}</h1>
     </header>
+
+    <!-- 欢迎语 -->
+    <h2 class="welcome-text">Welcome to iPoloGO!</h2>
+
+    <!-- 登录表单部分 -->
+    <div class="login-container">
+      <div class="login-form">
+        <h2>Login</h2>
+        <form @submit.prevent="handleSubmit">
+          <input type="text" v-model="username" placeholder="Username" required />
+          <input type="password" v-model="password" placeholder="Password" required />
+          <button type="submit">Login</button>
+        </form>
+
+        <!-- 忘记密码和注册链接 -->
+        <div class="links-container">
+          <router-link to="/forgetpassword" class="forgot-password-link">Forgot Password?</router-link>
+          <router-link to="/signup" class="signup-link">Sign up</router-link>
+        </div>
+
+        <!-- 分割线和or -->
+        <div class="or-divider">
+          <span>or</span>
+        </div>
+        <!-- 新添加的文本 -->
+        <p class="quick-login-text">Quick login in the following ways:</p>
+
+        <!-- 快捷登录模块 -->
+        <div class="social-login">
+          <button class="social-button wechat">WeChat</button>
+          <button class="social-button google">Google</button>
+          <button class="social-button apple">Apple</button>
+        </div>
+      </div>
+    </div>
   </div>
-
 </template>
-
-
-<style scoped>
-.home {
-  background: linear-gradient(45deg, #3a7bd5, #00d2ff, #6a82fb);
-  background-size: 300% 300%;
-  animation: gradient-animation 5s ease infinite;
-  min-height: 100vh; /* Full viewport height */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  text-align: center;  /* 设置两端对齐 */
-  color: #fff;
-  font-family: 'Roboto', sans-serif;
-  padding-top: 20px;
-  width: 100%;  /* 使容器宽度为 100% */
-}
-
-.ipologo-intro p,
-h1,
-h3 {
-  max-width: 90%; /* 限制文本最大宽度，确保文本不会过宽 */
-  margin-left: auto;
-  margin-right: auto;
-}
-
-
-/* 动态背景动画 */
-@keyframes gradient-animation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* 统一Header样式 */
-.nav-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-.left-nav, .right-nav {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-}
-
-.nav-button {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-}
-
-.el-button {
-  font-size: 1rem;
-  padding: 10px 20px;
-  background-color: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: #fff;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.el-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-  transform: scale(1.05);
-}
-
-.nav-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 20px;
-}
-</style>

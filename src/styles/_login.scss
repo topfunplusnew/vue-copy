@@ -1,0 +1,245 @@
+/* 设置页面的背景色为蓝色 */
+body {
+  background-color: #007bff; /* 蓝色背景 */
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+
+/* 登录容器 */
+.login-container {
+  display: flex;
+  justify-content: flex-start; /* 使容器在顶部显示 */
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  position: absolute; /* 使用绝对定位移动容器 */
+  top: 15%; /* 将登录容器上移，可以调整这个值，减小top值 */
+  left: 50%;
+  transform: translateX(-50%); /* 使登录框水平居中 */
+  z-index: 9999; /* 确保容器在最上层 */
+}
+
+/* 登录表单样式 */
+.login-form {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* 标题样式 */
+h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+
+/* 登录表单样式 */
+.login-form {
+  background-color: white;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 100%;  /* 宽度设为100% */
+  max-width: 400px;  /* 设置最大宽度为400px */
+  text-align: center;
+}
+
+/* 输入框样式 */
+input {
+  width: 93%; /* 让输入框占满父容器的宽度 */
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  color: #333;
+}
+
+input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* 按钮样式 */
+button {
+  width: 100%; /* 让按钮占满父容器的宽度 */
+  padding: 12px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: darken(#007bff, 10%);
+}
+
+/* 忘记密码和注册链接容器 */
+.links-container {
+  display: flex;
+  justify-content: space-between; /* 在左右两边对齐 */
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* 忘记密码样式 */
+.forgot-password {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
+  text-align: left; /* 左对齐 */
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+/* 注册链接样式 */
+.signup-link {
+  font-size: 14px;
+  color: #007bff;
+  text-decoration: none;
+  text-align: right; /* 右对齐 */
+}
+
+.signup-link:hover {
+  text-decoration: underline;
+}
+
+/* 分割线和"or" */
+.or-divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0; /* 上下间距 */
+}
+
+.or-divider::before,
+.or-divider::after {
+  content: '';
+  flex-grow: 1; /* 左右两边的分割线占满剩余空间 */
+  height: 1px;
+  background-color: #ccc; /* 分割线颜色 */
+}
+
+.or-divider span {
+  font-size: 20px; /* 放大"or"的字体 */
+  font-weight: bold;
+  color: #333;
+  margin: 0 10px; /* 给"or"增加左右间距 */
+}
+
+
+/* Quick login 文本样式 */
+.quick-login-text {
+  text-align: left;
+  font-size: 14px;
+  color: #030303;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+
+/* 快捷登录按钮容器 */
+.social-login {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+/* 单个快捷登录按钮 */
+.social-button {
+  width: 30%;
+  padding: 10px 24px; /* 保持按钮高度 */
+  border: none;
+  border-radius: 5px;
+  color: #333; /* 黑色文字 */
+  font-size: 12px; /* 小字体 */
+  font-weight: bold; /* 黑体字 */
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  display: flex;
+  align-items: center; /* 水平居中对齐图标和文本 */
+  justify-content: center;
+}
+
+/* WeChat 按钮 */
+.social-button.wechat {
+  background: white url('@/assets/wechat-logo.svg') no-repeat; /* 使用本地 SVG */
+  border: 1.5px solid #333; /* 黑色边框 */
+  
+  background-position: 8px center; /* 设置图标与左边边框的距离 */
+  padding-left: 50px; /* 增加左侧图标与边框的间距 */
+  background-size: 28px 28px; /* 设置图标大小 */
+  
+  /* 悬停时的背景色变化 */
+  &:hover {
+    background-color: #dcdcdc; /* 浅灰色背景 */
+  }
+}
+
+/* Google 按钮 */
+.social-button.google {
+  background: white url('@/assets/google-logo.svg') no-repeat; /* 使用本地 SVG */
+  border: 1.5px solid #333; /* 黑色边框 */
+  
+  background-position: 8px center; /* 设置图标与左边边框的距离 */
+  padding-left: 50px; /* 增加左侧图标与边框的间距 */
+  background-size: 28px 28px; /* 设置图标大小 */
+  
+  /* 悬停时的背景色变化 */
+  &:hover {
+    background-color: #dcdcdc; /* 浅灰色背景 */
+  }
+}
+
+/* Apple 按钮 */
+.social-button.apple {
+  background: white url('@/assets/apple-logo.svg') no-repeat; /* 使用本地 SVG */
+  border: 1.5px solid #333; /* 黑色边框 */
+  
+  background-position: 8px center; /* 设置图标与左边边框的距离 */
+  padding-left: 50px; /* 增加左侧图标与边框的间距 */
+  background-size: 24px 24px; /* 设置图标大小 */
+  
+  /* 悬停时的背景色变化 */
+  &:hover {
+    background-color: #dcdcdc; /* 浅灰色背景 */
+  }
+}
+
+
+/* 欢迎语样式 */
+.welcome-text {
+  text-align: center; /* 居中显示 */
+  font-size: 24px; /* 增加字体大小 */
+  color: #ffffff; /* 设置颜色 */
+  margin-bottom: 20px; /* 与下方表单的间距 */
+}
+
+
+
+
+/* 响应式设计：调整小屏幕上的按钮布局 */
+@media (max-width: 768px) {
+  .social-login {
+    flex-direction: column;
+  }
+
+  .social-button {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+}
