@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
@@ -10,6 +10,7 @@ import { generateUserPrompt } from '@/stores/userprompt';
 const selectedLocation = ref('');
 const selectedDestination = ref('');
 const weather = ref('');
+const weatherIcon = ref(''); // 存储天气图标 URL
 const userLocation = ref('');
 const userFlag = ref('');
 const destinationFlag = ref('');
@@ -40,7 +41,7 @@ const updateUserInput = () => {
   );
 };
 
-// 当 Localization、Destination 或偏好发生变化时（且用户未手动编辑时）自动更新
+// 当 Localization、Destination 或偏好变化时自动更新
 watch([selectedLocation, selectedDestination, selectedOptions], () => {
   if (!userInput.value) {
     updateUserInput();
@@ -58,12 +59,17 @@ const handleLocationClick = async () => {
         timeout: 5000,
       });
     });
-    const { city, country, flagUrl } = await getReverseGeocoding(position.coords.latitude, position.coords.longitude);
+    const { city, country, flagUrl } = await getReverseGeocoding(
+      position.coords.latitude,
+      position.coords.longitude
+    );
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
+    // 获取当前城市天气
     const weatherData = await getWeatherData(city);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
+    weatherIcon.value = weatherData.icon; // 设置天气图标
     updateUserInput();
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
@@ -72,7 +78,7 @@ const handleLocationClick = async () => {
   }
 };
 
-// 当用户在 Localization 部分修改定位时更新国旗和显示信息
+// 当用户修改 Localization 时更新国旗与地址信息
 const handleLocationChange = (value: string) => {
   selectedLocation.value = value;
   const loc = destinations.find(item => item.value === value);
@@ -83,7 +89,7 @@ const handleLocationChange = (value: string) => {
   updateUserInput();
 };
 
-// 目的地选择后更新天气和国旗
+// 目的地选择后更新天气和目的地国旗，同时设置天气图标
 const handleDestinationSelect = async (value: string) => {
   selectedDestination.value = value;
   const dest = destinations.find(item => item.value === value);
@@ -95,9 +101,22 @@ const handleDestinationSelect = async (value: string) => {
   try {
     const weatherData = await getWeatherData(value);
     weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
+    weatherIcon.value = weatherData.icon;
   } catch (error) {
     console.log(error);
     weather.value = '天气数据不可用';
+    weatherIcon.value = '';
+  }
+  updateUserInput();
+};
+
+// 旅游偏好切换函数：点击后添加或移除选项
+const togglePreference = (optionName: string) => {
+  const index = selectedOptions.value.indexOf(optionName);
+  if (index > -1) {
+    selectedOptions.value.splice(index, 1);
+  } else {
+    selectedOptions.value.push(optionName);
   }
   updateUserInput();
 };
@@ -106,6 +125,10 @@ const handleDestinationSelect = async (value: string) => {
 const handleEnter = (event: Event | KeyboardEvent) => {
   event.preventDefault();
   router.push({ name: 'conversation', query: { prompt: userInput.value } });
+};
+
+const submitItinerary = () => {
+  router.push({ name: 'generator', query: { prompt: userInput.value } });
 };
 
 onMounted(() => {
@@ -119,82 +142,100 @@ onMounted(() => {
     <header class="header">
       <div class="nav-container">
         <div class="left-nav">
-          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
-          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
-          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
+          <router-link :to="{ name: 'about' }">
+            <el-button class="nav-button">ABOUT</el-button>
+          </router-link>
+          <router-link :to="{ name: 'blog' }">
+            <el-button class="nav-button">BLOG</el-button>
+          </router-link>
+          <router-link :to="{ name: 'contact' }">
+            <el-button class="nav-button">CONTACT</el-button>
+          </router-link>
         </div>
         <div class="right-nav">
           <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">Login</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">Sign Up</el-button></router-link>
+          <router-link :to="{ name: 'login' }">
+            <el-button class="nav-button">Login</el-button>
+          </router-link>
+          <router-link :to="{ name: 'signup' }">
+            <el-button class="nav-button">Sign Up</el-button>
+          </router-link>
         </div>
       </div>
       <h1 class="header-title">{{ msg }}</h1>
     </header>
 
-    <!-- 定位与目的地选择区域 -->
+    <!-- 主体区域 -->
     <main class="main">
-      <div class="destination-container">
-        <div class="location-flow">
-          <!-- Localization 模块 -->
-          <div class="location-card">
-            <h2>Localization</h2>
-            <div class="location-content">
-              <div class="current-location">
-                <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
-                <el-select v-model="selectedLocation" class="location-select" @change="handleLocationChange">
-                  <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
-                </el-select>
-              </div>
-              <p class="coordinates">{{ userLocation }}</p>
+      <!-- 合并后的 Localization 与 Destination 卡片（同一行排列） -->
+      <div class="combined-card">
+        <div class="location-destination-row">
+          <!-- Localization 列 -->
+          <div class="field location-field">
+            <div class="field-label">Localization</div>
+            <el-select v-model="selectedLocation" placeholder="Select location" class="select" @change="handleLocationChange">
+              <el-option
+                v-for="(loc, index) in destinations"
+                :key="index"
+                :label="loc.label"
+                :value="loc.value"
+              />
+            </el-select>
+            <div class="info">
+              <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
+              <span>{{ userLocation }}</span>
             </div>
           </div>
-
-          <!-- 飞机动画 -->
-          <div class="flight-animation">
-            <svg class="airplane" viewBox="0 0 24 24">
-              <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" />
-            </svg>
-          </div>
-
-          <!-- Destination 模块 -->
-          <div class="destination-card">
-            <h2>Destination</h2>
-            <div class="destination-content">
-              <div class="destination-select-wrapper">
-                <el-select v-model="selectedDestination" placeholder="Select destination" class="destination-select" filterable @change="handleDestinationSelect">
-                  <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
-                </el-select>
-                <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
-              </div>
-              <div v-if="weather" class="weather-info">
-                <i class="weather-icon"></i>
-                <span>{{ weather }}</span>
-              </div>
+          <!-- Destination 列 -->
+          <div class="field destination-field">
+            <div class="field-label">Destination</div>
+            <el-select v-model="selectedDestination" placeholder="Select destination" class="select" filterable @change="handleDestinationSelect">
+              <el-option
+                v-for="(destination, index) in destinations"
+                :key="index"
+                :label="destination.label"
+                :value="destination.value"
+              />
+            </el-select>
+            <div class="info">
+              <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
+              <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" />
+              <span v-if="weather">{{ weather }}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- 行程规划模块 -->
-        <div class="itinerary-section">
-          <h2>Design Your Own Itinerary Agent</h2>
-          <el-select v-model="selectedOptions" multiple filterable placeholder="🗺️ Select preferences to start planning" class="preference-select" @change="updateUserInput">
-            <el-option v-for="option in preferenceOptions" :key="option.name" :label="option.name" :value="option.name">
-              <span class="option-content">
-                <span class="option-icon">{{ option.icon }}</span>
-                {{ option.name }}
-              </span>
-            </el-option>
-          </el-select>
-          <!-- 可编辑的 Prompt 文本框，初始内容由 generateUserPrompt 生成 -->
-          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="requirements-input" type="textarea" :rows="6" @keydown.enter="handleEnter" />
+      <!-- 行程规划模块：改为横排展示选项，及美化用户输入模块 -->
+      <div class="itinerary-section">
+        <h3>Plan Your Itinerary</h3>
+        <!-- 旅游偏好横排选择 -->
+        <div class="preference-options">
+          <span
+            v-for="option in preferenceOptions"
+            :key="option.name"
+            class="preference-option"
+            :class="{ selected: selectedOptions.includes(option.name) }"
+            @click="togglePreference(option.name)"
+          >
+            <span class="option-icon">{{ option.icon }}</span>
+            <span class="option-name">{{ option.name }}</span>
+          </span>
         </div>
-        <router-link :to="{ name: 'generator' }">
-          <el-button class="nav-button">Start Now</el-button>
-        </router-link>
+        <!-- 美化后的用户输入模块 -->
+        <el-input
+          v-model="userInput"
+          placeholder="Edit your trip prompt..."
+          class="itinerary-input"
+          type="textarea"
+          :rows="4"
+          @keydown.enter="handleEnter"
+        />
+        <button class="submit-button" @click="submitItinerary">Start Now</button>
       </div>
     </main>
   </div>
-</template>
 
+
+</template>
 

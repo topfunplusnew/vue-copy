@@ -19,6 +19,7 @@ const msg= 'Welcome back to iPoloGO';
           <wallet-item />
           <router-link :to="{ name: 'login' }"><el-button class="nav-button">Login</el-button></router-link>
           <router-link :to="{ name: 'signup' }"><el-button class="nav-button">Sign Up</el-button></router-link>
+          <router-link :to="{ name: 'userpage' }"><el-button class="nav-button">User Page</el-button></router-link>
         </div>
       </div>
 

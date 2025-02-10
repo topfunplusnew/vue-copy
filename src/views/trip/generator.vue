@@ -1,3 +1,212 @@
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
+import { generateUserPrompt } from '@/stores/userprompt';
+import { setTripOptions } from '@/stores/tripoption';
+
+
+interface ChatMessage { sender: string; text: string; }
+interface HistoryRecord { summary: string; messages: ChatMessage[]; }
+
+const chatMessages = ref<ChatMessage[]>([]);
+const historyRecords = ref<HistoryRecord[]>([]);
+const userChatInput = ref('');
+
+const updateMessage = (index: number, event: Event) => {
+  const target = event.target as HTMLElement;
+  chatMessages.value[index].text = target.innerText;
+};
+
+const sendMessage = () => {
+  if (!userChatInput.value.trim()) return;
+  chatMessages.value.push({ sender: 'user', text: userChatInput.value });
+  const agentReply = "iPoloGO: " + userChatInput.value;
+  chatMessages.value.push({ sender: 'agent', text: agentReply });
+  userChatInput.value = '';
+};
+
+const finishConversation = () => {
+  if (chatMessages.value.length === 0) {
+    ElMessage.info("No conversation to finish.");
+    return;
+  }
+  const summary = generateSummary(chatMessages.value);
+  historyRecords.value.push({ summary, messages: [...chatMessages.value] });
+  chatMessages.value = [];
+};
+
+const generateSummary = (messages: ChatMessage[]): string => {
+  let summary = "General Conversation";
+  if (messages.some(m => m.text.toLowerCase().includes("trip"))) {
+    summary = "Trip planning: location to destination";
+  }
+  return summary;
+};
+
+const loadHistory = (index: number) => {
+  const record = historyRecords.value[index];
+  if (record) {
+    chatMessages.value = [...record.messages];
+  }
+};
+
+const tripSelections = ref({
+  DateFrom: '',
+  DateTo: '',
+  Transportation: [] as string[],
+  TransportationClass: '',
+  Hotel: [] as string[],
+  Tickets: [] as string[],
+  Activities: [] as string[],
+  Budget: {
+    Currency: '',
+    Total: '',
+    Transportation: 25,
+    Hotel: 25,
+    Tickets: 25,
+    Activities: 25
+  }
+});
+
+const availableTransportationClasses = computed(() => {
+  if (tripSelections.value.Transportation.length === 1) {
+    const t = tripSelections.value.Transportation[0];
+    if (t === "Flight") {
+      return ["First Class", "Business Class", "Economy"];
+    } else if (t === "Train") {
+      return ["First Class", "Second Class"];
+    } else if (t === "Bus") {
+      return ["Standard"];
+    } else {
+      return ["Economy"];
+    }
+  }
+  return [];
+});
+
+const groupedHotels = computed(() => {
+  const groups: { [key: string]: any[] } = {};
+  tripOptionsData.Hotel.forEach(item => {
+    const group = item.group || "Other";
+    if (!groups[group]) {
+      groups[group] = [];
+    }
+    groups[group].push(item);
+  });
+  return Object.keys(groups).map(key => ({ label: key, options: groups[key] }));
+});
+
+// 防止递归更新的标志
+let isUpdatingBudget = false;
+// 修改后的动态预算调整逻辑：按比例调整其他项，使总和为 100%
+const updateBudgetProportions = (changedKey: keyof typeof tripSelections.value.Budget, newValue: number) => {
+  if (isUpdatingBudget) return;
+  isUpdatingBudget = true;
+
+  const keys: (keyof typeof tripSelections.value.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
+  // 先更新当前修改的项
+  tripSelections.value.Budget[changedKey] = newValue;
+
+  const otherKeys = keys.filter(k => k !== changedKey);
+  const desiredOthersSum = 100 - newValue;
+  let othersCurrentSum = otherKeys.reduce((sum, key) => sum + tripSelections.value.Budget[key], 0);
+
+  if (othersCurrentSum === 0) {
+    // 如果其他项都为 0，则平分剩余比例
+    const equalShare = desiredOthersSum / otherKeys.length;
+    otherKeys.forEach(key => {
+      tripSelections.value.Budget[key] = equalShare;
+    });
+  } else {
+    // 按照当前比例调整其他项
+    otherKeys.forEach(key => {
+      const current = tripSelections.value.Budget[key];
+      const proportion = current / othersCurrentSum;
+      tripSelections.value.Budget[key] = Math.round(proportion * desiredOthersSum);
+    });
+    // 修正因四舍五入导致的误差
+    const newOthersSum = otherKeys.reduce((sum, key) => sum + tripSelections.value.Budget[key], 0);
+    const diff = desiredOthersSum - newOthersSum;
+    if (otherKeys.length > 0) {
+      tripSelections.value.Budget[otherKeys[0]] += diff;
+    }
+  }
+  isUpdatingBudget = false;
+};
+
+watch(() => tripSelections.value.Budget.Transportation, (val) => { updateBudgetProportions("Transportation", val); });
+watch(() => tripSelections.value.Budget.Hotel, (val) => { updateBudgetProportions("Hotel", val); });
+watch(() => tripSelections.value.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
+watch(() => tripSelections.value.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
+
+const budgetTotal = computed(() => {
+  const b = tripSelections.value.Budget;
+  return b.Transportation + b.Hotel + b.Tickets + b.Activities;
+});
+
+// 以下 tripPrompt 作为备用生成逻辑
+const tripPrompt = computed(() => {
+  let parts: string[] = [];
+  if (tripSelections.value.DateFrom || tripSelections.value.DateTo) {
+    const from = tripSelections.value.DateFrom || "a certain date";
+    const to = tripSelections.value.DateTo || "a certain destination";
+    parts.push(`I plan to travel from ${from} to ${to}.`);
+  }
+  if (tripSelections.value.Transportation.length) {
+    const trans = tripSelections.value.Transportation.join(", ");
+    const tClass = tripSelections.value.TransportationClass ? ` (${tripSelections.value.TransportationClass})` : "";
+    parts.push(`My chosen transportation is ${trans}${tClass}.`);
+  }
+  if (tripSelections.value.Hotel.length) {
+    parts.push(`I prefer to stay at ${tripSelections.value.Hotel.join(", ")}.`);
+  }
+  if (tripSelections.value.Budget.Currency || tripSelections.value.Budget.Total) {
+    const currency = tripSelections.value.Budget.Currency || "";
+    const total = tripSelections.value.Budget.Total || "";
+    parts.push(`My total budget is ${currency} ${total} with proportions: Transportation ${tripSelections.value.Budget.Transportation}%, Hotel ${tripSelections.value.Budget.Hotel}%, Tickets ${tripSelections.value.Budget.Tickets}%, Activities ${tripSelections.value.Budget.Activities}%.`);
+  }
+  if (tripSelections.value.Tickets.length) {
+    parts.push(`I plan to purchase ${tripSelections.value.Tickets.join(", ")}.`);
+  }
+  if (tripSelections.value.Activities.length) {
+    parts.push(`I intend to participate in ${tripSelections.value.Activities.join(", ")}.`);
+  }
+  return parts.join(" ");
+});
+
+const insertTripPrompt = () => {
+  if (tripPrompt.value) {
+    userChatInput.value = tripPrompt.value;
+  }
+};
+
+const selectedMapType = ref('World Map');
+const userLocation = ref('Current Location');
+const selectedDestination = ref('Destination');
+
+const historyVisible = ref(false);
+const toggleHistory = () => {
+  historyVisible.value = !historyVisible.value;
+};
+
+const route = useRoute();
+// 页面加载时：如果路由 query 中传入了 prompt，则直接使用；否则调用 generateUserPrompt 生成默认文本
+onMounted(() => {
+  const initialPrompt = route.query.prompt as string;
+  if (initialPrompt) {
+    userChatInput.value = initialPrompt;
+  } else {
+    userChatInput.value = generateUserPrompt("Current Location", "Destination", []);
+  }
+  // 自动发起首轮对话（延时 200ms 可根据需要调整）
+  setTimeout(() => {
+    sendMessage();
+  }, 200);
+});
+</script>
+
 <template>
   <div class="home">
     <!-- Header -->
@@ -208,7 +417,7 @@
                   :min="0"
                   :max="100"
                   show-input
-                  @change="updateBudgetProportions('Transportation', $event)"
+                  @change="(val) => updateBudgetProportions('Transportation', val)"
                 />
               </div>
               <div class="budget-row slider-row">
@@ -218,7 +427,7 @@
                   :min="0"
                   :max="100"
                   show-input
-                  @change="updateBudgetProportions('Hotel', $event)"
+                  @change="(val) => updateBudgetProportions('Hotel', val)"
                 />
               </div>
               <div class="budget-row slider-row">
@@ -228,7 +437,7 @@
                   :min="0"
                   :max="100"
                   show-input
-                  @change="updateBudgetProportions('Tickets', $event)"
+                  @change="(val) => updateBudgetProportions('Tickets', val)"
                 />
               </div>
               <div class="budget-row slider-row">
@@ -238,10 +447,10 @@
                   :min="0"
                   :max="100"
                   show-input
-                  @change="updateBudgetProportions('Activities', $event)"
+                  @change="(val) => updateBudgetProportions('Activities', val)"
                 />
               </div>
-              <p class="budget-totals">Total: {{ budgetTotal }}% (Must equal 100%)</p>
+              <!-- <p class="budget-totals">Total: {{ budgetTotal }}% (Must equal 100%)</p> -->
             </div>
           </div>
 
@@ -306,6 +515,14 @@
           </div>
         </div>
 
+           <!-- 自动生成的 Prompt -->
+           <div class="trip-prompt">
+            <p><strong>Constructed Prompt:</strong></p>
+            <p>{{ tripPrompt }}</p>
+            <el-button type="primary" @click="insertTripPrompt">Insert Prompt into Chat</el-button>
+          </div>
+
+
         <!-- Map 模块 -->
         <div class="map-panel">
           <h3>Map</h3>
@@ -325,185 +542,4 @@
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { ElMessage } from 'element-plus';
-import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
-import { generateUserPrompt } from '@/stores/userprompt';
-
-interface ChatMessage { sender: string; text: string; }
-interface HistoryRecord { summary: string; messages: ChatMessage[]; }
-
-const chatMessages = ref<ChatMessage[]>([]);
-const historyRecords = ref<HistoryRecord[]>([]);
-const userChatInput = ref('');
-
-const updateMessage = (index: number, event: Event) => {
-  const target = event.target as HTMLElement;
-  chatMessages.value[index].text = target.innerText;
-};
-
-const sendMessage = () => {
-  if (!userChatInput.value.trim()) return;
-  chatMessages.value.push({ sender: 'user', text: userChatInput.value });
-  const agentReply = "Agent reply to: " + userChatInput.value;
-  chatMessages.value.push({ sender: 'agent', text: agentReply });
-  userChatInput.value = '';
-};
-
-const finishConversation = () => {
-  if (chatMessages.value.length === 0) {
-    ElMessage.info("No conversation to finish.");
-    return;
-  }
-  const summary = generateSummary(chatMessages.value);
-  historyRecords.value.push({ summary, messages: [...chatMessages.value] });
-  chatMessages.value = [];
-};
-
-const generateSummary = (messages: ChatMessage[]): string => {
-  let summary = "General Conversation";
-  if (messages.some(m => m.text.toLowerCase().includes("trip"))) {
-    summary = "Trip planning: location to destination";
-  }
-  return summary;
-};
-
-const loadHistory = (index: number) => {
-  const record = historyRecords.value[index];
-  if (record) {
-    chatMessages.value = [...record.messages];
-  }
-};
-
-const tripSelections = ref({
-  DateFrom: '',
-  DateTo: '',
-  Transportation: [] as string[],
-  TransportationClass: '',
-  Hotel: [] as string[],
-  Tickets: [] as string[],
-  Activities: [] as string[],
-  Budget: {
-    Currency: '',
-    Total: '',
-    Transportation: 25,
-    Hotel: 25,
-    Tickets: 25,
-    Activities: 25
-  }
-});
-
-const availableTransportationClasses = computed(() => {
-  if (tripSelections.value.Transportation.length === 1) {
-    const t = tripSelections.value.Transportation[0];
-    if (t === "Flight") {
-      return ["First Class", "Business Class", "Economy"];
-    } else if (t === "Train") {
-      return ["First Class", "Second Class"];
-    } else if (t === "Bus") {
-      return ["Standard"];
-    } else {
-      return ["Economy"];
-    }
-  }
-  return [];
-});
-
-const groupedHotels = computed(() => {
-  const groups: { [key: string]: any[] } = {};
-  tripOptionsData.Hotel.forEach(item => {
-    const group = item.group || "Other";
-    if (!groups[group]) {
-      groups[group] = [];
-    }
-    groups[group].push(item);
-  });
-  return Object.keys(groups).map(key => ({ label: key, options: groups[key] }));
-});
-
-const updateBudgetProportions = (changedKey: keyof typeof tripSelections.value.Budget, newValue: number) => {
-  const keys: (keyof typeof tripSelections.value.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
-  const otherKeys = keys.filter(k => k !== changedKey);
-  tripSelections.value.Budget[changedKey] = newValue;
-  const remaining = 100 - newValue;
-  const equalValue = Math.round(remaining / otherKeys.length);
-  otherKeys.forEach(k => {
-    tripSelections.value.Budget[k] = equalValue;
-  });
-};
-
-watch(() => tripSelections.value.Budget.Transportation, (val) => { updateBudgetProportions("Transportation", val); });
-watch(() => tripSelections.value.Budget.Hotel, (val) => { updateBudgetProportions("Hotel", val); });
-watch(() => tripSelections.value.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
-watch(() => tripSelections.value.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
-
-const budgetTotal = computed(() => {
-  const b = tripSelections.value.Budget;
-  return b.Transportation + b.Hotel + b.Tickets + b.Activities;
-});
-
-// 以下 tripPrompt 作为备用生成逻辑（homeview 已生成的 prompt 通过 query 传递时优先使用）
-const tripPrompt = computed(() => {
-  let parts: string[] = [];
-  if (tripSelections.value.DateFrom || tripSelections.value.DateTo) {
-    const from = tripSelections.value.DateFrom || "a certain date";
-    const to = tripSelections.value.DateTo || "a certain destination";
-    parts.push(`I plan to travel from ${from} to ${to}.`);
-  }
-  if (tripSelections.value.Transportation.length) {
-    const trans = tripSelections.value.Transportation.join(", ");
-    const tClass = tripSelections.value.TransportationClass ? ` (${tripSelections.value.TransportationClass})` : "";
-    parts.push(`My chosen transportation is ${trans}${tClass}.`);
-  }
-  if (tripSelections.value.Hotel.length) {
-    parts.push(`I prefer to stay at ${tripSelections.value.Hotel.join(", ")}.`);
-  }
-  if (tripSelections.value.Budget.Currency || tripSelections.value.Budget.Total) {
-    const currency = tripSelections.value.Budget.Currency || "";
-    const total = tripSelections.value.Budget.Total || "";
-    parts.push(`My total budget is ${currency} ${total} with proportions: Transportation ${tripSelections.value.Budget.Transportation}%, Hotel ${tripSelections.value.Budget.Hotel}%, Tickets ${tripSelections.value.Budget.Tickets}%, Activities ${tripSelections.value.Budget.Activities}%.`);
-  }
-  if (tripSelections.value.Tickets.length) {
-    parts.push(`I plan to purchase ${tripSelections.value.Tickets.join(", ")}.`);
-  }
-  if (tripSelections.value.Activities.length) {
-    parts.push(`I intend to participate in ${tripSelections.value.Activities.join(", ")}.`);
-  }
-  return parts.join(" ");
-});
-
-const insertTripPrompt = () => {
-  if (tripPrompt.value) {
-    userChatInput.value = tripPrompt.value;
-  }
-};
-
-const selectedMapType = ref('World Map');
-const userLocation = ref('Current Location');
-const selectedDestination = ref('Destination');
-
-const historyVisible = ref(false);
-const toggleHistory = () => {
-  historyVisible.value = !historyVisible.value;
-};
-
-const route = useRoute();
-// 页面加载时：如果路由 query 中传入了 prompt，则直接使用；否则调用 generateUserPrompt 生成默认文本
-onMounted(() => {
-  const initialPrompt = route.query.prompt as string;
-  if (initialPrompt) {
-    userChatInput.value = initialPrompt;
-  } else {
-    // 这里使用 generateUserPrompt 的默认值；你可以根据实际需要调整传入的参数
-    userChatInput.value = generateUserPrompt("Current Location", "Destination", []);
-  }
-  // 自动发起首轮对话（延时 200ms 可根据需要调整）
-  setTimeout(() => {
-    sendMessage();
-  }, 200);
-});
-</script>
 

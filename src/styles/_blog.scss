@@ -1,77 +1,88 @@
+/* Blog Container */
 .blog-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem; 
+}
+
+.blog-container h3
+{
+  font-size: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 帖子列表 */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* 每个帖子卡片 */
+.post-item {
+  background: rgba(255, 255, 255, 0.826);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.post-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+
+/* Meta 信息 */
+.meta-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.reading-time {
+  color: #000000;
+  font-size: 1.5rem;
+}
+.categories {
+  display: flex;
+  gap: 0.5rem;
+}
+.category-tag {
+  background-color: #f0f0f0;
+  color: #555;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8em;
+}
+
+/* 帖子标题 */
+.post-title {
+  color: #333;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  margin: 0.5rem 0;
+}
+
+/* 分割线 */
+.divider {
+  height: 1px;
+  background-color: #5a1313;
+  margin-top: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-wrap: wrap;
+    justify-content: center;
   }
-  
-  .section-title {
-    font-size: 2rem;
-    color: #303133;
-    margin-bottom: 2rem;
-    text-align: center;
+  .post-title {
+    font-size: 1.3rem;
   }
-  
-  .post-item {
-    margin-bottom: 2.5rem;
-    transition: all 0.3s ease;
-  }
-  
-  .post-item:hover {
-    transform: translateX(10px);
-  }
-  
   .meta-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-  
-  .reading-time {
-    color: #ffffff;
-    font-size: 0.9em;
-  }
-  
-  .categories {
-    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
     gap: 0.5rem;
   }
-  
-  .category-tag {
-    background-color: #f0f2f5;
-    color: #666660;
-    padding: 0.25rem 0.75rem;
-    border-radius: 15px;
-    font-size: 0.85em;
-  }
-  
-  .post-title {
-    color: #ffffff;
-    font-size: 1.25rem;
-    line-height: 1.5;
-    margin: 1rem 0;
-  }
-  
-  .divider {
-    height: 1px;
-    background-color: #ffffff;
-    margin-top: 1.5rem;
-  }
-  
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .nav-container {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-  
-    .post-title {
-      font-size: 1.1rem;
-    }
-  
-    .meta-line {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-  }
+}

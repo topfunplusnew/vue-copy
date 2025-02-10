@@ -42,6 +42,11 @@ const router = createRouter({
       component: SignupView
     },
     {
+      path: '/userpage',
+      name: 'userpage',
+      component: () => import('@/views/trip/userpage.vue')
+    },
+    {
       path: '/generator',
       name: 'generator',
       component: () => import('@/views/trip/generator.vue')

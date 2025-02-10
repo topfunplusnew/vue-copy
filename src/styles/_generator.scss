@@ -49,11 +49,15 @@
     max-width: 70%;
   }
   .chat-message.user {
+    font-size: large;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     background: rgba(0,210,255,0.2);
     align-self: flex-end;
     text-align: right;
   }
   .chat-message.agent {
+    font-size: large;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     background: rgba(255,255,255,0.2);
     align-self: flex-start;
     text-align: left;
@@ -142,7 +146,7 @@
     border-radius: 8px;
     overflow-y: auto;
     max-height: 40vh;
-    text-align: left;
+    text-align: left ;
   }
   .map-controls {
     margin-bottom: 10px;
@@ -164,4 +168,8 @@
   .header-title {
     text-align: center;
     width: 100%;
+  }
+
+  .trip-prompt p{
+    font-size: 1.5rem;
   }
