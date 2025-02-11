@@ -141,5 +141,95 @@ export const blogPosts: BlogPost[] = [
     comments: 6,
     coins: 15,
     tags: ['Business', 'Educational']
-  }
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
+  {
+    id: 14,
+    image: 'https://via.placeholder.com/300x200?text=Blog+14',
+    avatar: 'https://via.placeholder.com/50?text=I',
+    username: 'Ivy',
+    likes: 40,
+    comments: 9,
+    coins: 18,
+    tags: ['Medical', 'Culture']
+  },
 ];

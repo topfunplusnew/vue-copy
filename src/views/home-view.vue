@@ -17,7 +17,6 @@ const weatherIcon = ref(''); // 存储天气图标 URL
 const userLocation = ref('');
 const userFlag = ref('');
 const destinationFlag = ref('');
-const msg = 'Welcome to iPoloGO!';
 const isLoading = ref(false);
 const errorMessage = ref('');
 
@@ -133,7 +132,7 @@ onMounted(() => {
 // -----------------------------
 // 社交帖子模块部分
 
-import { blogPosts } from '@/data/blogData';
+import { blogPosts } from '@/data/blogdata';
 
 // 多选筛选：选中的标签数组
 const socialFilters = ref([
@@ -172,17 +171,17 @@ const filteredPosts = computed(() => {
   }
 });
 
-// 用于控制加载更多的显示（默认显示12个帖子）
+// 控制加载的帖子数，初始显示12个帖子，每次加载6个
 const postsToShow = ref(12);
 const postsDisplayed = computed(() => {
   return filteredPosts.value.slice(0, postsToShow.value);
 });
 
-// 下拉菜单（加载更多）控制
-const showMore = ref(false);
+// 下拉加载更多：每次加载6个帖子
 const loadMorePosts = () => {
-  // 每次加载6个帖子
-  postsToShow.value += 6;
+  if (postsToShow.value < blogPosts.length) {
+    postsToShow.value += 6;
+  }
 };
 
 // 使用 IntersectionObserver 检测用户是否滚动到帖子区域底部
@@ -191,10 +190,8 @@ onMounted(() => {
   if (bottomTrigger.value) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          showMore.value = true;
-        } else {
-          showMore.value = false;
+        if (entry.isIntersecting && postsToShow.value < blogPosts.length) {
+          loadMorePosts();
         }
       });
     });
@@ -227,20 +224,26 @@ onMounted(() => {
           <router-link :to="{ name: 'signup' }">
             <el-button class="nav-button">Sign Up</el-button>
           </router-link>
+          <router-link :to="{ name: 'userpage' }">
+            <el-button class="nav-button">User Page</el-button>
+          </router-link>
         </div>
       </div>
-      <h1 class="header-title">Have Fun in iPoloGO</h1>
+      <h2 class="welcome-text">Welcome to iPoloGO!</h2>
     </header>
 
     <!-- 主体区域 -->
     <main class="main">
+      <!-- 行程规划模块 -->
       <!-- Trip Options / Localization 与 Destination 卡片 -->
       <div class="combined-card">
+        <h3>Plan Your Itinerary</h3>
+        <hr class="horizontal-divider" />
         <div class="location-destination-row">
           <!-- Localization -->
           <div class="field location-field">
             <div class="field-label">Localization</div>
-            <el-select v-model="selectedLocation" placeholder="Select location" class="select" @change="handleLocationChange">
+            <el-select v-model="selectedLocation" placeholder="Select location" class="select"  filterable @change="handleLocationChange">
               <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
             </el-select>
             <div class="info">
@@ -261,11 +264,7 @@ onMounted(() => {
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- 行程规划模块 -->
-      <div class="itinerary-section">
-        <h3>Plan Your Itinerary</h3>
+        <hr class="horizontal-divider" />
         <div class="preference-options">
           <span v-for="option in preferenceOptions" :key="option.name" class="preference-option"
             :class="{ selected: selectedOptions.includes(option.name) }"
@@ -275,46 +274,56 @@ onMounted(() => {
           </span>
         </div>
         <div class="input-container">
-          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="itinerary-input" type="textarea" :rows="4" @keydown.enter="handleEnter" />
-          <button class="submit-button" @click="submitItinerary">Start Now</button>
+          <el-input v-model="userInput"
+          placeholder="Edit your trip prompt..."
+          class="itinerary-input"
+          type="textarea"
+          :rows="4"
+          @keydown.enter="handleEnter" />
+          <button class="togenerator" @click="submitItinerary">Start Now</button>
         </div>
       </div>
 
+
+
       <!-- 社交帖子模块 -->
-      <section class="social-feed">
-        <h3>Explore iPoloGO Community</h3>
-        <!-- 横向分割线 -->
-        <hr class="horizontal-divider" />
+            <section class="social-feed">
+        <div class="social-header">
+          <h3>Explore iPoloGO Community</h3>
+          <hr class="horizontal-divider" />
+        </div>
         <div class="social-container">
-          <!-- 左侧筛选区域（多选） -->
-          <div class="social-filter-panel">
-            <button v-for="filter in socialFilters" :key="filter"
-              :class="{ active: selectedFilters.includes(filter) }"
-              @click="toggleSocialFilter(filter)">
-              {{ filter }}
-            </button>
+          <!-- 固定左侧区域 -->
+          <div class="social-fixed">
+            <div class="social-filter-panel">
+              <button
+                v-for="filter in socialFilters"
+                :key="filter"
+                :class="{ active: selectedFilters.includes(filter) }"
+                @click="toggleSocialFilter(filter)"
+              >
+                {{ filter }}
+              </button>
+            </div>
           </div>
           <!-- 竖直分隔线 -->
           <div class="vertical-divider"></div>
-          <!-- 右侧博客展示区域 -->
-          <div class="social-posts-panel">
-            <div class="social-post" v-for="post in postsDisplayed" :key="post.id">
-              <img :src="post.image" alt="Post Image" class="post-image" />
-              <div class="post-footer">
-                <img :src="post.avatar" alt="Avatar" class="post-avatar" />
-                <div class="post-stats">
-                  <span class="likes">❤️ {{ post.likes }}</span>
-                  <span class="comments">💬 {{ post.comments }}</span>
-                  <span class="coins">💰 {{ post.coins }}</span>
+          <!-- 右侧博客滚动区域 -->
+          <div class="social-scroll">
+            <div class="social-posts-panel" ref="postsPanel">
+              <div class="social-post" v-for="post in postsDisplayed" :key="post.id">
+                <img :src="post.image" alt="Post Image" class="post-image" />
+                <div class="post-footer">
+                  <img :src="post.avatar" alt="Avatar" class="post-avatar" />
+                  <div class="post-stats">
+                    <span class="likes">❤️ {{ post.likes }}</span>
+                    <span class="comments">💬 {{ post.comments }}</span>
+                    <span class="coins">💰 {{ post.coins }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <!-- 下拉加载更多按钮，仅在滚动到底部时显示 -->
-            <div ref="bottomTrigger"></div>
-            <div v-if="showMore && postsToShow < blogPosts.length" class="explore-more">
-              <button class="explore-more-btn" @click="loadMorePosts">
-                Explore More
-              </button>
+              <!-- 用于无限滚动触发 -->
+              <div ref="bottomTrigger"></div>
             </div>
           </div>
         </div>

@@ -1,157 +1,156 @@
-/* 设置页面的背景色为蓝色 */
-body {
-  background-color: #007bff; /* 蓝色背景 */
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
+/* 左右布局容器，扩展至全屏宽 */
+.content-container {
+  display: flex;
+  width: 100%;
+  /* 如需内容居中，可添加 max-width 后 margin: 0 auto; */
 }
 
+/* 左侧面板：登录模块 */
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* 欢迎语 */
+.welcome-text {
+  font-size: 2.4rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #fff;
+}
 
 /* 登录容器 */
 .login-container {
   display: flex;
-  justify-content: flex-start; /* 使容器在顶部显示 */
+  justify-content: center;
   align-items: center;
-  flex-direction: column;
   width: 100%;
-  padding: 20px;
-  box-sizing: border-box;
-  position: absolute; /* 使用绝对定位移动容器 */
-  top: 15%; /* 将登录容器上移，可以调整这个值，减小top值 */
-  left: 50%;
-  transform: translateX(-50%); /* 使登录框水平居中 */
-  z-index: 9999; /* 确保容器在最上层 */
 }
 
-/* 登录表单样式 */
+/* 登录表单（玻璃卡片） */
 .login-form {
-  background-color: white;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
   padding: 40px;
-  border-radius: 10px;
+  border-radius: 16px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
   text-align: center;
 }
 
-/* 标题样式 */
-h2 {
-  color: #333;
-  margin-bottom: 20px;
+.login-form h2 {
+  font-size: 3em;
+  margin-top: 10px;
+  margin-bottom: 30px;
+  color: #fff;
 }
 
-
-/* 登录表单样式 */
-.login-form {
-  background-color: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;  /* 宽度设为100% */
-  max-width: 400px;  /* 设置最大宽度为400px */
-  text-align: center;
-}
-
-/* 输入框样式 */
-input {
-  width: 93%; /* 让输入框占满父容器的宽度 */
-  padding: 12px;
+/* 输入框 */
+.login-form input {
+  width: 100%;
+  padding: 12px 16px;
   margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  color: #333;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(12px);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 1.8rem;
+  color: #030921;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
 }
 
-input:focus {
-  border-color: #007bff;
+.login-form input:focus {
+  border: 2px solid #1a2a6c;
+  box-shadow: 0 0 15px rgba(26, 42, 108, 0.5);
   outline: none;
 }
 
-/* 按钮样式 */
-button {
-  width: 100%; /* 让按钮占满父容器的宽度 */
+.login-form input::placeholder {
+  color: rgba(26, 42, 108, 0.7);
+  font-style: italic;
+}
+
+/* 登录按钮 */
+.login-button {
+  display: block;
+  width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  font-size: 1.8rem;
+  font-family: 'Helvetica Neue', sans-serif;
+  border-radius: 8px;
+  background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+  backdrop-filter: blur(10px);
+  color: #fefefe;
   border: none;
-  color: white;
-  font-size: 16px;
-  border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  animation: pulse 4s infinite ease-in-out;
+  margin-top: 10px;
 }
 
-button:hover {
-  background-color: darken(#007bff, 10%);
+.login-button:hover {
+  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
-/* 忘记密码和注册链接容器 */
+/* 链接容器 */
 .links-container {
   display: flex;
-  justify-content: space-between; /* 在左右两边对齐 */
+  justify-content: space-between;
   width: 100%;
-  margin-bottom: 10px;
+  margin: 15px 0;
 }
 
-/* 忘记密码样式 */
-.forgot-password {
-  font-size: 14px;
-  color: #007bff;
-  text-decoration: none;
-  text-align: left; /* 左对齐 */
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
-}
-
-/* 注册链接样式 */
+.forgot-password-link,
 .signup-link {
-  font-size: 14px;
-  color: #007bff;
+  font-size: 1.4rem;
+  color: #fff;
   text-decoration: none;
-  text-align: right; /* 右对齐 */
 }
 
+.forgot-password-link:hover,
 .signup-link:hover {
   text-decoration: underline;
 }
 
-/* 分割线和"or" */
+/* 分割线 */
 .or-divider {
   display: flex;
   align-items: center;
   width: 100%;
-  margin: 20px 0; /* 上下间距 */
+  margin: 20px 0;
 }
 
 .or-divider::before,
 .or-divider::after {
   content: '';
-  flex-grow: 1; /* 左右两边的分割线占满剩余空间 */
+  flex-grow: 1;
   height: 1px;
-  background-color: #ccc; /* 分割线颜色 */
+  background-color: rgba(255,255,255,0.5);
 }
 
 .or-divider span {
-  font-size: 20px; /* 放大"or"的字体 */
+  font-size: 2rem;
   font-weight: bold;
-  color: #333;
-  margin: 0 10px; /* 给"or"增加左右间距 */
+  color: #fff;
+  margin: 0 10px;
 }
 
-
-/* Quick login 文本样式 */
+/* 快捷登录提示文本 */
 .quick-login-text {
   text-align: left;
-  font-size: 14px;
-  color: #030303;
-  margin-top: 10px;
-  margin-left: 10px;
+  font-size: 1.4rem;
+  color: #fff;
+  margin: 10px 0;
 }
 
-
-/* 快捷登录按钮容器 */
+/* 快捷登录按钮 */
 .social-login {
   margin-top: 20px;
   display: flex;
@@ -159,87 +158,86 @@ button:hover {
   width: 100%;
 }
 
-/* 单个快捷登录按钮 */
 .social-button {
   width: 30%;
-  padding: 10px 24px; /* 保持按钮高度 */
+  padding: 10px 0;
   border: none;
-  border-radius: 5px;
-  color: #333; /* 黑色文字 */
-  font-size: 12px; /* 小字体 */
-  font-weight: bold; /* 黑体字 */
+  border-radius: 8px;
+  color: #030921;
+  font-size: 1.4rem;
+  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
   display: flex;
-  align-items: center; /* 水平居中对齐图标和文本 */
+  align-items: center;
   justify-content: center;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(8px);
 }
 
-/* WeChat 按钮 */
+.social-button:hover {
+  background-color: #dcdcdc;
+}
+
 .social-button.wechat {
-  background: white url('@/assets/wechat-logo.svg') no-repeat; /* 使用本地 SVG */
-  border: 1.5px solid #333; /* 黑色边框 */
-  
-  background-position: 8px center; /* 设置图标与左边边框的距离 */
-  padding-left: 50px; /* 增加左侧图标与边框的间距 */
-  background-size: 28px 28px; /* 设置图标大小 */
-  
-  /* 悬停时的背景色变化 */
-  &:hover {
-    background-color: #dcdcdc; /* 浅灰色背景 */
-  }
+  background: rgba(255,255,255,0.8) url('@/assets/wechat-logo.svg') no-repeat;
+  background-position: 8px center;
+  padding-left: 50px;
+  background-size: 28px 28px;
 }
 
-/* Google 按钮 */
 .social-button.google {
-  background: white url('@/assets/google-logo.svg') no-repeat; /* 使用本地 SVG */
-  border: 1.5px solid #333; /* 黑色边框 */
-  
-  background-position: 8px center; /* 设置图标与左边边框的距离 */
-  padding-left: 50px; /* 增加左侧图标与边框的间距 */
-  background-size: 28px 28px; /* 设置图标大小 */
-  
-  /* 悬停时的背景色变化 */
-  &:hover {
-    background-color: #dcdcdc; /* 浅灰色背景 */
-  }
+  background: rgba(255,255,255,0.8) url('@/assets/google-logo.svg') no-repeat;
+  background-position: 8px center;
+  padding-left: 50px;
+  background-size: 28px 28px;
 }
 
-/* Apple 按钮 */
 .social-button.apple {
-  background: white url('@/assets/apple-logo.svg') no-repeat; /* 使用本地 SVG */
-  border: 1.5px solid #333; /* 黑色边框 */
-  
-  background-position: 8px center; /* 设置图标与左边边框的距离 */
-  padding-left: 50px; /* 增加左侧图标与边框的间距 */
-  background-size: 24px 24px; /* 设置图标大小 */
-  
-  /* 悬停时的背景色变化 */
-  &:hover {
-    background-color: #dcdcdc; /* 浅灰色背景 */
-  }
+  background: rgba(255,255,255,0.8) url('@/assets/apple-logo.svg') no-repeat;
+  background-position: 8px center;
+  padding-left: 50px;
+  background-size: 24px 24px;
 }
 
-
-/* 欢迎语样式 */
-.welcome-text {
-  text-align: center; /* 居中显示 */
-  font-size: 24px; /* 增加字体大小 */
-  color: #ffffff; /* 设置颜色 */
-  margin-bottom: 20px; /* 与下方表单的间距 */
+/* Pulse 动画 */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
 }
 
+/* 右侧面板：用于展示视频和图片 */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
 
+.media-display {
+  width: 100%;
+  max-width: 600px;
+  padding: 1rem;
+  text-align: center;
+}
 
+.promo-video {
+  width: 100%;
+  border-radius: 16px;
+  margin-bottom: 1rem;
+}
 
-/* 响应式设计：调整小屏幕上的按钮布局 */
-@media (max-width: 768px) {
-  .social-login {
-    flex-direction: column;
-  }
+.image-gallery {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
 
-  .social-button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
+.image-gallery img {
+  width: 48%;
+  border-radius: 8px;
 }

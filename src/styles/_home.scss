@@ -45,13 +45,13 @@ html, body {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 1.5rem;
+  padding: 2.5rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .location-destination-row {
   display: flex;
-  gap: 1rem;
+  gap: 3rem;
   align-items: flex-start;
 }
 .field {
@@ -59,6 +59,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  max-height: 100px;
 }
 .field-label {
   font-weight: bold;
@@ -71,8 +72,8 @@ html, body {
 .info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1rem;
+  gap: 2rem;
+  font-size: 2rem;
   text-align: center;
 }
 .flag {
@@ -87,23 +88,23 @@ html, body {
 }
 
 /* 行程规划模块 */
-.itinerary-section {
-  margin-top: 100px;
-  
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  text-align: center;
-  margin-bottom: 2rem;
-}
-.itinerary-section h3 {
-  margin-top: 0.01rem;
-  margin-bottom: 3rem;
-  font-size: 3rem;
-  color: #fff;
-}
+// .itinerary-section {
+//   margin-top: 220px;
+//   width: 100%;
+//   background: rgba(255, 255, 255, 0.15);
+//   backdrop-filter: blur(10px);
+//   border-radius: 16px;
+//   padding: 2rem;
+//   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+//   text-align: center;
+//   margin-bottom: 2rem;
+// }
+// .itinerary-section h3 {
+//   margin-top: 0.01rem;
+//   margin-bottom: 3rem;
+//   font-size: 3rem;
+//   color: #fff;
+// }
 
 /* 旅游偏好横排 */
 .preference-options {
@@ -177,7 +178,7 @@ html, body {
   border-radius: 12px;
   padding: 1.2rem;
   font-size: 2.2rem;
-  font-family: 'Roboto', sans-serif; /* 改用更现代的字体 */
+  font-family: 'Roboto', sans-serif;
   color: #030921;
   transition: border 0.3s ease, box-shadow 0.3s ease;
   position: relative;
@@ -213,31 +214,53 @@ html, body {
   }
 }
 
-.submit-button {
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  padding: 0.75rem 1.5rem;
-  font-size: 3rem;
-  font-family: 'Helvetica Neue', sans-serif;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: #1a2a6c;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease;
-  z-index: 2;
-  animation: pulse 2s infinite ease-in-out;
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
-.submit-button:hover {
-  background: #f0f0f0;
-  transform: scale(1.05);
+.togenerator{
+  display: block;
+  width: 100%; /* 占满整个容器宽度 */
+  padding: 1rem;
+  font-size: 2rem;
+  font-family: 'Helvetica Neue', sans-serif;
+  border-radius: 8px;
+  background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+  backdrop-filter: blur(10px);
+  color: #fefefe;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 2;
+  animation: pulse 4s infinite ease-in-out;
 }
+
+.togenerator:hover {
+  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
 
 /*-----------------------------------------------------*/
 /* 社交帖子模块 */
+.social-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.social-header h3 {
+  font-size: 3rem;
+  margin: 0;
+}
 
 /* 横向分隔线 */
 .horizontal-divider {
@@ -246,26 +269,40 @@ html, body {
   margin: 2rem 0;
 }
 
-/* 社交帖子模块 */
+/* 整体布局：左侧固定，右侧独立滚动 */
+.social-container {
+  display: flex;
+}
+
+/* 社交帖子模块：全屏宽度 */
 .social-feed {
-  width: 95vw;
-  max-width: 100%;  /* 与全屏等宽 */
+  position: absolute;  
+  top: 850px; 
+  width: 95vw; /* 全屏宽 */
   margin: 3rem 0;
   padding: 2rem 1rem;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
   border-radius: 16px;
+  border-radius: 0;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  height: 60vh;
 }
+
+.social-scroll {
+  flex: 1;
+  height: 53vh; /* 可根据需要调整高度 */
+  overflow-y: auto;
+}
+
 
 .social-feed h3 {
   font-size: 3rem;
-  margin-top: 1rem;
   margin-bottom: 2rem;
   text-align: center;
 }
 
-/* 社交模块整体采用左右两栏布局 */
+/* 社交模块整体左右布局 */
 .social-container {
   display: flex;
   gap: 2rem;
@@ -278,6 +315,8 @@ html, body {
   flex-direction: column;
   align-items: flex-start;  /* 往左对齐 */
   gap: 1rem;
+  position: sticky;
+  top: 2rem;
 }
 
 .social-filter-panel button {
@@ -317,7 +356,20 @@ html, body {
   align-items: center;
 }
 
-/* Explore More 按钮 */
+/* 搜索输入框 */
+.social-search {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 2rem;
+  padding: 0.5rem 1rem;
+  font-size: 2rem;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  color: #1a2a6c;
+}
+
+/* Explore More 按钮（目前不使用） */
 .explore-more-btn {
   padding: 1rem 2rem;
   font-size: 2rem;
@@ -350,15 +402,18 @@ html, body {
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
 }
+
 .social-post:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
+
 .post-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
 }
+
 .post-footer {
   padding: 1rem;
   display: flex;
@@ -366,12 +421,14 @@ html, body {
   align-items: center;
   background: rgba(255, 255, 255, 0.8);
 }
+
 .post-avatar {
   width: 50px;
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
 }
+
 .post-stats {
   display: flex;
   gap: 1rem;
@@ -379,7 +436,7 @@ html, body {
   color: #1a2a6c;
 }
 
-/* 下拉加载更多区域 */
+/* 下拉加载更多区域（暂不使用） */
 .explore-more {
   text-align: center;
   margin-top: 2rem;

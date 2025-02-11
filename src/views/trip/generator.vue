@@ -277,10 +277,13 @@ onMounted(() => {
           <el-input
             v-model="userChatInput"
             placeholder="Type your message..."
+            class="chat-input-box"
+            type="textarea"
+            :rows="3"
             clearable
             @keydown.native.enter="sendMessage"
           />
-          <el-button type="warning" @click="finishConversation">Finish Conversation</el-button>
+          <button class="warning" @click="finishConversation">Finish Conversation</button>
         </div>
       </div>
 
@@ -379,16 +382,16 @@ onMounted(() => {
 
           <!-- Budget 模块 -->
           <div class="trip-option">
-            <label>
+            <div class="budget-container">
+              <label>
               <i class="el-icon-money" style="margin-right:5px"></i>
               Budget:
             </label>
-            <div class="budget-container">
               <!-- 货币与总预算 -->
               <div class="budget-row">
                 <el-select
                   v-model="tripSelections.Budget.Currency"
-                  placeholder="Select currency"
+                  placeholder="Currency"
                   style="width:150px"
                   filterable
                   class="futuristic-select"
@@ -408,7 +411,7 @@ onMounted(() => {
               </div>
               <!-- 预算比例拖动条 -->
               <div class="budget-row">
-                <label>Budget Proportions:</label>
+
               </div>
               <div class="budget-row slider-row">
                 <span>Transportation:</span>
@@ -515,12 +518,12 @@ onMounted(() => {
           </div>
         </div>
 
-           <!-- 自动生成的 Prompt -->
-           <div class="trip-prompt">
-            <p><strong>Constructed Prompt:</strong></p>
-            <p>{{ tripPrompt }}</p>
-            <el-button type="primary" @click="insertTripPrompt">Insert Prompt into Chat</el-button>
-          </div>
+          <!-- 自动生成的 Prompt -->
+          <div class="trip-prompt">
+          <!-- <p><strong>Constructed Prompt:</strong></p> -->
+          <p>{{ tripPrompt }}</p>
+          <el-button type="primary" @click="insertTripPrompt">Insert Prompt into Chat</el-button>
+        </div>
 
 
         <!-- Map 模块 -->
