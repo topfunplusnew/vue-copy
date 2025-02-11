@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
+import walletItem from '@/components/wallet-item.vue';
 import { generateUserPrompt } from '@/stores/userprompt';
 import { setTripOptions } from '@/stores/tripoption';
 
@@ -229,18 +230,17 @@ onMounted(() => {
         <div class="right-nav">
           <wallet-item />
           <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">Login</el-button>
+            <el-button class="nav-button">LOGIN</el-button>
           </router-link>
           <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">Sign Up</el-button>
+            <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
-          <!-- History 切换按钮 -->
-          <el-button class="nav-button" @click="toggleHistory">
-            {{ historyVisible ? 'Hide History' : 'Show History' }}
-          </el-button>
+          <router-link :to="{ name: 'userpage' }">
+            <el-button class="nav-button">User Page</el-button>
+          </router-link>
         </div>
       </div>
-      <h1 class="header-title">Have Fun in iPoloGO</h1>
+      <h2 class="welcome-text">Welcome to iPoloGO!</h2>
     </header>
 
     <!-- 整体内容区域 -->

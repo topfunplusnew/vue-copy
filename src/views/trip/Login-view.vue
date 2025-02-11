@@ -1,3 +1,8 @@
+<script setup lang="ts">
+import walletItem from '@/components/wallet-item.vue';
+import { ref, reactive, onMounted } from 'vue';
+</script>
+
 <template>
   <div class="home">
     <!-- Header 区域（保持原有设计） -->
@@ -20,17 +25,17 @@
         <div class="right-nav">
           <wallet-item />
           <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">Login</el-button>
+            <el-button class="nav-button">LOGIN</el-button>
           </router-link>
           <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">Sign Up</el-button>
+            <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
           <router-link :to="{ name: 'userpage' }">
             <el-button class="nav-button">User Page</el-button>
           </router-link>
         </div>
       </div>
-      <h2 class="welcome-text">Welcome to iPoloGO!</h2>
+      <h2 class="welcome-text">Welcome Back!</h2>
     </header>
 
     <!-- 主体部分：左右两栏结构 -->
@@ -38,6 +43,7 @@
       <div class="content-container">
         <!-- 左侧：登录功能及相关选项 -->
         <div class="left-panel">
+
           <div class="login-container">
             <div class="login-form">
               <h2>Login</h2>

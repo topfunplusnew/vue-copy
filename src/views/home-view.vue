@@ -219,10 +219,10 @@ onMounted(() => {
         <div class="right-nav">
           <wallet-item />
           <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">Login</el-button>
+            <el-button class="nav-button">LOGIN</el-button>
           </router-link>
           <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">Sign Up</el-button>
+            <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
           <router-link :to="{ name: 'userpage' }">
             <el-button class="nav-button">User Page</el-button>
@@ -287,7 +287,7 @@ onMounted(() => {
 
 
       <!-- 社交帖子模块 -->
-            <section class="social-feed">
+      <section class="social-feed">
         <div class="social-header">
           <h3>Explore iPoloGO Community</h3>
           <hr class="horizontal-divider" />

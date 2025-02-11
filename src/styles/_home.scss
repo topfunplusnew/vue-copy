@@ -17,16 +17,7 @@ html, body {
   padding: 0;
 }
 
-.home {
-  /* 整体背景采用渐变 */
-  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
-  background-size: 200% 150%;
-  animation: gradientAnimation 10s ease infinite;
-  min-height: 150vh;
-  width: 100%;
-  color: #fff;
-  font-family: 'Helvetica Neue', sans-serif;
-}
+
 
 /* 主体部分 */
 .main {

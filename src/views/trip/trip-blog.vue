@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import IconTooling from '@/components/icons/IconTooling.vue';
+import walletItem from '@/components/wallet-item.vue';
 import { blogPosts } from '@/data/blogpost.ts'; // 确保路径正确
 
 const msg = 'Our Latest Blog';
@@ -29,10 +30,10 @@ const posts = ref(blogPosts);
         <div class="right-nav">
           <wallet-item />
           <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">Login</el-button>
+            <el-button class="nav-button">LOGIN</el-button>
           </router-link>
           <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">Sign Up</el-button>
+            <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
         </div>
       </div>

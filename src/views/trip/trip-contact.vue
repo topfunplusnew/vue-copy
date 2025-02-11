@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import walletItem from '@/components/wallet-item.vue';
 
 const msg= 'Contact Us';
 </script>
@@ -17,8 +18,8 @@ const msg= 'Contact Us';
         </div>
         <div class="right-nav">
           <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">Login</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">Sign Up</el-button></router-link>
+          <router-link :to="{ name: 'login' }"><el-button class="nav-button">LOGIN</el-button></router-link>
+          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
         </div>
       </div>
 
