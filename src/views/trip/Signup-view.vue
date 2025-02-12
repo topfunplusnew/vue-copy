@@ -2,20 +2,16 @@
 import { ref } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 
-
-
 const msg = 'Sign Up';
 const username = ref('');
 const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
-const phoneNumber = ref('');
-const captcha = ref('');
 const errorMessage = ref('');
 
 // 注册表单提交逻辑
 const handleSubmit = () => {
-  if (!username.value || !email.value || !password.value || !confirmPassword.value || !phoneNumber.value || !captcha.value) {
+  if (!username.value || !email.value || !password.value || !confirmPassword.value) {
     errorMessage.value = 'Please fill in all the fields.';
     return;
   }
@@ -26,7 +22,7 @@ const handleSubmit = () => {
   }
 
   // TODO: Handle registration logic (e.g., API call)
-  console.log('User registered:', username.value, email.value, phoneNumber.value);
+  console.log('User registered:', username.value, email.value);
   errorMessage.value = ''; // Reset error message
 };
 </script>
@@ -52,6 +48,7 @@ const handleSubmit = () => {
 
     <!-- 注册表单 -->
     <div class="signup-container">
+      <h2 class="text">Start a new journey!</h2> <!-- 新增的文本 -->
       <form @submit.prevent="handleSubmit">
         <!-- 错误提示 -->
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -68,6 +65,9 @@ const handleSubmit = () => {
           <input type="email" id="email" v-model="email" placeholder="example@domain.com" required />
         </div>
 
+        <!-- 发送确认邮件按钮 -->
+        <button type="button" class="confirm-email-button">Send Confirmation Email</button>
+
         <!-- 密码 -->
         <div class="form-group">
           <label for="password">Password</label>
@@ -80,21 +80,18 @@ const handleSubmit = () => {
           <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="Re-enter password" required />
         </div>
 
-        <!-- 手机号码 -->
-        <div class="form-group">
-          <label for="phoneNumber">Phone Number</label>
-          <input type="text" id="phoneNumber" v-model="phoneNumber" placeholder="Your phone number" required />
-        </div>
-
-        <!-- 图形验证码 -->
-        <div class="form-group captcha-container">
-          <label for="captcha">Captcha</label>
-          <input type="text" id="captcha" v-model="captcha" placeholder="Enter Captcha" required />
-          <button type="button" class="verification-button">Send Code</button>
-        </div>
-
         <button type="submit" class="signup-button">Sign Up</button>
       </form>
     </div>
   </div>
 </template>
+
+<style scoped>
+.text {
+  font-size: 40px; /* 设置更大的字体 */
+  font-weight: bold;
+  text-align: center;
+  color: #ffffff; /* 设置文本颜色 */
+  margin-bottom: 50px; /* 增加下方的间距，可以根据需要调整 */
+}
+</style>

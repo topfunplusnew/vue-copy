@@ -48,7 +48,7 @@ import { ref, reactive, onMounted } from 'vue';
             <div class="login-form">
               <h2>Login</h2>
               <form @submit.prevent="handleSubmit">
-                <input type="text" v-model="username" placeholder="Username" required />
+                <input type="text" v-model="username" placeholder="Username / Email" required />
                 <input type="password" v-model="password" placeholder="Password" required />
                 <button type="submit" class="login-button">Login</button>
               </form>
