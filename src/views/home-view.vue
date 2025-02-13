@@ -23,11 +23,11 @@
             <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
           <router-link :to="{ name: 'userpage' }">
-            <el-button class="nav-button">User Page</el-button>
+            <el-button class="nav-button">PROFILE</el-button>
           </router-link>
         </div>
       </div>
-      <h2 class="welcome-text">Welcome to iPoloGO!</h2>
+      <h2 class="welcome-text">Welcome to iPoloGO</h2>
     </header>
 
     <!-- 主体区域 -->
