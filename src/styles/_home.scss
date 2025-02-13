@@ -1,21 +1,3 @@
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-/* 统一 Header 样式 */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 
 
 
@@ -29,8 +11,7 @@ html, body {
 
 /* 合并后的卡片 */
 .combined-card {
-  position: absolute;
-  top: 300px; 
+  margin-top: 20px; 
   width: 100%;
   max-width: 900px;
   background: rgba(255, 255, 255, 0.15);
@@ -40,6 +21,14 @@ html, body {
   margin-bottom: 2rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.combined-card h3 {
+  margin-top: 0.01rem;
+  margin-bottom: 3rem;
+  font-size: 3rem;
+  color: #fff;
+}
+
 .location-destination-row {
   display: flex;
   gap: 3rem;
@@ -127,6 +116,7 @@ html, body {
 }
 .option-icon {
   font-size: 2.5rem;
+  margin-right: 0.5rem;
 }
 .option-name {
   font-weight: bold;
@@ -266,9 +256,8 @@ html, body {
 }
 
 /* 社交帖子模块：全屏宽度 */
-.social-feed {
-  position: absolute;  
-  top: 850px; 
+.social-feed { 
+  margin-top: 3rem; 
   width: 95vw; /* 全屏宽 */
   margin: 3rem 0;
   padding: 2rem 1rem;
@@ -286,7 +275,6 @@ html, body {
   overflow-y: auto;
 }
 
-
 .social-feed h3 {
   font-size: 3rem;
   margin-bottom: 2rem;
@@ -296,7 +284,7 @@ html, body {
 /* 社交模块整体左右布局 */
 .social-container {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 /* 左侧筛选区域（多选） */
@@ -305,9 +293,21 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: flex-start;  /* 往左对齐 */
-  gap: 1rem;
+  gap: 1.5rem;
   position: sticky;
   top: 2rem;
+}
+
+.filter-icon {
+  margin-right: 1rem; /* 或者 8px, 1em 等都行 */
+  font-size: rem;
+}
+
+.filter-label {
+  margin-right: 20px;
+  font-weight: bold;
+  font-size: 1.8rem;
+  font-family: 'Helvetica Neue', sans-serif;
 }
 
 .social-filter-panel button {
@@ -361,22 +361,22 @@ html, body {
 }
 
 /* Explore More 按钮（目前不使用） */
-.explore-more-btn {
-  padding: 1rem 2rem;
-  font-size: 2rem;
-  background: #fff;
-  color: #1a2a6c;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 2rem;
-  transition: background 0.3s, transform 0.3s;
-}
+// .explore-more-btn {
+//   padding: 1rem 2rem;
+//   font-size: 2rem;
+//   background: #fff;
+//   color: #1a2a6c;
+//   border: none;
+//   border-radius: 10px;
+//   cursor: pointer;
+//   margin-top: 2rem;
+//   transition: background 0.3s, transform 0.3s;
+// }
 
-.explore-more-btn:hover {
-  background: #f0f0f0;
-  transform: scale(1.05);
-}
+// .explore-more-btn:hover {
+//   background: #f0f0f0;
+//   transform: scale(1.05);
+// }
 
 /* 右侧帖子展示区域 */
 .social-posts-panel {

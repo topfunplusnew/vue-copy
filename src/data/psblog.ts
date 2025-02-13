@@ -1,4 +1,4 @@
-// psblog.ts
+// psblog.ts personal profile
 
 export interface BlogPost {
   id: number;

@@ -230,27 +230,33 @@ onMounted(() => {
         <div class="right-nav">
           <wallet-item />
           <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">LOGIN</el-button>
+            <el-button class="nav-button">Login</el-button>
           </router-link>
           <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">SIGN UP</el-button>
+            <el-button class="nav-button">Sign Up</el-button>
           </router-link>
-          <router-link :to="{ name: 'userpage' }">
-            <el-button class="nav-button">User Page</el-button>
-          </router-link>
+          <!-- History 切换按钮 -->
+          <el-button class="nav-button" @click="toggleHistory">
+            {{ historyVisible ? 'Hide History' : 'Show History' }}
+          </el-button>
         </div>
       </div>
-      <h2 class="welcome-text">Welcome to iPoloGO!</h2>
+      <h2 class="header-title">Have Fun in iPoloGO</h2>
     </header>
 
-    <!-- 整体内容区域 -->
+    <!-- 外层内容容器 -->
     <div class="content-wrapper">
-      <!-- History 抽屉 -->
+      <!-- History 抽屉 (固定定位) -->
       <transition name="slide-left">
         <div class="history-drawer" v-if="historyVisible">
           <h3>History</h3>
           <ul>
-            <li v-for="(record, idx) in historyRecords" :key="idx" @click="loadHistory(idx)" class="history-item">
+            <li
+              v-for="(record, idx) in historyRecords"
+              :key="idx"
+              @click="loadHistory(idx)"
+              class="history-item"
+            >
               {{ record.summary }}
             </li>
           </ul>
@@ -258,287 +264,336 @@ onMounted(() => {
         </div>
       </transition>
 
-      <!-- 中间：Chat 模块 -->
-      <div class="center-panel">
-        <h3>Chat with iPoloGO</h3>
-        <div class="chat-box">
-          <div
-            v-for="(msg, index) in chatMessages"
-            :key="index"
-            class="chat-message"
-            :class="msg.sender"
-            contenteditable="true"
-            @blur="updateMessage(index, $event)"
-          >
-            {{ msg.text }}
-          </div>
-        </div>
-        <div class="chat-input">
-          <el-input
-            v-model="userChatInput"
-            placeholder="Type your message..."
-            class="chat-input-box"
-            type="textarea"
-            :rows="3"
-            clearable
-            @keydown.native.enter="sendMessage"
-          />
-          <button class="warning" @click="finishConversation">Finish Conversation</button>
-        </div>
-      </div>
-
-      <!-- 右侧：Trip Options 与 Map 模块 -->
-      <div class="right-panel">
-        <div class="options-panel">
-          <h3>Trip Options</h3>
-          <!-- Date 模块 -->
-          <div class="trip-option date-option">
-            <label>Date:</label>
-            <div class="date-picker-container">
-              <el-date-picker v-model="tripSelections.DateFrom" type="date" placeholder="From" />
-              <span class="date-separator">to</span>
-              <el-date-picker v-model="tripSelections.DateTo" type="date" placeholder="To" />
+      <!-- 主体布局：聊天面板 + 右侧信息面板 -->
+      <div class="main-content">
+        <!-- 中间：Chat 模块 -->
+        <div class="center-panel">
+          <h3>Chat with iPoloGO</h3>
+          <div class="chat-box">
+            <div
+              v-for="(msg, index) in chatMessages"
+              :key="index"
+              class="chat-message"
+              :class="msg.sender"
+              contenteditable="true"
+              @blur="updateMessage(index, $event)"
+            >
+              {{ msg.text }}
             </div>
           </div>
+          <div class="chat-input">
+            <el-input
+              v-model="userChatInput"
+              placeholder="Type your message..."
+              class="chat-input-box"
+              type="textarea"
+              :rows="3"
+              clearable
+              @keydown.native.enter="sendMessage"
+            />
+            <button class="warning" @click="finishConversation">
+              Finish Conversation
+            </button>
+          </div>
+        </div>
 
-          <!-- Transportation 模块 -->
-          <div class="trip-option">
-            <label>
-              <i class="el-icon-airplane" style="margin-right:5px"></i>
-              Transportation:
-            </label>
-            <div class="trans-container">
+        <!-- 右侧：Trip Options 与 Map 模块 -->
+        <div class="right-panel">
+          <!-- Trip Options -->
+          <div class="options-panel">
+            <h3>Trip Options</h3>
+
+            <!-- Date 模块 -->
+            <div class="trip-option date-option">
+              <label>Date:</label>
+              <div class="date-picker-container">
+                <el-date-picker
+                  v-model="tripSelections.DateFrom"
+                  type="date"
+                  placeholder="From"
+                />
+                <!-- <span class="date-separator">to</span> -->
+                <el-date-picker
+                  v-model="tripSelections.DateTo"
+                  type="date"
+                  placeholder="To"
+                />
+              </div>
+            </div>
+
+            <!-- Transportation 模块 -->
+            <div class="trip-option">
+              <label>
+                <i class="el-icon-airplane" style="margin-right:5px"></i>
+                Transportation:
+              </label>
+              <div class="trans-container">
+                <el-select
+                  v-model="tripSelections.Transportation"
+                  multiple
+                  placeholder="Select transportation"
+                  filterable
+                  allow-create
+                  class="futuristic-select"
+                >
+                  <el-option
+                    v-for="item in tripOptionsData.Transportation"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.name"
+                  >
+                    <template #default>
+                      <i :class="item.icon" style="margin-right:5px"></i>
+                      {{ item.name }}
+                    </template>
+                  </el-option>
+                </el-select>
+                <!-- 仅当单一交通工具选中时显示 Travel Class -->
+                <div
+                  v-if="tripSelections.Transportation.length === 1"
+                  class="transport-class"
+                >
+                  <label>Class:</label>
+                  <el-select
+                    v-model="tripSelections.TransportationClass"
+                    placeholder="Select travel class"
+                    filterable
+                    class="futuristic-select"
+                  >
+                    <el-option
+                      v-for="option in availableTransportationClasses"
+                      :key="option"
+                      :label="option"
+                      :value="option"
+                    />
+                  </el-select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hotel 模块 -->
+            <div class="trip-option">
+              <label>
+                <i class="el-icon-star-on" style="margin-right:5px"></i>
+                Hotel:
+              </label>
               <el-select
-                v-model="tripSelections.Transportation"
+                v-model="tripSelections.Hotel"
                 multiple
-                placeholder="Select transportation"
+                placeholder="Select hotel options"
+                filterable
+                allow-create
+                class="futuristic-select"
+              >
+                <el-option-group
+                  v-for="group in groupedHotels"
+                  :key="group.label"
+                  :label="group.label"
+                >
+                  <el-option
+                    v-for="item in group.options"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.name"
+                  >
+                    <template #default>
+                      <i :class="item.icon" style="margin-right:5px"></i>
+                      {{ item.name }}
+                    </template>
+                  </el-option>
+                </el-option-group>
+              </el-select>
+            </div>
+
+            <!-- Budget 模块 -->
+            <div class="trip-option">
+              <div class="budget-container">
+                <label>
+                  <i class="el-icon-money" style="margin-right:5px"></i>
+                  Budget:
+                </label>
+                <!-- 货币与总预算 -->
+                <div class="budget-row">
+                  <el-select
+                    v-model="tripSelections.Budget.Currency"
+                    placeholder="Currency"
+                    style="width:150px"
+                    filterable
+                    class="futuristic-select"
+                  >
+                    <el-option
+                      v-for="currency in allCurrencies"
+                      :key="currency.name"
+                      :label="currency.flag + ' ' + currency.name"
+                      :value="currency.name"
+                    />
+                  </el-select>
+                  <el-input
+                    v-model="tripSelections.Budget.Total"
+                    placeholder="Enter total amount"
+                    style="width:150px; margin-left:10px;"
+                  />
+                </div>
+                <!-- 预算比例拖动条 -->
+                <div class="budget-row slider-row">
+                  <span>Transportation:</span>
+                  <el-slider
+                    v-model="tripSelections.Budget.Transportation"
+                    :min="0"
+                    :max="100"
+                    show-input
+                    @change="(val) => updateBudgetProportions('Transportation', val)"
+                  />
+                </div>
+                <div class="budget-row slider-row">
+                  <span>Hotel:</span>
+                  <el-slider
+                    v-model="tripSelections.Budget.Hotel"
+                    :min="0"
+                    :max="100"
+                    show-input
+                    @change="(val) => updateBudgetProportions('Hotel', val)"
+                  />
+                </div>
+                <div class="budget-row slider-row">
+                  <span>Tickets:</span>
+                  <el-slider
+                    v-model="tripSelections.Budget.Tickets"
+                    :min="0"
+                    :max="100"
+                    show-input
+                    @change="(val) => updateBudgetProportions('Tickets', val)"
+                  />
+                </div>
+                <div class="budget-row slider-row">
+                  <span>Activities:</span>
+                  <el-slider
+                    v-model="tripSelections.Budget.Activities"
+                    :min="0"
+                    :max="100"
+                    show-input
+                    @change="(val) => updateBudgetProportions('Activities', val)"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Tickets 模块 -->
+            <div class="trip-option">
+              <label>
+                <i class="el-icon-tickets" style="margin-right:5px"></i>
+                Tickets:
+              </label>
+              <el-select
+                v-model="tripSelections.Tickets"
+                multiple
+                placeholder="Select ticket options"
                 filterable
                 allow-create
                 class="futuristic-select"
               >
                 <el-option
-                  v-for="item in tripOptionsData.Transportation"
+                  v-for="item in tripOptionsData.Tickets"
                   :key="item.name"
                   :label="item.name"
                   :value="item.name"
                 >
                   <template #default>
-                    <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
+                    <i :class="item.icon" style="margin-right:5px"></i>
+                    {{ item.name }}
                   </template>
                 </el-option>
               </el-select>
-              <!-- 仅当单一交通工具选中时显示 Travel Class -->
-              <div v-if="tripSelections.Transportation.length === 1" class="transport-class">
-                <label>Class:</label>
-                <el-select
-                  v-model="tripSelections.TransportationClass"
-                  placeholder="Select travel class"
-                  filterable
-                  class="futuristic-select"
-                >
-                  <el-option
-                    v-for="option in availableTransportationClasses"
-                    :key="option"
-                    :label="option"
-                    :value="option"
-                  />
-                </el-select>
-              </div>
             </div>
-          </div>
 
-          <!-- Hotel 模块 -->
-          <div class="trip-option">
-            <label>
-              <i class="el-icon-star-on" style="margin-right:5px"></i>
-              Hotel:
-            </label>
-            <el-select
-              v-model="tripSelections.Hotel"
-              multiple
-              placeholder="Select hotel options"
-              filterable
-              allow-create
-              class="futuristic-select"
-            >
-              <el-option-group
-                v-for="group in groupedHotels"
-                :key="group.label"
-                :label="group.label"
-              >
-                <el-option
-                  v-for="item in group.options"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.name"
-                >
-                  <template #default>
-                    <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
-                  </template>
-                </el-option>
-              </el-option-group>
-            </el-select>
-          </div>
-
-          <!-- Budget 模块 -->
-          <div class="trip-option">
-            <div class="budget-container">
+            <!-- Activities 模块 -->
+            <div class="trip-option">
               <label>
-              <i class="el-icon-money" style="margin-right:5px"></i>
-              Budget:
-            </label>
-              <!-- 货币与总预算 -->
-              <div class="budget-row">
-                <el-select
-                  v-model="tripSelections.Budget.Currency"
-                  placeholder="Currency"
-                  style="width:150px"
-                  filterable
-                  class="futuristic-select"
+                <i class="el-icon-s-custom" style="margin-right:5px"></i>
+                Activities:
+              </label>
+              <el-select
+                v-model="tripSelections.Activities"
+                multiple
+                placeholder="Select activities"
+                filterable
+                allow-create
+                class="futuristic-select"
+              >
+                <el-option-group
+                  v-for="(group, groupName) in tripOptionsData.Activities"
+                  :key="groupName"
+                  :label="groupName"
                 >
                   <el-option
-                    v-for="currency in allCurrencies"
-                    :key="currency.name"
-                    :label="currency.flag + ' ' + currency.name"
-                    :value="currency.name"
-                  />
-                </el-select>
-                <el-input
-                  v-model="tripSelections.Budget.Total"
-                  placeholder="Enter total amount"
-                  style="width:150px; margin-left:10px;"
-                />
-              </div>
-              <!-- 预算比例拖动条 -->
-              <div class="budget-row">
-
-              </div>
-              <div class="budget-row slider-row">
-                <span>Transportation:</span>
-                <el-slider
-                  v-model="tripSelections.Budget.Transportation"
-                  :min="0"
-                  :max="100"
-                  show-input
-                  @change="(val) => updateBudgetProportions('Transportation', val)"
-                />
-              </div>
-              <div class="budget-row slider-row">
-                <span>Hotel:</span>
-                <el-slider
-                  v-model="tripSelections.Budget.Hotel"
-                  :min="0"
-                  :max="100"
-                  show-input
-                  @change="(val) => updateBudgetProportions('Hotel', val)"
-                />
-              </div>
-              <div class="budget-row slider-row">
-                <span>Tickets:</span>
-                <el-slider
-                  v-model="tripSelections.Budget.Tickets"
-                  :min="0"
-                  :max="100"
-                  show-input
-                  @change="(val) => updateBudgetProportions('Tickets', val)"
-                />
-              </div>
-              <div class="budget-row slider-row">
-                <span>Activities:</span>
-                <el-slider
-                  v-model="tripSelections.Budget.Activities"
-                  :min="0"
-                  :max="100"
-                  show-input
-                  @change="(val) => updateBudgetProportions('Activities', val)"
-                />
-              </div>
-              <!-- <p class="budget-totals">Total: {{ budgetTotal }}% (Must equal 100%)</p> -->
+                    v-for="item in group"
+                    :key="item.name"
+                    :label="item.name"
+                    :value="item.name"
+                  >
+                    <template #default>
+                      <i :class="item.icon" style="margin-right:5px"></i>
+                      {{ item.name }}
+                    </template>
+                  </el-option>
+                </el-option-group>
+              </el-select>
             </div>
           </div>
-
-          <!-- Tickets 模块 -->
-          <div class="trip-option">
-            <label>
-              <i class="el-icon-tickets" style="margin-right:5px"></i>
-              Tickets:
-            </label>
-            <el-select
-              v-model="tripSelections.Tickets"
-              multiple
-              placeholder="Select ticket options"
-              filterable
-              allow-create
-              class="futuristic-select"
-            >
-              <el-option
-                v-for="item in tripOptionsData.Tickets"
-                :key="item.name"
-                :label="item.name"
-                :value="item.name"
-              >
-                <template #default>
-                  <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
-                </template>
-              </el-option>
-            </el-select>
-          </div>
-
-          <!-- Activities 模块 -->
-          <div class="trip-option">
-            <label>
-              <i class="el-icon-s-custom" style="margin-right:5px"></i>
-              Activities:
-            </label>
-            <el-select
-              v-model="tripSelections.Activities"
-              multiple
-              placeholder="Select activities"
-              filterable
-              allow-create
-              class="futuristic-select"
-            >
-              <el-option-group
-                v-for="(group, groupName) in tripOptionsData.Activities"
-                :key="groupName"
-                :label="groupName"
-              >
-                <el-option
-                  v-for="item in group"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.name"
-                >
-                  <template #default>
-                    <i :class="item.icon" style="margin-right:5px"></i>{{ item.name }}
-                  </template>
-                </el-option>
-              </el-option-group>
-            </el-select>
-          </div>
-        </div>
 
           <!-- 自动生成的 Prompt -->
+          <!-- <div class="trip-prompt">
+            <p>{{ tripPrompt }}</p>
+            <el-button type="primary" @click="insertTripPrompt">
+              Insert Prompt into Chat
+            </el-button>
+          </div> -->
+
+          <!-- Map 模块 -->
+          <!-- <div class="map-panel">
+            <h3>Map</h3>
+            <div class="map-controls">
+              <el-radio-group v-model="selectedMapType">
+                <el-radio-button label="World Map">World Map</el-radio-button>
+                <el-radio-button label="City Navigation"
+                  >City Navigation</el-radio-button
+                >
+                <el-radio-button label="City Traffic">City Traffic</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="map-display">
+              <p>Displaying: {{ selectedMapType }}</p>
+              <p>From: {{ userLocation }} To: {{ selectedDestination }}</p>
+            </div>
+          </div> -->
+          <!-- 重点部分：Trip Prompt + 下拉地图菜单 + Resizable -->
           <div class="trip-prompt">
-          <!-- <p><strong>Constructed Prompt:</strong></p> -->
-          <p>{{ tripPrompt }}</p>
-          <el-button type="primary" @click="insertTripPrompt">Insert Prompt into Chat</el-button>
-        </div>
-
-
-        <!-- Map 模块 -->
-        <div class="map-panel">
-          <h3>Map</h3>
-          <div class="map-controls">
-            <el-radio-group v-model="selectedMapType">
-              <el-radio-button label="World Map">World Map</el-radio-button>
-              <el-radio-button label="City Navigation">City Navigation</el-radio-button>
-              <el-radio-button label="City Traffic">City Traffic</el-radio-button>
-            </el-radio-group>
+            <p>{{ tripPrompt }}</p>
+            <!-- Insert按钮：风格加大，统一处理 -->
+            <el-button class="insert-btn" @click="insertTripPrompt">
+              Insert Prompt into Chat
+            </el-button>
           </div>
-          <div class="map-display">
-            <p>Displaying: {{ selectedMapType }}</p>
-            <p>From: {{ userLocation }} To: {{ selectedDestination }}</p>
+
+          <!-- Map 模块：Map 和三种地图下拉放在同一行 -->
+          <div class="map-panel">
+            <div class="map-header-row">
+              <!-- 标题/标签 与下拉 在一行 -->
+              <label class="map-label">Map:</label>
+              <el-select
+                v-model="selectedMapType"
+                placeholder="Select a map type"
+                class="map-select"
+              >
+                <el-option label="World Map" value="World Map" />
+                <el-option label="City Navigation" value="City Navigation" />
+                <el-option label="City Traffic" value="City Traffic" />
+              </el-select>
+            </div>
+            <div class="map-display">
+              <p>Displaying: {{ selectedMapType }}</p>
+              <p>From: {{ userLocation }} To: {{ selectedDestination }}</p>
+            </div>
           </div>
         </div>
       </div>
