@@ -1,3 +1,5 @@
+@import './mixins';
+@import './variables';
 
 .home {
   // /* 整体背景采用渐变 */
@@ -5,74 +7,14 @@
   // // background-size: 200% 150%;
   background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
   /* 调大背景尺寸，动画更柔和 */
-  background-size: 200% 120%;
+  background-size: 200% 150%;
   animation: gradientAnimation 10s ease infinite;
   width: 100%;
   height: 100%;
   min-height: 100vh;
   color: #fff;
   font-family: 'Helvetica Neue', sans-serif;
-}
 
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-// .home {
-//   /* 多彩渐变：粉(#f72585) -> 紫(#7209b7) -> 蓝(#4361ee) -> 青(#4cc9f0) */
-//   background: linear-gradient(
-//     120deg,
-//     #f53a8e,
-//     #7209b7,
-//     #4361ee,
-//     #4cc9f0
-//   );  
-//   background-size: 400% 400%;
-//   animation: gradientAnimation 15s ease infinite;
-  
-//   /* 其余通用设置 */
-//   width: 100%;
-//   min-height: 100vh;
-//   color: #fff;
-//   font-family: "Helvetica Neue", sans-serif;
-//   margin: 0;
-//   padding: 0;
-//   box-sizing: border-box;
-// }
-
-@keyframes gradientAnimation {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.header {
-  .nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
-}
-
-.home {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -80,68 +22,72 @@
   text-align: center;
   padding-top: 20px;
   box-sizing: border-box;
-  
 
-  .ipologo-intro p {
-    font-size: 1.8rem;
-    color: #ddd;
-    line-height: 1.6;
-  }
-
-  .ipologo-intro,
-  h1 {
+  h1{
     font-size: 100px;
-    margin-left: auto;
-    margin-right: auto;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   }
 
-  .ipologo-intro,
-  h2 {
-    font-size: 80px;
-    margin-left: auto;
-    margin-right: auto;
+  h2{
+    font-size: 3rem;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
   }
 
-  .ipologo-intro,
-  h3 {
-    font-size: 30px;
-    margin-left: auto;
-    margin-right: auto;
+  h3{
+    font-size: 3rem;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
   }
 
-  .left-nav,
-  .right-nav {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
   }
-
-  .nav-button {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.3s ease;
+  50% {
+    background-position: 100% 50%;
   }
-
-  .el-button {
-    font-size: 1.5rem;
-    padding: 10px 20px;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: #fff;
-    transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
+  100% {
+    background-position: 0% 50%;
   }
+}
+  .header {
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
 
-  .el-button:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-  }
+    .left-nav,
+    .right-nav {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
 
-  .nav-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-bottom: 20px;
+    .nav-button {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .el-button {
+      font-size: 1.5rem;
+      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+      padding: 10px 20px;
+      background-color: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      transition:
+      background-color 0.3s ease,
+      transform 0.3s ease;
+    }
+
+    .el-button:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
   }
 }

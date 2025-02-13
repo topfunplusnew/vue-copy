@@ -27,14 +27,17 @@
           </router-link>
         </div>
       </div>
-      <h2 class="welcome-text">Welcome to iPoloGO</h2>
     </header>
+
+    <h1 class="welcome-text">Welcome to iPoloGO</h1>
 
     <!-- 主体区域 -->
     <main class="main">
       <!-- 行程规划模块 -->
       <div class="combined-card">
-        <h3>Plan Your Itinerary</h3>
+        <div class="plan-header">
+          <h3>Plan Your Itinerary</h3>
+        </div>
         <hr class="horizontal-divider" />
         <div class="location-destination-row">
           <!-- Localization -->
@@ -54,9 +57,10 @@
                 :value="loc.value"
               />
             </el-select>
-            <div class="info">
+            <div class="ld-info">
               <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
               <span>{{ userLocation }}</span>
+              <span v-if="weather">{{ weather }}</span>
             </div>
           </div>
 
@@ -77,7 +81,7 @@
                 :value="destination.value"
               />
             </el-select>
-            <div class="info">
+            <div class="ld-info">
               <img
                 v-if="destinationFlag"
                 :src="destinationFlag"
@@ -90,6 +94,7 @@
                 alt="Weather Icon"
                 class="weather-icon"
               />
+              <span>{{ userDestination }}</span>
               <span v-if="weather">{{ weather }}</span>
             </div>
           </div>
@@ -199,6 +204,7 @@ const selectedDestination = ref('');
 const weather = ref('');
 const weatherIcon = ref(''); // 存储天气图标 URL
 const userLocation = ref('');
+const userDestination = ref('');
 const userFlag = ref('');
 const destinationFlag = ref('');
 const isLoading = ref(false);
@@ -260,12 +266,21 @@ const handleLocationClick = async () => {
   }
 };
 
-const handleLocationChange = (value: string) => {
+const handleLocationChange = async (value: string) => {
   selectedLocation.value = value;
   const loc = destinations.find(item => item.value === value);
   if (loc) {
     userFlag.value = loc.flagUrl || '';
     userLocation.value = loc.label;
+  }
+  try {
+    const weatherData = await getWeatherData(value);
+    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
+    weatherIcon.value = weatherData.icon;
+  } catch (error) {
+    console.log(error);
+    weather.value = '天气数据不可用';
+    weatherIcon.value = '';
   }
   updateUserInput();
 };
@@ -275,6 +290,7 @@ const handleDestinationSelect = async (value: string) => {
   const dest = destinations.find(item => item.value === value);
   if (dest) {
     destinationFlag.value = dest.flagUrl || '';
+    userDestination.value = dest.label;
   } else {
     destinationFlag.value = '';
   }

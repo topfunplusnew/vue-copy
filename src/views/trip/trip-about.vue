@@ -63,7 +63,7 @@ const faqs = ref([
 
     <!-- iPoloGO 介绍段落 -->
     <div class="ipologo-intro">
-      <h3>Welcome to iPoloGO</h3>
+      <h1>Welcome to iPoloGO</h1>
       <p>
         iPoloGO is an innovative travel assistant powered by artificial intelligence, designed to help you plan, book, and manage your travel experiences effortlessly. From booking your flights and
         hotels to guiding you through the entire journey, iPoloGO ensures that your travel experience is seamless and enjoyable. Our intelligent AI agent, Adeva, personalizes your trip, offers

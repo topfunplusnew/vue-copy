@@ -1,8 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '@/views/home-view.vue';
-import AboutView from '@/views/trip/trip-about.vue';
-import BlogView from '@/views/trip/trip-blog.vue';
-import ContactView from '@/views/trip/trip-contact.vue';
 import LoginView from '@/views/trip/Login-view.vue';
 import SignupView from '@/views/trip/Signup-view.vue';
 
@@ -11,26 +7,26 @@ import SignupView from '@/views/trip/Signup-view.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
- 
+
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: () => import('@/views/home-view.vue')
     },
     {
       path: '/about',
       name: 'about',
-      component: AboutView,
+      component: () => import('@/views/trip/trip-about.vue'),
     },
     {
       path: '/blog',
       name: 'blog',
-      component: BlogView,
+      component: () => import('@/views/trip/trip-blog.vue'),
     },
     {
       path: '/contact',
       name: 'contact',
-      component: ContactView,
+      component: () => import('@/views/trip/trip-contact.vue'),
     },
     {
       path: '/login',

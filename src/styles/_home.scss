@@ -1,434 +1,341 @@
 
-
-
 /* 主体部分 */
 .main {
   padding: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
 
-/* 合并后的卡片 */
-.combined-card {
-  margin-top: 20px; 
-  width: 100%;
-  max-width: 900px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
 
-.combined-card h3 {
-  margin-top: 0.01rem;
-  margin-bottom: 3rem;
-  font-size: 3rem;
-  color: #fff;
-}
+  /* 合并后的卡片 */
+  .combined-card {
+    margin-top: 20px; 
+    width: 100%;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-.location-destination-row {
-  display: flex;
-  gap: 3rem;
-  align-items: flex-start;
-}
-.field {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-height: 100px;
-}
-.field-label {
-  font-weight: bold;
-  font-size: 20px;
-  margin-bottom: 0.25rem;
-}
-.select {
-  width: 100%;
-}
-.info {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  font-size: 2rem;
-  text-align: center;
-}
-.flag {
-  width: 30px;
-  height: 20px;
-  border-radius: 4px;
-  object-fit: cover;
-}
-.weather-icon {
-  width: 24px;
-  height: 24px;
-}
+    .plan-header h3 {
+      font-size: 4rem;
+      margin: 0;
+    }
 
-/* 行程规划模块 */
-// .itinerary-section {
-//   margin-top: 220px;
-//   width: 100%;
-//   background: rgba(255, 255, 255, 0.15);
-//   backdrop-filter: blur(10px);
-//   border-radius: 16px;
-//   padding: 2rem;
-//   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-//   text-align: center;
-//   margin-bottom: 2rem;
-// }
-// .itinerary-section h3 {
-//   margin-top: 0.01rem;
-//   margin-bottom: 3rem;
-//   font-size: 3rem;
-//   color: #fff;
-// }
-
-/* 旅游偏好横排 */
-.preference-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-.preference-option {
-  background: rgba(255, 255, 255, 0.3);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.5rem;
-}
-.preference-option:hover {
-  background: rgba(255, 255, 255, 0.5);
-  transform: scale(1.05);
-}
-.preference-option.selected {
-  background: #fff;
-  color: #1a2a6c;
-  font-weight: bold;
-}
-.option-icon {
-  font-size: 2.5rem;
-  margin-right: 0.5rem;
-}
-.option-name {
-  font-weight: bold;
-  font-size: 1.8rem;
-  font-family: 'Helvetica Neue', sans-serif;
-}
-
-/* 美化用户输入模块与内置提交按钮 */
-.input-container {
-  position: relative;
-  width: 100%;
-}
-
-.itinerary-input {
-  position: relative;
-  /* 伪元素实现动态渐变边框效果 */
-  &::after {
-    content: "";
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #fdbb2d, #b21f1f, #1a2a6c);
-    z-index: -1;
-    filter: blur(8px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 12px;
+    .location-destination-row {
+      display: flex;
+      gap: 3rem;
+      align-items: flex-start;
+    
+        .field {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 100px;
+    
+        .field-label {
+          font-weight: bold;
+          font-size: 2.2rem;
+          font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+          margin-bottom: 0.5rem;
+        }
+    
+        .ld-info {
+          margin-top: 0.2rem;
+          display: flex;
+          font-size: 2rem;
+          font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+        }
+    
+        .flag {
+          width: 30px;
+          height: 20px;
+          border-radius: 4px;
+          object-fit: cover;
+        }
+    
+        .weather-icon {
+          width: 24px;
+          height: 24px;
+        }
+      }
+    }
   }
-  &:hover::after {
-    opacity: 1;
+
+    /* 旅游偏好横排 */
+  .preference-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+
+    .preference-option {
+      background: rgba(255, 255, 255, 0.3);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .preference-option:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: scale(1.05);
+    }
+    .preference-option.selected {
+      background: #fff;
+      color: #1a2a6c;
+      font-weight: bold;
+    }
+    .option-icon {
+      font-size: 2.5rem;
+      margin-right: 0.5rem;
+    }
+    .option-name {
+      font-weight: bold;
+      font-size: 1.6rem;
+      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+    }
   }
-}
 
-.itinerary-input ::v-deep .el-textarea__inner {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  border: 2px solid transparent;
-  border-radius: 12px;
-  padding: 1.2rem;
-  font-size: 2.2rem;
-  font-family: 'Roboto', sans-serif;
-  color: #030921;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
+  /* 美化用户输入模块与内置提交按钮 */
+  .input-container {
+    position: relative;
+    width: 100%;
 
-.itinerary-input {
-  font-size: 20px;
-  font-family: 'Courier New', Courier, monospace;
-}
+    .itinerary-input {
+      position: relative;
+      font-size: 20px;
+      font-family: 'Courier New', Courier, monospace;
+      /* 伪元素实现动态渐变边框效果 */
+      &::after {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, #fdbb2d, #b21f1f, #1a2a6c);
+        z-index: -1;
+        filter: blur(8px);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 12px;
+      }
+      &:hover::after {
+        opacity: 1;
+      }
+      
+      // ----【穿透 Element UI / Element Plus textarea 的样式】----
+      // 这里用 ::v-deep（或 ::deep, /deep/ 均可）
+      ::v-deep .el-textarea__inner {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(12px);
+        border: 2px solid transparent;
+        border-radius: 12px;
+        padding: 1.2rem;
+        font-size: 2.2rem;
+        font-family: 'Roboto', sans-serif;
+        color: #030921;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
 
-.itinerary-input ::v-deep .el-textarea__inner:focus {
-  border: 2px solid #1a2a6c;
-  box-shadow: 0 0 15px rgba(26, 42, 108, 0.5);
-  outline: none;
-}
+      ::v-deep .el-textarea__inner:focus {
+        border: 2px solid #1a2a6c;
+        box-shadow: 0 0 15px rgba(26, 42, 108, 0.5);
+        outline: none;
+      }
 
-.itinerary-input ::v-deep .el-textarea__inner::placeholder {
-  color: rgba(26, 42, 108, 0.7);
-  font-style: italic;
-}
-
-/* 提交按钮 */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
+      ::v-deep .el-textarea__inner::placeholder {
+        color: rgba(26, 42, 108, 0.7);
+        font-style: italic;
+      }
+      
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+    }
+    
+    .togenerator{
+      display: block;
+      width: 100%; /* 占满整个容器宽度 */
+      padding: 1rem;
+      font-size: 2rem;
+      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+      border-radius: 8px;
+      background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+      backdrop-filter: blur(10px);
+      color: #fefefe;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      z-index: 2;
+      animation: pulse 4s infinite ease-in-out;
+    }
+    
+    .togenerator:hover {
+      background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+      transform: scale(1.05);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
   }
-  50% {
-    transform: scale(1.03);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.02);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.togenerator{
-  display: block;
-  width: 100%; /* 占满整个容器宽度 */
-  padding: 1rem;
-  font-size: 2rem;
-  font-family: 'Helvetica Neue', sans-serif;
-  border-radius: 8px;
-  background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
-  backdrop-filter: blur(10px);
-  color: #fefefe;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  z-index: 2;
-  animation: pulse 4s infinite ease-in-out;
-}
-
-.togenerator:hover {
-  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
-  transform: scale(1.05);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
 
 /*-----------------------------------------------------*/
 /* 社交帖子模块 */
-.social-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
+  .social-feed{
+    /* 社交帖子模块：全屏宽度 */
+    margin-top: 3rem; 
+    width: 95vw; /* 全屏宽 */
+    margin: 3rem 0;
+    padding: 2rem 1rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    border-radius: 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    height: 60vh;
 
-.social-header h3 {
-  font-size: 3rem;
-  margin: 0;
-}
+    .social-header h3 {
+      font-size: 4rem;
+      margin: 0;
+    } 
 
-/* 横向分隔线 */
-.horizontal-divider {
-  width: 100%;
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-  margin: 2rem 0;
-}
+    /* 横向分隔线 */
+    .horizontal-divider {
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.5);
+      margin: 2rem 0;
+    }
 
-/* 整体布局：左侧固定，右侧独立滚动 */
-.social-container {
-  display: flex;
-}
+    /* 社交模块整体左右布局 */
+    .social-container {
+      display: flex;
+      gap: 1rem;
 
-/* 社交帖子模块：全屏宽度 */
-.social-feed { 
-  margin-top: 3rem; 
-  width: 95vw; /* 全屏宽 */
-  margin: 3rem 0;
-  padding: 2rem 1rem;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border-radius: 0;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-  height: 60vh;
-}
+      .social-fixed{
+        /* 左侧筛选区域（多选） */
+        .social-filter-panel {
+          flex: 0 0 250px;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;  /* 往左对齐 */
+          gap: 1.5rem;
+          position: sticky;
+          top: 2rem;
+        }
 
-.social-scroll {
-  flex: 1;
-  height: 53vh; /* 可根据需要调整高度 */
-  overflow-y: auto;
-}
+        .filter-icon {
+          margin-right: 1rem; /* 或者 8px, 1em 等都行 */
+          font-size: rem;
+        }
 
-.social-feed h3 {
-  font-size: 3rem;
-  margin-bottom: 2rem;
-  text-align: center;
-}
+        .filter-label {
+          margin-right: 20px;
+          font-weight: bold;
+          font-size: 1.8rem;
+          font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+        }
 
-/* 社交模块整体左右布局 */
-.social-container {
-  display: flex;
-  gap: 1rem;
-}
+        .social-filter-panel button {
+          width: 100%;
+          padding: 1rem;
+          font-size: 2rem;
+          text-align: left;
+          background: rgba(255, 255, 255, 0.3);
+          border: none;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: background 0.3s, transform 0.3s;
+        }
 
-/* 左侧筛选区域（多选） */
-.social-filter-panel {
-  flex: 0 0 250px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;  /* 往左对齐 */
-  gap: 1.5rem;
-  position: sticky;
-  top: 2rem;
-}
+        .social-filter-panel button:hover {
+          background: rgba(255, 255, 255, 0.5);
+          transform: scale(1.05);
+        }
 
-.filter-icon {
-  margin-right: 1rem; /* 或者 8px, 1em 等都行 */
-  font-size: rem;
-}
+        .social-filter-panel button.active {
+          background: #fff;
+          color: #1a2a6c;
+          font-weight: bold;
+        }
+      }
+    }
 
-.filter-label {
-  margin-right: 20px;
-  font-weight: bold;
-  font-size: 1.8rem;
-  font-family: 'Helvetica Neue', sans-serif;
-}
+     /* 竖直分隔线 */
+     .vertical-divider {
+      width: 2px;
+      background: rgba(255, 255, 255, 0.5);
+    }
 
-.social-filter-panel button {
-  width: 100%;
-  padding: 1rem;
-  font-size: 2rem;
-  text-align: left;
-  background: rgba(255, 255, 255, 0.3);
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.3s;
-}
+    /* 右侧帖子展示区域 */
+    /* 整体布局：左侧固定，右侧独立滚动 */
+    .social-scroll {
+      flex: 1;
+      height: 53vh; /* 可根据需要调整高度 */
+      overflow-y: auto;
 
-.social-filter-panel button:hover {
-  background: rgba(255, 255, 255, 0.5);
-  transform: scale(1.05);
-}
+      .social-posts-panel {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
 
-.social-filter-panel button.active {
-  background: #fff;
-  color: #1a2a6c;
-  font-weight: bold;
-}
+        .social-post {
+          background: rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(8px);
+          border-radius: 12px;
+          overflow: hidden;
+          transition: transform 0.3s, box-shadow 0.3s;
 
-/* 竖直分隔线 */
-.vertical-divider {
-  width: 2px;
-  background: rgba(255, 255, 255, 0.5);
-}
-
-/* 右侧区域 */
-.social-right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-/* 搜索输入框 */
-.social-search {
-  width: 100%;
-  max-width: 500px;
-  margin-bottom: 2rem;
-  padding: 0.5rem 1rem;
-  font-size: 2rem;
-  border: none;
-  border-radius: 8px;
-  outline: none;
-  color: #1a2a6c;
-}
-
-/* Explore More 按钮（目前不使用） */
-// .explore-more-btn {
-//   padding: 1rem 2rem;
-//   font-size: 2rem;
-//   background: #fff;
-//   color: #1a2a6c;
-//   border: none;
-//   border-radius: 10px;
-//   cursor: pointer;
-//   margin-top: 2rem;
-//   transition: background 0.3s, transform 0.3s;
-// }
-
-// .explore-more-btn:hover {
-//   background: #f0f0f0;
-//   transform: scale(1.05);
-// }
-
-/* 右侧帖子展示区域 */
-.social-posts-panel {
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.social-post {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.social-post:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
-
-.post-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.post-footer {
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.post-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.post-stats {
-  display: flex;
-  gap: 1rem;
-  font-size: 1.8rem;
-  color: #1a2a6c;
-}
-
-/* 下拉加载更多区域（暂不使用） */
-.explore-more {
-  text-align: center;
-  margin-top: 2rem;
+          .post-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+          }
+          
+          .post-footer {
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.8);
+          }
+          
+          .post-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          
+          .post-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 1.8rem;
+            color: #1a2a6c;
+          }
+        }
+        
+        .social-post:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+      }
+    }
+  }
 }

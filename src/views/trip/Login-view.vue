@@ -35,7 +35,7 @@ import { ref, reactive, onMounted } from 'vue';
           </router-link>
         </div>
       </div>
-      <h2 class="welcome-text">Welcome Back!</h2>
+      <h1 class="welcome-text">Welcome Back!</h1>
     </header>
 
     <!-- 主体部分：左右两栏结构 -->

@@ -1,3 +1,6 @@
+@import './mixins';
+@import './variables';
+
 /* 外层内容布局 */
 .content-wrapper {
   flex: 1;
@@ -174,10 +177,22 @@
 }
 
 /* 右侧面板 */
+
 .right-panel {
+  @include screen-pc {
+    display: flex;
+  }
+  @include screen-pad{
+    display: flex;
+  }
+  
+  @include screen-mobile{
+    display: none;
+  }
+
   width: 500px; /* 固定宽度，可根据需要调整 */
   flex-shrink: 0; /* 不被挤压 */
-  display: flex;
+  // display: flex;
   flex-direction: column;
   gap: 1rem;
   background: rgba(255, 255, 255, 0.1);

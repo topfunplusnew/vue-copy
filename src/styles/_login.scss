@@ -1,211 +1,194 @@
-/* 左右布局容器，扩展至全屏宽 */
-.content-container {
-  display: flex;
-  width: 100%;
-  /* 如需内容居中，可添加 max-width 后 margin: 0 auto; */
-}
+.home{
+  /* 左右布局容器，扩展至全屏宽 */
+  .content-container {
+    display: flex;
+    width: 100%;
+    /* 如需内容居中，可添加 max-width 后 margin: 0 auto; */
 
-/* 左侧面板：登录模块 */
-.left-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-}
+    .left-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
 
-/* 欢迎语 */
-.welcome-text {
-  font-size: 2.4rem;
-  text-align: center;
-  margin-bottom: 1rem;
-  color: #fff;
-}
+      .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
 
-/* 登录容器 */
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-}
+        .login-form {
+          background: rgba(255, 255, 255, 0.15);
+          backdrop-filter: blur(10px);
+          padding: 40px;
+          border-radius: 16px;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+          width: 100%;
+          max-width: 400px;
+          text-align: center;
 
-/* 登录表单（玻璃卡片） */
-.login-form {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-  text-align: center;
-}
+          /* 输入框 */
+          input {
+            width: 92%;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font-size: 1.8rem;
+            color: #030921;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+          }
 
-.login-form h2 {
-  font-size: 3em;
-  margin-top: 10px;
-  margin-bottom: 30px;
-  color: #fff;
-}
+          input:focus {
+            border: 2px solid #1a2a6c;
+            box-shadow: 0 0 15px rgba(26, 42, 108, 0.5);
+            outline: none;
+          }
+    
+          input::placeholder {
+            color: rgba(26, 42, 108, 0.7);
+            font-style: italic;
+          }
+          /* 登录按钮 */
+          .login-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            font-size: 1.8rem;
+            font-family: 'Helvetica Neue', sans-serif;
+            border-radius: 8px;
+            background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+            backdrop-filter: blur(10px);
+            color: #fefefe;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+            animation: pulse 4s infinite ease-in-out;
+            margin-top: 10px;
+          }
 
-/* 输入框 */
-.login-form input {
-  width: 92%;
-  padding: 12px 16px;
-  margin-bottom: 15px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  border: 2px solid transparent;
-  border-radius: 12px;
-  font-size: 1.8rem;
-  color: #030921;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-}
+          .login-button:hover {
+            background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+            transform: scale(1.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+          }
+        }
+        
+        /* 链接容器 */
+        .links-container {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
+          margin: 15px 0;
 
-.login-form input:focus {
-  border: 2px solid #1a2a6c;
-  box-shadow: 0 0 15px rgba(26, 42, 108, 0.5);
-  outline: none;
-}
+          .forgot-password-link,
+          .signup-link {
+            font-size: 1.4rem;
+            color: #fff;
+            text-decoration: none;
+          }
 
-.login-form input::placeholder {
-  color: rgba(26, 42, 108, 0.7);
-  font-style: italic;
-}
+          .forgot-password-link:hover,
+          .signup-link:hover {
+            text-decoration: underline;
+          }
+        }
 
-/* 登录按钮 */
-.login-button {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  font-size: 1.8rem;
-  font-family: 'Helvetica Neue', sans-serif;
-  border-radius: 8px;
-  background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
-  backdrop-filter: blur(10px);
-  color: #fefefe;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-  animation: pulse 4s infinite ease-in-out;
-  margin-top: 10px;
-}
+        /* 分割线 */
+        .or-divider {
+          display: flex;
+          align-items: center;
+          width: 100%;
+          margin: 20px 0;
+        }
 
-.login-button:hover {
-  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
-  transform: scale(1.05);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
+        .or-divider::before,
+        .or-divider::after {
+          content: '';
+          flex-grow: 1;
+          height: 1px;
+          background-color: rgba(255,255,255,0.5);
+        }
 
-/* 链接容器 */
-.links-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin: 15px 0;
-}
+        .or-divider span {
+          font-size: 2rem;
+          font-weight: bold;
+          color: #fff;
+          margin: 0 10px;
+        }
+      }
+    }
 
-.forgot-password-link,
-.signup-link {
-  font-size: 1.4rem;
-  color: #fff;
-  text-decoration: none;
-}
+    /* 快捷登录提示文本 */
+    .quick-login-text {
+      text-align: left;
+      font-size: 1.4rem;
+      color: #fff;
+      margin: 10px 0;
+    }
 
-.forgot-password-link:hover,
-.signup-link:hover {
-  text-decoration: underline;
-}
+    /* 快捷登录按钮 */
+    .social-login {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
 
-/* 分割线 */
-.or-divider {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  margin: 20px 0;
-}
+      .social-button {
+        width: 30%;
+        padding: 10px 0;
+        border: none;
+        border-radius: 8px;
+        color: #030921;
+        font-size: 1.4rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255,255,255,0.8);
+        backdrop-filter: blur(8px);
+      }
 
-.or-divider::before,
-.or-divider::after {
-  content: '';
-  flex-grow: 1;
-  height: 1px;
-  background-color: rgba(255,255,255,0.5);
-}
-
-.or-divider span {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #fff;
-  margin: 0 10px;
-}
-
-/* 快捷登录提示文本 */
-.quick-login-text {
-  text-align: left;
-  font-size: 1.4rem;
-  color: #fff;
-  margin: 10px 0;
-}
-
-/* 快捷登录按钮 */
-.social-login {
-  margin-top: 20px;
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-}
-
-.social-button {
-  width: 30%;
-  padding: 10px 0;
-  border: none;
-  border-radius: 8px;
-  color: #030921;
-  font-size: 1.4rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.3s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.8);
-  backdrop-filter: blur(8px);
-}
-
-.social-button:hover {
-  background-color: #dcdcdc;
-}
-
-.social-button.wechat {
-  background: rgba(255,255,255,0.8) url('@/assets/wechat-logo.svg') no-repeat;
-  background-position: 8px center;
-  padding-left: 30px;
-  background-size: 28px 28px;
-  &:hover {
-    background-color: darken(#c4c0c0, 10%); 
-  }
-}
-
-.social-button.google {
-  background: rgba(255,255,255,0.8) url('@/assets/google-logo.svg') no-repeat;
-  background-position: 8px center;
-  padding-left: 30px;
-  background-size: 28px 28px;
-  &:hover {
-    background-color: darken(#c4c0c0, 10%); 
-  }
-}
-
-.social-button.apple {
-  background: rgba(255,255,255,0.8) url('@/assets/apple-logo.svg') no-repeat;
-  background-position: 8px center;
-  padding-left: 30px;
-  background-size: 24px 24px;
-  &:hover {
-    background-color: darken(#c4c0c0, 10%); 
+      .social-button:hover {
+        background-color: #dcdcdc;
+      }
+      
+      .social-button.wechat {
+        background: rgba(255,255,255,0.8) url('@/assets/wechat-logo.svg') no-repeat;
+        background-position: 8px center;
+        padding-left: 30px;
+        background-size: 28px 28px;
+        &:hover {
+          background-color: darken(#c4c0c0, 10%); 
+        }
+      }
+      
+      .social-button.google {
+        background: rgba(255,255,255,0.8) url('@/assets/google-logo.svg') no-repeat;
+        background-position: 8px center;
+        padding-left: 30px;
+        background-size: 28px 28px;
+        &:hover {
+          background-color: darken(#c4c0c0, 10%); 
+        }
+      }
+      
+      .social-button.apple {
+        background: rgba(255,255,255,0.8) url('@/assets/apple-logo.svg') no-repeat;
+        background-position: 8px center;
+        padding-left: 30px;
+        background-size: 24px 24px;
+        &:hover {
+          background-color: darken(#c4c0c0, 10%); 
+        }
+      }
+    }
   }
 }
 

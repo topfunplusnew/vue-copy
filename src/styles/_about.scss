@@ -1,106 +1,30 @@
+@import './mixins';
+@import './variables';
+
 /* 添加 iPoloGO 介绍部分样式 */
-.ipologo-intro {
-  margin-top: 50px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-  width: 80%;
-  max-width: 900px;
-  text-align: justify; /* 使文本左对齐 */
-}
-
-.ipologo-intro p {
-  font-size: 1.8rem;
-  color: #ddd;
-  line-height: 1.6;
-}
-
-/* FAQ 容器 */
-.faq-container {
-  max-width: 900px;
-  min-width: 900px; /* 新增最小宽度锁定 */
-  margin: 2rem auto;
-}
-
-:deep(.stable-width-collapse) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 100% !important;
-}
-
-/* 纯净模式折叠面板 */
-:deep(.clean-collapse) {
-  --el-collapse-border-color: transparent;
-  background: transparent;
-}
-
-:deep(.el-collapse-item) {
-  max-width: 900px;
-  min-width: 900px;
-  margin: 8px 0;
-  transition: all 0.1s ease;
-}
-
-/* 标题样式 */
-:deep(.el-collapse-item__header) {
-  background: rgba(255, 255, 255, 0.1) !important;
-  border-radius: 8px !important;
-  color: #fff !important;
-  padding: 16px 24px !important;
-  font-size: 2.2rem;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
-}
-
-/* 内容区域 */
-:deep(.el-collapse-item__content) {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  border-radius: 8px !important;
-  color: #fff !important;
-  padding: 16px 24px !important;
-  font-size: 2.2rem;
-  border: transparent;
-  transition: all 0.9s ease;
-  text-align: justify;
-}
-:deep(.el-collapse-item__content) {
-  background: transparent !important;
-  backdrop-filter: none !important;
-}
-
-/* 移除内容区域阴影效果 */
-:deep(.el-collapse-item__wrap) {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-}
-
-/* 修复箭头图标颜色 */
-:deep(.el-collapse-item__arrow) {
-  color: #fff !important;
-}
-
-/* 调整激活状态标题背景 */
-:deep(.el-collapse-item.is-active .el-collapse-item__header) {
-  background: rgba(255, 255, 255, 0.15) !important;
-}
-
-/* 箭头图标动画 */
-:deep(.el-collapse-item__arrow) {
-  color: #fff !important;
-  transition: transform 0.3s ease;
-}
-
-:deep(.el-collapse-item.is-active) .el-collapse-item__arrow {
-  transform: rotate(90deg);
-}
-
-/* 悬停效果 */
-:deep(.el-collapse-item:hover) .el-collapse-item__header {
-  transform: translateX(5px);
-  background: rgba(255, 255, 255, 0.15) !important;
+.home{
+  .ipologo-intro {
+    margin-top: 50px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    width: 80%;
+    max-width: 900px;
+    text-align: justify; /* 使文本左对齐 */
+  
+      p {
+        font-size: 1.8rem;
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        color: #ddd;
+        line-height: 1.6;
+      }
+  
+      h1 {
+        font-size: 6rem;
+        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        margin: 0 auto;
+      }
+  }
 }
