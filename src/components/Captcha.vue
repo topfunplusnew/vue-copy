@@ -99,7 +99,7 @@
     background: #fff;
   }
   .drag_bg {
-    background-color: #22212144;
+    background-color: #808080;
     height: 45px;
     width: 0px;
   }

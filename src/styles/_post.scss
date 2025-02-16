@@ -22,6 +22,7 @@
     .text-editor {
       width: 98%;
       font-size: 2rem;
+      font-family: 'Courier New', Courier, monospace;
       padding: 1rem;
       border: 1px solid rgba(255, 255, 255, 0.5);
       border-radius: 8px;
@@ -92,8 +93,10 @@
       background: rgba(255, 255, 255, 0.3);
       border-radius: 8px;
       cursor: pointer;
-      border: 1px solid black;
+      border: 0px solid rgb(69, 69, 69);
       transition: background 0.3s ease;
+      font-family: 'Roboto', sans-serif; /* 设定字体 */
+      color: #4f4e4e; /* 设置灰色字体 */
   
       &:hover {
         background: rgba(255, 255, 255, 0.5);
@@ -120,6 +123,7 @@
         border-radius: 8px;
         cursor: pointer;
         transition: background 0.3s ease;
+        font-family: 'Roboto', sans-serif; /* 设定字体 */
   
         &:hover {
           background-color: #5a6268;
@@ -129,7 +133,8 @@
       .post-button {
         padding: 0.8rem 1.5rem;
         width: 150px; /* 设置按钮宽度为固定值 */
-        background-color: #58c371;
+        background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+        backdrop-filter: blur(10px);
         color: white;
         border: none;
         border-radius: 10px;
@@ -137,7 +142,7 @@
         transition: background 0.3s ease;
   
         &:hover {
-          background-color: #218838;
+            transform: scale(1.05);
         }
       }
     }
