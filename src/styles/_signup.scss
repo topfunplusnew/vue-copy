@@ -1,20 +1,7 @@
-/* 变量定义（方便修改主题色等） */
-$error-color: #e74c3c;
-$input-border-color: #ccc;
-$input-focus-border-color: #4c84ff;
-$background-color: #f7f7f7; /* 网页背景颜色 */
-
-/* 统一网页背景颜色 */
-body {
-  background-color: $background-color;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-
 /* 注册页面容器 */
 .signup-container {
   width: 100%;
-  max-width: 550px;  /* 容器宽度增加 */
+  max-width: 650px;  /* 容器宽度增加 */
   margin: 0 auto;
   padding: 30px;
   background-color: transparent; /* 取消背景色，使容器融入页面背景 */
@@ -22,71 +9,13 @@ body {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* 表单项 */
-.form-group {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-}
-
-label {
-  width: 200px;  /* 标签宽度增加 */
-  font-size: 16px;
-  color: #fff;  /* 文字颜色改为白色 */
-  font-family: 'Roboto', sans-serif; /* 更新字体为Roboto */
-  font-weight: bold; /* 字体加粗 */
-}
-
-/* 输入框样式 */
-.form-group input {
-  width: 150%;
-  flex: 1;
-  padding: 12px;
-  border: 1px solid $input-border-color;
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: 'Roboto', sans-serif; /* 设置字体为Roboto */
-  color: #000000; /* 设置字体颜色为白色 */
-  box-sizing: border-box;
-  transition: border-color 0.3s ease;
-}
-
-.form-group input:focus {
-  border-color: $input-focus-border-color;
-  outline: none;
-}
-
-/* 错误提示 */
-.error-message {
-  color: $error-color;
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* 发送确认邮件按钮样式 */
-.confirm-email-button {
-  width: 64%;
-  padding: 12px;
-  background-color: #28a745 !important;  /* 使用绿色背景 */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  margin-bottom: 15px; /* 增加按钮底部间距 */
-  margin-left: auto;  /* 使按钮靠右显示 */
-  display: block;     /* 确保按钮是块级元素 */
-  &:hover {
-    transform: scale(1.05);
-  } 
-}
+/*表单格式在forgetpassword.scss中已经定义，这里直接引用*/
 
 /* Sign Up 按钮样式 */
 .signup-button {
   width: 100%;
   padding: 15px;
-  background-color: #4c84ff;  /* 直接使用颜色值 */
+  background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
   color: white;
   border: none;
   border-radius: 8px;
@@ -96,9 +25,27 @@ label {
 }
 
 .signup-button:hover {
-  background-color: darken(#4c84ff, 10%); /* 直接使用颜色值 */
+  background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
   transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+
+/* 验证码容器样式 */
+.captcha-container {
+  width: 100%; /* 容器宽度设置为100% */
+  margin-top: 10px;
+}
+
+.captcha-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;  /* 控制文本和滑动验证码之间的间距 */
+}
+
+.captcha-item .captcha {
+  flex-grow: 1;  /* 使验证码滑块填满剩余空间 */
+}
+
 
 /* 响应式设计：调整小屏幕上的布局 */
 @media (max-width: 768px) {

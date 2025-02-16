@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
+import Captch from '@/components/Captcha.vue';  // 引入 DragSlider 组件
+
+
 
 const msg = 'Sign Up';
 const username = ref('');
@@ -8,6 +11,8 @@ const email = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const errorMessage = ref('');
+const isVerified = ref(false);  // 用于判断验证码是否通过
+
 
 // 注册表单提交逻辑
 const handleSubmit = () => {
@@ -18,6 +23,11 @@ const handleSubmit = () => {
 
   if (password.value !== confirmPassword.value) {
     errorMessage.value = 'Passwords do not match.';
+    return;
+  }
+
+  if (!isVerified.value) {
+    errorMessage.value = 'Please complete the CAPTCHA.';
     return;
   }
 
@@ -80,6 +90,14 @@ const handleSubmit = () => {
           <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="Re-enter password" required />
         </div>
 
+        <div class="captcha-container">
+          <div class="captcha-item">
+            <label for="captcha" class="captcha-label">Verify your identity</label>
+            <Captcha @success="isVerified = true" id="captcha" />
+          </div>
+        </div>
+
+        
         <button type="submit" class="signup-button">Sign Up</button>
       </form>
     </div>
@@ -94,4 +112,6 @@ const handleSubmit = () => {
   color: #ffffff; /* 设置文本颜色 */
   margin-bottom: 50px; /* 增加下方的间距，可以根据需要调整 */
 }
+
+
 </style>

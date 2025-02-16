@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import walletItem from '@/components/wallet-item.vue';
-import { ref, reactive, onMounted } from 'vue';
 </script>
 
 <template>

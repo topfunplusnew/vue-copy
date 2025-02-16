@@ -1,0 +1,144 @@
+/* Post页面的样式 */
+.post-container {
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 5rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  
+    /* 标题 */
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+  
+    /* 文本编辑框 */
+    .text-editor {
+      width: 98%;
+      font-size: 2rem;
+      padding: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+      margin-bottom: 1rem;
+      height: 150px;
+      resize: none;
+    }
+    /* 修改占位符颜色和样式 */
+    .text-editor::placeholder {
+      color: black; /* 颜色改为黑色 */
+      font-style: italic; /* 斜体 */
+    }
+
+  
+/* 图片上传 */
+.image-upload {
+    margin-bottom: 1rem;
+    text-align: left; /* 让组件靠左 */
+  
+    input[type="file"] {
+      font-size: 0.8rem;
+      font-family: "Roboto", sans-serif; /* 设置字体为 Roboto */
+      background-color: rgba(255, 255, 255, 0.3); /* 透明背景 */
+      border-radius: 12px; /* 使按钮变成圆角长方形 */
+      padding: 10px 16px; /* 调整内边距让按钮更好看 */
+      cursor: pointer;
+      border: 1px solid #ccc; /* 增加边框让按钮更明显 */
+      color: rgb(255, 255, 255); /* 文字颜色 */
+      margin-left: 0; /* 让按钮贴紧左侧 */
+    }
+  
+    input[type="file"]::-webkit-file-upload-button {
+      font-size: 1rem;
+      font-family: "Roboto", sans-serif; /* 统一按钮字体 */
+      background-color: rgba(255, 255, 255, 0.7); /* 提高透明度 */
+      border-radius: 12px; /* 让上传按钮也变成圆角 */
+      padding: 8px 12px 10px 12px;
+      border: 0px solid #ccc; /* 让按钮更清晰 */
+      cursor: pointer;
+    }
+  
+    input[type="file"]::-webkit-file-upload-button:hover {
+      background-color: rgba(255, 255, 255, 1); /* 悬停时变得不透明 */
+    }
+  }
+  
+/* 谁可以回复选择按钮 */
+.reply-options {
+    margin: 2rem 0; /* 上下间距 */
+    display: flex;
+    align-items: center; /* 让文本和按钮垂直居中 */
+    gap: 1rem; /* 让标题和按钮之间有间隔 */
+  
+    /* 标题样式 */
+    .reply-label {
+      font-size: 1rem;
+      font-weight: bold;
+      color: white;
+      white-space: nowrap; /* 防止换行 */
+    }
+  
+    /* 按钮样式 */
+    .option-button {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid black;
+      transition: background 0.3s ease;
+  
+      &:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+  
+      &.selected {
+        background: rgba(255, 255, 255, 0.9);
+        font-weight: bold;
+      }
+    }
+  }
+  
+    /* 草稿保存和发布按钮 */
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  
+      .save-draft {
+        padding: 0.8rem 1.5rem;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+  
+        &:hover {
+          background-color: #5a6268;
+        }
+      }
+  
+      .post-button {
+        padding: 0.8rem 1.5rem;
+        width: 150px; /* 设置按钮宽度为固定值 */
+        background-color: #58c371;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+  
+        &:hover {
+          background-color: #218838;
+        }
+      }
+    }
+  }

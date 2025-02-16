@@ -2,8 +2,6 @@
 import { ref } from 'vue';
 
 const msg = ' Welcome Back!'; // 新增的文本
-
-// 定义绑定的变量
 const username = ref('');
 const email = ref('');
 const newPassword = ref('');
@@ -58,9 +56,10 @@ const handleSubmit = () => {
           </router-link>
         </div>
       </div>
+      <h1 class="header-title">{{ msg }}</h1>
     </header>
 
-    <h2>{{ msg }}</h2>
+    
 
     <!-- 重置密码表单 -->
     <div class="forget-container">

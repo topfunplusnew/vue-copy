@@ -131,12 +131,25 @@
         </div>
       </div>
 
+
+  
       <!-- 社交帖子模块 -->
       <section class="social-feed">
         <div class="social-header">
+             <!-- 搜索框 -->
+           <input
+             type="text"
+             v-model="searchQuery"
+             placeholder="Search: location, date, topics..."
+             class="search-input"
+              />
           <h3>Explore iPoloGO Community</h3>
-          <hr class="horizontal-divider" />
+          <button class="post-button" @click="$router.push({ name: 'PostView' })">
+            👉 Post 👈
+          </button>  <!-- 发布按钮 -->
+          
         </div>
+        <hr class="horizontal-divider" />
         <div class="social-container">
           <!-- 固定左侧区域 -->
           <div class="social-fixed">
@@ -184,6 +197,8 @@
     </main>
   </div>
 </template>
+
+
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';

@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '@/views/trip/Login-view.vue';
 import SignupView from '@/views/trip/Signup-view.vue';
+import PostView from '@/views/trip/Post-view.vue'; // 引入 Post-view 页面
 
 
 
@@ -12,6 +13,11 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: () => import('@/views/home-view.vue')
+    },
+    {
+      path: '/post-view', // 路由路径
+      name: 'PostView',
+      component: PostView, // 对应的组件
     },
     {
       path: '/about',
