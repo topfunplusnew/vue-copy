@@ -359,6 +359,7 @@ const socialFilters = ref([
   { label: 'Medical',        icon: '🏥' },
   { label: 'Gastronomy',     icon: '🍴' },
   { label: 'Culture',        icon: '🎭' },
+  { label: 'NFT',            icon: '🖼️' },
 ]);
 
 // 多选筛选：选中的标签（字符串）
@@ -381,6 +382,8 @@ const filteredPosts = computed(() => {
     return blogPosts;
   } else if (selectedFilters.value.includes('Most Popular')) {
     return [...blogPosts].sort((a, b) => b.likes - a.likes);
+  } else if (selectedFilters.value.includes('NFT')) { // NFT filter logic
+    return blogPosts.filter(post => post.isNFT);
   } else {
     return blogPosts.filter(post =>
       post.tags.some(tag => selectedFilters.value.includes(tag))
