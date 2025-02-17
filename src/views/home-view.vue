@@ -132,7 +132,7 @@
       </div>
 
 
-  
+
       <!-- 社交帖子模块 -->
       <section class="social-feed">
         <div class="social-header">
@@ -147,7 +147,7 @@
           <button class="post-button" @click="$router.push({ name: 'PostView' })">
             👉 Post 👈
           </button>  <!-- 发布按钮 -->
-          
+
         </div>
         <hr class="horizontal-divider" />
         <div class="social-container">
@@ -353,13 +353,13 @@ import { blogPosts } from '@/data/blogdata';
 const socialFilters = ref([
   { label: 'Recommendation', icon: '⭐' },
   { label: 'Most Popular',   icon: '🔥' },
+  { label: 'NFT',            icon: '🖼️' },
   { label: 'Sightseeing',    icon: '🌇' },
   { label: 'Educational',    icon: '🎓' },
   { label: 'Business',       icon: '💼' },
   { label: 'Medical',        icon: '🏥' },
   { label: 'Gastronomy',     icon: '🍴' },
   { label: 'Culture',        icon: '🎭' },
-  { label: 'NFT',            icon: '🖼️' },
 ]);
 
 // 多选筛选：选中的标签（字符串）

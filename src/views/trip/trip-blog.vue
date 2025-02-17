@@ -37,8 +37,10 @@ const posts = ref(blogPosts);
           </router-link>
         </div>
       </div>
-      <h2 class="header-title">{{ msg }}</h2>
+      <h1 class="blog-header-title">{{ msg }}</h1>
     </header>
+
+
 
     <!-- Blog Content -->
     <div class="blog-container">

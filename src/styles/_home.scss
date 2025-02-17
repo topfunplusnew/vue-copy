@@ -352,7 +352,7 @@
     /* 整体布局：左侧固定，右侧独立滚动 */
     .social-scroll {
       flex: 1;
-      height: 60vh; /* 可根据需要调整高度 */
+      height: 62vh; /* 可根据需要调整高度 */
       overflow-y: auto;
 
       .social-posts-panel {
