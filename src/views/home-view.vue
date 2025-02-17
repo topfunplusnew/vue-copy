@@ -177,8 +177,9 @@
                 class="social-post"
                 v-for="post in postsDisplayed"
                 :key="post.id"
+                @click="showBlogDetail(post)"
               >
-                <img :src="post.image" alt="Post Image" class="post-image" />
+                <img :src="post.image[0]" alt="Post Image" class="post-image" />
                 <div class="post-footer">
                   <img :src="post.avatar" alt="Avatar" class="post-avatar" />
                   <div class="post-stats">
@@ -195,6 +196,36 @@
         </div>
       </section>
     </main>
+
+    <!-- 添加博客详情弹出层 -->
+    <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
+      <div class="blog-detail-container">
+        <div class="blog-detail-header">
+          <h2>{{ selectedBlog.title }}</h2>
+          <button class="close-button" @click="closeBlogDetail">×</button>
+        </div>
+        <div class="blog-detail-content">
+          <img :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
+          <div class="detail-info">
+            <div class="author-info">
+              <img :src="selectedBlog.user.avatar" alt="Author Avatar" class="author-avatar" />
+              <span class="author-name">{{ selectedBlog.user.name }}</span>
+            </div>
+            <p class="content">{{ selectedBlog.content }}</p>
+            <div class="detail-stats">
+              <span class="likes">❤️ {{ selectedBlog.likes }}</span>
+              <span class="comments">💬 {{ selectedBlog.comments }}</span>
+              <span class="coins">💰 {{ selectedBlog.coins }}</span>
+            </div>
+            <div class="tags">
+              <span v-for="tag in selectedBlog.tags" :key="tag" class="tag">
+                {{ tag }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -418,4 +449,20 @@ onMounted(() => {
     observer.observe(bottomTrigger.value);
   }
 });
+
+// 添加博客详情相关的状态
+const selectedBlog = ref<IBlogPost | null>(null);
+
+// 显示博客详情
+const showBlogDetail = (blog: IBlogPost) => {
+  selectedBlog.value = blog;
+  document.body.style.overflow = 'hidden'; // 防止背景滚动
+};
+
+// 关闭博客详情
+const closeBlogDetail = () => {
+  selectedBlog.value = null;
+  document.body.style.overflow = ''; // 恢复背景滚动
+};
 </script>
+

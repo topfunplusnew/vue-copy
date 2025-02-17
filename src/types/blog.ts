@@ -1,6 +1,7 @@
 import type { ICommon } from './base';
 import type { IUser } from './user';
 
+
 export interface IBlogPost extends ICommon {
   title: string; // blog标题
   content: string; // blog内容
