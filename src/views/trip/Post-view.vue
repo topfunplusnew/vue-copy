@@ -177,16 +177,16 @@ const postTweet = () => {
 
 
         <!-- 旅游偏好  -->
-        <div class="preference-options">
+        <div class="postprefer-options">
           <span
             v-for="option in preferenceOptions"
             :key="option.name"
-            class="preference-option"
-            :class="{ selected: selectedOptions.includes(option.name) }"
+            class="postprefer-option"
+            :class="{ 'postprefer-selected': selectedOptions.includes(option.name) }"
             @click="togglePreference(option.name)"
           >
-            <span class="option-icon">{{ option.icon }}</span>
-            <span class="option-name">{{ option.name }}</span>
+            <span class="postprefer-icon">{{ option.icon }}</span>
+            <span class="postprefer-name">{{ option.name }}</span>
           </span>
         </div>
 

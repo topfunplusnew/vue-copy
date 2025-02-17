@@ -424,7 +424,7 @@
 }
     
 /* 旅游偏好选项样式 */
-.preference-options {
+.postprefer-options {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -433,7 +433,7 @@
   justify-content: center;
   align-items: center;
 
-  .preference-option {
+  .postprefer-option {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -450,16 +450,16 @@
       background: rgba(255, 255, 255, 0.3);
     }
 
-    &.selected {
+    &.postprefer-selected {
       background: rgba(255, 255, 255, 0.9);
       color: #333;
     }
 
-    .option-icon {
+    .postprefer-icon {
       font-size: 1.2rem;
     }
 
-    .option-name {
+    .postprefer-name {
       font-size: 0.9rem;
       font-weight: 500;
     }
