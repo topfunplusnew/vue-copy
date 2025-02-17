@@ -18,24 +18,7 @@ const noMorePosts = ref(false);
 const postsContainer = ref<HTMLElement | null>(null);
 
 // 用户博客数据
-const userPosts = ref<IBlogPost[]>([
-  {
-    id: 1,
-    image: [macauImg],
-    user: {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'My Trip to Macau',
-    content: 'Sharing my wonderful experience in Macau...',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Travel', 'Macau', 'Experience'],
-    isNFT: false
-  },
-  // 可以添加更多博客帖子...
-]);
+const userPosts = ref<IBlogPost[]>(userInfo.blogs);
 
 // 博客详情相关的状态和方法
 const selectedBlog = ref<IBlogPost | null>(null);
@@ -162,6 +145,7 @@ onMounted(() => {
             v-for="post in userPosts" 
             :key="post.id" 
             class="blog-post"
+            :class="{ 'nft-post': post.isNFT }"
             @click="showBlogDetail(post)"
           >
             <img :src="post.image[0]" alt="Blog Image" class="post-image" />
@@ -170,7 +154,7 @@ onMounted(() => {
               <div class="post-stats">
                 <span class="likes">❤️ {{ post.likes }}</span>
                 <span class="comments">💬 {{ post.comments }}</span>
-                <span class="coins">💰 {{ post.coins }}</span>
+                <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
               </div>
             </div>
           </div>
@@ -183,7 +167,7 @@ onMounted(() => {
 
     <!-- 博客详情弹出层 -->
     <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
-      <div class="blog-detail-container">
+      <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
         <div class="blog-detail-header">
           <h2>{{ selectedBlog.title }}</h2>
           <button class="close-button" @click="closeBlogDetail">×</button>
@@ -199,7 +183,7 @@ onMounted(() => {
             <div class="detail-stats">
               <span class="likes">❤️ {{ selectedBlog.likes }}</span>
               <span class="comments">💬 {{ selectedBlog.comments }}</span>
-              <span class="coins">💰 {{ selectedBlog.coins }}</span>
+              <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
             </div>
             <div class="tags">
               <span v-for="tag in selectedBlog.tags" :key="tag" class="tag">
@@ -213,164 +197,3 @@ onMounted(() => {
   </div>
 </template>
 
-<style scoped>
-.blog-posts {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px;
-}
-
-.blog-post {
-  cursor: pointer;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.2s;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-}
-
-.blog-post:hover {
-  transform: scale(1.02);
-}
-
-.post-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.post-footer {
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.post-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-.post-stats {
-  display: flex;
-  gap: 12px;
-}
-
-/* 博客详情弹出层样式 */
-.blog-detail-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.blog-detail-container {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  width: 80%;
-  max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 24px;
-  position: relative;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.blog-detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.blog-detail-header h2 {
-  color: #000;
-  margin: 0;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 8px;
-  color: #000;
-}
-
-.detail-image {
-  width: 100%;
-  max-height: 400px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.detail-info {
-  padding: 0 20px;
-}
-
-.author-info {
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 12px;
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-}
-
-.author-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  margin-right: 16px;
-}
-
-.author-name {
-  font-weight: 600;
-  color: #000;
-}
-
-.content {
-  line-height: 1.8;
-  margin-bottom: 24px;
-  font-size: 1.1rem;
-  color: #000;
-}
-
-.detail-stats {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 20px;
-  padding: 12px 0;
-  color: #000;
-}
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.tag {
-  background-color: rgba(255, 255, 255, 0.3);
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  color: #000;
-}
-
-.tag:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-}
-</style>

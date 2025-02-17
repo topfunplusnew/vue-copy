@@ -1,3 +1,4 @@
+@import './blog-detail';
 
 .home{
 /* 主体部分 */
@@ -392,9 +393,17 @@
             
             .post-stats {
               display: flex;
-              gap: 1rem;
+              gap: 12px;
               font-size: 1.8rem;
               color: #1a2a6c;
+              
+              /* NFT 帖子的统计信息样式 */
+              .nft-post & {
+                .coins {
+                  color: gold;
+                  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+                }
+              }
             }
           }
           
@@ -508,14 +517,14 @@
           gap: 24px;
           margin-bottom: 20px;
           padding: 12px 0;
+          font-size: 1.5rem;
           border-top: 1px solid rgba(0, 0, 0, 0.1);
           border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-          .detail-stats span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #666;
+          /* NFT 博客详情的统计信息样式 */
+          .coins {
+            color: gold;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
           }
         }
 
@@ -529,7 +538,7 @@
             background-color: rgba(0, 0, 0, 0.05);
             padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.9rem;
+            font-size: 1.2rem;
             color: #666;
             transition: all 0.2s;
           }
@@ -571,4 +580,65 @@
     transform: scale(1.02);
   }
   
+  /* NFT 博客的特殊样式 */
+  .social-post {
+    &.nft-post {
+      background: linear-gradient(
+        45deg,
+        rgba(255, 215, 0, 0.15),  /* 金色 */
+        rgba(147, 112, 219, 0.15)  /* 紫色 */
+      );
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+      
+      /* 添加闪光效果 */
+      position: relative;
+      overflow: hidden;
+      
+      &::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transform: rotate(45deg);
+        animation: shine 3s infinite;
+      }
+      
+      /* NFT 标记 */
+      &::after {
+        content: 'NFT';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 215, 0, 0.2);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 1.5rem;
+        color: gold;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+      }
+    }
+  }
+
+  /* 闪光动画 */
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+    50% {
+      transform: translateX(100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) rotate(45deg);
+    }
+  }
 }

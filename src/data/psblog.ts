@@ -1,41 +1,58 @@
 // psblog.ts personal profile
 
 import type { IBlogPost } from '@/types/blog';
+import macauImg from '@/assets/macau.jpg';
 
-// 用于模拟生成博客数据（总共 50 篇博客）
-export function generateBlogs(page: number, perPage: number): IBlogPost[] {
-  const blogs: IBlogPost[] = [];
-  const start = (page - 1) * perPage + 1;
-  for (let i = 0; i < perPage; i++) {
-    const id = start + i;
-    if (id > 50) break;
-    blogs.push({
-      id,
-      image: [`https://via.placeholder.com/300x200?text=Post+${id}`],
-      title: `Post ${id}`,
-      content: `This is the content of the blog post ${id}.`,
-      tags: ['Travel', 'Adventure'],
-      user: {
-        avatar: `https://via.placeholder.com/50?text=User+${id}`,
-        name: `User ${id}`,
-      },
-      likes: Math.floor(Math.random() * 100),
-      comments: Math.floor(Math.random() * 50),
-      coins: Math.floor(Math.random() * 20),
-    });
-  }
-  return blogs;
-}
+// 生成随机数的辅助函数
+const randomInt = (min: number, max: number) => 
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
+// 随机选择数组中的一个元素
+const randomPick = <T>(arr: T[]): T => 
+  arr[Math.floor(Math.random() * arr.length)];
+
+// 标签列表
+const tags = ['Sightseeing', 'Educational', 'Business', 'Medical', 'Gastronomy', 'Culture'];
+
+// 随机生成2-4个标签
+const generateTags = () => {
+  const numTags = randomInt(2, 4);
+  const shuffled = [...tags].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, numTags);
+};
+
+// 生成随机博客数据
+const generateBlog = (id: number): IBlogPost => ({
+  id,
+  image: [macauImg],
+  user: {
+    avatar: `https://via.placeholder.com/50?text=${String.fromCharCode(65 + (id % 26))}`,
+    name: `User ${id}`,
+  },
+  title: `Travel Experience ${id}`,
+  content: `This is a randomly generated blog post content for post ${id}. It contains some interesting travel experiences and stories.`,
+  likes: randomInt(10, 1000),
+  comments: randomInt(5, 100),
+  coins: randomInt(1, 50),
+  tags: generateTags(),
+  isNFT: Math.random() < 0.3, // 30%的概率是NFT
+});
+
+// 生成50个博客帖子
+export const generateBlogs = (): IBlogPost[] => {
+  return Array.from({ length: 50 }, (_, i) => generateBlog(i + 1));
+};
 
 export interface UserInfo {
   id: string;
   joined: string;
   avatar: string;
+  name: string;
   likes: number;
   coins: number;
   blogs: IBlogPost[];
-  followings:number;
-  followers:number;
+  followings: number;
+  followers: number;
 }
 
 // 初始用户信息，并默认加载第一页博客（每页 10 篇）
@@ -43,9 +60,12 @@ export const userInfo: UserInfo = {
   id: '123456',
   joined: '2022-01-01',
   avatar: 'https://via.placeholder.com/150',
-  likes: 120,
-  coins: 350,
-  blogs: generateBlogs(1, 10),
-  followings:10000,
-  followers:102000,
+  name: 'Travel Explorer',
+  likes: randomInt(1000, 5000),
+  coins: randomInt(100, 1000),
+  blogs: generateBlogs(),
+  followings: randomInt(5000, 15000),
+  followers: randomInt(50000, 150000),
 };
+
+export type BlogPost = IBlogPost;

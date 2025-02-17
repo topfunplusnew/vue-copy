@@ -35,7 +35,157 @@ export const blogPosts: IBlogPost[] = [
     comments: 5,
     coins: 10,
     tags: ['Sightseeing', 'Business'],
+    isNFT: true
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: true
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
     isNFT: false
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: true
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: false
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: false
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: true
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: false
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: false
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: false
+  }, {
+    id: 1,
+    image: [macauImg], // 使用导入的图片
+    user:
+    {
+      avatar: 'https://via.placeholder.com/50?text=A',
+      name: 'Alice',
+    },
+    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
+    content: 'This is the content of the blog post.',
+    likes: 23,
+    comments: 5,
+    coins: 10,
+    tags: ['Sightseeing', 'Business'],
+    isNFT: true
   }, {
     id: 1,
     image: [macauImg], // 使用导入的图片
@@ -125,7 +275,7 @@ export const blogPosts: IBlogPost[] = [
     comments: 5,
     coins: 10,
     tags: ['Sightseeing', 'Business'],
-    isNFT: false
+    isNFT: true
   }, {
     id: 1,
     image: [macauImg], // 使用导入的图片
@@ -155,157 +305,7 @@ export const blogPosts: IBlogPost[] = [
     comments: 5,
     coins: 10,
     tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
-  }, {
-    id: 1,
-    image: [macauImg], // 使用导入的图片
-    user:
-    {
-      avatar: 'https://via.placeholder.com/50?text=A',
-      name: 'Alice',
-    },
-    title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
-    likes: 23,
-    comments: 5,
-    coins: 10,
-    tags: ['Sightseeing', 'Business'],
-    isNFT: false
+    isNFT: true
   },
   
 ];

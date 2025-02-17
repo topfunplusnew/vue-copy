@@ -212,7 +212,7 @@
 }
 .trip-option label {
   display: inline-block;
-  width: 200px;
+  width: 350px;
   font-weight: bold;
   font-size: 1.8rem;
   color: #fff;
@@ -267,19 +267,23 @@
   padding: 16px;
   margin-bottom: 1.5rem;
   word-break: break-all;
+  width: 100%;
 
   /* 让用户可自行垂直拉伸这个区域 */
-  resize: vertical;
+  resize: both;
   overflow: auto;
+
+  .trip-prompt p {
+    margin: 0 0 1rem 0;
+    font-size: 1.2rem;
+    
+  }
 }
-.trip-prompt p {
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-}
+
 
 /* Insert按钮风格与其它地方统一，并加大一点 */
 .trip-prompt .insert-btn {
-  font-size: 1.2rem;
+  font-size: 2rem;
   padding: 1rem 1.5rem;
   border-radius: 8px;
   background: linear-gradient(45deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
@@ -301,39 +305,45 @@
   border-radius: 8px;
   padding: 16px;
   margin-top: 1rem;
+  width: 100%;
 
   /* 让用户可自行垂直拉伸地图模块 */
-  resize: vertical;
+  resize: both;
   overflow: auto;
+
+  /* “Map”标题与下拉菜单同行摆放 */
+  .map-header-row {
+    display: flex;
+    align-items: center; /* 垂直居中 */
+    gap: 8px;
+    margin-bottom: 1rem;
+
+    .map-label {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff; /* 根据页面背景风格设置 */
+    }
+    .map-select .el-input__inner {
+      background: rgba(0, 0, 0, 0.2);
+      color: #0ff;
+      font-weight: bold;
+      border-radius: 4px;
+      border: none;
+    }
+  }
+  /* 地图显示区 */
+  .map-display {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+  }
 }
 
-/* “Map”标题与下拉菜单同行摆放 */
-.map-header-row {
-  display: flex;
-  align-items: center; /* 垂直居中 */
-  gap: 8px;
-  margin-bottom: 1rem;
-}
-.map-label {
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #fff; /* 根据页面背景风格设置 */
-}
-.map-select .el-input__inner {
-  background: rgba(0, 0, 0, 0.2);
-  color: #0ff;
-  font-weight: bold;
-  border-radius: 4px;
-  border: none;
-}
 
-/* 地图显示区 */
-.map-display {
-  background: rgba(0, 0, 0, 0.1);
-  padding: 16px;
-  border-radius: 8px;
-  text-align: center;
-}
+
+
+
 
 /* 如果你的 chat-box, trip-option 也需要用户可调大小，可以在相应容器加上 */
 .chat-box {
@@ -344,7 +354,7 @@
 
 .options-panel {
   /* 整个 Trip Options 区一起缩放 */
-  resize: vertical;
+  resize: both;
   overflow: auto;
 }
 

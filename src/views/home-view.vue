@@ -175,6 +175,7 @@
             <div class="social-posts-panel" ref="postsPanel">
               <div
                 class="social-post"
+                :class="{ 'nft-post': post.isNFT }"
                 v-for="post in postsDisplayed"
                 :key="post.id"
                 @click="showBlogDetail(post)"
@@ -185,7 +186,7 @@
                   <div class="post-stats">
                     <span class="likes">❤️ {{ post.likes }}</span>
                     <span class="comments">💬 {{ post.comments }}</span>
-                    <span class="coins">💰 {{ post.coins }}</span>
+                    <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                   </div>
                 </div>
               </div>
@@ -215,7 +216,7 @@
             <div class="detail-stats">
               <span class="likes">❤️ {{ selectedBlog.likes }}</span>
               <span class="comments">💬 {{ selectedBlog.comments }}</span>
-              <span class="coins">💰 {{ selectedBlog.coins }}</span>
+              <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
             </div>
             <div class="tags">
               <span v-for="tag in selectedBlog.tags" :key="tag" class="tag">
