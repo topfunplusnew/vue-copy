@@ -242,17 +242,6 @@ onMounted(() => {
           <div class="username">{{ user.name }}</div>
           <div class="user-id">ID: {{ user.id }}</div>
           <div class="registration-time">Joined: {{ user.joined }}</div>
-          <!-- Following / Followers -->
-          <div class="follow-section">
-            <div class="follow-item">
-              <span class="number">{{ user.followings }}</span>
-              <router-link to="/following" class="follow-link">Following</router-link>
-            </div>
-            <div class="follower-item">
-              <span class="number">{{ user.followers }}</span>
-              <router-link to="/followers" class="follower-link">Followers</router-link>
-            </div>
-          </div>
           <!-- Likes / Coins -->
           <div class="stats">
             <div class="stat">
@@ -264,6 +253,18 @@ onMounted(() => {
               <span class="label">Coins</span>
             </div>
           </div>
+          <!-- Following / Followers -->
+          <div class="follow-section">
+            <div class="follow-item">
+              <span class="number">{{ user.followings }}</span>
+              <router-link to="/following" class="follow-link">Following</router-link>
+            </div>
+            <div class="follower-item">
+              <span class="number">{{ user.followers }}</span>
+              <router-link to="/followers" class="follower-link">Followers</router-link>
+            </div>
+          </div>
+          
         </div>
       </aside>
 
