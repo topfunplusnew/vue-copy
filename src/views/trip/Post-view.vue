@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import walletItem from '@/components/wallet-item.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import PostPreview from '@/views/trip/PostPreview.vue';
 
 // 响应式数据
 const postText = ref('');
@@ -11,6 +12,7 @@ const images = ref<{ url: string }[]>([]);
 const tagInput = ref('');
 const tags = ref<string[]>([]);
 const router = useRouter();
+const showPreview = ref(false);
 
 const preferenceOptions = ref([
   { name: 'Sightseeing', icon: '🌆' },
@@ -125,6 +127,23 @@ const postTweet = () => {
     alert('Please write something before posting.');
   }
 };
+
+// 添加计算属性来判断是否可以预览
+const canPreview = computed(() => {
+  return postTitle.value.trim() !== '' && images.value.length > 0;
+});
+
+// 修改预览函数
+const previewPost = () => {
+  if (canPreview.value) {
+    showPreview.value = true;
+  }
+};
+
+// 添加关闭预览的函数
+const closePreview = () => {
+  showPreview.value = false;
+};
 </script>
 
 <template>
@@ -160,6 +179,14 @@ const postTweet = () => {
       <!-- 标题区域 -->
       <div class="header-container">
         <h2 class="posttext">Share your happiness！</h2>
+        <button 
+          @click="previewPost" 
+          class="preview-button"
+          :disabled="!canPreview"
+          :class="{ 'preview-button-disabled': !canPreview }"
+        >
+          Preview
+        </button>
       </div>
 
       <!-- 编辑区域 -->
@@ -281,6 +308,17 @@ const postTweet = () => {
         <button @click="postTweet" class="post-button">Post</button>
       </div>
     </div>
+
+    <!-- 添加 PostPreview 组件 -->
+    <PostPreview
+      v-if="showPreview"
+      :title="postTitle"
+      :content="postText"
+      :images="images"
+      :tags="tags"
+      :preferences="selectedOptions"
+      @close="closePreview"
+    />
   </div>
 </template>
 
@@ -291,6 +329,34 @@ const postTweet = () => {
   text-align: center;
   color: #ffffff;
   margin-bottom: 10px;
+}
+
+.preview-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.preview-button-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #ccc !important;
+}
+
+.preview-button-disabled:hover::after {
+  content: 'Please add title and at least one image';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-bottom: 4px;
 }
 </style>
 

@@ -17,6 +17,25 @@
       font-size: 2rem;
       margin-bottom: 3rem;
 
+      .preview-button {
+        padding: 0.8rem 1.5rem;
+        width: 150px;
+        height: fit-content;
+        background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+        backdrop-filter: blur(10px);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        font-weight: 500;
+        margin-top:  2rem;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
     }
   
     /* 标题输入区域 */
@@ -328,7 +347,7 @@
       background: rgba(255, 255, 255, 0.2);
       color: white;
       outline: none;
-      height: 20px;
+      height: 25px;
       resize: none;
 
       &::placeholder {
