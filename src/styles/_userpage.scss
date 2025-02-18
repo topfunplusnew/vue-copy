@@ -83,13 +83,13 @@
 /* 左侧用户面板 */
 .sidebar {
   margin-top: 20px;
-  width: 300px; /* 固定宽度 */
-  height: 37vh; /* 减去 header 大概高度，或你可改为 100vh 并将 header 改为 fixed */
+  width: 300px;
+  height: 445px;
+  min-height: 37vh;
   background: rgba(255, 255, 255, 0.1);
   padding: 20px;
   box-sizing: border-box;
   border-radius: 5px;
-  /* 如果 header 没有 fixed，可以把这个改为 100vh，并给 .main-content a margin-top */
 }
 
 /* 垂直分隔线，随 sidebar 同高 */
@@ -114,27 +114,82 @@
   text-align: center;
 }
 
-.avatar-container {
-  position: relative;
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 20px;
 }
-.avatar {
+
+.avatar-container {
+  position: relative;
   width: 120px;
   height: 120px;
+  margin-bottom: 10px;
   border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto;
+  overflow: hidden;
+  background: rgba(128, 128, 128, 0.5); // 默认灰色背景
+
+  &:hover .avatar-upload-icon {
+    opacity: 1;
+  }
+
+  .avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .upload-avatar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .avatar-upload-icon {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: white;
+    font-size: 20px;
+  }
 }
-.upload-avatar {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  width: 40px;
-  height: 40px;
-  opacity: 0;
-  cursor: pointer;
+
+.avatar-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+
+  .el-button {
+    font-size: 14px;
+    padding: 8px 15px;
+    
+    &--primary {
+      background-color: #409EFF;
+      border-color: #409EFF;
+      color: white;
+      
+      &:hover {
+        background-color: #66b1ff;
+        border-color: #66b1ff;
+      }
+    }
+  }
 }
+
 .username {
   font-size: 1.4rem;
   font-weight: bold;
@@ -405,7 +460,9 @@
     border-radius: 50%;
     margin-right: 16px;
     border: 2px solid #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); 
+
+    
   }
   
   .author-name {
@@ -490,3 +547,211 @@
     transform: translateX(100%) rotate(45deg);
   }
 }
+
+
+/* 编辑个人信息按钮 */
+.edit-profile-btn {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+/* 编辑个人信息弹窗 */
+.edit-profile-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .edit-profile-container {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    padding: 30px;
+    width: 400px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    cursor: move;
+    user-select: none;
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.8rem;
+    }
+
+    .edit-avatar-section {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: rgba(128, 128, 128, 0.1);
+
+      &:hover .avatar-upload-icon {
+        opacity: 1;
+      }
+
+      .edit-avatar {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .edit-form {
+      .form-group {
+        margin-bottom: 20px;
+
+        label {
+          display: block;
+          margin-bottom: 8px;
+          color: #333;
+          font-size: 1.5rem;
+        }
+
+        input {
+          width: 100%;
+          padding: 10px;
+          border-radius: 8px;
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          background: rgba(255, 255, 255, 0.8);
+          font-size: 1.5rem;
+
+          &:focus {
+            outline: none;
+            border-color: rgba(0, 0, 0, 0.2);
+          }
+        }
+      }
+    }
+
+    .edit-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+
+      .el-button {
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: #333;
+        font-size: 18px;
+        padding: 8px 20px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.5);
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+}
+
+/* 连接钱包后的样式 */
+.sidebar.wallet-connected {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 215, 0, 0.1),
+    rgba(255, 215, 0, 0.2)
+  );
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+/* 裁剪弹窗样式 */
+.cropper-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+
+  .cropper-container {
+    background: rgba(255, 255, 255, 0.6);
+    padding: 20px;
+    border-radius: 16px;
+    width: 500px;
+    height: 450px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+    .vue-cropper {
+      height: 400px;
+      background: white !important;
+      
+      .cropper-view-box {
+        outline: none !important;
+      }
+      
+      .cropper-face {
+        background-color: transparent !important;
+        border: none;
+      }
+      
+      .cropper-modal {
+        background: none !important;
+        opacity: 0;
+      }
+
+      .cropper-drag-box {
+        background: none;
+      }
+
+      .cropper-canvas {
+        background: none;
+      }
+    }
+
+    .cropper-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+
+      .el-button {
+        background: rgba(255, 255, 255, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        color: #333;
+        font-size: 18px;
+        padding: 8px 20px;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.5);
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
+}
+

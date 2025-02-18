@@ -4,6 +4,8 @@ import { userInfo, generateBlogs, BlogPost } from '@/data/psblog';
 import walletItem from '@/components/wallet-item.vue';
 import type { IBlogPost } from '@/types/blog';
 import macauImg from '@/assets/macau.jpg';
+import { VueCropper } from 'vue-cropper';
+import 'vue-cropper/dist/index.css';
 
 const user = reactive(userInfo);
 const posts = ref<BlogPost[]>([...user.blogs]);
@@ -56,6 +58,25 @@ function handleScroll() {
   }
 }
 
+// 头像裁剪相关
+const showCropper = ref(false);
+const cropperRef = ref();
+const cropImg = ref('');
+const cropOption = {
+  img: '', // 裁剪图片的地址
+  autoCrop: true, // 是否默认生成截图框
+  fixedBox: true, // 固定截图框大小
+  outputType: 'png', // 裁剪生成图片的格式
+  centerBox: true, // 截图框是否被限制在图片里面
+  infoTrue: true, // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
+  full: false, // 是否输出原图比例的截图
+  canMoveBox: false, // 截图框能否拖动
+  original: false, // 上传图片按照原始比例渲染
+  canScale: true, // 图片是否允许滚轮缩放
+  fixed: true, // 是否开启截图框宽高固定比例
+  fixedNumber: [1, 1], // 截图框的宽高比例
+};
+
 function handleAvatarUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
@@ -63,12 +84,110 @@ function handleAvatarUpload(event: Event) {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
-        user.avatar = e.target.result as string;
+        cropOption.img = e.target.result as string;
+        showCropper.value = true;
       }
     };
     reader.readAsDataURL(file);
   }
 }
+
+// 修改裁剪完成函数，直接更新头像
+function cropSuccess() {
+  cropperRef.value.getCropData((data: string) => {
+    if (showEditProfile.value) {
+      editForm.avatar = data;
+    } else {
+      user.avatar = data; // 直接更新用户头像
+    }
+    showCropper.value = false;
+  });
+}
+
+// 修改显示头像的计算属性
+const displayAvatar = computed(() => {
+  if (user.avatar) return user.avatar;
+  return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0icmdiYSgxMjgsIDEyOCwgMTI4LCAwLjUpIi8+PC9zdmc+';
+});
+
+// 添加编辑个人信息相关状态
+const showEditProfile = ref(false);
+const editForm = reactive({
+  name: user.name,
+  id: user.id,
+  avatar: user.avatar
+});
+
+// 提交编辑
+function submitProfileEdit() {
+  user.name = editForm.name;
+  user.id = editForm.id;
+  if (editForm.avatar !== user.avatar) {
+    user.avatar = editForm.avatar;
+  }
+  showEditProfile.value = false;
+}
+
+// 取消编辑
+function cancelProfileEdit() {
+  editForm.name = user.name;
+  editForm.id = user.id;
+  editForm.avatar = user.avatar;
+  showEditProfile.value = false;
+}
+
+// 在编辑页面上传头像
+function handleEditAvatarUpload(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const file = target.files ? target.files[0] : null;
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        cropOption.img = e.target.result as string;
+        showCropper.value = true;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// 添加拖动相关状态和方法
+const isDragging = ref(false);
+const dragOffset = reactive({ x: 0, y: 0 });
+const editProfilePosition = reactive({ x: 0, y: 0 });
+
+function startDrag(e: MouseEvent) {
+  isDragging.value = true;
+  dragOffset.x = e.clientX - editProfilePosition.x;
+  dragOffset.y = e.clientY - editProfilePosition.y;
+}
+
+function onDrag(e: MouseEvent) {
+  if (isDragging.value) {
+    editProfilePosition.x = e.clientX - dragOffset.x;
+    editProfilePosition.y = e.clientY - dragOffset.y;
+  }
+}
+
+function stopDrag() {
+  isDragging.value = false;
+}
+
+// 修改取消裁剪函数
+function cancelCrop() {
+  showCropper.value = false;
+  // 如果在编辑个人信息中
+  if (showEditProfile.value) {
+    editForm.avatar = user.avatar; // 恢复原头像
+  }
+}
+
+// 添加钱包连接状态（这里假设从某个store或props获取）
+const isWalletConnected = computed(() => {
+  // 根据实际情况返回钱包连接状态
+  return !!user.walletAddress;
+});
 
 onMounted(() => {
   loadPosts();
@@ -101,11 +220,24 @@ onMounted(() => {
     <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
     <section class="main-content">
       <!-- 左侧用户信息面板，固定宽度 & 100vh 高度 -->
-      <aside class="sidebar">
+      <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
+        <button class="edit-profile-btn" @click="showEditProfile = true">
+          EDIT PROFILE
+        </button>
         <div class="user-info">
-          <div class="avatar-container">
-            <img class="avatar" :src="user.avatar" alt="User Avatar" />
-            <input type="file" class="upload-avatar" @change="handleAvatarUpload" />
+          <div class="avatar-section">
+            <div class="avatar-container">
+              <img :src="displayAvatar" alt="User Avatar" class="avatar" />
+              <input 
+                type="file" 
+                class="upload-avatar" 
+                accept="image/*"
+                @change="handleAvatarUpload" 
+              />
+              <div class="avatar-upload-icon">
+                <i class="el-icon-camera"></i>
+              </div>
+            </div>
           </div>
           <div class="username">{{ user.name }}</div>
           <div class="user-id">ID: {{ user.id }}</div>
@@ -191,6 +323,73 @@ onMounted(() => {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 裁剪弹窗 -->
+    <div class="cropper-modal" v-if="showCropper">
+      <div class="cropper-container">
+        <VueCropper
+          ref="cropperRef"
+          :img="cropOption.img"
+          :autoCrop="cropOption.autoCrop"
+          :fixedBox="cropOption.fixedBox"
+          :centerBox="cropOption.centerBox"
+          :infoTrue="cropOption.infoTrue"
+          :full="cropOption.full"
+          :canMoveBox="cropOption.canMoveBox"
+          :original="cropOption.original"
+          :canScale="cropOption.canScale"
+          :fixed="cropOption.fixed"
+          :fixedNumber="cropOption.fixedNumber"
+          :outputType="cropOption.outputType"
+        />
+        <div class="cropper-buttons">
+          <el-button @click="cropSuccess">Confirm</el-button>
+          <el-button @click="cancelCrop">Cancel</el-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 编辑个人信息弹窗 -->
+    <div class="edit-profile-modal" v-if="showEditProfile">
+      <div 
+        class="edit-profile-container"
+        :style="{
+          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`
+        }"
+        @mousedown="startDrag"
+        @mousemove="onDrag"
+        @mouseup="stopDrag"
+        @mouseleave="stopDrag"
+      >
+        <h2>Edit Profile</h2>
+        <div class="edit-avatar-section">
+          <img :src="editForm.avatar" alt="Edit Avatar" class="edit-avatar" />
+          <input 
+            type="file" 
+            class="upload-avatar" 
+            accept="image/*"
+            @change="handleEditAvatarUpload"
+          />
+          <div class="avatar-upload-icon">
+            <i class="el-icon-camera"></i>
+          </div>
+        </div>
+        <div class="edit-form">
+          <div class="form-group">
+            <label>Nickname</label>
+            <input v-model="editForm.name" type="text" placeholder="Enter your nickname" />
+          </div>
+          <div class="form-group">
+            <label>User ID</label>
+            <input v-model="editForm.id" type="text" placeholder="Enter your ID" />
+          </div>
+        </div>
+        <div class="edit-buttons">
+          <el-button @click="submitProfileEdit">Save Changes</el-button>
+          <el-button @click="cancelProfileEdit">Cancel</el-button>
         </div>
       </div>
     </div>
