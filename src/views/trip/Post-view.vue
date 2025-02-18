@@ -194,7 +194,7 @@ const closePreview = () => {
         <textarea 
           v-model="postTitle"
           class="title-editor" 
-          placeholder="What is the title?..."
+          placeholder="Title"
           maxlength="50"
         ></textarea>
         <span v-if="postTitle" class="title-count">
@@ -267,7 +267,7 @@ const closePreview = () => {
           <textarea 
             v-model="tagInput"
             class="tag-editor"
-            placeholder="Add tag name..."
+            placeholder="Add tag"
             @keydown="handleTagInput"
             maxlength="15"
           ></textarea>
@@ -298,7 +298,7 @@ const closePreview = () => {
             class="nft-checkbox"
           >
           <span class="checkbox-custom"></span>
-          <span class="label-text">Minting NFTs</span>
+          <span class="nft-label-text">Minting NFTs</span>
         </label>
       </div>
 

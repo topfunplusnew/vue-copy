@@ -30,7 +30,7 @@ export const blogPosts: IBlogPost[] = [
       name: 'Alice',
     },
     title: 'Exploring the Best Places to Visit in 2025',  // 新添加的title
-    content: 'This is the content of the blog post.',
+    content: 'This is the content of the blog post. aaaa',
     likes: 23,
     comments: 5,
     coins: 10,

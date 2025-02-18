@@ -140,12 +140,13 @@
            <input
              type="text"
              v-model="searchQuery"
-             placeholder="Search: location, date, topics..."
+             placeholder="Search"
              class="search-input"
-              />
+              @keydown="handleSearch"
+           />
           <h3>Explore iPoloGO Community</h3>
           <button class="post-button" @click="$router.push({ name: 'PostView' })">
-            👉 Post 👈
+            Post 
           </button>  <!-- 发布按钮 -->
 
         </div>
@@ -226,6 +227,11 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 添加搜索结果为空时的提示 -->
+    <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">
+      No posts found for "{{ searchQuery }}"
     </div>
   </div>
 </template>
@@ -406,18 +412,44 @@ const toggleSocialFilter = (filterLabel: string) => {
   }
 };
 
+// 搜索相关
+const searchQuery = ref('');
+
+// 修改 filteredPosts 计算属性，加入搜索逻辑
 const filteredPosts = computed(() => {
+  let posts = blogPosts;
+  const query = searchQuery.value.toLowerCase().trim();
+
+  // 先应用搜索过滤
+  if (query) {
+    posts = posts.filter(post => {
+      // 搜索标题
+      const titleMatch = post.title.toLowerCase().includes(query);
+      // 搜索内容
+      const contentMatch = post.content.toLowerCase().includes(query);
+      // 搜索位置
+      const locationMatch = post.location?.toLowerCase().includes(query);
+      // 搜索标签
+      const tagMatch = post.tags.some(tag => tag.toLowerCase().includes(query));
+      // 搜索用户名
+      const userMatch = post.user.name.toLowerCase().includes(query);
+
+      return titleMatch || contentMatch || locationMatch || tagMatch || userMatch;
+    });
+  }
+
+  // 再应用标签过滤
   if (selectedFilters.value.length === 0) {
-    return blogPosts;
+    return posts;
   }
   if (selectedFilters.value.includes('Recommendation')) {
-    return blogPosts;
+    return posts;
   } else if (selectedFilters.value.includes('Most Popular')) {
-    return [...blogPosts].sort((a, b) => b.likes - a.likes);
-  } else if (selectedFilters.value.includes('NFT')) { // NFT filter logic
-    return blogPosts.filter(post => post.isNFT);
+    return [...posts].sort((a, b) => b.likes - a.likes);
+  } else if (selectedFilters.value.includes('NFT')) {
+    return posts.filter(post => post.isNFT);
   } else {
-    return blogPosts.filter(post =>
+    return posts.filter(post =>
       post.tags.some(tag => selectedFilters.value.includes(tag))
     );
   }
@@ -465,5 +497,14 @@ const closeBlogDetail = () => {
   selectedBlog.value = null;
   document.body.style.overflow = ''; // 恢复背景滚动
 };
+
+// 处理搜索框回车事件
+function handleSearch(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    // 重置显示的帖子数量
+    postsToShow.value = 12;
+  }
+}
 </script>
 

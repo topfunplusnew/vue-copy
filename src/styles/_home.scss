@@ -228,11 +228,11 @@
         }
 
         .search-input {
-          flex-grow: 1; /* 让搜索框填充剩余空间 */
-          min-width: 230px; /* 避免搜索框变得太小 */
-          max-width: 230px; /* 限制最大宽度 */
+          flex-grow: 1;
+          min-width: 230px;
+          max-width: 230px;
           padding: 8px 12px;
-          font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+          font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
           font-size: 2rem;
           border: 1px solid rgba(255, 255, 255, 0.5);
           border-radius: 8px;
@@ -240,15 +240,16 @@
           color: white;
           outline: none;
           transition: all 0.3s ease;
-    
+
           &::placeholder {
             color: rgba(255, 255, 255, 0.7);
-            font-style: italic; /* 让 placeholder 文字变成斜体 */
+            font-style: italic;
           }
-    
+
           &:focus {
             background: rgba(255, 255, 255, 0.3);
             border-color: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
           }
         }
 
@@ -265,7 +266,7 @@
           width: 200px; /* 设置按钮宽度为固定值 */
           font-size: 2rem;
           font-weight: bold;
-          background: linear-gradient(45deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4));
+          background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
           color: #fefefe;
           border: none;
           border-radius: 8px;
@@ -639,5 +640,16 @@
     100% {
       transform: translateX(100%) rotate(45deg);
     }
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.6rem;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin: 20px;
   }
 }
