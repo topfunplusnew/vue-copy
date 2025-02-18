@@ -24,9 +24,10 @@ export const blogPosts: BlogPost[] = [
     title: 'Technology, Leisure, and Budget: The Future of Travel',
     readingTime: '12 min read',
     categories: ['Technology', 'Leisure', 'Budget'],
-    content: `The future of travel is being shaped by technological advancements, changing leisure preferences, and budget considerations. As we move forward, we're seeing an increasing integration of AI and virtual reality in travel planning.
+    content: 
+`The future of travel is being shaped by technological advancements, changing leisure preferences, and budget considerations. As we move forward, we're seeing an increasing integration of AI and virtual reality in travel planning.
 
-    Smart tourism is becoming the norm, with AI-powered personalized recommendations and virtual tours allowing travelers to preview destinations before booking. This not only enhances the planning experience but also helps in making more informed decisions about where to spend your travel budget.`,
+Smart tourism is becoming the norm, with AI-powered personalized recommendations and virtual tours allowing travelers to preview destinations before booking. This not only enhances the planning experience but also helps in making more informed decisions about where to spend your travel budget.`,
     image: 'https://picsum.photos/800/400?random=1',
     author: {
       name: 'John Doe',
@@ -44,9 +45,10 @@ export const blogPosts: BlogPost[] = [
     title: 'AI and The Travel Industry',
     readingTime: '05 min read',
     categories: ['AI', 'Innovation'],
-    content: `Artificial Intelligence is revolutionizing the travel industry in unprecedented ways. From personalized recommendations to automated booking systems, AI is making travel more accessible and efficient than ever before.
+    content: 
+`Artificial Intelligence is revolutionizing the travel industry in unprecedented ways. From personalized recommendations to automated booking systems, AI is making travel more accessible and efficient than ever before.
 
-    One of the most significant impacts of AI in travel is in customer service. Chatbots and virtual assistants are now handling everything from flight bookings to hotel inquiries, providing instant responses 24/7.`,
+One of the most significant impacts of AI in travel is in customer service. Chatbots and virtual assistants are now handling everything from flight bookings to hotel inquiries, providing instant responses 24/7.`,
     image: 'https://picsum.photos/800/400?random=2',
     author: {
       name: 'Jane Smith',
