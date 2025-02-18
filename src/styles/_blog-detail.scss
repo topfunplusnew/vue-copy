@@ -219,9 +219,19 @@
     }
 
     .content {
-      line-height: 1.6;
+      line-height: 1.8;
       color: #444;
       margin-bottom: 24px;
+      text-align: justify;
+      white-space: pre-wrap;
+      padding: 0 20px;
+      font-size: 16px;
+      
+      // 移除段落缩进
+      p {
+        text-indent: 0;
+        margin: 1em 0;
+      }
     }
 
     .detail-stats {

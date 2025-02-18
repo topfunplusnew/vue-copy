@@ -100,12 +100,6 @@ const closeBlogDetail = () => {
               
               <p class="content">{{ selectedPost.content }}</p>
               
-              <div class="detail-stats" v-if="selectedPost.stats">
-                <span>👍 {{ selectedPost.stats.likes }}</span>
-                <span>💬 {{ selectedPost.stats.comments }}</span>
-                <span>🔄 {{ selectedPost.stats.shares }}</span>
-              </div>
-              
               <div class="tags" v-if="selectedPost.tags">
                 <span 
                   v-for="(tag, index) in selectedPost.tags" 
