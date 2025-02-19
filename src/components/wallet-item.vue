@@ -33,7 +33,11 @@ function onConnect() {
 }
 
 onMounted(() => {
-  store.init();
+  try {
+    store.init();
+  } catch (e) {
+    console.log(e);
+  }
 });
 </script>
 

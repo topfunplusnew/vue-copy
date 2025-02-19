@@ -1,5 +1,18 @@
 <script setup lang="ts">
 import walletItem from '@/components/wallet-item.vue';
+import type { ILogin } from '@/types/user';
+import { reactive } from 'vue';
+import { useUserStore } from '@/stores/user';
+
+const store = useUserStore();
+const params = reactive(<ILogin>{ email: '', password: '' });
+
+function handleSubmit() {
+  store
+    .login(params)
+    .then((res) => console.log(res))
+    .catch((e) => console.log(e.response.data.description || e.response.data.message));
+}
 </script>
 
 <template>
@@ -42,13 +55,12 @@ import walletItem from '@/components/wallet-item.vue';
       <div class="content-container">
         <!-- 左侧：登录功能及相关选项 -->
         <div class="left-panel">
-
           <div class="login-container">
             <div class="login-form">
               <h2>Login</h2>
               <form @submit.prevent="handleSubmit">
-                <input type="text" v-model="username" placeholder="Username / Email" required />
-                <input type="password" v-model="password" placeholder="Password" required />
+                <input type="text" v-model="params.email" placeholder="Username / Email" required />
+                <input type="password" v-model="params.password" placeholder="Password" required />
                 <button type="submit" class="login-button">Login</button>
               </form>
 

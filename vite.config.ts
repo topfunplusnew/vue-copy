@@ -33,14 +33,25 @@ export default defineConfig({
     port: 9021,
     proxy: {
       '/api': {
-        target: 'http://www.deci-central.com/', //jyh
+        target: 'http://ipologo.com/', //jyh
         changeOrigin: true,
       },
     },
   },
+  // server: {
+  //   host: '0.0.0.0',
+  //   port: 9021,
+  //   proxy: {
+  //     '/api': {
+  //       target: 'http://www.deci-central.com/', //jyh
+  //       changeOrigin: true,
+  //     },
+  //   },
+  // },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  envPrefix: 'IPG_',
 });

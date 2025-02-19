@@ -1,0 +1,32 @@
+import { ref } from 'vue';
+import { defineStore } from 'pinia';
+import { userLogin, userProfile, userModify } from '@/services/api';
+import type { ILogin, IUser, IUserEdit } from '@/types/user';
+
+export const useUserStore = defineStore('wallet', () => {
+  const user = ref<IUser>();
+
+  function login(req: ILogin) {
+    return new Promise((resolve, reject) => {
+      userLogin(req)
+        .then((res: any) => {
+          user.value = res.data as IUser;
+          resolve(res);
+        })
+        .catch((e) => {
+          reject(e);
+        });
+    });
+  }
+  function getUserInfo() {
+    userProfile().then(({ data }: any) => {
+      user.value = data;
+    });
+  }
+  function editUserInfo(req: IUserEdit) {
+    return userModify(req).then(({ data }: any) => {
+      user.value = data;
+    });
+  }
+  return { user, login, getUserInfo, editUserInfo };
+});

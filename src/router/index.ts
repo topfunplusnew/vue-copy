@@ -3,16 +3,13 @@ import LoginView from '@/views/trip/Login-view.vue';
 import SignupView from '@/views/trip/Signup-view.vue';
 import PostView from '@/views/trip/Post-view.vue'; // 引入 Post-view 页面
 
-
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-
     {
       path: '/',
       name: 'home',
-      component: () => import('@/views/home-view.vue')
+      component: () => import('@/views/home-view.vue'),
     },
     {
       path: '/post-view', // 路由路径
@@ -37,43 +34,43 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView
+      component: LoginView,
     },
     {
       path: '/signup',
       name: 'signup',
-      component: SignupView
+      component: SignupView,
     },
     {
       path: '/forgetpassword',
       name: 'forgetpassword',
-      component: () => import('@/views/trip/Forgetpassword.vue')
+      component: () => import('@/views/trip/Forgetpassword.vue'),
     },
     {
       path: '/userpage',
       name: 'userpage',
-      component: () => import('@/views/trip/userpage.vue')
+      component: () => import('@/views/trip/userpage.vue'),
     },
     {
       path: '/generator',
       name: 'generator',
-      component: () => import('@/views/trip/generator.vue')
+      component: () => import('@/views/trip/generator.vue'),
     },
-    {
-      path: '/blog2',
-      name: 'blog2',
-      component: () => import('@/views/trip/bloglist.vue')
-    },
+    // {
+    //   path: '/blog2',
+    //   name: 'blog2',
+    //   component: () => import('@/views/trip/bloglist.vue')
+    // },
     {
       path: '/blog/create',
       name: 'blog-create',
-      component: () => import('@/views/trip/blogedit.vue')
+      component: () => import('@/views/trip/blogedit.vue'),
     },
     {
       path: '/blog/edit/:id',
       name: 'blog-edit',
       component: () => import('@/views/trip/blogedit.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/trip',
@@ -104,6 +101,5 @@ const router = createRouter({
 //     next();
 //   }
 // });
-
 
 export default router;

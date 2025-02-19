@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
-import { userInfo, generateBlogs, BlogPost } from '@/data/psblog'; 
+import { userInfo, generateBlogs, BlogPost } from '@/data/psblog';
 import walletItem from '@/components/wallet-item.vue';
 import type { IBlogPost } from '@/types/blog';
 import macauImg from '@/assets/macau.jpg';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
+import { useUserStore } from '@/stores/user';
+import type { IUserEdit } from '@/types/user';
+const store = useUserStore();
 
 const user = reactive(userInfo);
 const posts = ref<BlogPost[]>([...user.blogs]);
-const totalLikes = computed(() =>
-  posts.value.reduce((sum, post) => sum + post.likes, 0)
-);
+const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
 const page = ref(2);
 const perPage = 10;
@@ -114,17 +115,17 @@ const displayAvatar = computed(() => {
 const showEditProfile = ref(false);
 const editForm = reactive({
   name: user.name,
-  id: user.id,
-  avatar: user.avatar
+  avatar: user.avatar,
 });
 
 // 提交编辑
 function submitProfileEdit() {
-  user.name = editForm.name;
-  user.id = editForm.id;
-  if (editForm.avatar !== user.avatar) {
-    user.avatar = editForm.avatar;
-  }
+  store
+    .editUserInfo(editForm)
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((e) => console.log(e));
   showEditProfile.value = false;
 }
 
@@ -188,8 +189,10 @@ const isWalletConnected = computed(() => {
   // 根据实际情况返回钱包连接状态
   return !!user.walletAddress;
 });
+const userProfile = computed(() => store.user); // user改成这种用法
 
 onMounted(() => {
+  store.getUserInfo();
   loadPosts();
 });
 </script>
@@ -221,50 +224,42 @@ onMounted(() => {
     <section class="main-content">
       <!-- 左侧用户信息面板，固定宽度 & 100vh 高度 -->
       <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
-        <button class="edit-profile-btn" @click="showEditProfile = true">
-          EDIT PROFILE
-        </button>
+        <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
         <div class="user-info">
           <div class="avatar-section">
             <div class="avatar-container">
               <img :src="displayAvatar" alt="User Avatar" class="avatar" />
-              <input 
-                type="file" 
-                class="upload-avatar" 
-                accept="image/*"
-                @change="handleAvatarUpload" 
-              />
+              <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" />
               <div class="avatar-upload-icon">
                 <i class="el-icon-camera"></i>
               </div>
             </div>
           </div>
-          <div class="username">{{ user.name }}</div>
-          <div class="user-id">ID: {{ user.id }}</div>
-          <div class="registration-time">Joined: {{ user.joined }}</div>
+          <div class="username">{{ userProfile?.name }}</div>
+          <div class="user-id">ID: {{ userProfile?.id }}</div>
+          <div class="registration-time">Joined: {{ userProfile?.create_at }}</div>
           <!-- Likes / Coins -->
           <div class="stats">
             <div class="stat">
-              <span class="number">{{ totalLikes }}</span>
+              <span class="number">{{ userProfile?.likes }}</span>
               <span class="label">Likes</span>
             </div>
             <div class="stat">
-              <span class="number">{{ user.coins }}</span>
+              <span class="number">{{ userProfile?.coins }}</span>
               <span class="label">Coins</span>
             </div>
           </div>
           <!-- Following / Followers -->
           <div class="follow-section">
             <div class="follow-item">
-              <span class="number">{{ user.followings }}</span>
+              <span class="number">{{ userProfile?.followings }}</span>
               <router-link to="/following" class="follow-link">Following</router-link>
             </div>
             <div class="follower-item">
-              <span class="number">{{ user.followers }}</span>
+              <span class="number">{{ userProfile?.followers }}</span>
               <router-link to="/followers" class="follower-link">Followers</router-link>
             </div>
           </div>
-          
         </div>
       </aside>
 
@@ -274,13 +269,7 @@ onMounted(() => {
       <!-- 右侧博客列表区，填满剩余宽度 -->
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
-          <div 
-            v-for="post in userPosts" 
-            :key="post.id" 
-            class="blog-post"
-            :class="{ 'nft-post': post.isNFT }"
-            @click="showBlogDetail(post)"
-          >
+          <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post)">
             <img :src="post.image[0]" alt="Blog Image" class="post-image" />
             <div class="post-footer">
               <img :src="post.user.avatar" alt="Avatar" class="post-avatar" />
@@ -355,10 +344,10 @@ onMounted(() => {
 
     <!-- 编辑个人信息弹窗 -->
     <div class="edit-profile-modal" v-if="showEditProfile">
-      <div 
+      <div
         class="edit-profile-container"
         :style="{
-          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`
+          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
         }"
         @mousedown="startDrag"
         @mousemove="onDrag"
@@ -368,12 +357,7 @@ onMounted(() => {
         <h2>Edit Profile</h2>
         <div class="edit-avatar-section">
           <img :src="editForm.avatar" alt="Edit Avatar" class="edit-avatar" />
-          <input 
-            type="file" 
-            class="upload-avatar" 
-            accept="image/*"
-            @change="handleEditAvatarUpload"
-          />
+          <input type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
           <div class="avatar-upload-icon">
             <i class="el-icon-camera"></i>
           </div>
@@ -382,10 +366,6 @@ onMounted(() => {
           <div class="form-group">
             <label>Nickname</label>
             <input v-model="editForm.name" type="text" placeholder="Enter your nickname" />
-          </div>
-          <div class="form-group">
-            <label>User ID</label>
-            <input v-model="editForm.id" type="text" placeholder="Enter your ID" />
           </div>
         </div>
         <div class="edit-buttons">
@@ -396,4 +376,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
