@@ -107,7 +107,7 @@ function cropSuccess() {
 
 // 修改显示头像的计算属性
 const displayAvatar = computed(() => {
-  if (user.avatar) return user.avatar;
+  if (userProfile.value?.avatar) return `/images/${userProfile.value?.avatar}`;
   return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0icmdiYSgxMjgsIDEyOCwgMTI4LCAwLjUpIi8+PC9zdmc+';
 });
 

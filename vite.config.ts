@@ -36,8 +36,13 @@ export default defineConfig({
         target: 'http://ipologo.com/', //jyh
         changeOrigin: true,
       },
+      '/images': {
+        target: 'http://ipologo.com/', //jyh
+        changeOrigin: true,
+      },
     },
   },
+
   // server: {
   //   host: '0.0.0.0',
   //   port: 9021,
