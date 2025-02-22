@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
-import { userInfo, generateBlogs, BlogPost } from '@/data/psblog';
+// import { userInfo, generateBlogs, BlogPost } from '@/data/psblog';
 import walletItem from '@/components/wallet-item.vue';
 import type { IBlogPost } from '@/types/blog';
 import macauImg from '@/assets/macau.jpg';
@@ -8,11 +8,36 @@ import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
 import type { IUserEdit } from '@/types/user';
-const store = useUserStore();
+import { useRouter } from 'vue-router';
+import { getBlogPost, getMyBlogList, PostAvatar } from '@/services/api';
 
-const user = reactive(userInfo);
-const posts = ref<BlogPost[]>([...user.blogs]);
-const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
+
+const store = useUserStore();
+const router = useRouter();
+
+// const userProfile = computed(() => store.user); // user改成这种用法
+
+onMounted(() => {
+  store.getUserInfo();
+  getMyBlogList().then((res) => {
+    userPosts.value = res.data;
+  }).catch((e) => {
+    console.log(e);
+  });
+});
+
+// 添加登出处理函数
+function handleLogout() {
+  store.logout();
+  router.push({ name: 'login' }); // 跳转到登录页
+}
+
+// const user = reactive(userInfo);
+const user = computed(() => store.user);
+
+
+const posts = ref<IBlogPost[]>([]);
+// const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
 const page = ref(2);
 const perPage = 10;
@@ -21,41 +46,47 @@ const noMorePosts = ref(false);
 const postsContainer = ref<HTMLElement | null>(null);
 
 // 用户博客数据
-const userPosts = ref<IBlogPost[]>(userInfo.blogs);
+const userPosts = ref<IBlogPost[]>([]);
 
 // 博客详情相关的状态和方法
 const selectedBlog = ref<IBlogPost | null>(null);
 
-const showBlogDetail = (blog: IBlogPost) => {
-  selectedBlog.value = blog;
+const showBlogDetail = (id: number) => {
+  getBlogPost(id.toString()).then((res) => {
+    selectedBlog.value = res.data;
+  }).catch((e) => {
+    console.log(e);
+  });
   document.body.style.overflow = 'hidden';
 };
+
+
 
 const closeBlogDetail = () => {
   selectedBlog.value = null;
   document.body.style.overflow = '';
 };
 
-function loadPosts() {
-  if (loading.value || noMorePosts.value) return;
-  loading.value = true;
-  setTimeout(() => {
-    const newPosts = generateBlogs(page.value, perPage);
-    if (newPosts.length < perPage) {
-      noMorePosts.value = true;
-    }
-    posts.value.push(...newPosts);
-    user.blogs.push(...newPosts);
-    page.value++;
-    loading.value = false;
-  }, 1000);
-}
+// function loadPosts() {
+//   if (loading.value || noMorePosts.value) return;
+//   loading.value = true;
+//   setTimeout(() => {
+//     const newPosts = generateBlogs(page.value, perPage);
+//     if (newPosts.length < perPage) {
+//       noMorePosts.value = true;
+//     }
+//     posts.value.push(...newPosts);
+//     user.blogs.push(...newPosts);
+//     page.value++;
+//     loading.value = false;
+//   }, 1000);
+// }
 
 function handleScroll() {
   const container = postsContainer.value;
   if (!container) return;
   if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-    loadPosts();
+    // loadPosts();
   }
 }
 
@@ -107,15 +138,15 @@ function cropSuccess() {
 
 // 修改显示头像的计算属性
 const displayAvatar = computed(() => {
-  if (userProfile.value?.avatar) return `/images/${userProfile.value?.avatar}`;
+  if (user.value?.avatar) return `/images/${user.value?.avatar}`;
   return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0icmdiYSgxMjgsIDEyOCwgMTI4LCAwLjUpIi8+PC9zdmc+';
 });
 
 // 添加编辑个人信息相关状态
 const showEditProfile = ref(false);
 const editForm = reactive({
-  name: user.name,
-  avatar: user.avatar,
+  name: user.value?.name,
+  avatar: user.value?.avatar,
 });
 
 // 提交编辑
@@ -131,9 +162,9 @@ function submitProfileEdit() {
 
 // 取消编辑
 function cancelProfileEdit() {
-  editForm.name = user.name;
-  editForm.id = user.id;
-  editForm.avatar = user.avatar;
+  editForm.name = user.value?.name;
+  // editForm.id = user.value?.id;
+  editForm.avatar = user.value?.avatar;
   showEditProfile.value = false;
 }
 
@@ -142,14 +173,13 @@ function handleEditAvatarUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
   if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        cropOption.img = e.target.result as string;
-        showCropper.value = true;
-      }
-    };
-    reader.readAsDataURL(file);
+    const formData = new FormData();
+    formData.append('file', file);
+    PostAvatar({ image: formData }).then((res) => {
+      console.log(res);
+    }).catch((e) => {
+      console.log(e);
+    });
   }
 }
 
@@ -180,21 +210,17 @@ function cancelCrop() {
   showCropper.value = false;
   // 如果在编辑个人信息中
   if (showEditProfile.value) {
-    editForm.avatar = user.avatar; // 恢复原头像
+    editForm.avatar = user.value?.avatar; // 恢复原头像
   }
 }
 
 // 添加钱包连接状态（这里假设从某个store或props获取）
 const isWalletConnected = computed(() => {
   // 根据实际情况返回钱包连接状态
-  return !!user.walletAddress;
+  // return !!user.value?.walletAddress;
+  return false;
 });
-const userProfile = computed(() => store.user); // user改成这种用法
 
-onMounted(() => {
-  store.getUserInfo();
-  loadPosts();
-});
 </script>
 
 <template>
@@ -224,7 +250,14 @@ onMounted(() => {
     <section class="main-content">
       <!-- 左侧用户信息面板，固定宽度 & 100vh 高度 -->
       <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
-        <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
+        <div class="profile-buttons">
+          <button class="edit-profile-btn" @click="showEditProfile = true">
+            EDIT PROFILE
+          </button>
+          <button class="logout-btn" @click="handleLogout">
+            LOGOUT
+          </button>
+        </div>
         <div class="user-info">
           <div class="avatar-section">
             <div class="avatar-container">
@@ -235,28 +268,28 @@ onMounted(() => {
               </div>
             </div>
           </div>
-          <div class="username">{{ userProfile?.name }}</div>
-          <div class="user-id">ID: {{ userProfile?.id }}</div>
-          <div class="registration-time">Joined: {{ userProfile?.create_at }}</div>
+          <div class="username">{{ user?.name }}</div>
+          <div class="user-id">ID: {{ user?.id }}</div>
+          <div class="registration-time">Joined: {{ user?.create_at }}</div>
           <!-- Likes / Coins -->
           <div class="stats">
             <div class="stat">
-              <span class="number">{{ userProfile?.likes }}</span>
+              <span class="number">{{ user?.likes }}</span>
               <span class="label">Likes</span>
             </div>
             <div class="stat">
-              <span class="number">{{ userProfile?.coins }}</span>
+              <span class="number">{{ user?.coins }}</span>
               <span class="label">Coins</span>
             </div>
           </div>
           <!-- Following / Followers -->
           <div class="follow-section">
             <div class="follow-item">
-              <span class="number">{{ userProfile?.followings }}</span>
+              <span class="number">{{ user?.followings }}</span>
               <router-link to="/following" class="follow-link">Following</router-link>
             </div>
             <div class="follower-item">
-              <span class="number">{{ userProfile?.followers }}</span>
+              <span class="number">{{ user?.followers }}</span>
               <router-link to="/followers" class="follower-link">Followers</router-link>
             </div>
           </div>
@@ -270,9 +303,9 @@ onMounted(() => {
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
           <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post)">
-            <img :src="post.image[0]" alt="Blog Image" class="post-image" />
+            <img v-if="post.image && post.image.length > 0" :src="post.image[0]" alt="Blog Image" class="post-image" />
             <div class="post-footer">
-              <img :src="post.user.avatar" alt="Avatar" class="post-avatar" />
+              <img v-if="post.user && post.user.avatar" :src="post.user.avatar" alt="Avatar" class="post-avatar" />
               <div class="post-stats">
                 <span class="likes">❤️ {{ post.likes }}</span>
                 <span class="comments">💬 {{ post.comments }}</span>
@@ -288,6 +321,7 @@ onMounted(() => {
     </section>
 
     <!-- 博客详情弹出层 -->
+ 
     <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
       <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
         <div class="blog-detail-header">

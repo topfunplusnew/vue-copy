@@ -549,12 +549,36 @@
 }
 
 
+/* 编辑个人信息按钮和登出按钮的容器 */
+.profile-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 /* 编辑个人信息按钮 */
 .edit-profile-btn {
-  width: 100%;
+  flex: 1;
   padding: 10px;
-  margin-bottom: 20px;
   background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+}
+
+/* 登出按钮 */
+.logout-btn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.2); // 使用红色调
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
   color: white;

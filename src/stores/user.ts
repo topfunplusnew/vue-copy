@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify } from '@/services/api';
+import { userLogin, userProfile, userModify, logout as logoutApi } from '@/services/api';
 import type { ILogin, IUser, IUserEdit } from '@/types/user';
 
 export const useUserStore = defineStore('wallet', () => {
@@ -18,6 +18,13 @@ export const useUserStore = defineStore('wallet', () => {
         });
     });
   }
+
+  function logout() {
+    logoutApi();
+    user.value = undefined;
+  }
+
+
   function getUserInfo() {
     userProfile().then(({ data }: any) => {
       user.value = data;
@@ -28,5 +35,5 @@ export const useUserStore = defineStore('wallet', () => {
       user.value = data;
     });
   }
-  return { user, login, getUserInfo, editUserInfo };
+  return { user, login, getUserInfo, editUserInfo, logout };
 });
