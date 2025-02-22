@@ -17,3 +17,16 @@ export interface IBlogPost extends ICommon {
   tags: string[];
   isNFT: boolean;
 }
+
+export interface IBlogPostCreate {
+  title: string;
+  content: string;
+  images?: string[];
+  tags?: string[];
+  preferences?: string[];
+  isNFT?: boolean;
+}
+
+export interface IBlogPostimage {
+  image: FormData;
+}

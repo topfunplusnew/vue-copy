@@ -3,14 +3,19 @@ import walletItem from '@/components/wallet-item.vue';
 import type { ILogin } from '@/types/user';
 import { reactive } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const store = useUserStore();
 const params = reactive(<ILogin>{ email: '', password: '' });
 
 function handleSubmit() {
   store
     .login(params)
-    .then((res) => console.log(res))
+    .then((res) => {
+      console.log(res);
+      router.push({ name: 'userpage' });
+    })
     .catch((e) => console.log(e.response.data.description || e.response.data.message));
 }
 </script>

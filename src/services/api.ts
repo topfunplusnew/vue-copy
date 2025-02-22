@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { Auth } from './auth.ts';
 import type { IPairToken, ILogin, IUserEdit } from '@/types/user.ts';
+import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
 
 const auth = new Auth();
 /**
@@ -64,4 +65,10 @@ export const userProfile = () => http.get('/user/profile');
 
 export const userModify = (data: IUserEdit) => http.put('/user/profile', data);
 
-export const blogPost = (data) => http.post('/blog', data);
+export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
+
+export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.image, {
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  }
+});

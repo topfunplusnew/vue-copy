@@ -4,6 +4,9 @@ export interface IUser extends ICommon {
   name: string; // 用户名
   avatar: string; // 用户头像
   likes: number; // 点赞数
+  coins: number; // 金币数
+  followers: number; // 粉丝数
+  followings: number; // 关注数
 }
 
 export interface ILogin {

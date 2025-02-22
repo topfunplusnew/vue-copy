@@ -1,6 +1,8 @@
 import type { ITokenConfig } from '@/types/service';
 
 export class Auth {
+  private tokenKey = 'token';
+
   public key: string;
   public expire: number;
   private _token: string | null;
@@ -28,15 +30,15 @@ export class Auth {
     if (Date.now() - Number(localStorage.getItem(`${this.key}-expired`)) > 12 * 3600 * 1000) {
       this.del();
     }
-    if (!this._token) this._token = localStorage.getItem(this.key);
+    if (!this._token) this._token = localStorage.getItem(this.tokenKey);
     return this._token;
   }
   /**
    * 设置token
    */
-  set(p: string) {
-    this._token = p;
-    localStorage.setItem(this.key, p);
+  set(token: string) {
+    this._token = token;
+    localStorage.setItem(this.tokenKey, token);
     //设置到期时间
     localStorage.setItem(`${this.key}-expired`, Date.now().toString());
   }
@@ -45,7 +47,7 @@ export class Auth {
    */
   del() {
     this._token = null;
-    localStorage.removeItem(this.key);
+    localStorage.removeItem(this.tokenKey);
     localStorage.removeItem(`${this.key}-expired`);
   }
 }

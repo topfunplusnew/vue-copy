@@ -3,6 +3,8 @@ import walletItem from '@/components/wallet-item.vue';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import PostPreview from '@/views/trip/PostPreview.vue';
+import { blogPost, Postimage } from '@/services/api';
+import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
 
 // 响应式数据
 const postText = ref('');
@@ -39,8 +41,8 @@ const togglePreference = (optionName: string) => {
   }
 };
 
-// 图片处理相关函数
-const handleImageUpload = (event: Event) => {
+// 修改图片处理函数
+const handleImageUpload = async (event: Event) => {
   const files = (event.target as HTMLInputElement).files;
   if (!files) return;
 
@@ -50,15 +52,33 @@ const handleImageUpload = (event: Event) => {
     return;
   }
 
-  filesArray.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (typeof e.target?.result === 'string') {
-        images.value.push({ url: e.target.result });
+  for (const file of filesArray) {
+    try {
+      const formData = new FormData();
+      formData.append('files', file);
+
+      try {
+        const response = await Postimage({ image: formData });
+        // 假设后端返回的数据格式是 { url: "图片URL" }
+        if (response.data && response.data.url) {
+          // 添加图片到预览数组
+          images.value.push({
+            url: import.meta.env.VITE_API_URL + response.data.url // 确保URL是完整的
+          });
+        }
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          alert('Token has expired. Please login again.');
+          router.push({ name: 'login' });
+          return;
+        }
+        throw error;
       }
-    };
-    reader.readAsDataURL(file);
-  });
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Failed to upload image. Please try again.');
+    }
+  }
 };
 
 const removeImage = (index: number) => {
@@ -111,20 +131,21 @@ const selectReplyOption = (option: string) => {
   selectedReplyOption.value = option;
 };
 
-const postTweet = () => {
-  if (postText.value.trim()) {
-    console.log('Post Published:', {
+const postTweet = async () => {
+  try {
+    const postData: IBlogPostCreate = {
       title: postTitle.value,
       content: postText.value,
-      replyOption: selectedReplyOption.value,
-      images: images.value,
-      mintAsNFT: mintNFT.value,
+      images: images.value.map(img => img.url),
       tags: tags.value,
-      preferences: selectedOptions.value
-    });
-    router.push({ name: 'HomePage' });
-  } else {
-    alert('Please write something before posting.');
+      preferences: selectedOptions.value,
+      isNFT: mintNFT.value
+    };
+
+    await blogPost(postData);
+    router.push({ name: 'userpage' });
+  } catch (error) {
+    console.error('Failed to post blog:', error);
   }
 };
 
