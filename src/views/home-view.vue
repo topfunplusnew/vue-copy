@@ -4,6 +4,9 @@
     <header class="header">
       <div class="nav-container">
         <div class="left-nav">
+          <router-link :to="{ name: 'home' }">
+            <el-button class="nav-button">HOME</el-button>
+          </router-link>
           <router-link :to="{ name: 'about' }">
             <el-button class="nav-button">ABOUT</el-button>
           </router-link>
@@ -30,6 +33,7 @@
     </header>
 
     <h1 class="welcome-text">Welcome to iPoloGO</h1>
+    <h2 class="welcome-text2">To Explore, To Share, To Earn</h2>
 
     <!-- 主体区域 -->
     <main class="main">

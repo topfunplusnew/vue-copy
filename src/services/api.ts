@@ -61,6 +61,9 @@ export const userLogin = (credentials: ILogin) =>
       });
   });
 
+
+export const userSignup = (data: IUserEdit) => http.post('/user/signup', data);
+
 export const userProfile = () => http.get('/user/profile');
 
 export const userModify = (data: IUserEdit) => http.put('/user/profile', data);
@@ -72,3 +75,16 @@ export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.
     'Content-Type': 'multipart/form-data'
   }
 });
+
+export const PostAvatar = (data: IBlogPostimage) => http.post('/file/avatar', data.image, {
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  }
+});
+
+export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
+
+export const getMyBlogList = () => http.get('/my_blogs');
+
+
+

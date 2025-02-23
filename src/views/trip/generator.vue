@@ -228,7 +228,7 @@ onMounted(() => {
           </router-link>
         </div>
         <div class="right-nav">
-          <wallet-item />
+          <!-- <wallet-item /> -->
           <router-link :to="{ name: 'login' }">
             <el-button class="nav-button">Login</el-button>
           </router-link>
@@ -241,7 +241,7 @@ onMounted(() => {
           </el-button>
         </div>
       </div>
-      <h2 class="header-title">Have Fun in iPoloGO</h2>
+      <!-- <h2 class="header-title">Have Fun in iPoloGO</h2> -->
     </header>
 
     <!-- 外层内容容器 -->
@@ -257,7 +257,7 @@ onMounted(() => {
               @click="loadHistory(idx)"
               class="history-item"
             >
-              {{ record.summary }}
+              {{ record.summary }}  
             </li>
           </ul>
           <el-button type="text" @click="toggleHistory">Close</el-button>

@@ -6,6 +6,6 @@ export function generateUserPrompt(localization: string, destination: string, tr
   } else {
     prompt += `I have no specific travel type preferences.\n`;
   }
-  prompt += "More Details: ";
+  prompt += "Let's GO! ";
   return prompt;
 }

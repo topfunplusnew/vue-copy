@@ -1,27 +1,32 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
-import Captch from '@/components/Captcha.vue';  // 引入 DragSlider 组件
+import Captcha from '@/components/Captcha.vue';  // 引入 DragSlider 组件
+import { userSignup } from '@/services/api';
+
 
 
 
 const msg = 'Sign Up';
-const username = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
+
 const errorMessage = ref('');
 const isVerified = ref(false);  // 用于判断验证码是否通过
+
+const editForm = reactive({
+  email: '',
+  password: '',
+  password_confirm: '',
+});
 
 
 // 注册表单提交逻辑
 const handleSubmit = () => {
-  if (!username.value || !email.value || !password.value || !confirmPassword.value) {
+  if (!editForm.email || !editForm.password || !editForm.password_confirm) {
     errorMessage.value = 'Please fill in all the fields.';
     return;
   }
 
-  if (password.value !== confirmPassword.value) {
+  if (editForm.password !== editForm.password_confirm) {
     errorMessage.value = 'Passwords do not match.';
     return;
   }
@@ -32,8 +37,13 @@ const handleSubmit = () => {
   }
 
   // TODO: Handle registration logic (e.g., API call)
-  console.log('User registered:', username.value, email.value);
+  console.log('User registered:', editForm.email);
   errorMessage.value = ''; // Reset error message
+  userSignup(editForm).then((res) => {
+    console.log(res);
+  }).catch((e) => {
+    console.log(e);
+  });
 };
 </script>
 
@@ -64,15 +74,15 @@ const handleSubmit = () => {
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <!-- 用户名 -->
-        <div class="form-group">
+        <!-- <div class="form-group">
           <label for="username">Username</label>
-          <input type="text" id="username" v-model="username" placeholder="8-16 characters, letters and numbers only" required />
-        </div>
+          <input type="text" id="username" v-model="editForm.name" placeholder="8-16 characters, letters and numbers only" required />
+        </div> -->
 
         <!-- 电子邮箱 -->
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" v-model="email" placeholder="example@domain.com" required />
+          <input type="email" id="email" v-model="editForm.email" placeholder="example@domain.com" required />
         </div>
 
         <!-- 发送确认邮件按钮 -->
@@ -81,13 +91,13 @@ const handleSubmit = () => {
         <!-- 密码 -->
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" placeholder="6-12 characters" required />
+          <input type="password" id="password" v-model="editForm.password" placeholder="6-12 characters" required />
         </div>
 
         <!-- 确认密码 -->
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
-          <input type="password" id="confirmPassword" v-model="confirmPassword" placeholder="Re-enter password" required />
+          <input type="password" id="confirmPassword" v-model="editForm.password_confirm" placeholder="Re-enter password" required />
         </div>
 
         <div class="captcha-container">
@@ -97,7 +107,6 @@ const handleSubmit = () => {
           </div>
         </div>
 
-        
         <button type="submit" class="signup-button">Sign Up</button>
       </form>
     </div>
