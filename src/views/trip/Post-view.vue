@@ -59,13 +59,14 @@ const handleImageUpload = async (event: Event) => {
 
       try {
         const response = await Postimage({ image: formData });
-        // 假设后端返回的数据格式是 { url: "图片URL" }
-        if (response.data && response.data.url) {
+        // 后端返回的数据格式是 { url: "图片URL" }
+        if (response.data && response.data.success && typeof response.data.success === 'object') {
           // 添加图片到预览数组
-          images.value.push({
-            url: import.meta.env.VITE_API_URL + response.data.url // 确保URL是完整的
+          for(const item of response.data.success){
+           images.value.push({
+           url: "/images/" + item // 确保URL是完整的
           });
-        }
+        }}
       } catch (error: any) {
         if (error.response?.status === 401) {
           alert('Token has expired. Please login again.');
