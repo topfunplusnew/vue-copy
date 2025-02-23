@@ -62,7 +62,7 @@ export const userLogin = (credentials: ILogin) =>
   });
 
 
-export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
+// export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
 
 export const userSignup = (data: IUserEdit) => http.post('/user/signup', data);
 

@@ -143,14 +143,15 @@ const submitItinerary = () => {
   router.push({ name: 'generator', query: { prompt: userInput.value } });
 };
 
-const userPosts = ref<IBlogPost[]>([]); // Modified: 定义 userPosts 在 script 部分
+const allPosts = ref<IBlogPost[]>([]); // Modified: 定义 userPosts 在 script 部分
 
 onMounted(() => {
   // 页面载入时，自动获取一次定位和加载博客列表
-  store.getUserInfo();
+  
   getAllBlogList()
     .then((res) => {
-      userPosts.value = res.data;
+      console.log(res);
+      allPosts.value = res.data.blogs;
     })
     .catch((e) => {
       console.log(e);
@@ -207,7 +208,7 @@ const searchQuery = ref('');
 
 // 修改：确保使用 userPosts.value  // Modified
 const filteredPosts = computed(() => {
-  let posts = userPosts.value;
+  let posts = allPosts.value;
   const query = searchQuery.value.toLowerCase().trim();
 
   // 先应用搜索过滤
@@ -245,7 +246,7 @@ const postsDisplayed = computed(() => {
 });
 
 const loadMorePosts = () => {
-  if (postsToShow.value < userPosts.value.length) { // Modified: 使用 userPosts.value.length
+  if (postsToShow.value < allPosts.value.length) { // Modified: 使用 userPosts.value.length
     postsToShow.value += 6;
   }
 };
@@ -255,7 +256,7 @@ onMounted(() => {
   if (bottomTrigger.value) {
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
-        if (entry.isIntersecting && postsToShow.value < userPosts.value.length) { // Modified
+        if (entry.isIntersecting && postsToShow.value < allPosts.value.length) { // Modified
           loadMorePosts();
         }
       });
@@ -451,11 +452,15 @@ function handleSearch(event: KeyboardEvent) {
               <div
                 class="social-post"
                 :class="{ 'nft-post': post.isNFT }"
-                v-for="post in postsDisplayed"
+                v-for="post in allPosts"
                 :key="post.id"
-                @click="showBlogDetail(post.id)"  <!-- Modified: 传入 post.id -->
+                @click="showBlogDetail(post.id)"  
               >
                 <img :src="post.image[0]" alt="Post Image" class="post-image" />
+                <div class="post-content">
+                  <h2>{{ post.title }}</h2>
+                  <p>{{ post.content }}</p>
+                </div>
                 <div class="post-footer">
                   <!-- Modified: 使用 post.likes 而非 user?.likes -->
                   <div class="post-stats">
@@ -463,7 +468,7 @@ function handleSearch(event: KeyboardEvent) {
                     <span class="comments">💬 {{ post.comments }}</span>
                     <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                   </div>
-                  <img :src="post.avatar" alt="Avatar" class="post-avatar" />
+                  <img :src="post.user.avatar" alt="Avatar" class="post-avatar" />
                 </div>
               </div>
               <!-- 用于无限滚动触发的底部监测元素 -->

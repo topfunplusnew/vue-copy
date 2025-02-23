@@ -20,7 +20,8 @@ const router = useRouter();
 onMounted(() => {
   store.getUserInfo();
   getMyBlogList().then((res) => {
-    userPosts.value = res.data;
+    console.log(res);
+    userPosts.value = res.data.blogs;
   }).catch((e) => {
     console.log(e);
   });
@@ -302,8 +303,12 @@ const isWalletConnected = computed(() => {
       <!-- 右侧博客列表区，填满剩余宽度 -->
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
-          <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post)">
+          <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
             <img v-if="post.image && post.image.length > 0" :src="post.image[0]" alt="Blog Image" class="post-image" />
+            <div class="post-content">
+              <h2>{{ post.title }}</h2>
+              <p>{{ post.content }}</p>
+            </div>
             <div class="post-footer">
               <img v-if="post.user && post.user.avatar" :src="post.user.avatar" alt="Avatar" class="post-avatar" />
               <div class="post-stats">
