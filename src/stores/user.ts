@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { userLogin, userProfile, userModify, logout as logoutApi } from '@/services/api';
 import type { ILogin, IUser, IUserEdit } from '@/types/user';
 
-export const useUserStore = defineStore('wallet', () => {
+export const useUserStore = defineStore('user', () => {
   const user = ref<IUser>();
 
   function login(req: ILogin) {
@@ -26,14 +26,15 @@ export const useUserStore = defineStore('wallet', () => {
 
 
   function getUserInfo() {
-    userProfile().then(({ data }: any) => {
+    userProfile().then(({ data }) => {
       user.value = data;
     });
   }
   function editUserInfo(req: IUserEdit) {
-    return userModify(req).then(({ data }: any) => {
+    return userModify(req).then(({ data }) => {
       user.value = data;
     });
   }
+
   return { user, login, getUserInfo, editUserInfo, logout };
 });

@@ -1,3 +1,4 @@
+import type{ IBlogReq } from '@/types/blog';
 import axios from 'axios';
 import { Auth } from './auth.ts';
 import type { IPairToken, ILogin, IUserEdit } from '@/types/user.ts';
@@ -84,11 +85,12 @@ export const PostAvatar = (data: IBlogPostimage) => http.post('/file/avatar', da
   }
 });
 
-export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
+// export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
+export const getBlogPost = (id: string) => http.get('/blog', {params:{id}});
 
 export const getMyBlogList = () => http.get('/my_blogs');
 
-export const getAllBlogList = () => http.get('/blogs');
+export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
 
 
 

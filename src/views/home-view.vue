@@ -2,9 +2,7 @@
 import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
-import { getBlogPost, getAllBlogList } from '@/services/api';
-import type { IBlogPost } from '@/types/blog';
-import { useUserStore } from '@/stores/user';
+import { useBlogStore } from '@/stores/blog';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
@@ -25,7 +23,7 @@ const destinationFlag = ref('');
 const isLoading = ref(false);
 const errorMessage = ref('');
 
-const store = useUserStore();
+const store = useBlogStore();
 const router = useRouter();
 
 const preferenceOptions = ref([
@@ -143,42 +141,33 @@ const submitItinerary = () => {
   router.push({ name: 'generator', query: { prompt: userInput.value } });
 };
 
-const allPosts = ref<IBlogPost[]>([]); // Modified: 定义 userPosts 在 script 部分
+const allPosts = computed(()=>store.blogs);
+const condition = computed(() => store.condition);
+condition.value.keyword = 'a';
+
+const dialogBlog = ref(false);
+const selectedBlog = computed(()=> store.blog);
 
 onMounted(() => {
   // 页面载入时，自动获取一次定位和加载博客列表
-  
-  getAllBlogList()
-    .then((res) => {
-      console.log(res);
-      allPosts.value = res.data.blogs;
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+  store.getBlogList();
   handleLocationClick();
 });
 
 // -----------------------------
 // 社交帖子模块部分
 
-const user = computed(() => store.user);
-const selectedBlog = ref<IBlogPost | null>(null);
 
 // 修改：点击博客时传入帖子的 id 而非整个对象  // Modified
 const showBlogDetail = (id: number) => {
-  getBlogPost(id.toString())
-    .then((res) => {
-      selectedBlog.value = res.data;
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+  store.getBlogByID(id);
+  dialogBlog.value = true;
   document.body.style.overflow = 'hidden';
 };
 
 const closeBlogDetail = () => {
-  selectedBlog.value = null;
+  store.clearBlog();
+  dialogBlog.value = false;
   document.body.style.overflow = '';
 };
 
@@ -252,18 +241,18 @@ const loadMorePosts = () => {
 };
 
 const bottomTrigger = ref<HTMLElement | null>(null);
-onMounted(() => {
-  if (bottomTrigger.value) {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting && postsToShow.value < allPosts.value.length) { // Modified
-          loadMorePosts();
-        }
-      });
-    });
-    observer.observe(bottomTrigger.value);
-  }
-});
+// onMounted(() => {
+//   if (bottomTrigger.value) {
+//     const observer = new IntersectionObserver(entries => {
+//       entries.forEach(entry => {
+//         if (entry.isIntersecting && postsToShow.value < allPosts.value.length) { // Modified
+//           loadMorePosts();
+//         }
+//       });
+//     });
+//     observer.observe(bottomTrigger.value);
+//   }
+// });
 
 function handleSearch(event: KeyboardEvent) {
   if (event.key === 'Enter') {
@@ -454,7 +443,7 @@ function handleSearch(event: KeyboardEvent) {
                 :class="{ 'nft-post': post.isNFT }"
                 v-for="post in allPosts"
                 :key="post.id"
-                @click="showBlogDetail(post.id)"  
+                @click="showBlogDetail(post.id)"
               >
                 <img :src="post.image[0]" alt="Post Image" class="post-image" />
                 <div class="post-content">
@@ -468,7 +457,7 @@ function handleSearch(event: KeyboardEvent) {
                     <span class="comments">💬 {{ post.comments }}</span>
                     <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                   </div>
-                  <img :src="post.user.avatar" alt="Avatar" class="post-avatar" />
+                  <img :src="post.user?.avatar" alt="Avatar" class="post-avatar" />
                 </div>
               </div>
               <!-- 用于无限滚动触发的底部监测元素 -->
@@ -480,27 +469,27 @@ function handleSearch(event: KeyboardEvent) {
     </main>
 
     <!-- 博客详情弹出层 -->
-    <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
+    <div class="blog-detail-overlay" v-if="dialogBlog" @click.self="closeBlogDetail">
       <div class="blog-detail-container">
         <div class="blog-detail-header">
-          <h2>{{ selectedBlog.title }}</h2>
+          <h2>{{ selectedBlog?.title }}</h2>
           <button class="close-button" @click="closeBlogDetail">×</button>
         </div>
         <div class="blog-detail-content">
-          <img :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
+          <img v-if="selectedBlog?.image && selectedBlog.image.length > 0" :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
           <div class="detail-info">
             <div class="author-info">
-              <img :src="selectedBlog.user.avatar" alt="Author Avatar" class="author-avatar" />
-              <span class="author-name">{{ selectedBlog.user.name }}</span>
+              <img :src="selectedBlog?.user?.avatar" alt="Author Avatar" class="author-avatar" />
+              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
             </div>
-            <p class="content">{{ selectedBlog.content }}</p>
+            <p class="content">{{ selectedBlog?.content }}</p>
             <div class="detail-stats">
-              <span class="likes">❤️ {{ selectedBlog.likes }}</span>
-              <span class="comments">💬 {{ selectedBlog.comments }}</span>
-              <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
+              <span class="likes">❤️ {{ selectedBlog?.likes }}</span>
+              <span class="comments">💬 {{ selectedBlog?.comments }}</span>
+              <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog.coins }}</span>
             </div>
             <div class="tags">
-              <span v-for="tag in selectedBlog.tags" :key="tag" class="tag">
+              <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
                 {{ tag }}
               </span>
             </div>

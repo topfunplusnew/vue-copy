@@ -326,7 +326,7 @@ const isWalletConnected = computed(() => {
     </section>
 
     <!-- 博客详情弹出层 -->
- 
+
     <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
       <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
         <div class="blog-detail-header">
@@ -334,11 +334,11 @@ const isWalletConnected = computed(() => {
           <button class="close-button" @click="closeBlogDetail">×</button>
         </div>
         <div class="blog-detail-content">
-          <img :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
+          <img v-if="selectedBlog?.image && selectedBlog.image.length>0" :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
           <div class="detail-info">
             <div class="author-info">
-              <img :src="selectedBlog.user.avatar" alt="Author Avatar" class="author-avatar" />
-              <span class="author-name">{{ selectedBlog.user.name }}</span>
+              <img :src="selectedBlog?.user?.avatar" alt="Author Avatar" class="author-avatar" />
+              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
             </div>
             <p class="content">{{ selectedBlog.content }}</p>
             <div class="detail-stats">

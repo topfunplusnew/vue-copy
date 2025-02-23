@@ -1,14 +1,12 @@
 import type { ICommon } from './base';
+import type { IRequest } from './service';
 import type { IUser } from './user';
 
 
 export interface IBlogPost extends ICommon {
   id: number;
   image: string[];
-  user: {
-    avatar: string;
-    name: string;
-  };
+  user: IUser;
   title: string;
   content: string;
   likes: number;
@@ -16,6 +14,10 @@ export interface IBlogPost extends ICommon {
   coins: number;
   tags: string[];
   isNFT: boolean;
+}
+export interface IBlogReq extends IRequest{
+  keyword?:string; // 关键字
+  tag?:string; // 标签
 }
 
 export interface IBlogPostCreate {
