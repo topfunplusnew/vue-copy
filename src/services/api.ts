@@ -62,6 +62,8 @@ export const userLogin = (credentials: ILogin) =>
   });
 
 
+export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
+
 export const userSignup = (data: IUserEdit) => http.post('/user/signup', data);
 
 export const userProfile = () => http.get('/user/profile');
@@ -85,6 +87,8 @@ export const PostAvatar = (data: IBlogPostimage) => http.post('/file/avatar', da
 export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
 
 export const getMyBlogList = () => http.get('/my_blogs');
+
+export const getAllBlogList = () => http.get('/blogs');
 
 
 
