@@ -115,36 +115,32 @@
 
     /* 自定义上传框区域样式 */
     .upload-container {
-      position: relative;
-      background-color: rgba(255, 255, 255, 0.3);
-      border-radius: 12px;
-      padding: 0 15px;
-      height: 35px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 1.5rem;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.3s ease;
-      white-space: nowrap;
-      overflow: hidden;
-      width: fit-content;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.5);
+      margin: 20px 0;
+      
+      .el-upload {
+        width: auto;
       }
 
-      /* 文件输入框 */
-      input[type="file"] {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        cursor: pointer;
+      .el-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.3);
+        border: none;
+        color: white;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.5);
+          transform: scale(1.05);
+        }
+        
+        .el-icon {
+          font-size: 18px;
+        }
       }
     }
 

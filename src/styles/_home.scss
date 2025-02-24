@@ -264,23 +264,26 @@
           max-width: 500px; /* 限制标题最大宽度 */
         }
 
-        .post-button {
-          padding: 0.8rem 1.5rem;
-          width: 200px; /* 设置按钮宽度为固定值 */
-          font-size: 2rem;
-          font-weight: bold;
-          background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.2));
-          color: #fefefe;
+        .custom-post-button {
+          padding: 12px 30px;
+          font-size: 18px;
+          background: rgba(255, 255, 255, 0.3);
+          backdrop-filter: blur(10px);
           border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: background 0.3s, transform 0.3s;
-          flex-shrink: 0; /* 防止按钮缩小 */
-    
+          color: white;
+          border-radius: 10px;
+          transition: all 0.3s ease;
+          height: auto;
+          font-weight: 500;
+          letter-spacing: 1px;
+          
           &:hover {
-            background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
+            background: rgba(255, 255, 255, 0.5);
             transform: scale(1.05);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+          }
+
+          &:focus {
+            background: rgba(255, 255, 255, 0.4);
           }
         }
       }
