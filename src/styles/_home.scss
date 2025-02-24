@@ -13,7 +13,6 @@
     flex-direction: column;
     align-items: center;
 
-
     /* 合并后的卡片 */
     .combined-card {
       margin-top: 20px; 
@@ -82,7 +81,6 @@
       justify-content: center;
       margin-bottom: 2rem;
       margin-top: 2rem;
-
 
       .preference-option {
         background: rgba(255, 255, 255, 0.3);
@@ -368,44 +366,87 @@
           gap: 1.5rem;
 
           .social-post {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px);
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             overflow: hidden;
-            transition: transform 0.3s, box-shadow 0.3s;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+            
+            &:hover {
+              transform: translateY(-2px);
+            }
 
             .post-image {
               width: 100%;
               height: 200px;
               object-fit: cover;
             }
-            
+
+            .post-content {
+              padding: 15px;
+
+              .post-title {
+                font-size: 2rem;
+                font-weight: bold;
+                // margin-bottom: 8px;
+                color: #fff;
+              }
+
+              .post-text {
+                font-size: 1.5rem;
+                color: rgba(255, 255, 255, 0.8);
+                // margin-bottom: 15px;
+                // 文本超出显示省略号
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+              }
+            }
+
             .post-footer {
-              padding: 1rem;
+              padding: 10px 15px;
+              border-top: 1px solid rgba(255, 255, 255, 0.1);
               display: flex;
               justify-content: space-between;
               align-items: center;
-              background: rgba(255, 255, 255, 0.8);
-            }
-            
-            .post-avatar {
-              width: 50px;
-              height: 50px;
-              border-radius: 50%;
-              object-fit: cover;
-            }
-            
-            .post-stats {
-              display: flex;
-              gap: 12px;
-              font-size: 1.8rem;
-              color: #1a2a6c;
-              
-              /* NFT 帖子的统计信息样式 */
-              .nft-post & {
-                .coins {
-                  color: gold;
-                  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+              background: rgba(0, 0, 0, 0.2);
+
+              .author-info {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .post-avatar {
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                }
+
+                .author-name {
+                  color: rgba(255, 255, 255, 0.9);
+                  font-size: 0.9rem;
+                }
+              }
+
+              .post-stats {
+                display: flex;
+                gap: 15px;
+                
+                span {
+                  display: flex;
+                  align-items: center;
+                  gap: 4px;
+                  color: rgba(255, 255, 255, 0.9);
+                  font-size: 1.8rem;
+                }
+
+                .likes, .comments, .coins {
+                  &:hover {
+                    color: #fff;
+                  }
                 }
               }
             }

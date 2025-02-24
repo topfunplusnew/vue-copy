@@ -445,19 +445,39 @@ function handleSearch(event: KeyboardEvent) {
                 :key="post.id"
                 @click="showBlogDetail(post.id)"
               >
-                <img :src="post.image[0]" alt="Post Image" class="post-image" />
+                <!-- 博客图片 -->
+                <img 
+                  v-if="post.image && post.image.length > 0" 
+                  :src="post.image[0]" 
+                  alt="Post Image" 
+                  class="post-image" 
+                />
+                
+                <!-- 博客内容 -->
                 <div class="post-content">
-                  <h2>{{ post.title }}</h2>
-                  <p>{{ post.content }}</p>
+                  <h2 class="post-title">{{ post.title }}</h2>
+                  <p class="post-text">{{ post.content }}</p>
                 </div>
+
+                <!-- 博客底部信息 -->
                 <div class="post-footer">
-                  <!-- Modified: 使用 post.likes 而非 user?.likes -->
+                  <!-- 作者信息 -->
+                  <div class="author-info">
+                    <img 
+                      v-if="post.user?.avatar" 
+                      :src="post.user.avatar" 
+                      alt="Avatar" 
+                      class="post-avatar" 
+                    />
+                    <span class="author-name">{{ post.user?.name }}</span>
+                  </div>
+                  
+                  <!-- 统计信息 -->
                   <div class="post-stats">
                     <span class="likes">❤️ {{ post.likes }}</span>
                     <span class="comments">💬 {{ post.comments }}</span>
                     <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                   </div>
-                  <img :src="post.user?.avatar" alt="Avatar" class="post-avatar" />
                 </div>
               </div>
               <!-- 用于无限滚动触发的底部监测元素 -->

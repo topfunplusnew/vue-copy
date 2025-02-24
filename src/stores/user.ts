@@ -2,6 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { userLogin, userProfile, userModify, logout as logoutApi } from '@/services/api';
 import type { ILogin, IUser, IUserEdit } from '@/types/user';
+import type { IBlogPost } from '@/types/blog';
 
 export const useUserStore = defineStore('user', () => {
   const user = ref<IUser>();
@@ -35,6 +36,14 @@ export const useUserStore = defineStore('user', () => {
       user.value = data;
     });
   }
+
+  // function getUserBlogList() {g
+  //   getMyBlogList().then((res) => {
+  //   console.log(res);
+  //   userPosts.value = res.data.blogs;
+  // }).catch((e) => {
+  //   console.log(e);
+  // });
 
   return { user, login, getUserInfo, editUserInfo, logout };
 });

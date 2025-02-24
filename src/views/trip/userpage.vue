@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
-// import { userInfo, generateBlogs, BlogPost } from '@/data/psblog';
 import walletItem from '@/components/wallet-item.vue';
 import type { IBlogPost } from '@/types/blog';
-import macauImg from '@/assets/macau.jpg';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
@@ -303,14 +301,41 @@ const isWalletConnected = computed(() => {
       <!-- 右侧博客列表区，填满剩余宽度 -->
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
-          <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
-            <img v-if="post.image && post.image.length > 0" :src="post.image[0]" alt="Blog Image" class="post-image" />
+          <div
+            v-for="post in userPosts"
+            :key="post.id"
+            class="blog-post"
+            :class="{ 'nft-post': post.isNFT }"
+            @click="showBlogDetail(post.id)"
+          >
+            <!-- 博客图片 -->
+            <img 
+              v-if="post.image && post.image.length > 0" 
+              :src="post.image[0]" 
+              alt="Blog Image" 
+              class="post-image" 
+            />
+            
+            <!-- 博客内容 -->
             <div class="post-content">
-              <h2>{{ post.title }}</h2>
-              <p>{{ post.content }}</p>
+              <h2 class="post-title">{{ post.title }}</h2>
+              <p class="post-text">{{ post.content }}</p>
             </div>
+
+            <!-- 博客底部信息 -->
             <div class="post-footer">
-              <img v-if="post.user && post.user.avatar" :src="post.user.avatar" alt="Avatar" class="post-avatar" />
+              <!-- 作者信息 -->
+              <div class="author-info">
+                <img 
+                  v-if="post.user?.avatar" 
+                  :src="post.user.avatar" 
+                  alt="Avatar" 
+                  class="post-avatar" 
+                />
+                <span class="author-name">{{ post.user?.name }}</span>
+              </div>
+              
+              <!-- 统计信息 -->
               <div class="post-stats">
                 <span class="likes">❤️ {{ post.likes }}</span>
                 <span class="comments">💬 {{ post.comments }}</span>
