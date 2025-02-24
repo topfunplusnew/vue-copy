@@ -3,6 +3,8 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
+import { ElMessageBox, ElMessage } from 'element-plus';
+import { Auth } from '@/services/auth';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
@@ -25,6 +27,7 @@ const errorMessage = ref('');
 
 const store = useBlogStore();
 const router = useRouter();
+const auth = new Auth();
 
 const preferenceOptions = ref([
   { name: 'Sightseeing', icon: '🌆' },
@@ -260,6 +263,44 @@ function handleSearch(event: KeyboardEvent) {
     postsToShow.value = 12;
   }
 }
+
+const handlePostClick = async () => {
+  if (!auth.get()) {
+    try {
+      await ElMessageBox.confirm(
+        'You need to login first to post a blog. Would you like to login now?',
+        'Login Required',
+        {
+          confirmButtonText: 'Go to Login',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        }
+      );
+      router.push({ name: 'login' });
+    } catch {
+      // 用户点击取消
+      return;
+    }
+  } else {
+    // 已登录，直接跳转到发布页面
+    router.push({ name: 'PostView' });
+  }
+};
+
+// 恢复登录按钮处理方法
+const handleLoginClick = async () => {
+  if (auth.get()) {
+    // 已登录状态
+    ElMessage({
+      message: 'You are already logged in',
+      type: 'info',
+      duration: 2000
+    });
+    return;
+  }
+  // 未登录状态，跳转到登录页面
+  router.push({ name: 'login' });
+};
 </script>
 
 <template>
@@ -283,9 +324,12 @@ function handleSearch(event: KeyboardEvent) {
         </div>
         <div class="right-nav">
           <walletItem />
-          <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">LOGIN</el-button>
-          </router-link>
+          <el-button 
+            class="nav-button" 
+            @click="handleLoginClick"
+          >
+            LOGIN
+          </el-button>
           <router-link :to="{ name: 'signup' }">
             <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
@@ -411,9 +455,7 @@ function handleSearch(event: KeyboardEvent) {
             @keydown="handleSearch"
           />
           <h3>Explore iPoloGO Community</h3>
-          <button class="post-button" @click="$router.push({ name: 'PostView' })">
-            Post
-          </button>
+          <el-button class="custom-post-button" @click="handlePostClick">Post</el-button>
         </div>
         <hr class="horizontal-divider" />
         <div class="social-container">

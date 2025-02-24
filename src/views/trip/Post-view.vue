@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import walletItem from '@/components/wallet-item.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import PostPreview from '@/views/trip/PostPreview.vue';
 import { blogPost, Postimage } from '@/services/api';
 import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
+import { Plus } from '@element-plus/icons-vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { Auth } from '@/services/auth';
 
 // 响应式数据
 const postText = ref('');
@@ -15,6 +18,7 @@ const tagInput = ref('');
 const tags = ref<string[]>([]);
 const router = useRouter();
 const showPreview = ref(false);
+const auth = new Auth();
 
 const preferenceOptions = ref([
   { name: 'Sightseeing', icon: '🌆' },
@@ -41,44 +45,88 @@ const togglePreference = (optionName: string) => {
   }
 };
 
-// 修改图片处理函数
-const handleImageUpload = async (event: Event) => {
-  const files = (event.target as HTMLInputElement).files;
-  if (!files) return;
+// 检查登录状态
+const checkLogin = () => {
+  return !!auth.get(); // 返回 true 如果有 token
+};
 
-  const filesArray = Array.from(files);
-  if (images.value.length + filesArray.length > 9) {
-    alert("You can upload a maximum of 9 images.");
+// 显示登录确认弹窗
+const showLoginConfirm = () => {
+  return ElMessageBox.confirm(
+    'You need to login first to post a blog. Would you like to login now?',
+    'Login Required',
+    {
+      confirmButtonText: 'Go to Login',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }
+  );
+};
+
+// 修改预览按钮点击处理
+const handlePreviewClick = () => {
+  if (!postTitle.value || !postText.value || images.value.length === 0) {
+    ElMessage({
+      message: 'Please add title, content and at least one image',
+      type: 'warning',
+      duration: 3000
+    });
+    return;
+  }
+  showPreview.value = true;
+};
+
+// 修改图片上传处理
+const handleImageUpload = async (file: any) => {
+  if (!checkLogin()) {
+    try {
+      await showLoginConfirm();
+      router.push({ name: 'login' });
+    } catch {
+      return;
+    }
     return;
   }
 
-  for (const file of filesArray) {
-    try {
-      const formData = new FormData();
-      formData.append('files', file);
+  if (images.value.length >= 9) {
+    ElMessage({
+      message: 'Maximum 9 images allowed',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }
 
-      try {
-        const response = await Postimage({ image: formData });
-        // 后端返回的数据格式是 { url: "图片URL" }
-        if (response.data && response.data.success && typeof response.data.success === 'object') {
-          // 添加图片到预览数组
-          for(const item of response.data.success){
-           images.value.push({
-           url: "/images/" + item // 确保URL是完整的
-          });
-        }}
-      } catch (error: any) {
-        if (error.response?.status === 401) {
-          alert('Token has expired. Please login again.');
-          router.push({ name: 'login' });
-          return;
-        }
-        throw error;
-      }
-    } catch (error) {
-      console.error('Failed to upload image:', error);
-      alert('Failed to upload image. Please try again.');
+  try {
+    const formData = new FormData();
+    formData.append('files', file.raw);
+
+    const response = await Postimage({ image: formData });
+    if (response.data && response.data.url) {
+      images.value.push({
+        url: import.meta.env.VITE_API_URL + response.data.url
+      });
+      ElMessage({
+        message: 'Image uploaded successfully',
+        type: 'success',
+        duration: 2000
+      });
     }
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      ElMessage({
+        message: 'Please login first',
+        type: 'error',
+        duration: 2000
+      });
+      router.push({ name: 'login' });
+      return;
+    }
+    ElMessage({
+      message: 'Failed to upload image',
+      type: 'error',
+      duration: 2000
+    });
   }
 };
 
@@ -132,8 +180,29 @@ const selectReplyOption = (option: string) => {
   selectedReplyOption.value = option;
 };
 
+// 修改发布博客处理
 const postTweet = async () => {
+  if (!postTitle.value || !postText.value) {
+    ElMessage({
+      message: 'Please add title and content',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }
+
   try {
+    // 添加发布确认弹窗
+    await ElMessageBox.confirm(
+      'Are you sure you want to publish this blog?',
+      'Confirm Publication',
+      {
+        confirmButtonText: 'Publish',
+        cancelButtonText: 'Continue Editing',
+        type: 'info'
+      }
+    );
+
     const postData: IBlogPostCreate = {
       title: postTitle.value,
       content: postText.value,
@@ -144,9 +213,31 @@ const postTweet = async () => {
     };
 
     await blogPost(postData);
+    ElMessage({
+      message: 'Blog posted successfully',
+      type: 'success',
+      duration: 2000
+    });
     router.push({ name: 'userpage' });
-  } catch (error) {
-    console.error('Failed to post blog:', error);
+  } catch (error: any) {
+    if (error.message === 'cancel') {
+      // 用户选择继续编辑
+      return;
+    }
+    if (error.response?.status === 401) {
+      ElMessage({
+        message: 'Session expired, please login again',
+        type: 'error',
+        duration: 2000
+      });
+      router.push({ name: 'login' });
+      return;
+    }
+    ElMessage({
+      message: 'Failed to post blog',
+      type: 'error',
+      duration: 2000
+    });
   }
 };
 
@@ -165,6 +256,19 @@ const previewPost = () => {
 // 添加关闭预览的函数
 const closePreview = () => {
   showPreview.value = false;
+};
+
+// 修改标签添加处理
+const addTag = () => {
+  if (tags.value.length >= 5) {
+    ElMessage({
+      message: 'Maximum 5 tags allowed',
+      type: 'warning',
+      duration: 2000
+    });
+    return;
+  }
+  // ... 其他标签添加逻辑
 };
 </script>
 
@@ -246,33 +350,32 @@ const closePreview = () => {
         placeholder="What's happening?"
       ></textarea>
 
-      <!-- 图片预览和上传部分 -->
+      <!-- 图片上传部分 -->
       <div class="image-upload">
-        <!-- 图片预览区域 -->
-        <div v-if="images.length > 0" class="image-preview-container">
-          <div v-for="(image, index) in images" 
-               :key="index"
-               class="image-preview">
-            <img :src="image.url" alt="Uploaded Image" />
-            <button class="remove-btn" @click="removeImage(index)">✖</button>
+        <div class="upload-text">Add photos (up to 9)</div>
+        <el-upload
+          class="upload-container"
+          :show-file-list="false"
+          :on-change="handleImageUpload"
+          :auto-upload="false"
+          :multiple="true"
+          accept="image/*"
+        >
+          <template #trigger>
+            <el-button type="primary">
+              <el-icon><Plus /></el-icon>
+              Select Images
+            </el-button>
+          </template>
+        </el-upload>
+
+        <!-- 图片预览部分 -->
+        <div class="image-preview-container" v-if="images.length">
+          <div v-for="(image, index) in images" :key="index" class="image-preview">
+            <img :src="image.url" :alt="`Preview ${index + 1}`" />
+            <button class="remove-image" @click="removeImage(index)">×</button>
           </div>
         </div>
-
-        <!-- 图片上传区域 -->
-        <label class="upload-container">
-          Choose your image
-          <input 
-            type="file" 
-            @change="handleImageUpload" 
-            accept="image/*" 
-            multiple
-          />
-        </label>
-
-        <!-- 上传限制提示 -->
-        <p v-if="images.length >= 9" class="limit-message">
-          Maximum 9 images allowed.
-        </p>
       </div>
 
       <!-- 修改：标签输入区域 -->
@@ -344,41 +447,7 @@ const closePreview = () => {
   </div>
 </template>
 
-<style scoped>
-.posttext {
-  font-size: 40px;
-  font-weight: bold;
-  text-align: center;
-  color: #ffffff;
-  margin-bottom: 10px;
-}
-
-.preview-button {
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.preview-button-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #ccc !important;
-}
-
-.preview-button-disabled:hover::after {
-  content: 'Please add title and at least one image';
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  margin-bottom: 4px;
-}
+<style lang="scss">
+@import '@/styles/_post.scss';
 </style>
 
