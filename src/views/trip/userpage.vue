@@ -17,12 +17,7 @@ const router = useRouter();
 
 onMounted(() => {
   store.getUserInfo();
-  getMyBlogList().then((res) => {
-    console.log(res);
-    userPosts.value = res.data.blogs;
-  }).catch((e) => {
-    console.log(e);
-  });
+  store.getUserBlogList();
 });
 
 // 添加登出处理函数
@@ -45,24 +40,23 @@ const noMorePosts = ref(false);
 const postsContainer = ref<HTMLElement | null>(null);
 
 // 用户博客数据
-const userPosts = ref<IBlogPost[]>([]);
+const userPosts = computed(() => store.userPosts);
 
 // 博客详情相关的状态和方法
-const selectedBlog = ref<IBlogPost | null>(null);
+const selectedBlog = computed(() => store.selectedPost);
 
 const showBlogDetail = (id: number) => {
-  getBlogPost(id.toString()).then((res) => {
-    selectedBlog.value = res.data;
-  }).catch((e) => {
-    console.log(e);
-  });
-  document.body.style.overflow = 'hidden';
+  const post = userPosts.value.find(p => p.id === id);
+  if (post) {
+    store.setSelectedPost(post);
+    document.body.style.overflow = 'hidden';
+  }
 };
 
 
 
 const closeBlogDetail = () => {
-  selectedBlog.value = null;
+  store.clearSelectedPost();
   document.body.style.overflow = '';
 };
 

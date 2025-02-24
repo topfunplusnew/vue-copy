@@ -375,6 +375,9 @@
             overflow: hidden;
             transition: transform 0.3s ease;
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 300px;
             
             &:hover {
               transform: translateY(-2px);
@@ -397,7 +400,7 @@
               }
 
               .post-text {
-                font-size: 1.5rem;
+                font-size: 1.8rem;
                 color: rgba(255, 255, 255, 0.8);
                 // margin-bottom: 15px;
                 // 文本超出显示省略号
