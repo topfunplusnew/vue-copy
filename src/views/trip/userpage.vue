@@ -8,7 +8,7 @@ import { useUserStore } from '@/stores/user';
 import type { IUserEdit } from '@/types/user';
 import { useRouter } from 'vue-router';
 import { getBlogPost, getMyBlogList, PostAvatar } from '@/services/api';
-
+import { getImageUrl } from '@/utils';
 
 const store = useUserStore();
 const router = useRouter();
@@ -29,7 +29,6 @@ function handleLogout() {
 // const user = reactive(userInfo);
 const user = computed(() => store.user);
 
-
 const posts = ref<IBlogPost[]>([]);
 // const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
@@ -46,13 +45,12 @@ const userPosts = computed(() => store.userPosts);
 const selectedBlog = computed(() => store.selectedPost);
 
 const showBlogDetail = (id: number) => {
-  const post = userPosts.value.find(p => p.id === id);
+  const post = userPosts.value.find((p) => p.id === id);
   if (post) {
     store.setSelectedPost(post);
     document.body.style.overflow = 'hidden';
   }
 };
-
 
 const closeBlogDetail = () => {
   store.clearSelectedPost();
@@ -122,7 +120,7 @@ function cropSuccess() {
     if (showEditProfile.value) {
       editForm.avatar = data;
     } else {
-      user.avatar = data; // 直接更新用户头像
+      user.value.avatar = data; // 直接更新用户头像
     }
     showCropper.value = false;
   });
@@ -167,11 +165,13 @@ function handleEditAvatarUpload(event: Event) {
   if (file) {
     const formData = new FormData();
     formData.append('file', file);
-    PostAvatar({ image: formData }).then((res) => {
-      console.log(res);
-    }).catch((e) => {
-      console.log(e);
-    });
+    PostAvatar({ image: formData })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   }
 }
 
@@ -212,7 +212,6 @@ const isWalletConnected = computed(() => {
   // return !!user.value?.walletAddress;
   return false;
 });
-
 </script>
 
 <template>
@@ -243,12 +242,8 @@ const isWalletConnected = computed(() => {
       <!-- 左侧用户信息面板，固定宽度 & 100vh 高度 -->
       <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
         <div class="profile-buttons">
-          <button class="edit-profile-btn" @click="showEditProfile = true">
-            EDIT PROFILE
-          </button>
-          <button class="logout-btn" @click="handleLogout">
-            LOGOUT
-          </button>
+          <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
+          <button class="logout-btn" @click="handleLogout">LOGOUT</button>
         </div>
         <div class="user-info">
           <div class="avatar-section">
@@ -294,21 +289,10 @@ const isWalletConnected = computed(() => {
       <!-- 右侧博客列表区，填满剩余宽度 -->
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
-          <div
-            v-for="post in userPosts"
-            :key="post.id"
-            class="blog-post"
-            :class="{ 'nft-post': post.isNFT }"
-            @click="showBlogDetail(post.id)"
-          >
+          <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
             <!-- 博客图片 -->
-            <img 
-              v-if="post.image && post.image.length > 0" 
-              :src="post.image[0]" 
-              alt="Blog Image" 
-              class="post-image" 
-            />
-            
+            <img v-if="post.image && post.image.length > 0" :src="post.image[0]" alt="Blog Image" class="post-image" />
+
             <!-- 博客内容 -->
             <div class="post-content">
               <h2 class="post-title">{{ post.title }}</h2>
@@ -319,15 +303,10 @@ const isWalletConnected = computed(() => {
             <div class="post-footer">
               <!-- 作者信息 -->
               <div class="author-info">
-                <img 
-                  v-if="post.user?.avatar" 
-                  :src="post.user.avatar" 
-                  alt="Avatar" 
-                  class="post-avatar" 
-                />
+                <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
                 <span class="author-name">{{ post.user?.name }}</span>
               </div>
-              
+
               <!-- 统计信息 -->
               <div class="post-stats">
                 <span class="likes">❤️ {{ post.likes }}</span>
@@ -352,7 +331,7 @@ const isWalletConnected = computed(() => {
           <button class="close-button" @click="closeBlogDetail">×</button>
         </div>
         <div class="blog-detail-content">
-          <img v-if="selectedBlog?.image && selectedBlog.image.length>0" :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
+          <img v-if="selectedBlog?.image && selectedBlog.image.length > 0" :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
           <div class="detail-info">
             <div class="author-info">
               <img :src="selectedBlog?.user?.avatar" alt="Author Avatar" class="author-avatar" />

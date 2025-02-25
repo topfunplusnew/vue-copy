@@ -11,6 +11,7 @@ import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
 import { getWeatherData } from '@/utils/weatherService';
 import { generateUserPrompt } from '@/stores/userprompt';
+import { getImageUrl } from '@/utils';
 
 // -------------------
 // Trip Options 部分
@@ -44,11 +45,7 @@ const selectedOptions = ref<string[]>([]);
 const userInput = ref('');
 
 const updateUserInput = () => {
-  userInput.value = generateUserPrompt(
-    selectedLocation.value || 'Unknown',
-    selectedDestination.value || 'Unknown',
-    selectedOptions.value
-  );
+  userInput.value = generateUserPrompt(selectedLocation.value || 'Unknown', selectedDestination.value || 'Unknown', selectedOptions.value);
 };
 
 watch([selectedLocation, selectedDestination, selectedOptions], () => {
@@ -67,10 +64,7 @@ const handleLocationClick = async () => {
         timeout: 5000,
       });
     });
-    const { city, country, flagUrl } = await getReverseGeocoding(
-      position.coords.latitude,
-      position.coords.longitude
-    );
+    const { city, country, flagUrl } = await getReverseGeocoding(position.coords.latitude, position.coords.longitude);
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
@@ -87,7 +81,7 @@ const handleLocationClick = async () => {
 
 const handleLocationChange = async (value: string) => {
   selectedLocation.value = value;
-  const loc = destinations.find(item => item.value === value);
+  const loc = destinations.find((item) => item.value === value);
   if (loc) {
     userFlag.value = loc.flagUrl || '';
     userLocation.value = loc.label;
@@ -106,7 +100,7 @@ const handleLocationChange = async (value: string) => {
 
 const handleDestinationSelect = async (value: string) => {
   selectedDestination.value = value;
-  const dest = destinations.find(item => item.value === value);
+  const dest = destinations.find((item) => item.value === value);
   if (dest) {
     destinationFlag.value = dest.flagUrl || '';
     userDestination.value = dest.label;
@@ -144,12 +138,12 @@ const submitItinerary = () => {
   router.push({ name: 'generator', query: { prompt: userInput.value } });
 };
 
-const allPosts = computed(()=>store.blogs);
+const allPosts = computed(() => store.blogs);
 const condition = computed(() => store.condition);
 condition.value.keyword = 'a';
 
 const dialogBlog = ref(false);
-const selectedBlog = computed(()=> store.blog);
+const selectedBlog = computed(() => store.blog);
 
 onMounted(() => {
   // 页面载入时，自动获取一次定位和加载博客列表
@@ -159,7 +153,6 @@ onMounted(() => {
 
 // -----------------------------
 // 社交帖子模块部分
-
 
 // 修改：点击博客时传入帖子的 id 而非整个对象  // Modified
 const showBlogDetail = (id: number) => {
@@ -176,14 +169,14 @@ const closeBlogDetail = () => {
 
 const socialFilters = ref([
   { label: 'Recommendation', icon: '⭐' },
-  { label: 'Most Popular',   icon: '🔥' },
-  { label: 'NFT',            icon: '🖼️' },
-  { label: 'Sightseeing',    icon: '🌇' },
-  { label: 'Educational',    icon: '🎓' },
-  { label: 'Business',       icon: '💼' },
-  { label: 'Medical',        icon: '🏥' },
-  { label: 'Gastronomy',     icon: '🍴' },
-  { label: 'Culture',        icon: '🎭' },
+  { label: 'Most Popular', icon: '🔥' },
+  { label: 'NFT', icon: '🖼️' },
+  { label: 'Sightseeing', icon: '🌇' },
+  { label: 'Educational', icon: '🎓' },
+  { label: 'Business', icon: '💼' },
+  { label: 'Medical', icon: '🏥' },
+  { label: 'Gastronomy', icon: '🍴' },
+  { label: 'Culture', icon: '🎭' },
 ]);
 
 const selectedFilters = ref<string[]>([]);
@@ -205,11 +198,11 @@ const filteredPosts = computed(() => {
 
   // 先应用搜索过滤
   if (query) {
-    posts = posts.filter(post => {
+    posts = posts.filter((post) => {
       const titleMatch = post.title.toLowerCase().includes(query);
       const contentMatch = post.content.toLowerCase().includes(query);
       const locationMatch = post.location?.toLowerCase().includes(query);
-      const tagMatch = post.tags.some(tag => tag.toLowerCase().includes(query));
+      const tagMatch = post.tags.some((tag) => tag.toLowerCase().includes(query));
       const userMatch = post.user.name.toLowerCase().includes(query);
       return titleMatch || contentMatch || locationMatch || tagMatch || userMatch;
     });
@@ -224,11 +217,9 @@ const filteredPosts = computed(() => {
   } else if (selectedFilters.value.includes('Most Popular')) {
     return [...posts].sort((a, b) => b.likes - a.likes);
   } else if (selectedFilters.value.includes('NFT')) {
-    return posts.filter(post => post.isNFT);
+    return posts.filter((post) => post.isNFT);
   } else {
-    return posts.filter(post =>
-      post.tags.some(tag => selectedFilters.value.includes(tag))
-    );
+    return posts.filter((post) => post.tags.some((tag) => selectedFilters.value.includes(tag)));
   }
 });
 
@@ -238,7 +229,8 @@ const postsDisplayed = computed(() => {
 });
 
 const loadMorePosts = () => {
-  if (postsToShow.value < allPosts.value.length) { // Modified: 使用 userPosts.value.length
+  if (postsToShow.value < allPosts.value.length) {
+    // Modified: 使用 userPosts.value.length
     postsToShow.value += 6;
   }
 };
@@ -267,15 +259,11 @@ function handleSearch(event: KeyboardEvent) {
 const handlePostClick = async () => {
   if (!auth.get()) {
     try {
-      await ElMessageBox.confirm(
-        'You need to login first to post a blog. Would you like to login now?',
-        'Login Required',
-        {
-          confirmButtonText: 'Go to Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning',
-        }
-      );
+      await ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
+        confirmButtonText: 'Go to Login',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      });
       router.push({ name: 'login' });
     } catch {
       // 用户点击取消
@@ -294,7 +282,7 @@ const handleLoginClick = async () => {
     ElMessage({
       message: 'You are already logged in',
       type: 'info',
-      duration: 2000
+      duration: 2000,
     });
     return;
   }
@@ -303,14 +291,6 @@ const handleLoginClick = async () => {
 };
 
 // 添加图片 URL 处理函数
-function getImageUrl(imagePath: string) {
-  // 如果是完整的 URL，直接返回
-  if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
-    return imagePath;
-  }
-  // 否则拼接基础路径
-  return `/images/${imagePath}`;
-}
 </script>
 
 <template>
@@ -334,12 +314,7 @@ function getImageUrl(imagePath: string) {
         </div>
         <div class="right-nav">
           <walletItem />
-          <el-button 
-            class="nav-button" 
-            @click="handleLoginClick"
-          >
-            LOGIN
-          </el-button>
+          <el-button class="nav-button" @click="handleLoginClick"> LOGIN </el-button>
           <router-link :to="{ name: 'signup' }">
             <el-button class="nav-button">SIGN UP</el-button>
           </router-link>
@@ -365,19 +340,8 @@ function getImageUrl(imagePath: string) {
           <!-- Localization -->
           <div class="field location-field">
             <div class="field-label">Localization</div>
-            <el-select
-              v-model="selectedLocation"
-              placeholder="Select location"
-              class="select"
-              filterable
-              @change="handleLocationChange"
-            >
-              <el-option
-                v-for="(loc, index) in destinations"
-                :key="index"
-                :label="loc.label"
-                :value="loc.value"
-              />
+            <el-select v-model="selectedLocation" placeholder="Select location" class="select" filterable @change="handleLocationChange">
+              <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
             </el-select>
             <div class="ld-info">
               <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
@@ -389,33 +353,12 @@ function getImageUrl(imagePath: string) {
           <!-- Destination -->
           <div class="field destination-field">
             <div class="field-label">Destination</div>
-            <el-select
-              v-model="selectedDestination"
-              placeholder="Select destination"
-              class="select"
-              filterable
-              @change="handleDestinationSelect"
-            >
-              <el-option
-                v-for="(destination, index) in destinations"
-                :key="index"
-                :label="destination.label"
-                :value="destination.value"
-              />
+            <el-select v-model="selectedDestination" placeholder="Select destination" class="select" filterable @change="handleDestinationSelect">
+              <el-option v-for="(destination, index) in destinations" :key="index" :label="destination.label" :value="destination.value" />
             </el-select>
             <div class="ld-info">
-              <img
-                v-if="destinationFlag"
-                :src="destinationFlag"
-                alt="Destination Flag"
-                class="flag"
-              />
-              <img
-                v-if="weatherIcon"
-                :src="weatherIcon"
-                alt="Weather Icon"
-                class="weather-icon"
-              />
+              <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
+              <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" />
               <span>{{ userDestination }}</span>
               <span v-if="weather">{{ weather }}</span>
             </div>
@@ -425,13 +368,7 @@ function getImageUrl(imagePath: string) {
 
         <!-- 旅游偏好  -->
         <div class="preference-options">
-          <span
-            v-for="option in preferenceOptions"
-            :key="option.name"
-            class="preference-option"
-            :class="{ selected: selectedOptions.includes(option.name) }"
-            @click="togglePreference(option.name)"
-          >
+          <span v-for="option in preferenceOptions" :key="option.name" class="preference-option" :class="{ selected: selectedOptions.includes(option.name) }" @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
           </span>
@@ -439,17 +376,8 @@ function getImageUrl(imagePath: string) {
 
         <!-- 用户行程输入框 -->
         <div class="input-container">
-          <el-input
-            v-model="userInput"
-            placeholder="Edit your trip prompt..."
-            class="itinerary-input"
-            type="textarea"
-            :rows="4"
-            @keydown.enter="handleEnter"
-          />
-          <button class="togenerator" @click="submitItinerary">
-            Start Now
-          </button>
+          <el-input v-model="userInput" placeholder="Edit your trip prompt..." class="itinerary-input" type="textarea" :rows="4" @keydown.enter="handleEnter" />
+          <button class="togenerator" @click="submitItinerary">Start Now</button>
         </div>
       </div>
 
@@ -457,13 +385,7 @@ function getImageUrl(imagePath: string) {
       <section class="social-feed">
         <div class="social-header">
           <!-- 搜索框 -->
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search"
-            class="search-input"
-            @keydown="handleSearch"
-          />
+          <input type="text" v-model="searchQuery" placeholder="Search" class="search-input" @keydown="handleSearch" />
           <h3>Explore iPoloGO Community</h3>
           <el-button class="custom-post-button" @click="handlePostClick">Post</el-button>
         </div>
@@ -472,12 +394,7 @@ function getImageUrl(imagePath: string) {
           <!-- 固定左侧区域 -->
           <div class="social-fixed">
             <div class="social-filter-panel">
-              <button
-                v-for="item in socialFilters"
-                :key="item.label"
-                :class="{ active: selectedFilters.includes(item.label) }"
-                @click="toggleSocialFilter(item.label)"
-              >
+              <button v-for="item in socialFilters" :key="item.label" :class="{ active: selectedFilters.includes(item.label) }" @click="toggleSocialFilter(item.label)">
                 <span class="filter-icon">{{ item.icon }}</span>
                 <span class="filter-label">{{ item.label }}</span>
               </button>
@@ -490,21 +407,10 @@ function getImageUrl(imagePath: string) {
           <!-- 右侧博客滚动区域 -->
           <div class="social-scroll">
             <div class="social-posts-panel" ref="postsPanel">
-              <div
-                class="social-post"
-                :class="{ 'nft-post': post.isNFT }"
-                v-for="post in allPosts"
-                :key="post.id"
-                @click="showBlogDetail(post.id)"
-              >
+              <div class="social-post" :class="{ 'nft-post': post.isNFT }" v-for="post in allPosts" :key="post.id" @click="showBlogDetail(post.id)">
                 <!-- 博客图片 -->
-                <img 
-                  v-if="post.image && post.image.length > 0" 
-                  :src="getImageUrl(post.image[0])" 
-                  alt="Post Image" 
-                  class="post-image" 
-                />
-                
+                <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Post Image" class="post-image" />
+
                 <!-- 博客内容 -->
                 <div class="post-content">
                   <h2 class="post-title">{{ post.title }}</h2>
@@ -515,19 +421,14 @@ function getImageUrl(imagePath: string) {
                 <div class="post-footer">
                   <!-- 作者信息 -->
                   <div class="author-info">
-                    <img 
-                      v-if="post.user?.avatar" 
-                      :src="post.user.avatar" 
-                      alt="Avatar" 
-                      class="post-avatar" 
-                    />
+                    <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
                     <span class="author-name">{{ post.user?.name }}</span>
                   </div>
-                  
+
                   <!-- 统计信息 -->
                   <div class="post-stats">
                     <span class="likes">❤️ {{ post.likes }}</span>
-                    <span class="comments">💬 {{ post.comments }}</span>
+                    <span class="comments">💬 {{ post.comments_count }}</span>
                     <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                   </div>
                 </div>
@@ -553,23 +454,14 @@ function getImageUrl(imagePath: string) {
         <div class="blog-detail-content">
           <!-- 左侧图片区域 -->
           <div class="detail-left">
-            <img 
-              v-for="image in selectedBlog?.image"
-              :src="getImageUrl(image)" 
-              alt="Blog Image" 
-              class="detail-image" 
-            />
+            <img v-for="(image, i) in selectedBlog?.image" :src="getImageUrl(image)" :key="i" alt="Blog Image" class="detail-image" />
           </div>
 
           <!-- 右侧内容区域 -->
           <div class="detail-info">
             <!-- 作者信息 -->
             <div class="author-info">
-              <img 
-                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
-                alt="Author Avatar" 
-                class="author-avatar" 
-              />
+              <img :src="getImageUrl(selectedBlog?.user?.avatar || '')" alt="Author Avatar" class="author-avatar" />
               <div class="author-details">
                 <span class="author-name">{{ selectedBlog?.user?.name }}</span>
                 <span class="post-date">{{ selectedBlog?.create_at }}</span>
@@ -585,9 +477,18 @@ function getImageUrl(imagePath: string) {
             <!-- 统计信息 -->
             <div class="detail-stats">
               <span class="likes">❤️ {{ selectedBlog?.likes || 0 }}</span>
-              <span class="comments">💬 {{ selectedBlog?.comments || 0 }}</span>
+              <span class="comments">💬 {{ selectedBlog?.comments_count || 0 }}</span>
               <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins || 0 }}</span>
             </div>
+            <ul>
+              <li v-for="comment in selectedBlog?.comments" :key="comment.id">
+                <div>
+                  <img :src="`/images/${comment.user.avatar}`" />
+                  <div v-text="comment.user.name"></div>
+                </div>
+                <p v-text="comment.content"></p>
+              </li>
+            </ul>
 
             <!-- 标签 -->
             <div class="tags" v-if="selectedBlog?.tags?.length">
@@ -601,8 +502,6 @@ function getImageUrl(imagePath: string) {
     </div>
 
     <!-- 搜索结果为空提示 -->
-    <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">
-      No posts found for "{{ searchQuery }}"
-    </div>
+    <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
   </div>
 </template>

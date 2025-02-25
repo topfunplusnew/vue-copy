@@ -15,28 +15,30 @@ export const useBlogStore = defineStore('blog', () => {
    * @returns
    */
   function getBlogList() {
-    return getAllBlogList(condition.value).then(({ data }) => {
-      blogs.value = data.blogs;
-    }).catch(e =>{
-      console.log(e);
-    });
+    return getAllBlogList(condition.value)
+      .then(({ data }) => {
+        blogs.value = data.blogs;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   }
   /**
    * 根据id获取blog
    * @param id
    * @returns
    */
-  function getBlogByID(id:number) {
+  function getBlogByID(id: number) {
     return getBlogPost(id.toString())
-    .then(({data}) => {
-      blog.value = data;
-    })
-    .catch((e) => {
-      console.log(e);
-    });
+      .then(({ data }) => {
+        blog.value = data;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   }
   function clearBlog() {
     blog.value = <IBlogPost>{};
   }
-  return { blogs, condition,blog, getBlogList, getBlogByID, clearBlog };
+  return { blogs, condition, blog, getBlogList, getBlogByID, clearBlog };
 });
