@@ -54,7 +54,6 @@ const showBlogDetail = (id: number) => {
 };
 
 
-
 const closeBlogDetail = () => {
   store.clearSelectedPost();
   document.body.style.overflow = '';

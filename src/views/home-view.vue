@@ -301,6 +301,16 @@ const handleLoginClick = async () => {
   // 未登录状态，跳转到登录页面
   router.push({ name: 'login' });
 };
+
+// 添加图片 URL 处理函数
+function getImageUrl(imagePath: string) {
+  // 如果是完整的 URL，直接返回
+  if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
+    return imagePath;
+  }
+  // 否则拼接基础路径
+  return `/images/${imagePath}`;
+}
 </script>
 
 <template>
@@ -490,7 +500,7 @@ const handleLoginClick = async () => {
                 <!-- 博客图片 -->
                 <img 
                   v-if="post.image && post.image.length > 0" 
-                  :src="post.image[0]" 
+                  :src="getImageUrl(post.image[0])" 
                   alt="Post Image" 
                   class="post-image" 
                 />
@@ -532,25 +542,55 @@ const handleLoginClick = async () => {
 
     <!-- 博客详情弹出层 -->
     <div class="blog-detail-overlay" v-if="dialogBlog" @click.self="closeBlogDetail">
-      <div class="blog-detail-container">
+      <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
+        <!-- 博客标题和关闭按钮 -->
         <div class="blog-detail-header">
           <h2>{{ selectedBlog?.title }}</h2>
           <button class="close-button" @click="closeBlogDetail">×</button>
         </div>
+
+        <!-- 博客内容区域 -->
         <div class="blog-detail-content">
-          <img v-if="selectedBlog?.image && selectedBlog.image.length > 0" :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
+          <!-- 左侧图片区域 -->
+          <div class="detail-left">
+            <img 
+              v-for="image in selectedBlog?.image"
+              :src="getImageUrl(image)" 
+              alt="Blog Image" 
+              class="detail-image" 
+            />
+          </div>
+
+          <!-- 右侧内容区域 -->
           <div class="detail-info">
+            <!-- 作者信息 -->
             <div class="author-info">
-              <img :src="selectedBlog?.user?.avatar" alt="Author Avatar" class="author-avatar" />
-              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+              <img 
+                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+                alt="Author Avatar" 
+                class="author-avatar" 
+              />
+              <div class="author-details">
+                <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+                <span class="post-date">{{ selectedBlog?.create_at }}</span>
+              </div>
             </div>
-            <p class="content">{{ selectedBlog?.content }}</p>
+
+            <!-- 博客内容 -->
+            <div class="blog-text">
+              <h3 class="blog-title">{{ selectedBlog?.title }}</h3>
+              <p class="content">{{ selectedBlog?.content }}</p>
+            </div>
+
+            <!-- 统计信息 -->
             <div class="detail-stats">
-              <span class="likes">❤️ {{ selectedBlog?.likes }}</span>
-              <span class="comments">💬 {{ selectedBlog?.comments }}</span>
-              <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog.coins }}</span>
+              <span class="likes">❤️ {{ selectedBlog?.likes || 0 }}</span>
+              <span class="comments">💬 {{ selectedBlog?.comments || 0 }}</span>
+              <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins || 0 }}</span>
             </div>
-            <div class="tags">
+
+            <!-- 标签 -->
+            <div class="tags" v-if="selectedBlog?.tags?.length">
               <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
                 {{ tag }}
               </span>

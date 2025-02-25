@@ -5,21 +5,21 @@ import walletItem from '@/components/wallet-item.vue';
 // FAQ 数据
 const faqs = ref([
   {
-    question: 'How to design your personal itinerary?',
+    question: 'How to design my personal itinerary?',
     answer:
       'You can design your personal itinerary by using iPoloGO. Simply input your preferences, destinations, and interests, and the platform will help you create a personalized travel plan.',
   },
   {
-    question: 'How to connect your Web3 wallet?',
+    question: 'What is NFT in iPoloGO?',
     answer:
       'To connect your Web3 wallet, click on the "Connect Wallet" button on the platform. Select your wallet provider, follow the prompts, and your wallet will be securely connected to iPoloGO.',
   },
   {
-    question: 'How to share my itinerary in iPoloGO?',
+    question: 'How do I make my own NFT in iPoloGO? ',
     answer: 'To share your itinerary in iPoloGO, go to the "Share" section within your plan and choose how you would like to share your trip (via social media or directly with other users).',
   },
   {
-    question: 'How can I benefit from sharing my itinerary?',
+    question: 'What can I do with an NFT?',
     answer:
       'By sharing your itinerary, you can earn iPoloCoins based on the number of people who view or interact with your plan. You can also gain access to exclusive rewards and features by sharing travel tips and experiences.',
   },
@@ -65,9 +65,11 @@ const faqs = ref([
     <div class="ipologo-intro">
       <h1>Welcome to iPoloGO</h1>
       <p>
-        iPoloGO is an innovative travel assistant powered by artificial intelligence, designed to help you plan, book, and manage your travel experiences effortlessly. From booking your flights and
-        hotels to guiding you through the entire journey, iPoloGO ensures that your travel experience is seamless and enjoyable. Our intelligent AI agent, Adeva, personalizes your trip, offers
-        suggestions, and helps with loyalty memberships to make your travel experience unforgettable.
+        iPoloGO is a Decentralized Autonomous Organization (DAO) tourism platform, powered by large language models and Web3 technology. With iPoloGO, you can personalize your travel experiences and earn rewards by sharing your journey. Whether you're exploring breathtaking scenery, engaging in educational, business, or healthcare experiences, or diving into local cuisine and culture, everything becomes easier with just a few inputs. We will help you plan every aspect of your trip.
+
+        Our community makes it simple to learn from others' travel plans and shared knowledge. You can also contribute your insights, earning rewards while enriching the experiences of fellow travelers.
+
+
       </p>
     </div>
 

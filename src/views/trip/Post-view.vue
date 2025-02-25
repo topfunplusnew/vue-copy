@@ -423,7 +423,7 @@ const addTag = () => {
             class="nft-checkbox"
           >
           <span class="checkbox-custom"></span>
-          <span class="nft-label-text">Minting NFTs</span>
+          <span class="nft-label-text">Make your Non-Fungible Token</span>
         </label>
       </div>
 
