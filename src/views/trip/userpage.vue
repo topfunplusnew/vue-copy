@@ -474,23 +474,16 @@ function nextImage() {
 
       <!-- 右侧内容区域 -->
       <div class="detail-right">
-        <div class="content-section">
-          {{ selectedBlog.content }}
+        <!-- 标签区域 -->
+        <div class="tags-section">
+          <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
+            {{ tag }}
+          </span>
         </div>
-        
-        <!-- 评论区域 -->
-        <div class="comments-section">
-          <div v-for="comment in selectedBlog.comments" :key="comment.id" class="comment-item">
-            <div class="comment-user">
-              <img 
-                :src="getImageUrl(comment.user.avatar)" 
-                alt="Commenter Avatar" 
-                class="comment-avatar"
-              />
-              <span class="comment-username">{{ comment.user.name }}</span>
-            </div>
-            <p class="comment-text">{{ comment.content }}</p>
-          </div>
+
+        <!-- 博客内容 -->
+        <div class="content-section">
+          <p class="blog-content">{{ selectedBlog.content }}</p>
         </div>
       </div>
     </div>

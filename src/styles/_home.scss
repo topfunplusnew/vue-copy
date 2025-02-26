@@ -699,13 +699,38 @@
       background: white;
       padding: 20px;
       overflow-y: auto;
-      display:flex;
+      display: flex;
+      flex-direction: column;
+
+      // 标签区域样式
+      .tags-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+        .tag {
+          padding: 4px 12px;
+          background: rgba(0, 0, 0, 0.05);
+          border-radius: 16px;
+          font-size: 1.4rem;
+          color: #666;
+          font-weight: 500;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
 
       .content-section {
         .blog-content {
           font-size: 1.8rem;
           text-align: left;
-          font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+          font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
           line-height: 1.6;
           color: #333;
           margin: 0;

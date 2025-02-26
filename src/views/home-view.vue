@@ -527,6 +527,13 @@ function nextImage() {
 
         <!-- 右侧内容区域 -->
         <div class="detail-right">
+          <!-- 标签区域 -->
+          <div class="tags-section">
+            <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
+              {{ tag }}
+            </span>
+          </div>
+
           <!-- 博客内容 -->
           <div class="content-section">
             <p class="blog-content">{{ selectedBlog?.content }}</p>
