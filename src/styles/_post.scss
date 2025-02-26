@@ -108,7 +108,7 @@
 
     /* 文字提示 */
     .upload-text {
-        font-size: 1rem;
+        font-size: 1.8rem;
         color: white;
         margin-bottom: 5px;
     }
@@ -485,5 +485,94 @@
   text-align: center;
   color: #ffffff;
   margin-bottom: 10px;
+}
+    
+/* 评论区样式 */
+.comments-container {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  max-height: 300px;
+  overflow-y: auto;
+
+  .comments-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    h3 {
+      font-size: 1.8rem;
+      color: #333;
+      margin: 0;
+    }
+
+    .comment-count {
+      font-size: 1.4rem;
+      color: #666;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 4px 12px;
+      border-radius: 12px;
+    }
+  }
+
+  .comments-list {
+    .comment-item {
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      /* 修改为单行显示 */
+      .comment-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .comment-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+
+        .comment-username {
+          font-size: 1.6rem;
+          font-weight: 500;
+          color: #333;
+          width: 120px; /* 固定用户名宽度 */
+          flex-shrink: 0;
+        }
+
+        .comment-text {
+          flex: 1;
+          font-size: 1.6rem;
+          color: #666;
+          margin: 0;
+          line-height: 1.4;
+          white-space: nowrap; /* 确保文本在一行 */
+          overflow: hidden;
+          text-overflow: ellipsis; /* 超出部分显示省略号 */
+        }
+      }
+    }
+  }
+
+  /* 滚动条样式 */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
 }
     
