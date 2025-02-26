@@ -135,7 +135,14 @@ const handleEnter = (event: Event | KeyboardEvent) => {
 };
 
 const submitItinerary = () => {
-  router.push({ name: 'generator', query: { prompt: userInput.value } });
+  router.push({
+    name: 'generator',
+    query: {
+      prompt: userInput.value,
+      location: selectedLocation.value,
+      destination: selectedDestination.value
+    }
+  });
 };
 
 const allPosts = computed(() => store.blogs);

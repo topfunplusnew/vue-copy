@@ -6,26 +6,73 @@ import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
 import walletItem from '@/components/wallet-item.vue';
 import { generateUserPrompt } from '@/stores/userprompt';
 import { setTripOptions } from '@/stores/tripoption';
+import { generateResponse } from '@/services/api';
+import type { IChatReq } from '@/types/chat';
 
 
-interface ChatMessage { sender: string; text: string; }
-interface HistoryRecord { summary: string; messages: ChatMessage[]; }
+// interface ChatMessage { sender: string; text: string; }
+// interface HistoryRecord { summary: string; messages: ChatMessage[]; }
+
+interface ChatMessage { 
+  sender: 'user' | 'assistant' | 'system'; 
+  text: string; 
+}
+
 
 const chatMessages = ref<ChatMessage[]>([]);
 const historyRecords = ref<HistoryRecord[]>([]);
 const userChatInput = ref('');
+const loading = ref(false);
+const error = ref('');
+const conversationId = ref(''); // 用于跟踪对话ID
 
 const updateMessage = (index: number, event: Event) => {
   const target = event.target as HTMLElement;
   chatMessages.value[index].text = target.innerText;
 };
 
-const sendMessage = () => {
-  if (!userChatInput.value.trim()) return;
-  chatMessages.value.push({ sender: 'user', text: userChatInput.value });
-  const agentReply = "iPoloGO: " + userChatInput.value;
-  chatMessages.value.push({ sender: 'agent', text: agentReply });
-  userChatInput.value = '';
+// const sendMessage = () => {
+//   if (!userChatInput.value.trim()) return;
+//   chatMessages.value.push({ sender: 'user', text: userChatInput.value });
+//   const agentReply = "iPoloGO: " + userChatInput.value;
+//   chatMessages.value.push({ sender: 'agent', text: agentReply });
+//   userChatInput.value = '';
+// };
+
+const sendToAI = async (content: string) => {
+  if (!content.trim() || loading.value) return;
+  loading.value = true;
+  error.value = '';
+
+  try {
+    chatMessages.value.push({ sender: 'user', text: content });
+    const chatReq: IChatReq = {
+      prompt: content,
+      Conversation_id: conversationId.value
+    };
+    const response = await generateResponse(chatReq);
+
+    if (response.data.conversation_id) {
+      conversationId.value = response.data.conversation_id;
+    }
+
+    chatMessages.value.push({ sender: 'assistant', text: response.data.message });
+    userChatInput.value = '';
+  } catch (err) {
+    error.value = err instanceof Error ? err.message : 'Failed to get response';
+    ElMessage.error(error.value);
+  } finally {
+    loading.value = false;
+  }
+}
+
+const handleUserInput = async (event: KeyboardEvent) => {
+  if (event.shiftKey) return; // 如果按住 shift，允许换行
+  
+  if (userChatInput.value.trim()) {
+    await sendToAI(userChatInput.value);
+    userChatInput.value = ''; // 清空输入框，恢复到 placeholder 状态
+  }
 };
 
 const finishConversation = () => {
@@ -177,9 +224,15 @@ const tripPrompt = computed(() => {
   return parts.join(" ");
 });
 
-const insertTripPrompt = () => {
-  if (tripPrompt.value) {
-    userChatInput.value = tripPrompt.value;
+// const insertTripPrompt = () => {
+//   if (tripPrompt.value) {
+//     userChatInput.value = tripPrompt.value;
+//   }
+// };
+
+const insertTripPrompt = async () => {
+  if (tripPrompt.value && !loading.value) {
+    await sendToAI(tripPrompt.value);
   }
 };
 
@@ -197,14 +250,18 @@ const route = useRoute();
 onMounted(() => {
   const initialPrompt = route.query.prompt as string;
   if (initialPrompt) {
-    userChatInput.value = initialPrompt;
+    // 直接发送初始 prompt，不需要保存在输入框中
+    sendToAI(initialPrompt);
   } else {
-    userChatInput.value = generateUserPrompt("Current Location", "Destination", []);
+    // 生成默认 prompt 并发送
+    const defaultPrompt = generateUserPrompt("Current Location", "Destination", []);
+    sendToAI(defaultPrompt);
   }
-  // 自动发起首轮对话（延时 200ms 可根据需要调整）
-  setTimeout(() => {
-    sendMessage();
-  }, 200);
+  
+  // 移除延时发送的部分，因为已经在上面直接发送了
+  // setTimeout(() => {
+  //   sendToAI(userChatInput.value);
+  // }, 200);
 });
 </script>
 
@@ -289,7 +346,7 @@ onMounted(() => {
               type="textarea"
               :rows="3"
               clearable
-              @keydown.native.enter="sendMessage"
+              @keydown.enter.prevent="handleUserInput"
             />
             <button class="warning" @click="finishConversation">
               Finish Conversation
@@ -541,32 +598,6 @@ onMounted(() => {
             </div>
           </div>
 
-          <!-- 自动生成的 Prompt -->
-          <!-- <div class="trip-prompt">
-            <p>{{ tripPrompt }}</p>
-            <el-button type="primary" @click="insertTripPrompt">
-              Insert Prompt into Chat
-            </el-button>
-          </div> -->
-
-          <!-- Map 模块 -->
-          <!-- <div class="map-panel">
-            <h3>Map</h3>
-            <div class="map-controls">
-              <el-radio-group v-model="selectedMapType">
-                <el-radio-button label="World Map">World Map</el-radio-button>
-                <el-radio-button label="City Navigation"
-                  >City Navigation</el-radio-button
-                >
-                <el-radio-button label="City Traffic">City Traffic</el-radio-button>
-              </el-radio-group>
-            </div>
-            <div class="map-display">
-              <p>Displaying: {{ selectedMapType }}</p>
-              <p>From: {{ userLocation }} To: {{ selectedDestination }}</p>
-            </div>
-          </div> -->
-          <!-- 重点部分：Trip Prompt + 下拉地图菜单 + Resizable -->
           <div class="trip-prompt">
             <p>{{ tripPrompt }}</p>
             <!-- Insert按钮：风格加大，统一处理 -->
