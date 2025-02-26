@@ -6,3 +6,5 @@ export function getImageUrl(imagePath: string) {
   // 否则拼接基础路径
   return `/images/${imagePath}`;
 }
+
+

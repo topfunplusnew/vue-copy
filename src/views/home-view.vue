@@ -289,8 +289,21 @@ const handleLoginClick = async () => {
   // 未登录状态，跳转到登录页面
   router.push({ name: 'login' });
 };
+const currentImageIndex = ref(0);
 
-// 添加图片 URL 处理函数
+// 添加图片导航方法
+function prevImage() {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
+  }
+}
+
+function nextImage() {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
+  }
+}
+
 </script>
 
 <template>
@@ -444,57 +457,79 @@ const handleLoginClick = async () => {
     <!-- 博客详情弹出层 -->
     <div class="blog-detail-overlay" v-if="dialogBlog" @click.self="closeBlogDetail">
       <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
-        <!-- 博客标题和关闭按钮 -->
-        <div class="blog-detail-header">
-          <h2>{{ selectedBlog?.title }}</h2>
-          <button class="close-button" @click="closeBlogDetail">×</button>
-        </div>
+        <!-- 关闭按钮 -->
+        <button class="close-button" @click="closeBlogDetail">×</button>
+        
+        <!-- 左侧内容区域 -->
+        <div class="detail-left">
+          <!-- 顶部信息栏 -->
+          <div class="detail-header">
+            <!-- 左侧作者信息 -->
+            <div class="author-info">
+              <img 
+                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+                alt="Author Avatar" 
+                class="author-avatar"
+              />
+              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+            </div>
 
-        <!-- 博客内容区域 -->
-        <div class="blog-detail-content">
-          <!-- 左侧图片区域 -->
-          <div class="detail-left">
-            <img v-for="(image, i) in selectedBlog?.image" :src="getImageUrl(image)" :key="i" alt="Blog Image" class="detail-image" />
+            <!-- 中间标题 -->
+            <h2 class="blog-title">{{ selectedBlog?.title }}</h2>
+
+            <!-- 右侧统计信息 -->
+            <div class="post-stats">
+              <span class="likes">❤️ {{ selectedBlog?.likes }}</span>
+              <span class="comments">💬 {{ selectedBlog?.comments_count }}</span>
+              <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
+            </div>
           </div>
 
-          <!-- 右侧内容区域 -->
-          <div class="detail-info">
-            <!-- 作者信息 -->
-            <div class="author-info">
-              <img :src="getImageUrl(selectedBlog?.user?.avatar || '')" alt="Author Avatar" class="author-avatar" />
-              <div class="author-details">
-                <span class="author-name">{{ selectedBlog?.user?.name }}</span>
-                <span class="post-date">{{ selectedBlog?.create_at }}</span>
+          <!-- 图片区域 -->
+          <div class="image-section">
+            <div class="image-slider">
+              <div class="image-wrapper" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
+                <img 
+                  v-for="(image, index) in selectedBlog?.image" 
+                  :key="index"
+                  :src="getImageUrl(image)"
+                  alt="Blog Image" 
+                  class="detail-image"
+                />
+              </div>
+              <!-- 导航按钮 -->
+              <button class="nav-btn prev" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
+              <button class="nav-btn next" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
+            </div>
+          </div>
+
+          <!-- 评论区域 -->
+          <div class="comments-container">
+            <div class="comments-header">
+              <h3>Comments</h3>
+              <span class="comment-count">{{ selectedBlog?.comments?.length || 0 }}</span>
+            </div>
+            <div class="comments-list">
+              <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
+                <div class="comment-row">
+                  <img 
+                    :src="getImageUrl(comment.user.avatar)" 
+                    alt="Commenter Avatar" 
+                    class="comment-avatar"
+                  />
+                  <span class="comment-username">{{ comment.user.name }}</span>
+                  <p class="comment-text">{{ comment.content }}</p>
+                </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            <!-- 博客内容 -->
-            <div class="blog-text">
-              <p class="content">{{ selectedBlog?.content }}</p>
-            </div>
-
-            <!-- 统计信息 -->
-            <div class="detail-stats">
-              <span class="likes">❤️ {{ selectedBlog?.likes || 0 }}</span>
-              <span class="comments">💬 {{ selectedBlog?.comments_count || 0 }}</span>
-              <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins || 0 }}</span>
-            </div>
-            <ul>
-              <li v-for="comment in selectedBlog?.comments" :key="comment.id">
-                <div>
-                  <img :src="`/images/${comment.user.avatar}`" />
-                  <div v-text="comment.user.name"></div>
-                </div>
-                <p v-text="comment.content"></p>
-              </li>
-            </ul>
-
-            <!-- 标签 -->
-            <div class="tags" v-if="selectedBlog?.tags?.length">
-              <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
-                {{ tag }}
-              </span>
-            </div>
+        <!-- 右侧内容区域 -->
+        <div class="detail-right">
+          <!-- 博客内容 -->
+          <div class="content-section">
+            <p class="blog-content">{{ selectedBlog?.content }}</p>
           </div>
         </div>
       </div>

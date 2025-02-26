@@ -479,190 +479,236 @@
     } 
   }
 
-  .blog-detail-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.75);
+  .blog-detail-container {
+    background: rgba(255, 255, 255, 0.95);
+    width: 95vw;
+    height: 95vh;
+    border-radius: 10px;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(8px);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    position: relative;
 
-    .blog-detail-container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      width: 90%;
-      max-width: 1200px;
-      height: 85vh;
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 32px;
+      height: 32px;
+      font-size: 24px;
+      background: rgba(0, 0, 0, 0.2);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 1000;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.4);
+        transform: rotate(90deg);
+      }
+    }
+
+    .detail-left {
+      width: 65%;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
-      .blog-detail-header {
-        padding: 20px 30px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      .detail-header {
+        padding: 20px;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        background: white;
+        justify-content: space-between;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-        h2 {
-          font-size: 2.4rem;
-          margin: 0;
-          color: #333;
+        .author-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          .author-name {
+            font-size: 1.6rem;
+            font-weight: 500;
+            color: #333;
+          }
         }
 
-        .close-button {
-          font-size: 2.4rem;
-          cursor: pointer;
-          color: #666;
-          background: none;
-          border: none;
-          padding: 5px 15px;
-          border-radius: 8px;
-          transition: all 0.3s ease;
+        .blog-title {
+          font-size: 2rem;
+          color: #333;
+          margin: 0;
+          text-align: center;
+          flex: 1;
+          padding: 0 20px;
+        }
 
-          &:hover {
-            background: rgba(0, 0, 0, 0.1);
-            color: #333;
+        .post-stats {
+          display: flex;
+          gap: 15px;
+
+          span {
+            font-size: 1.6rem;
+            color: #1c1c1c;
           }
         }
       }
 
-      .blog-detail-content {
+      .image-section {
         flex: 1;
-        display: flex;
-        overflow: hidden;
+        position: relative;
+        background: #f5f5f5;
 
-        .detail-left {
-          width: 50%;
+        .image-slider {
+          width: 100%;
           height: 100%;
-          overflow: hidden;
+          position: relative;
 
-          .detail-image {
+          .image-wrapper {
+            display: flex;
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+            .detail-image {
+              width: 100%;
+              height: 100%;
+              flex: 0 0 100%;
+              object-fit: contain;
+            }
+          }
+
+          .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 24px;
+
+            &.prev {
+              left: 20px;
+              border-radius: 0 4px 4px 0;
+            }
+
+            &.next {
+              right: 20px;
+              border-radius: 4px 0 0 4px;
+            }
+          }
+
+          &:hover .nav-btn {
+            opacity: 1;
+          }
+        }
+      }
+
+      .comments-container {
+        padding: 20px;
+        background: white;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        max-height: 300px;
+        overflow-y: auto;
+
+        .comments-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+
+          h3 {
+            font-size: 1.8rem;
+            color: #333;
+            margin: 0;
+          }
+
+          .comment-count {
+            font-size: 1.4rem;
+            color: #666;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 4px 12px;
+            border-radius: 12px;
           }
         }
 
-        .detail-info {
-          flex: 1;
-          padding: 30px;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
+        .comments-list {
+          .comment-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
-          .author-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
-
-            .author-avatar {
-              width: 50px;
-              height: 50px;
-              border-radius: 50%;
-              object-fit: cover;
+            &:last-child {
+              border-bottom: none;
             }
 
-            .author-details {
-              display: flex;
-              flex-direction: column;
-              gap: 4px;
-
-              .author-name {
-                font-size: 1.8rem;
-                font-weight: 500;
-                color: #333;
-              }
-
-              .post-date {
-                font-size: 1.4rem;
-                color: #666;
-              }
-            }
-          }
-
-          .blog-text {
-            .blog-title {
-              font-size: 2.4rem;
-              font-weight: bold;
-              color: #333;
-              margin-bottom: 20px;
-            }
-
-            .content {
-              font-size: 1.8rem;
-              line-height: 1.6;
-              color: #444;
-            }
-          }
-
-          .detail-stats {
-            display: flex;
-            gap: 20px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
-
-            span {
+            .comment-row {
               display: flex;
               align-items: center;
-              gap: 8px;
-              font-size: 1.8rem;
-              color: #666;
-            }
-          }
+              gap: 12px;
 
-          .tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+              .comment-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+              }
 
-            .tag {
-              padding: 8px 15px;
-              background: rgba(0, 0, 0, 0.05);
-              border-radius: 20px;
-              font-size: 1.4rem;
-              color: #666;
-              transition: all 0.3s ease;
+              .comment-username {
+                font-size: 1.6rem;
+                font-weight: 500;
+                color: #333;
+                width: 120px; // 固定用户名宽度
+              }
 
-              &:hover {
-                background: rgba(0, 0, 0, 0.1);
+              .comment-text {
+                flex: 1;
+                font-size: 1.6rem;
+                color: #666;
+                margin: 0;
+                line-height: 1.4;
               }
             }
           }
         }
       }
     }
-  }
-  
-  /* 添加滚动条样式 */
-  .blog-detail-container::-webkit-scrollbar {
-    width: 8px;
-  }
 
-  .blog-detail-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
-  }
+    .detail-right {
+      width: 40%;
+      height: 100%;
+      border-left: 1px solid rgba(0, 0, 0, 0.1);
+      background: white;
+      padding: 20px;
+      overflow-y: auto;
 
-  .blog-detail-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-  }
-
-  .blog-detail-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.3);
+      .content-section {
+        .blog-content {
+          font-size: 1.6rem;
+          line-height: 1.6;
+          color: #333;
+          margin: 0;
+        }
+      }
+    }
   }
 
   /* 保持其他样式不变 */

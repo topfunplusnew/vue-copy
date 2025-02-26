@@ -9,6 +9,7 @@ import type { IUserEdit } from '@/types/user';
 import { useRouter } from 'vue-router';
 import { getBlogPost, getMyBlogList, PostAvatar } from '@/services/api';
 import { getImageUrl } from '@/utils';
+6
 
 const store = useUserStore();
 const router = useRouter();
@@ -212,6 +213,22 @@ const isWalletConnected = computed(() => {
   // return !!user.value?.walletAddress;
   return false;
 });
+
+// 添加图片导航相关状态
+const currentImageIndex = ref(0);
+
+// 添加图片导航方法
+function prevImage() {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
+  }
+}
+
+function nextImage() {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
+  }
+}
 </script>
 
 <template>
@@ -384,6 +401,9 @@ const isWalletConnected = computed(() => {
   <!-- 博客详情弹出层 -->
   <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
     <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
+      <!-- 关闭按钮移到容器顶层 -->
+      <button class="close-button" @click="closeBlogDetail">×</button>
+      
       <!-- 左侧内容区域 -->
       <div class="detail-left">
         <!-- 顶部信息栏 -->
@@ -411,22 +431,52 @@ const isWalletConnected = computed(() => {
 
         <!-- 图片区域 -->
         <div class="image-section">
-          <img 
-            v-if="selectedBlog?.image && selectedBlog.image.length > 0" 
-            :src="getImageUrl(selectedBlog.image[0])" 
-            alt="Blog Image" 
-            class="detail-image" 
-          />
+          <div class="image-slider">
+            <div class="image-wrapper" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
+              <img 
+                v-for="(image, index) in selectedBlog?.image" 
+                :key="index"
+                :src="getImageUrl(image)"
+                alt="Blog Image" 
+                class="detail-image"
+              />
+            </div>
+            <!-- 导航按钮 -->
+            <button class="nav-btn prev" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
+            <button class="nav-btn next" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
+          </div>
+        </div>
+
+        <!-- 添加评论区域 -->
+        <div class="comments-container">
+          <div class="comments-header">
+            <h3>Comments</h3>
+            <span class="comment-count">{{ selectedBlog.comments?.length || 0 }}</span>
+          </div>
+          <div class="comments-list">
+            <div v-for="comment in selectedBlog.comments" :key="comment.id" class="comment-item">
+              <div class="comment-user">
+                <img 
+                  :src="getImageUrl(comment.user.avatar)" 
+                  alt="Commenter Avatar" 
+                  class="comment-avatar"
+                />
+                <div class="comment-info">
+                  <span class="comment-username">{{ comment.user.name }}</span>
+                  <span class="comment-date">{{ comment.create_at }}</span>
+                </div>
+              </div>
+              <p class="comment-text">{{ comment.content }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- 右侧信息区域 -->
+      <!-- 右侧内容区域 -->
       <div class="detail-right">
-        <button class="close-button" @click="closeBlogDetail">×</button>
-          <!-- 内容区域 -->
-          <div class="content-section">
-            {{ selectedBlog.content }}
-          </div>
+        <div class="content-section">
+          {{ selectedBlog.content }}
+        </div>
         
         <!-- 评论区域 -->
         <div class="comments-section">
