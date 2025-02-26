@@ -140,7 +140,7 @@ const submitItinerary = () => {
 
 const allPosts = computed(() => store.blogs);
 const condition = computed(() => store.condition);
-condition.value.keyword = 'a';
+
 
 const dialogBlog = ref(false);
 const selectedBlog = computed(() => store.blog);
@@ -470,7 +470,6 @@ const handleLoginClick = async () => {
 
             <!-- 博客内容 -->
             <div class="blog-text">
-              <h3 class="blog-title">{{ selectedBlog?.title }}</h3>
               <p class="content">{{ selectedBlog?.content }}</p>
             </div>
 

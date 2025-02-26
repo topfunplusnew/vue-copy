@@ -291,7 +291,7 @@ const isWalletConnected = computed(() => {
         <div class="blog-posts">
           <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
             <!-- 博客图片 -->
-            <img v-if="post.image && post.image.length > 0" :src="post.image[0]" alt="Blog Image" class="post-image" />
+            <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Blog Image" class="post-image" />
 
             <!-- 博客内容 -->
             <div class="post-content">
@@ -321,38 +321,7 @@ const isWalletConnected = computed(() => {
         <div v-if="noMorePosts" class="no-more">No more posts</div>
       </section>
     </section>
-
-    <!-- 博客详情弹出层 -->
-
-    <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
-      <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
-        <div class="blog-detail-header">
-          <h2>{{ selectedBlog.title }}</h2>
-          <button class="close-button" @click="closeBlogDetail">×</button>
-        </div>
-        <div class="blog-detail-content">
-          <img v-if="selectedBlog?.image && selectedBlog.image.length > 0" :src="selectedBlog.image[0]" alt="Blog Image" class="detail-image" />
-          <div class="detail-info">
-            <div class="author-info">
-              <img :src="selectedBlog?.user?.avatar" alt="Author Avatar" class="author-avatar" />
-              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
-            </div>
-            <p class="content">{{ selectedBlog.content }}</p>
-            <div class="detail-stats">
-              <span class="likes">❤️ {{ selectedBlog.likes }}</span>
-              <span class="comments">💬 {{ selectedBlog.comments }}</span>
-              <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
-            </div>
-            <div class="tags">
-              <span v-for="tag in selectedBlog.tags" :key="tag" class="tag">
-                {{ tag }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    
     <!-- 裁剪弹窗 -->
     <div class="cropper-modal" v-if="showCropper">
       <div class="cropper-container">
@@ -407,6 +376,71 @@ const isWalletConnected = computed(() => {
         <div class="edit-buttons">
           <el-button @click="submitProfileEdit">Save Changes</el-button>
           <el-button @click="cancelProfileEdit">Cancel</el-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 博客详情弹出层 -->
+  <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
+    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
+      <!-- 左侧内容区域 -->
+      <div class="detail-left">
+        <!-- 顶部信息栏 -->
+        <div class="detail-header">
+          <!-- 左侧作者信息 -->
+          <div class="author-info">
+            <img 
+              :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+              alt="Author Avatar" 
+              class="author-avatar"
+            />
+            <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+          </div>
+
+          <!-- 中间标题 -->
+          <h2 class="blog-title">{{ selectedBlog.title }}</h2>
+
+          <!-- 右侧统计信息 -->
+          <div class="post-stats">
+            <span class="likes">❤️ {{ selectedBlog.likes }}</span>
+            <span class="comments">💬 {{ selectedBlog.comments }}</span>
+            <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
+          </div>
+        </div>
+
+        <!-- 图片区域 -->
+        <div class="image-section">
+          <img 
+            v-if="selectedBlog?.image && selectedBlog.image.length > 0" 
+            :src="getImageUrl(selectedBlog.image[0])" 
+            alt="Blog Image" 
+            class="detail-image" 
+          />
+        </div>
+      </div>
+
+      <!-- 右侧信息区域 -->
+      <div class="detail-right">
+        <button class="close-button" @click="closeBlogDetail">×</button>
+          <!-- 内容区域 -->
+          <div class="content-section">
+            {{ selectedBlog.content }}
+          </div>
+        
+        <!-- 评论区域 -->
+        <div class="comments-section">
+          <div v-for="comment in selectedBlog.comments" :key="comment.id" class="comment-item">
+            <div class="comment-user">
+              <img 
+                :src="getImageUrl(comment.user.avatar)" 
+                alt="Commenter Avatar" 
+                class="comment-avatar"
+              />
+              <span class="comment-username">{{ comment.user.name }}</span>
+            </div>
+            <p class="comment-text">{{ comment.content }}</p>
+          </div>
         </div>
       </div>
     </div>
