@@ -13,7 +13,7 @@ import { Auth } from '@/services/auth';
 const postText = ref('');
 const postTitle = ref('');
 const selectedReplyOption = ref<string>('everyone');
-const images = ref<{ url: string }[]>([]);
+const images = ref<{ url: string; src: string }[]>([]);
 const tagInput = ref('');
 const tags = ref<string[]>([]);
 const router = useRouter();
@@ -52,15 +52,11 @@ const checkLogin = () => {
 
 // 显示登录确认弹窗
 const showLoginConfirm = () => {
-  return ElMessageBox.confirm(
-    'You need to login first to post a blog. Would you like to login now?',
-    'Login Required',
-    {
-      confirmButtonText: 'Go to Login',
-      cancelButtonText: 'Cancel',
-      type: 'warning',
-    }
-  );
+  return ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
+    confirmButtonText: 'Go to Login',
+    cancelButtonText: 'Cancel',
+    type: 'warning',
+  });
 };
 
 // 修改预览按钮点击处理
@@ -69,7 +65,7 @@ const handlePreviewClick = () => {
     ElMessage({
       message: 'Please add title, content and at least one image',
       type: 'warning',
-      duration: 3000
+      duration: 3000,
     });
     return;
   }
@@ -92,7 +88,7 @@ const handleImageUpload = async (file: any) => {
     ElMessage({
       message: 'Maximum 9 images allowed',
       type: 'warning',
-      duration: 2000
+      duration: 2000,
     });
     return;
   }
@@ -102,14 +98,18 @@ const handleImageUpload = async (file: any) => {
     formData.append('files', file.raw);
 
     const response = await Postimage({ image: formData });
-    if (response.data && response.data.url) {
-      images.value.push({
-        url: import.meta.env.VITE_API_URL + response.data.url
-      });
+    if (response.data && response.data.success) {
+      const arr = response.data.success as string[];
+      for (const url of arr) {
+        images.value.push({
+          src: `${import.meta.env.IPG_IMAGE_URL}/${url}`,
+          url,
+        });
+      }
       ElMessage({
         message: 'Image uploaded successfully',
         type: 'success',
-        duration: 2000
+        duration: 2000,
       });
     }
   } catch (error: any) {
@@ -117,7 +117,7 @@ const handleImageUpload = async (file: any) => {
       ElMessage({
         message: 'Please login first',
         type: 'error',
-        duration: 2000
+        duration: 2000,
       });
       router.push({ name: 'login' });
       return;
@@ -125,7 +125,7 @@ const handleImageUpload = async (file: any) => {
     ElMessage({
       message: 'Failed to upload image',
       type: 'error',
-      duration: 2000
+      duration: 2000,
     });
   }
 };
@@ -139,13 +139,13 @@ const handleTagInput = (event: KeyboardEvent) => {
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault();
     const value = tagInput.value.trim();
-    
+
     // 如果输入为空则返回
     if (!value) return;
 
     // 自动添加#号
     const tagWithHash = value.startsWith('#') ? value : `#${value}`;
-    
+
     // 检查标签长度（不包括#号）
     if (value.length > 15) {
       alert('Tag length should not exceed 15 characters');
@@ -157,7 +157,7 @@ const handleTagInput = (event: KeyboardEvent) => {
       return;
     }
     // 检查标签是否重复（考虑带#和不带#的情况）
-    if (!tags.value.some(tag => tag.slice(1) === value || tag === tagWithHash)) {
+    if (!tags.value.some((tag) => tag.slice(1) === value || tag === tagWithHash)) {
       tags.value.push(tagWithHash);
       tagInput.value = ''; // 清空输入
     } else {
@@ -186,37 +186,33 @@ const postTweet = async () => {
     ElMessage({
       message: 'Please add title and content',
       type: 'warning',
-      duration: 2000
+      duration: 2000,
     });
     return;
   }
 
   try {
     // 添加发布确认弹窗
-    await ElMessageBox.confirm(
-      'Are you sure you want to publish this blog?',
-      'Confirm Publication',
-      {
-        confirmButtonText: 'Publish',
-        cancelButtonText: 'Continue Editing',
-        type: 'info'
-      }
-    );
+    await ElMessageBox.confirm('Are you sure you want to publish this blog?', 'Confirm Publication', {
+      confirmButtonText: 'Publish',
+      cancelButtonText: 'Continue Editing',
+      type: 'info',
+    });
 
     const postData: IBlogPostCreate = {
       title: postTitle.value,
       content: postText.value,
-      images: images.value.map(img => img.url),
+      image: images.value.map((img) => img.url),
       tags: tags.value,
       preferences: selectedOptions.value,
-      isNFT: mintNFT.value
+      isNFT: mintNFT.value,
     };
 
     await blogPost(postData);
     ElMessage({
       message: 'Blog posted successfully',
       type: 'success',
-      duration: 2000
+      duration: 2000,
     });
     router.push({ name: 'userpage' });
   } catch (error: any) {
@@ -228,7 +224,7 @@ const postTweet = async () => {
       ElMessage({
         message: 'Session expired, please login again',
         type: 'error',
-        duration: 2000
+        duration: 2000,
       });
       router.push({ name: 'login' });
       return;
@@ -236,7 +232,7 @@ const postTweet = async () => {
     ElMessage({
       message: 'Failed to post blog',
       type: 'error',
-      duration: 2000
+      duration: 2000,
     });
   }
 };
@@ -264,7 +260,7 @@ const addTag = () => {
     ElMessage({
       message: 'Maximum 5 tags allowed',
       type: 'warning',
-      duration: 2000
+      duration: 2000,
     });
     return;
   }
@@ -279,9 +275,7 @@ const addTag = () => {
       <div class="nav-container">
         <!-- 左侧导航 -->
         <div class="left-nav">
-          <router-link v-for="item in ['home', 'about', 'blog', 'contact']" 
-                      :key="item" 
-                      :to="{ name: item }">
+          <router-link v-for="item in ['home', 'about', 'blog', 'contact']" :key="item" :to="{ name: item }">
             <el-button class="nav-button">{{ item.toUpperCase() }}</el-button>
           </router-link>
         </div>
@@ -289,9 +283,7 @@ const addTag = () => {
         <!-- 右侧导航 -->
         <div class="right-nav">
           <wallet-item />
-          <router-link v-for="item in ['login', 'signup', 'userpage']" 
-                      :key="item" 
-                      :to="{ name: item }">
+          <router-link v-for="item in ['login', 'signup', 'userpage']" :key="item" :to="{ name: item }">
             <el-button class="nav-button">
               {{ item === 'userpage' ? 'User Page' : item.toUpperCase() }}
             </el-button>
@@ -305,62 +297,35 @@ const addTag = () => {
       <!-- 标题区域 -->
       <div class="header-container">
         <h2 class="posttext">Share your happiness！</h2>
-        <button 
-          @click="previewPost" 
-          class="preview-button"
-          :disabled="!canPreview"
-          :class="{ 'preview-button-disabled': !canPreview }"
-        >
-          Preview
-        </button>
+        <button @click="previewPost" class="preview-button" :disabled="!canPreview" :class="{ 'preview-button-disabled': !canPreview }">Preview</button>
       </div>
 
       <!-- 编辑区域 -->
       <div class="title-container">
-        <textarea 
-          v-model="postTitle"
-          class="title-editor" 
-          placeholder="Title"
-          maxlength="50"
-        ></textarea>
-        <span v-if="postTitle" class="title-count">
-          {{ postTitle.length }}/50
+        <textarea v-model="postTitle" class="title-editor" placeholder="Title" maxlength="50"></textarea>
+        <span v-if="postTitle" class="title-count"> {{ postTitle.length }}/50 </span>
+      </div>
+
+      <!-- 旅游偏好  -->
+      <div class="postprefer-options">
+        <span
+          v-for="option in preferenceOptions"
+          :key="option.name"
+          class="postprefer-option"
+          :class="{ 'postprefer-selected': selectedOptions.includes(option.name) }"
+          @click="togglePreference(option.name)"
+        >
+          <span class="postprefer-icon">{{ option.icon }}</span>
+          <span class="postprefer-name">{{ option.name }}</span>
         </span>
       </div>
 
-
-        <!-- 旅游偏好  -->
-        <div class="postprefer-options">
-          <span
-            v-for="option in preferenceOptions"
-            :key="option.name"
-            class="postprefer-option"
-            :class="{ 'postprefer-selected': selectedOptions.includes(option.name) }"
-            @click="togglePreference(option.name)"
-          >
-            <span class="postprefer-icon">{{ option.icon }}</span>
-            <span class="postprefer-name">{{ option.name }}</span>
-          </span>
-        </div>
-
-
-      <textarea 
-        v-model="postText" 
-        class="text-editor" 
-        placeholder="What's happening?"
-      ></textarea>
+      <textarea v-model="postText" class="text-editor" placeholder="What's happening?"></textarea>
 
       <!-- 图片上传部分 -->
       <div class="image-upload">
         <div class="upload-text">Add photos (up to 9)</div>
-        <el-upload
-          class="upload-container"
-          :show-file-list="false"
-          :on-change="handleImageUpload"
-          :auto-upload="false"
-          :multiple="true"
-          accept="image/*"
-        >
+        <el-upload class="upload-container" :show-file-list="false" :on-change="handleImageUpload" :auto-upload="false" :multiple="true" accept="image/*">
           <template #trigger>
             <el-button type="primary">
               <el-icon><Plus /></el-icon>
@@ -372,7 +337,7 @@ const addTag = () => {
         <!-- 图片预览部分 -->
         <div class="image-preview-container" v-if="images.length">
           <div v-for="(image, index) in images" :key="index" class="image-preview">
-            <img :src="image.url" :alt="`Preview ${index + 1}`" />
+            <img :src="image.src" :alt="`Preview ${index + 1}`" />
             <button class="remove-image" @click="removeImage(index)">×</button>
           </div>
         </div>
@@ -381,35 +346,21 @@ const addTag = () => {
       <!-- 修改：标签输入区域 -->
       <div class="tags-section">
         <div class="tags-container">
-          <div v-for="(tag, index) in tags" 
-               :key="index" 
-               class="tag">
+          <div v-for="(tag, index) in tags" :key="index" class="tag">
             {{ tag }}
             <span class="tag-remove" @click="removeTag(index)" title="Remove tag">×</span>
           </div>
         </div>
         <div class="tag-input-container">
-          <textarea 
-            v-model="tagInput"
-            class="tag-editor"
-            placeholder="Add tag"
-            @keydown="handleTagInput"
-            maxlength="15"
-          ></textarea>
-          <span class="tag-count" v-if="tags.length > 0">
-            {{ tags.length }}/5 tags
-          </span>
+          <textarea v-model="tagInput" class="tag-editor" placeholder="Add tag" @keydown="handleTagInput" maxlength="15"></textarea>
+          <span class="tag-count" v-if="tags.length > 0"> {{ tags.length }}/5 tags </span>
         </div>
       </div>
 
       <!-- 回复权限选择 -->
       <div class="reply-options">
         <span class="reply-label">Who can reply?</span>
-        <button v-for="option in ['Everyone', 'Followers', 'Only me']"
-                :key="option"
-                class="option-button"
-                :class="{ selected: selectedReplyOption === option }"
-                @click="selectReplyOption(option)">
+        <button v-for="option in ['Everyone', 'Followers', 'Only me']" :key="option" class="option-button" :class="{ selected: selectedReplyOption === option }" @click="selectReplyOption(option)">
           {{ option }} can reply
         </button>
       </div>
@@ -417,11 +368,7 @@ const addTag = () => {
       <!-- 添加 NFT 选项 -->
       <div class="nft-option">
         <label class="nft-checkbox-label">
-          <input 
-            type="checkbox" 
-            v-model="mintNFT"
-            class="nft-checkbox"
-          >
+          <input type="checkbox" v-model="mintNFT" class="nft-checkbox" />
           <span class="checkbox-custom"></span>
           <span class="nft-label-text">Make your NFT</span>
         </label>
@@ -435,19 +382,10 @@ const addTag = () => {
     </div>
 
     <!-- 添加 PostPreview 组件 -->
-    <PostPreview
-      v-if="showPreview"
-      :title="postTitle"
-      :content="postText"
-      :images="images"
-      :tags="tags"
-      :preferences="selectedOptions"
-      @close="closePreview"
-    />
+    <PostPreview v-if="showPreview" :title="postTitle" :content="postText" :images="images" :tags="tags" :preferences="selectedOptions" @close="closePreview" />
   </div>
 </template>
 
 <style lang="scss">
 @import '@/styles/_post.scss';
 </style>
-

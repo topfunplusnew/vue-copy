@@ -21,11 +21,10 @@ export interface IBlogReq extends IRequest {
   tag?: string; // 标签
 }
 
-
 export interface IBlogPostCreate {
   title: string;
   content: string;
-  images?: string[];
+  image?: string[];
   tags?: string[];
   preferences?: string[];
   isNFT?: boolean;
