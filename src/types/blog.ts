@@ -15,10 +15,12 @@ export interface IBlogPost extends ICommon {
   tags: string[];
   isNFT: boolean;
 }
+
 export interface IBlogReq extends IRequest {
   keyword?: string; // 关键字
   tag?: string; // 标签
 }
+
 
 export interface IBlogPostCreate {
   title: string;

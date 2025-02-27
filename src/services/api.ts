@@ -4,6 +4,7 @@ import { Auth } from './auth.ts';
 import type { IPairToken, ILogin, IUserEdit } from '@/types/user.ts';
 import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
+import type { IBlogDeleteReq } from '@/types/blog';
 
 const auth = new Auth();
 /**
@@ -74,6 +75,9 @@ export const userModify = (data: IUserEdit) => http.put('/user/profile', data);
 
 export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
 
+export const myblogdelete = (id: number) => http.delete('/blog', {params: {blog_id: id}});
+
+
 export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.image, {
   headers: {
     'Content-Type': 'multipart/form-data'
@@ -92,8 +96,6 @@ export const getBlogPost = (id: string) => http.get('/blog', {params:{id}});
 export const getMyBlogList = () => http.get('/my_blogs');
 
 export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
-
-
 
 export const chatWithAI = (prompt: string) => http.post('/chat', {prompt});
 

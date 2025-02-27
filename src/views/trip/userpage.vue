@@ -7,9 +7,9 @@ import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
 import type { IUserEdit } from '@/types/user';
 import { useRouter } from 'vue-router';
-import { getBlogPost, getMyBlogList, PostAvatar } from '@/services/api';
+import { getBlogPost, getMyBlogList, PostAvatar, myblogdelete } from '@/services/api';
 import { getImageUrl } from '@/utils';
-6
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const store = useUserStore();
 const router = useRouter();
@@ -58,20 +58,6 @@ const closeBlogDetail = () => {
   document.body.style.overflow = '';
 };
 
-// function loadPosts() {
-//   if (loading.value || noMorePosts.value) return;
-//   loading.value = true;
-//   setTimeout(() => {
-//     const newPosts = generateBlogs(page.value, perPage);
-//     if (newPosts.length < perPage) {
-//       noMorePosts.value = true;
-//     }
-//     posts.value.push(...newPosts);
-//     user.blogs.push(...newPosts);
-//     page.value++;
-//     loading.value = false;
-//   }, 1000);
-// }
 
 function handleScroll() {
   const container = postsContainer.value;
@@ -121,7 +107,7 @@ function cropSuccess() {
     if (showEditProfile.value) {
       editForm.avatar = data;
     } else {
-      user.value.avatar = data; // 直接更新用户头像
+      user.avatar = data; // 直接更新用户头像
     }
     showCropper.value = false;
   });
@@ -155,7 +141,7 @@ function submitProfileEdit() {
 function cancelProfileEdit() {
   editForm.name = user.value?.name;
   // editForm.id = user.value?.id;
-  editForm.avatar = user.value?.avatar;
+  editForm.avatar = user.value?.avatar; //恢复原头像
   showEditProfile.value = false;
 }
 
@@ -168,6 +154,7 @@ function handleEditAvatarUpload(event: Event) {
     formData.append('file', file);
     PostAvatar({ image: formData })
       .then((res) => {
+        editForm.avatar = res.data.avatar;
         console.log(res);
       })
       .catch((e) => {
@@ -229,6 +216,44 @@ function nextImage() {
     currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
   }
 }
+
+
+// 添加编辑模式状态
+const isEditMode = ref(false);
+const selectedBlogId = ref<number | null>(null);
+
+// 切换编辑模式
+const toggleEditMode = () => {
+  isEditMode.value = !isEditMode.value;
+  if (!isEditMode.value) {
+    selectedBlogId.value = null;
+  }
+};
+
+// 删除博客
+const deleteBlog = async (blogId: number, event: Event) => {
+  event.stopPropagation(); // 阻止事件冒泡，避免触发博客详情
+  try {
+    await ElMessageBox.confirm(
+      'Are you sure you want to delete this blog post?',
+      'Warning',
+      {
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+    );
+
+    await myblogdelete(blogId);
+    ElMessage.success('Blog deleted successfully');
+    store.getUserBlogList(); // 刷新博客列表
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('Failed to delete blog');
+    }
+  }
+};
+
 </script>
 
 <template>
@@ -250,6 +275,13 @@ function nextImage() {
             <el-button class="nav-button">CONTACT</el-button>
           </router-link>
           <wallet-item />
+          <el-button 
+            class="edit-mode-btn"
+            :type="isEditMode ? 'primary' : 'default'"
+            @click="toggleEditMode"
+          >
+            {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
+          </el-button>
         </div>
       </div>
     </header>
@@ -266,7 +298,7 @@ function nextImage() {
           <div class="avatar-section">
             <div class="avatar-container">
               <img :src="displayAvatar" alt="User Avatar" class="avatar" />
-              <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" />
+              <!-- <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" /> -->
               <div class="avatar-upload-icon">
                 <i class="el-icon-camera"></i>
               </div>
@@ -306,8 +338,30 @@ function nextImage() {
       <!-- 右侧博客列表区，填满剩余宽度 -->
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
-          <div v-for="post in userPosts" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
-            <!-- 博客图片 -->
+          <div 
+            v-for="post in userPosts" 
+            :key="post.id" 
+            class="blog-post"
+            :class="{ 
+              'nft-post': post.isNFT,
+              'edit-mode': isEditMode 
+            }"
+            @click="isEditMode ? null : showBlogDetail(post.id)"
+          >
+            <!-- 编辑模式下显示的删除按钮 -->
+            <div v-if="isEditMode" class="edit-controls">
+              <el-button
+                type="danger"
+                circle
+                size="small"
+                class="delete-btn"
+                @click="(e) => deleteBlog(post.id, e)"
+              >
+                <i class="el-icon-delete"></i>
+              </el-button>
+            </div>
+
+            <!-- 原有的博客内容 -->
             <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Blog Image" class="post-image" />
 
             <!-- 博客内容 -->
@@ -489,3 +543,4 @@ function nextImage() {
     </div>
   </div>
 </template>
+

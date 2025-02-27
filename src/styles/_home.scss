@@ -822,3 +822,44 @@
     margin: 20px;
   }
 }
+
+.edit-mode-btn {
+  margin-left: 16px;
+}
+
+.blog-post {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.blog-post.edit-mode {
+  opacity: 0.8;
+  cursor: default;
+}
+
+.blog-post.edit-mode:hover {
+  transform: none;
+}
+
+.edit-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+}
+
+.delete-btn {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.blog-post:hover .delete-btn {
+  opacity: 1;
+}
+
+/* 编辑模式下的删除按钮始终显示 */
+.blog-post.edit-mode .delete-btn {
+  opacity: 1;
+}
