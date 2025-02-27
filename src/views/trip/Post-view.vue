@@ -25,7 +25,7 @@ const preferenceOptions = ref([
   { name: 'Educational', icon: '🎓' },
   { name: 'Business', icon: '💼' },
   { name: 'Medical', icon: '🏥' },
-  { name: 'Gastronomy', icon: '🍴' },
+  { name: 'Cuisine', icon: '🍴' },
   { name: 'Culture', icon: '🎭' },
 ]);
 

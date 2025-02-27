@@ -35,7 +35,7 @@ const preferenceOptions = ref([
   { name: 'Educational', icon: '🎓' },
   { name: 'Business', icon: '💼' },
   { name: 'Medical', icon: '🏥' },
-  { name: 'Gastronomy', icon: '🍴' },
+  { name: 'Cuisine', icon: '🍴' },
   { name: 'Culture', icon: '🎭' },
 ]);
 
@@ -182,7 +182,7 @@ const socialFilters = ref([
   { label: 'Educational', icon: '🎓' },
   { label: 'Business', icon: '💼' },
   { label: 'Medical', icon: '🏥' },
-  { label: 'Gastronomy', icon: '🍴' },
+  { label: 'Cuisine', icon: '🍴' },
   { label: 'Culture', icon: '🎭' },
 ]);
 
