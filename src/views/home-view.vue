@@ -427,9 +427,20 @@ function nextImage() {
           <!-- 右侧博客滚动区域 -->
           <div class="social-scroll">
             <div class="social-posts-panel" ref="postsPanel">
-              <div class="social-post" :class="{ 'nft-post': post.isNFT }" v-for="post in allPosts" :key="post.id" @click="showBlogDetail(post.id)">
+              <div 
+                class="social-post" 
+                :class="{ 'nft-post': post.isNFT }"
+                v-for="post in allPosts" 
+                :key="post.id" 
+                @click="showBlogDetail(post.id)"
+              >
                 <!-- 博客图片 -->
-                <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Post Image" class="post-image" />
+                <img 
+                  v-if="post.image && post.image.length > 0" 
+                  :src="getImageUrl(post.image[0])" 
+                  alt="Post Image" 
+                  class="post-image" 
+                />
 
                 <!-- 博客内容 -->
                 <div class="post-content">

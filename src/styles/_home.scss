@@ -362,6 +362,7 @@
         height: 62vh; /* 可根据需要调整高度 */
         overflow-y: auto;
 
+      
         .social-posts-panel {
           width: 100%;
           display: grid;
@@ -468,6 +469,51 @@
               transform: translateY(-2px);
               box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             }
+
+            /* NFT 博客特殊样式 */
+            &.nft-post {
+              // background: rgba(255, 255, 255, 0.6);
+              border: 1px solid rgba(255, 215, 0, 0.3);
+              box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+              position: relative;
+              overflow: hidden;
+
+              &::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: linear-gradient(
+                  45deg,
+                  transparent,
+                  rgba(255, 255, 255, 0.1),
+                  transparent
+                );
+                transform: rotate(45deg);
+                animation: shine 3s infinite;
+              }
+
+              &::after {
+                content: 'NFT';
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255, 215, 0, 0.2);
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 1.5rem;
+                color: gold;
+                backdrop-filter: blur(4px);
+                border: 1px solid rgba(255, 215, 0, 0.3);
+              }
+
+              .coins {
+                color: gold;
+                text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+              }
+            }
           }
           
           .social-post:hover {
@@ -478,6 +524,19 @@
       }
     } 
   }
+
+  /* 闪光动画 */
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  50% {
+    transform: translateX(100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(100%) rotate(45deg);
+  }
+}
   /*-----------------------------------------------------*/
   /* 博客详情弹出层样式 */
   .blog-detail-overlay-home {
@@ -528,22 +587,22 @@
       }
 
        // NFT 标识
-    &.nft-post-home {
-      &::after {
-        content: 'NFT';
-        position: absolute;
-        top: 5px;
-        background: rgba(255, 215, 0, 0.1);
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: gold;
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 215, 0, 0.3);
-        z-index: 2;
+      &.nft-post-home {
+        &::after {
+          content: 'NFT';
+          position: absolute;
+          top: 5px;
+          background: rgba(255, 215, 0, 0.1);
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: gold;
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 215, 0, 0.3);
+          z-index: 2;
+        }
       }
-    }
 
       .detail-left-home {
         flex: 1;
@@ -564,7 +623,7 @@
 
           // 作者信息
           .author-info-home {
-            margin-left: 20px;
+            margin-left: 40px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -585,7 +644,7 @@
           }
 
            // 博客标题
-        .blog-title {
+        .blog-title-home {
           flex: 1;
           font-size: 2.4rem;
           font-weight: bold;

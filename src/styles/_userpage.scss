@@ -160,7 +160,7 @@
           font-size: 1.6rem;
           color: rgba(255, 255, 255, 0.8);
           display: -webkit-box;
-          -webkit-line-clamp: 3;
+          -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
           overflow: hidden;
           line-height: 1.4;
@@ -519,7 +519,6 @@
     min-height: 90vh;
     border-radius: 10px;
     display: flex;
-    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 
     // 关闭按钮样式
@@ -873,6 +872,7 @@
         flex: 1;
         padding: 20px;
         overflow-y: auto;
+        max-height: 75vh;
 
         .blog-content {
           font-size: 1.8rem;
