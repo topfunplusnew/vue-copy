@@ -478,233 +478,488 @@
       }
     } 
   }
-
-  .blog-detail-container {
+  /*-----------------------------------------------------*/
+  /* 博客详情弹出层样式 */
+  .blog-detail-overlay-home {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
     display: flex;
-    width: 90vw;
-    height: 90vh;
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    position: relative;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px; // 添加内边距，让弹窗与屏幕边缘保持一定距离
 
-    .detail-left {
-      flex: 1;
+    .blog-detail-container-home {
       display: flex;
-      flex-direction: column;
-      max-width: 60%;
-      height: 100%;
-      
-      .detail-header {
-        padding: 20px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        flex-shrink: 0;
+      width: 90vw;
+      height: 90vh;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+
+      .close-button-home {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 32px;
+        height: 32px;
+        font-size: 24px;
+        background: rgba(0, 0, 0, 0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 1000;
+  
+        &:hover {
+          background: rgba(0, 0, 0, 0.4);
+          transform: rotate(90deg);
+        }
       }
 
-      .image-section {
-        height: 40%;
-        min-height: 250px;
-        position: relative;
-        flex-shrink: 0;
+       // NFT 标识
+    &.nft-post-home {
+      &::after {
+        content: 'NFT';
+        position: absolute;
+        top: 5px;
+        background: rgba(255, 215, 0, 0.1);
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: gold;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        z-index: 2;
+      }
+    }
+
+      .detail-left-home {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        max-width: 60%;
+        height: 100%;
         
-        .image-slider {
-          height: 100%;
-          width: 100%;
-          position: relative;
-          overflow: hidden;
-          
-          .image-wrapper {
-            height: 100%;
+        .detail-header-home {
+          height: 80px;
+          padding: 0 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+          background: white;
+        }
+
+          // 作者信息
+          .author-info-home {
+            margin-left: 20px;
             display: flex;
-            transition: transform 0.3s ease;
-            
-            .detail-image {
-              width: 100%;
-              height: 100%;
-              flex-shrink: 0;
+            align-items: center;
+            gap: 12px;
+            min-width: 200px;
+  
+            .author-avatar-home {
+              width: 48px;
+              height: 48px;
+              border-radius: 50%;
               object-fit: cover;
             }
+  
+            .author-name-home {
+              font-size: 1.6rem;
+              font-weight: 500;
+              color: #333;
+            }
+          }
+
+           // 博客标题
+        .blog-title {
+          flex: 1;
+          font-size: 2.4rem;
+          font-weight: bold;
+          color: #333;
+          text-align: center;
+          margin: 0;
+          padding: 0 20px;
+          // 标题过长时显示省略号
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        // 统计信息
+        .post-stats-home {
+          margin-right: 30px;
+          display: flex;
+          gap: 15px;
+          min-width: 200px;
+          justify-content: flex-end;
+
+          span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1.6rem;
+            color: #1c1c1c;
+
+            &.coins-home {
+              color: gold;
+            }
+          }
+        }
+
+        .image-section-home {
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: #f5f5f5;
+          height: 70vh; // 设置固定高度
+          
+          .image-slider-home {
+            height: 100%;
+            width: 100%;
+            position: relative;
+            
+            .image-wrapper-home {
+              display: flex;
+              width: 100%;
+              height: 100%;
+              transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+              will-change: transform;
+              
+              .detail-image-home {
+                width: 100%;
+                height: 100%;
+                flex-shrink: 0;
+                object-fit: contain;
+              }
+            }
+
+            // 导航按钮样式
+            .nav-btn-home {
+              position: absolute;
+              top: 50%;
+              transform: translateY(-50%);
+              background: rgba(0, 0, 0, 0.3);
+              color: white;
+              border: none;
+              width: 40px;
+              height: 40px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              opacity: 0;
+              transition: opacity 0.3s ease;
+              font-size: 24px;
+              z-index: 2;
+
+              &.prev-home {
+                left: 20px;
+                border-radius: 0 4px 4px 0;
+              }
+
+              &.next-home {
+                right: 20px;
+                border-radius: 4px 0 0 4px;
+              }
+            }
+
+            // 鼠标悬停时显示导航按钮
+          &:hover .nav-btn-home {
+            opacity: 1;
+          }
+
+          // 添加图片指示器
+          .image-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            z-index: 2;
+
+            span {
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.5);
+              cursor: pointer;
+              transition: all 0.3s ease;
+
+              &.active {
+                background: white;
+                transform: scale(1.2);
+              }
+            }
+          }
+          }
+        }
+
+        .comments-container-home {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px;
+          border-top: 1px solid rgba(0, 0, 0, 0.1);
+          
+          // 评论区头部
+          .comments-header-home {
+            display: flex;
+            align-items: center;
+            justify-content: space-between; // 让子元素分布在两端
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+
+            h3 {
+              font-size: 1.8rem;
+              font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+              font-weight: bold;
+              color: #333;
+              margin: 0;
+            }
+
+            .comment-count-home {
+              font-size: 1.4rem;
+              color: #666;
+              background: rgba(0, 0, 0, 0.05);
+              padding: 4px 12px;
+              border-radius: 12px;
+            }
+          }
+          
+          .comments-list-home {
+            max-height: 300px;
+            overflow-y: auto;
+  
+            .comment-item-home {
+              padding: 15px 0;
+              border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  
+              &:last-child {
+                border-bottom: none;
+              }
+  
+              .comment-row-home {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 8px;
+  
+                .comment-avatar-home {
+                  width: 36px;
+                  height: 36px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                }
+  
+                .comment-info-home {
+                  display: flex;
+                  flex-direction: column;
+  
+                  .comment-username-home {
+                    font-size: 1.4rem;
+                    font-weight: 500;
+                    color: #333;
+                  }
+  
+                  .comment-date-home {
+                    font-size: 1.2rem;
+                    color: #999;
+                  }
+                }
+              }
+  
+              .comment-text-home {
+                font-size: 1.4rem;
+                color: #666;
+                line-height: 1.4;
+                margin: 0;
+                padding-left: 48px; // 对齐头像右侧
+              }
+            }
+  
+            // 滚动条样式
+            &::-webkit-scrollbar {
+              width: 6px;
+            }
+  
+            &::-webkit-scrollbar-track {
+              background: rgba(0, 0, 0, 0.05);
+            }
+  
+            &::-webkit-scrollbar-thumb {
+              background: rgba(0, 0, 0, 0.1);
+              border-radius: 3px;
+            }
+          }
+
+          &::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+          }
+
+          &::-webkit-scrollbar-thumb:hover {
+            background: #555;
           }
         }
       }
 
-      .comments-container {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
+      .detail-right-home { 
+        width: 40%;
+        height: 100%;
+        border-left: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
         
-        .comments-header {
+        .tags-section-home {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
           margin-bottom: 16px;
-          padding-bottom: 8px;
+          padding-bottom: 16px;
+          padding: 20px 20px 16px;
           border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
-        .comments-list {
-          height: calc(100% - 50px);
-          overflow-y: auto;
-        }
-
-        &::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      }
-    }
-
-    .detail-right {
-      width: 40%;
-      height: 100%;
-      border-left: 1px solid rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      
-      .tags-section {
-        padding: 20px 20px 16px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        flex-shrink: 0;
-        
-        .tag {
-          display: inline-block;
-          margin: 4px;
-          padding: 4px 12px;
-          background: #f5f5f5;
-          border-radius: 16px;
-          font-size: 1.4rem;
-          color: #666;
-        }
-      }
-
-      .content-section {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-        
-        .blog-content {
-          font-size: 1.6rem;
-          line-height: 1.6;
-          color: #333;
-          white-space: pre-wrap;
-          margin: 0;
-        }
-
-        &::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        &::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      }
-    }
-
-    .close-button {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.2);
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-      z-index: 1000;
-
-      &:hover {
-        background: rgba(0, 0, 0, 0.4);
-        transform: rotate(90deg);
-      }
-    }
-  }
-
-  /* 保持其他样式不变 */
-  .social-post {
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-
-  .social-post:hover {
-    transform: scale(1.02);
-  }
+          flex-shrink: 0;
+          
+          .tag-home {
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            font-size: 1.4rem;
+            color: #666;
+            font-weight: 500;
+            transition: all 0.3s ease;
   
-  /* NFT 博客的特殊样式 */
-  .social-post {
-    &.nft-post {
-      background: linear-gradient(
-        45deg,
-        rgba(255, 215, 0, 0.15),  /* 金色 */
-        rgba(147, 112, 219, 0.15)  /* 紫色 */
-      );
-      border: 1px solid rgba(255, 215, 0, 0.3);
-      box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
-      
-      /* 添加闪光效果 */
-      position: relative;
-      overflow: hidden;
-      
-      &::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
+            &:hover {
+              background: rgba(0, 0, 0, 0.1);
+            }
+          }
+        }
+
+        .content-section-home {
+          flex: 1;
+          padding: 20px;
+          overflow-y: auto;
+          
+          .blog-content-home {
+            font-size: 1.8rem;
+            text-align: justify; 
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            margin: 0;
+          }
+
+          &::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+          }
+
+          &::-webkit-scrollbar-thumb:hover {
+            background: #555;
+          }
+        }
+      }
+
+    }
+
+    /* 保持其他样式不变 */
+    .social-post {
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .social-post:hover {
+      transform: scale(1.02);
+    }
+    
+    /* NFT 博客的特殊样式 */
+    .social-post {
+      &.nft-post-home {
         background: linear-gradient(
           45deg,
-          transparent,
-          rgba(255, 255, 255, 0.1),
-          transparent
+          rgba(255, 215, 0, 0.15),  /* 金色 */
+          rgba(147, 112, 219, 0.15)  /* 紫色 */
         );
-        transform: rotate(45deg);
-        animation: shine 3s infinite;
-      }
-      
-      /* NFT 标记 */
-      &::after {
-        content: 'NFT';
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(255, 215, 0, 0.2);
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 1.5rem;
-        color: gold;
-        backdrop-filter: blur(4px);
         border: 1px solid rgba(255, 215, 0, 0.3);
+        box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        
+        /* 添加闪光效果 */
+        position: relative;
+        overflow: hidden;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(
+            45deg,
+            transparent,
+            rgba(255, 255, 255, 0.1),
+            transparent
+          );
+          transform: rotate(45deg);
+          animation: shine 3s infinite;
+        }
+        
+        /* NFT 标记 */
+        &::after {
+          content: 'NFT';
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: rgba(255, 215, 0, 0.2);
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 1.5rem;
+          color: gold;
+          backdrop-filter: blur(4px);
+          border: 1px solid rgba(255, 215, 0, 0.3);
+        }
       }
     }
   }
-
   /* 闪光动画 */
   @keyframes shine {
     0% {
