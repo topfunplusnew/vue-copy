@@ -61,14 +61,33 @@ const showLoginConfirm = () => {
 
 // 修改预览按钮点击处理
 const handlePreviewClick = () => {
-  if (!postTitle.value || !postText.value || images.value.length === 0) {
-    ElMessage({
-      message: 'Please add title, content and at least one image',
+  if (!postTitle.value.trim()) {
+    ElMessageBox.alert('Please enter a title for your post', 'Title Required', {
+      confirmButtonText: 'OK',
       type: 'warning',
-      duration: 3000,
+      center: true,
     });
     return;
   }
+
+  if (!postText.value.trim()) {
+    ElMessageBox.alert('Please add some content to your post', 'Content Required', {
+      confirmButtonText: 'OK',
+      type: 'warning',
+      center: true,
+    });
+    return;
+  }
+
+  if (images.value.length === 0) {
+    ElMessageBox.alert('Please upload at least one image', 'Image Required', {
+      confirmButtonText: 'OK',
+      type: 'warning',
+      center: true,
+    });
+    return;
+  }
+
   showPreview.value = true;
 };
 
@@ -148,12 +167,12 @@ const handleTagInput = (event: KeyboardEvent) => {
 
     // 检查标签长度（不包括#号）
     if (value.length > 15) {
-      alert('Tag length should not exceed 15 characters');
+      ElMessage.warning('Tag length should not exceed 15 characters');
       return;
     }
     // 检查标签数量限制
     if (tags.value.length >= 5) {
-      alert('Maximum 5 tags allowed');
+      ElMessage.warning('Maximum 5 tags allowed');
       return;
     }
     // 检查标签是否重复（考虑带#和不带#的情况）
@@ -161,7 +180,7 @@ const handleTagInput = (event: KeyboardEvent) => {
       tags.value.push(tagWithHash);
       tagInput.value = ''; // 清空输入
     } else {
-      alert('This tag already exists');
+      ElMessage.warning('This tag already exists');
     }
   }
 };
@@ -183,11 +202,7 @@ const selectReplyOption = (option: string) => {
 // 修改发布博客处理
 const postTweet = async () => {
   if (!postTitle.value || !postText.value) {
-    ElMessage({
-      message: 'Please add title and content',
-      type: 'warning',
-      duration: 2000,
-    });
+    ElMessage.warning('Please add title and content');
     return;
   }
 
@@ -209,11 +224,7 @@ const postTweet = async () => {
     };
 
     await blogPost(postData);
-    ElMessage({
-      message: 'Blog posted successfully',
-      type: 'success',
-      duration: 2000,
-    });
+    ElMessage.success('Blog posted successfully');
     router.push({ name: 'userpage' });
   } catch (error: any) {
     if (error.message === 'cancel') {
@@ -221,19 +232,11 @@ const postTweet = async () => {
       return;
     }
     if (error.response?.status === 401) {
-      ElMessage({
-        message: 'Session expired, please login again',
-        type: 'error',
-        duration: 2000,
-      });
+      ElMessage.error('Session expired, please login again');
       router.push({ name: 'login' });
       return;
     }
-    ElMessage({
-      message: 'Failed to post blog',
-      type: 'error',
-      duration: 2000,
-    });
+    ElMessage.error('Failed to post blog');
   }
 };
 
@@ -257,11 +260,7 @@ const closePreview = () => {
 // 修改标签添加处理
 const addTag = () => {
   if (tags.value.length >= 5) {
-    ElMessage({
-      message: 'Maximum 5 tags allowed',
-      type: 'warning',
-      duration: 2000,
-    });
+    ElMessage.warning('Maximum 5 tags allowed');
     return;
   }
   // ... 其他标签添加逻辑
@@ -297,7 +296,7 @@ const addTag = () => {
       <!-- 标题区域 -->
       <div class="header-container">
         <h2 class="posttext">Share your happiness！</h2>
-        <button @click="previewPost" class="preview-button" :disabled="!canPreview" :class="{ 'preview-button-disabled': !canPreview }">Preview</button>
+        <button @click="handlePreviewClick" class="preview-button" :disabled="!canPreview" :class="{ 'preview-button-disabled': !canPreview }">Preview</button>
       </div>
 
       <!-- 编辑区域 -->
@@ -388,4 +387,20 @@ const addTag = () => {
 
 <style lang="scss">
 @import '@/styles/_post.scss';
+
+// 可以添加自定义样式
+.custom-message-box {
+  .el-message-box__header {
+    padding-top: 20px;
+  }
+  
+  .el-message-box__content {
+    padding: 20px;
+    font-size: 16px;
+  }
+
+  .el-message-box__btns {
+    padding: 10px 20px 20px;
+  }
+}
 </style>
