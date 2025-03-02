@@ -505,10 +505,10 @@ const deleteBlog = async (blogId: number, event: Event) => {
         <div class="comments-container">
           <div class="comments-header">
             <h3>Comments</h3>
-            <span class="comment-count">{{ selectedBlog.comments?.length || 0 }}</span>
+            <span class="comment-count">{{ selectedBlog?.comments?.length || 0 }}</span>
           </div>
           <div class="comments-list">
-            <div v-for="comment in selectedBlog.comments" :key="comment.id" class="comment-item">
+            <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
               <div class="comment-user">
                 <img 
                   :src="getImageUrl(comment.user.avatar)" 
@@ -517,10 +517,9 @@ const deleteBlog = async (blogId: number, event: Event) => {
                 />
                 <div class="comment-info">
                   <span class="comment-username">{{ comment.user.name }}</span>
-                  <span class="comment-date">{{ comment.create_at }}</span>
+                  <p class="comment-text">{{ comment.content }}</p>
                 </div>
               </div>
-              <p class="comment-text">{{ comment.content }}</p>
             </div>
           </div>
         </div>

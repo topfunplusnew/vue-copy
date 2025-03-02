@@ -427,9 +427,20 @@ function nextImage() {
           <!-- 右侧博客滚动区域 -->
           <div class="social-scroll">
             <div class="social-posts-panel" ref="postsPanel">
-              <div class="social-post" :class="{ 'nft-post': post.isNFT }" v-for="post in allPosts" :key="post.id" @click="showBlogDetail(post.id)">
+              <div 
+                class="social-post" 
+                :class="{ 'nft-post': post.isNFT }"
+                v-for="post in allPosts" 
+                :key="post.id" 
+                @click="showBlogDetail(post.id)"
+              >
                 <!-- 博客图片 -->
-                <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Post Image" class="post-image" />
+                <img 
+                  v-if="post.image && post.image.length > 0" 
+                  :src="getImageUrl(post.image[0])" 
+                  alt="Post Image" 
+                  class="post-image" 
+                />
 
                 <!-- 博客内容 -->
                 <div class="post-content">
@@ -462,70 +473,70 @@ function nextImage() {
     </main>
 
     <!-- 博客详情弹出层 -->
-    <div class="blog-detail-overlay" v-if="dialogBlog" @click.self="closeBlogDetail">
-      <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
+    <div class="blog-detail-overlay-home" v-if="dialogBlog" @click.self="closeBlogDetail">
+      <div class="blog-detail-container-home" :class="{ 'nft-post-home': selectedBlog?.isNFT }">
         <!-- 关闭按钮 -->
-        <button class="close-button" @click="closeBlogDetail">×</button>
+        <button class="close-button-home" @click="closeBlogDetail">×</button>
         
         <!-- 左侧内容区域 -->
-        <div class="detail-left">
+        <div class="detail-left-home">
           <!-- 顶部信息栏 -->
-          <div class="detail-header">
+          <div class="detail-header-home">
             <!-- 左侧作者信息 -->
-            <div class="author-info">
+            <div class="author-info-home">
               <img 
                 :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
                 alt="Author Avatar" 
-                class="author-avatar"
+                class="author-avatar-home"
               />
-              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+              <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
             </div>
 
             <!-- 中间标题 -->
-            <h2 class="blog-title">{{ selectedBlog?.title }}</h2>
+            <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
 
             <!-- 右侧统计信息 -->
-            <div class="post-stats">
-              <span class="likes">❤️ {{ selectedBlog?.likes }}</span>
-              <span class="comments">💬 {{ selectedBlog?.comments_count }}</span>
-              <span class="coins" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
+            <div class="post-stats-home">
+              <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
+              <span class="comments-home">💬 {{ selectedBlog?.comments_count }}</span>
+              <span class="coins-home" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
             </div>
           </div>
 
           <!-- 图片区域 -->
-          <div class="image-section">
-            <div class="image-slider">
-              <div class="image-wrapper" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
+          <div class="image-section-home">
+            <div class="image-slider-home">
+              <div class="image-wrapper-home" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
                 <img 
                   v-for="(image, index) in selectedBlog?.image" 
                   :key="index"
                   :src="getImageUrl(image)"
                   alt="Blog Image" 
-                  class="detail-image"
+                  class="detail-image-home"
                 />
               </div>
               <!-- 导航按钮 -->
-              <button class="nav-btn prev" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
-              <button class="nav-btn next" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
+              <button class="nav-btn-home prev-home" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
+              <button class="nav-btn-home next-home" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
             </div>
           </div>
 
           <!-- 评论区域 -->
-          <div class="comments-container">
-            <div class="comments-header">
+          <div class="comments-container-home">
+            <div class="comments-header-home">
               <h3>Comments</h3>
-              <span class="comment-count">{{ selectedBlog?.comments?.length || 0 }}</span>
+              <span class="comment-count-home">{{ selectedBlog?.comments?.length || 0 }}</span>
             </div>
-            <div class="comments-list">
-              <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
-                <div class="comment-row">
+            <div class="comments-list-home">
+              <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item-home">
+                <div class="comment-row-home">
                   <img 
                     :src="getImageUrl(comment.user.avatar)" 
                     alt="Commenter Avatar" 
-                    class="comment-avatar"
+                    class="comment-avatar-home"
                   />
-                  <span class="comment-username">{{ comment.user.name }}</span>
-                  <p class="comment-text">{{ comment.content }}</p>
+                  <span class="comment-username-home">{{ comment.user.name }}</span>
+                  <p class="comment-text-home">{{ comment.content }}</p>
                 </div>
               </div>
             </div>
@@ -533,17 +544,17 @@ function nextImage() {
         </div>
 
         <!-- 右侧内容区域 -->
-        <div class="detail-right">
+        <div class="detail-right-home">
           <!-- 标签区域 -->
-          <div class="tags-section">
-            <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
+          <div class="tags-section-home">
+            <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag-home">
               {{ tag }}
             </span>
           </div>
 
           <!-- 博客内容 -->
-          <div class="content-section">
-            <p class="blog-content">{{ selectedBlog?.content }}</p>
+          <div class="content-section-home">
+            <p class="blog-content-home">{{ selectedBlog?.content }}</p>
           </div>
         </div>
       </div>
