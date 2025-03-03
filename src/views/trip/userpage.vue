@@ -379,7 +379,7 @@ const deleteBlog = async (blogId: number, event: Event) => {
               <!-- 统计信息 -->
               <div class="post-stats">
                 <span class="likes">❤️ {{ post.likes }}</span>
-                <span class="comments">💬 {{ post.comments }}</span>
+                <span class="comments">💬 {{ post.comments_count }}</span>
                 <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
               </div>
             </div>
