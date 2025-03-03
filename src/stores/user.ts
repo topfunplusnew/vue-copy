@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList } from '@/services/api';
+import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList,getBlogPost, myblogdelete } from '@/services/api';
 import type { ILogin, IUser, IUserEdit } from '@/types/user';
 import type { IBlogPost } from '@/types/blog';
 
@@ -51,11 +51,28 @@ export const useUserStore = defineStore('user', () => {
       userPosts.value = res.data.blogs;
     });
   }
-
-  // 设置选中的博客
-  function setSelectedPost(post: IBlogPost) {
-    selectedPost.value = post;
+  /**
+   * 根据id获取blog
+   * @param id
+   * @returns
+   */
+  function getUserBlogByID(id: number) {
+    return getBlogPost(id.toString())
+      .then(({ data }) => {
+        selectedPost.value = data;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   }
+  function delUserBlogByID(id:number) {
+    return myblogdelete(id).then(res =>{
+      selectedPost.value = undefined;
+
+    })
+  }
+
+
 
   // 清除选中的博客
   function clearSelectedPost() {
@@ -75,7 +92,8 @@ export const useUserStore = defineStore('user', () => {
     getUserInfo, 
     editUserInfo,
     getUserBlogList,
-    setSelectedPost,
+    getUserBlogByID,
+    delUserBlogByID,
     clearSelectedPost
   };
 });
