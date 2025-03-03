@@ -404,29 +404,36 @@ function nextImage() {
       <!-- 社交帖子模块 -->
       <section class="social-feed">
         <div class="social-header">
-          <!-- 搜索框 -->
-          <input type="text" v-model="searchQuery" placeholder="Search" class="search-input" @keydown="handleSearch" />
+          <!-- 标题单独一行 -->
           <h3>Explore iPoloGO Community</h3>
-          <el-button class="custom-post-button" @click="handlePostClick">Post</el-button>
-        </div>
 
-        <!-- 新增的横排筛选选项 -->
-        <div class="social-filter-panel-horizontal">
-          <button 
-            v-for="item in socialFilters" 
-            :key="item.label" 
-            :class="{ active: selectedFilters.includes(item.label) }" 
-            @click="toggleSocialFilter(item.label)"
-          >
-            <span class="filter-icon">{{ item.icon }}</span>
-            <span class="filter-label">{{ item.label }}</span>
-          </button>
+          <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
+          <div class="social-header-controls">
+            <!-- 搜索框 -->
+            <input type="text" v-model="searchQuery" placeholder="Explore Anything..." class="search-input-home" @keydown="handleSearch" />
+
+            <!-- 横排筛选选项 -->
+            <div class="social-filter-panel-horizontal">
+              <button 
+                v-for="item in socialFilters" 
+                :key="item.label" 
+                :class="{ active: selectedFilters.includes(item.label) }" 
+                @click="toggleSocialFilter(item.label)"
+              >
+                <span class="filter-icon">{{ item.icon }}</span>
+                <span class="filter-label">{{ item.label }}</span>
+              </button>
+            </div>
+
+            <!-- Post按钮 -->
+            <el-button class="custom-post-button" @click="handlePostClick">Post</el-button>
+          </div>
         </div>
 
         <!-- 水平分割线 -->
         <hr class="horizontal-divider" />
 
-        <!-- 恢复 social-scroll 容器 -->
+        <!-- 博客展示区域 -->
         <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel">
             <div 

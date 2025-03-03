@@ -209,10 +209,10 @@
     .social-feed{
       /* 社交帖子模块：全屏宽度 */
       margin-top: 3rem; 
-      width: 95vw; /* 全屏宽 */
+      width: 96vw; /* 全屏宽 */
       margin: 3rem 0;
       padding: 2rem 1rem;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border-radius: 16px;
       border-radius: 5px;
@@ -221,69 +221,100 @@
 
       .social-header {
         display: flex;
-        flex-direction: row;
-        justify-content: space-between; /* 让元素水平排列，且左右分布 */
-        align-items: center; /* 垂直居中对齐 */
-        .header-container {
-          width: 100%; /* 确保 header-container 占满 */
-          max-width: 100%; /* 避免 width 被限制 */
-          gap: 0rem; /* 添加间距 */
-        }
-
-        .search-input {
-          flex-grow: 1;
-          min-width: 230px;
-          max-width: 230px;
-          padding: 8px 12px;
-          font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-          font-size: 2rem;
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.2);
-          color: white;
-          outline: none;
-          transition: all 0.3s ease;
-
-          &::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-            font-style: italic;
-          }
-
-          &:focus {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: white;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
-          }
-        }
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
 
         h3 {
-          flex: 0 1 auto; /* 让 h3 只占据内容所需的宽度 */
           font-size: 3rem;
-          margin: 0 auto; /* 居中 */
-          text-align: center;
-          max-width: 500px; /* 限制标题最大宽度 */
+          color: #fff;
+          margin: 0;
         }
 
-        .custom-post-button {
-          padding: 12px 30px;
-          font-size: 18px;
-          background: rgba(255, 255, 255, 0.3);
-          backdrop-filter: blur(10px);
-          border: none;
-          color: white;
-          border-radius: 10px;
-          transition: all 0.3s ease;
-          height: auto;
-          font-weight: 500;
-          letter-spacing: 1px;
-          
-          &:hover {
-            background: rgba(255, 255, 255, 0.5);
-            transform: scale(1.05);
+        .social-header-controls {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          gap: 1rem;
+
+          .search-input-home {
+            flex: 0 0 230px;
+            padding: 8px 12px;
+            font-size: 1.8rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s ease;
+
+
+            &::placeholder {
+              color: rgba(255, 255, 255, 0.7);
+              font-family: 'Courier New', Courier, monospace;
+            }
+
+            &:focus {
+              background: rgba(255, 255, 255, 0.3);
+              box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            }
           }
 
-          &:focus {
-            background: rgba(255, 255, 255, 0.4);
+          .social-filter-panel-horizontal {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+
+            button {
+              padding: 6px 10px;
+              border-radius: 8px;
+              background: rgba(255, 255, 255, 0.2);
+              color: #fff;
+              border: none;
+              cursor: pointer;
+              transition: background 0.3s ease;
+              font-size: 1.8rem;
+              margin-left: 1rem;
+              font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+              font-weight: bold;
+
+              &.active, &:hover {
+                background: rgba(255, 255, 255, 0.5);
+              }
+
+              .filter-icon {
+                margin-right: 4px;
+              }
+            }
+          }
+
+          .custom-post-button {
+            flex: 0 0 auto;
+            padding: 14px 32px;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4);
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+
+            &:hover {
+              background: linear-gradient(135deg, #feb47b, #ff7e5f);
+              transform: scale(1.1);
+              box-shadow: 0 6px 20px rgba(255, 126, 95, 0.6);
+            }
+
+            &:focus {
+              outline: none;
+              box-shadow: 0 0 0 4px rgba(255, 126, 95, 0.3);
+            }
           }
         }
       }
@@ -292,7 +323,7 @@
       .horizontal-divider {
         width: 100%;
         border-top: 1px solid rgba(255, 255, 255, 0.5);
-        margin: 2rem 0;
+        margin: 1rem 0;
       }
 
       /* 右侧帖子展示区域 */
