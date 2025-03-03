@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
@@ -100,9 +100,7 @@ const loadHistory = (index: number) => {
   }
 };
 
-const tripSelections = ref({
-  DateFrom: '',
-  DateTo: '',
+const tripSelections = reactive({
   Transportation: [] as string[],
   TransportationClass: '',
   Hotel: [] as string[],
@@ -115,12 +113,14 @@ const tripSelections = ref({
     Hotel: 25,
     Tickets: 25,
     Activities: 25
-  }
+  },
+  Duration: [] as [Date, Date] | [],
+  DurationDays: 0
 });
 
 const availableTransportationClasses = computed(() => {
-  if (tripSelections.value.Transportation.length === 1) {
-    const t = tripSelections.value.Transportation[0];
+  if (tripSelections.Transportation.length === 1) {
+    const t = tripSelections.Transportation[0];
     if (t === "Flight") {
       return ["First Class", "Business Class", "Economy"];
     } else if (t === "Train") {
@@ -149,77 +149,167 @@ const groupedHotels = computed(() => {
 // 防止递归更新的标志
 let isUpdatingBudget = false;
 // 修改后的动态预算调整逻辑：按比例调整其他项，使总和为 100%
-const updateBudgetProportions = (changedKey: keyof typeof tripSelections.value.Budget, newValue: number) => {
+const updateBudgetProportions = (changedKey: keyof typeof tripSelections.Budget, newValue: number) => {
   if (isUpdatingBudget) return;
   isUpdatingBudget = true;
 
-  const keys: (keyof typeof tripSelections.value.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
+  const keys: (keyof typeof tripSelections.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
   // 先更新当前修改的项
-  tripSelections.value.Budget[changedKey] = newValue;
+  tripSelections.Budget[changedKey] = newValue;
 
   const otherKeys = keys.filter(k => k !== changedKey);
   const desiredOthersSum = 100 - newValue;
-  let othersCurrentSum = otherKeys.reduce((sum, key) => sum + tripSelections.value.Budget[key], 0);
+  let othersCurrentSum = otherKeys.reduce((sum, key) => sum + tripSelections.Budget[key], 0);
 
   if (othersCurrentSum === 0) {
     // 如果其他项都为 0，则平分剩余比例
     const equalShare = desiredOthersSum / otherKeys.length;
     otherKeys.forEach(key => {
-      tripSelections.value.Budget[key] = equalShare;
+      tripSelections.Budget[key] = equalShare;
     });
   } else {
     // 按照当前比例调整其他项
     otherKeys.forEach(key => {
-      const current = tripSelections.value.Budget[key];
+      const current = tripSelections.Budget[key];
       const proportion = current / othersCurrentSum;
-      tripSelections.value.Budget[key] = Math.round(proportion * desiredOthersSum);
+      tripSelections.Budget[key] = Math.round(proportion * desiredOthersSum);
     });
     // 修正因四舍五入导致的误差
-    const newOthersSum = otherKeys.reduce((sum, key) => sum + tripSelections.value.Budget[key], 0);
+    const newOthersSum = otherKeys.reduce((sum, key) => sum + tripSelections.Budget[key], 0);
     const diff = desiredOthersSum - newOthersSum;
     if (otherKeys.length > 0) {
-      tripSelections.value.Budget[otherKeys[0]] += diff;
+      tripSelections.Budget[otherKeys[0]] += diff;
     }
   }
   isUpdatingBudget = false;
 };
 
-watch(() => tripSelections.value.Budget.Transportation, (val) => { updateBudgetProportions("Transportation", val); });
-watch(() => tripSelections.value.Budget.Hotel, (val) => { updateBudgetProportions("Hotel", val); });
-watch(() => tripSelections.value.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
-watch(() => tripSelections.value.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
+watch(() => tripSelections.Budget.Transportation, (val) => { updateBudgetProportions("Transportation", val); });
+watch(() => tripSelections.Budget.Hotel, (val) => { updateBudgetProportions("Hotel", val); });
+watch(() => tripSelections.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
+watch(() => tripSelections.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
 
 const budgetTotal = computed(() => {
-  const b = tripSelections.value.Budget;
+  const b = tripSelections.Budget;
   return b.Transportation + b.Hotel + b.Tickets + b.Activities;
 });
+
+
+// Date Element Plus 组件
+
+const datepickervalue = ref('')
+
+const dateShortcuts = [
+  {
+    text: 'Today',
+    value: () => {
+      const start = new Date();
+      const end = new Date();
+      return [start, end];
+    }
+  },
+  {
+    text: 'Next 7 Days',
+    value: () => {
+      const start = new Date();
+      const end = new Date();
+      end.setDate(end.getDate() + 6);
+      return [start, end];
+    }
+  },
+  {
+    text: 'Next 30 Days',
+    value: () => {
+      const start = new Date();
+      const end = new Date();
+      end.setDate(end.getDate() + 29);
+      return [start, end];
+    }
+  },
+  {
+    text: 'Next 90 Days',
+    value: () => {
+      const start = new Date();
+      const end = new Date();
+      end.setDate(end.getDate() + 89);
+      return [start, end];
+    }
+  },
+  {
+    text: 'This Month',
+    value: () => {
+      const start = new Date();
+      start.setDate(1);
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+      return [start, end];
+    }
+  },
+  {
+    text: 'Next Month',
+    value: () => {
+      const start = new Date();
+      start.setMonth(start.getMonth() + 1, 1);
+      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+      return [start, end];
+    }
+  }
+];
+
+const disabledDate = (date: Date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const start = new Date(today);
+  const end = new Date(today);
+  end.setDate(start.getDate() + 1);
+  return date < start || date >= end;
+};
+
+const calculateDuration = () => {
+  if (tripSelections.Duration.length === 2) {
+    const start = new Date(tripSelections.Duration[0]);
+    const end = new Date(tripSelections.Duration[1]);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 包含起始日
+    tripSelections.DurationDays = diffDays;
+  } else {
+    tripSelections.DurationDays = 0;
+  }
+};
+
+watch(() => tripSelections.Duration, (newDates) => {
+  if (newDates && newDates.length === 2) {
+    calculateDuration();
+  } else {
+    tripSelections.DurationDays = 0;
+  }
+}, { deep: true });
 
 // 以下 tripPrompt 作为备用生成逻辑
 const tripPrompt = computed(() => {
   let parts: string[] = [];
-  if (tripSelections.value.DateFrom || tripSelections.value.DateTo) {
-    const from = tripSelections.value.DateFrom || "a certain date";
-    const to = tripSelections.value.DateTo || "a certain destination";
-    parts.push(`I plan to travel from ${from} to ${to}.`);
+  if (tripSelections.Duration.length === 2) {
+    const startDate = new Date(tripSelections.Duration[0]).toLocaleDateString();
+    const endDate = new Date(tripSelections.Duration[1]).toLocaleDateString();
+    parts.push(`I plan to travel from ${startDate} to ${endDate} (${tripSelections.DurationDays} days).`);
   }
-  if (tripSelections.value.Transportation.length) {
-    const trans = tripSelections.value.Transportation.join(", ");
-    const tClass = tripSelections.value.TransportationClass ? ` (${tripSelections.value.TransportationClass})` : "";
+  if (tripSelections.Transportation.length) {
+    const trans = tripSelections.Transportation.join(", ");
+    const tClass = tripSelections.TransportationClass ? ` (${tripSelections.TransportationClass})` : "";
     parts.push(`My chosen transportation is ${trans}${tClass}.`);
   }
-  if (tripSelections.value.Hotel.length) {
-    parts.push(`I prefer to stay at ${tripSelections.value.Hotel.join(", ")}.`);
+  if (tripSelections.Hotel.length) {
+    parts.push(`I prefer to stay at ${tripSelections.Hotel.join(", ")}.`);
   }
-  if (tripSelections.value.Budget.Currency || tripSelections.value.Budget.Total) {
-    const currency = tripSelections.value.Budget.Currency || "";
-    const total = tripSelections.value.Budget.Total || "";
-    parts.push(`My total budget is ${currency} ${total} with proportions: Transportation ${tripSelections.value.Budget.Transportation}%, Hotel ${tripSelections.value.Budget.Hotel}%, Tickets ${tripSelections.value.Budget.Tickets}%, Activities ${tripSelections.value.Budget.Activities}%.`);
+  if (tripSelections.Budget.Currency || tripSelections.Budget.Total) {
+    const currency = tripSelections.Budget.Currency || "";
+    const total = tripSelections.Budget.Total || "";
+    parts.push(`My total budget is ${currency} ${total} with proportions: Transportation ${tripSelections.Budget.Transportation}%, Hotel ${tripSelections.Budget.Hotel}%, Tickets ${tripSelections.Budget.Tickets}%, Activities ${tripSelections.Budget.Activities}%.`);
   }
-  if (tripSelections.value.Tickets.length) {
-    parts.push(`I plan to purchase ${tripSelections.value.Tickets.join(", ")}.`);
+  if (tripSelections.Tickets.length) {
+    parts.push(`I plan to purchase ${tripSelections.Tickets.join(", ")}.`);
   }
-  if (tripSelections.value.Activities.length) {
-    parts.push(`I intend to participate in ${tripSelections.value.Activities.join(", ")}.`);
+  if (tripSelections.Activities.length) {
+    parts.push(`I intend to participate in ${tripSelections.Activities.join(", ")}.`);
   }
   return parts.join(" ");
 });
@@ -365,16 +455,19 @@ onMounted(() => {
               <label>Date:</label>
               <div class="date-picker-container">
                 <el-date-picker
-                  v-model="tripSelections.DateFrom"
-                  type="date"
-                  placeholder="From"
+                  v-model="tripSelections.Duration"
+                  type="datetimerange"
+                  :shortcuts="dateShortcuts"
+                  range-separator="To"
+                  start-placeholder="Start date"
+                  end-placeholder="End date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  @change="calculateDuration"
                 />
-                <!-- <span class="date-separator">to</span> -->
-                <el-date-picker
-                  v-model="tripSelections.DateTo"
-                  type="date"
-                  placeholder="To"
-                />
+                <!-- <div class="duration-display" v-if="tripSelections.DurationDays > 0">
+                  Duration: {{ tripSelections.DurationDays }} days
+                </div> -->
               </div>
             </div>
 
