@@ -72,8 +72,6 @@ export const useUserStore = defineStore('user', () => {
     })
   }
 
-
-
   // 清除选中的博客
   function clearSelectedPost() {
     selectedPost.value = undefined;

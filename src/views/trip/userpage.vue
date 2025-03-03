@@ -46,11 +46,9 @@ const userPosts = computed(() => store.userPosts);
 const selectedBlog = computed(() => store.selectedPost);
 
 const showBlogDetail = (id: number) => {
-  const post = userPosts.value.find((p) => p.id === id);
-  if (post) {
-    store.setSelectedPost(post);
+  store.getUserBlogByID(id).then((res) => {
     document.body.style.overflow = 'hidden';
-  }
+  });
 };
 
 const closeBlogDetail = () => {
@@ -244,7 +242,7 @@ const deleteBlog = async (blogId: number, event: Event) => {
       }
     );
 
-    await myblogdelete(blogId);
+    await store.delUserBlogByID(blogId);
     ElMessage.success('Blog deleted successfully');
     store.getUserBlogList(); // 刷新博客列表
   } catch (error) {
@@ -478,7 +476,7 @@ const deleteBlog = async (blogId: number, event: Event) => {
           <!-- 右侧统计信息 -->
           <div class="post-stats">
             <span class="likes">❤️ {{ selectedBlog.likes }}</span>
-            <span class="comments">💬 {{ selectedBlog.comments }}</span>
+            <span class="comments">💬 {{ selectedBlog.comments_count }}</span>
             <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
           </div>
         </div>
