@@ -409,64 +409,64 @@ function nextImage() {
           <h3>Explore iPoloGO Community</h3>
           <el-button class="custom-post-button" @click="handlePostClick">Post</el-button>
         </div>
+
+        <!-- 新增的横排筛选选项 -->
+        <div class="social-filter-panel-horizontal">
+          <button 
+            v-for="item in socialFilters" 
+            :key="item.label" 
+            :class="{ active: selectedFilters.includes(item.label) }" 
+            @click="toggleSocialFilter(item.label)"
+          >
+            <span class="filter-icon">{{ item.icon }}</span>
+            <span class="filter-label">{{ item.label }}</span>
+          </button>
+        </div>
+
+        <!-- 水平分割线 -->
         <hr class="horizontal-divider" />
-        <div class="social-container">
-          <!-- 固定左侧区域 -->
-          <div class="social-fixed">
-            <div class="social-filter-panel">
-              <button v-for="item in socialFilters" :key="item.label" :class="{ active: selectedFilters.includes(item.label) }" @click="toggleSocialFilter(item.label)">
-                <span class="filter-icon">{{ item.icon }}</span>
-                <span class="filter-label">{{ item.label }}</span>
-              </button>
-            </div>
-          </div>
 
-          <!-- 竖直分隔线 -->
-          <div class="vertical-divider"></div>
+        <!-- 恢复 social-scroll 容器 -->
+        <div class="social-scroll">
+          <div class="social-posts-panel" ref="postsPanel">
+            <div 
+              class="social-post-home" 
+              :class="{ 'nft-post-home': post.isNFT }"
+              v-for="post in allPosts" 
+              :key="post.id" 
+              @click="showBlogDetail(post.id)"
+            >
+              <!-- 博客图片 -->
+              <img 
+                v-if="post.image && post.image.length > 0" 
+                :src="getImageUrl(post.image[0])" 
+                alt="Post Image" 
+                class="post-image-home" 
+              />
 
-          <!-- 右侧博客滚动区域 -->
-          <div class="social-scroll">
-            <div class="social-posts-panel" ref="postsPanel">
-              <div 
-                class="social-post" 
-                :class="{ 'nft-post': post.isNFT }"
-                v-for="post in allPosts" 
-                :key="post.id" 
-                @click="showBlogDetail(post.id)"
-              >
-                <!-- 博客图片 -->
-                <img 
-                  v-if="post.image && post.image.length > 0" 
-                  :src="getImageUrl(post.image[0])" 
-                  alt="Post Image" 
-                  class="post-image" 
-                />
+              <!-- 博客内容 -->
+              <div class="post-content-home">
+                <h2 class="post-title-home">{{ post.title }}</h2>
+                <p class="post-text-home">{{ post.content }}</p>
+              </div>
 
-                <!-- 博客内容 -->
-                <div class="post-content">
-                  <h2 class="post-title">{{ post.title }}</h2>
-                  <p class="post-text">{{ post.content }}</p>
+              <!-- 博客底部信息 -->
+              <div class="post-footer-home">
+                <!-- 作者信息 -->
+                <div class="author-info-home">
+                  <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar-home" />
+                  <span class="author-name-home">{{ post.user?.name }}</span>
                 </div>
 
-                <!-- 博客底部信息 -->
-                <div class="post-footer">
-                  <!-- 作者信息 -->
-                  <div class="author-info">
-                    <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
-                    <span class="author-name">{{ post.user?.name }}</span>
-                  </div>
-
-                  <!-- 统计信息 -->
-                  <div class="post-stats">
-                    <span class="likes">❤️ {{ post.likes }}</span>
-                    <span class="comments">💬 {{ post.comments_count }}</span>
-                    <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
-                  </div>
+                <!-- 统计信息 -->
+                <div class="post-stats">
+                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <span class="comments">💬 {{ post.comments_count }}</span>
+                  <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                 </div>
               </div>
-              <!-- 用于无限滚动触发的底部监测元素 -->
-              <div ref="bottomTrigger"></div>
             </div>
+            <div ref="bottomTrigger"></div>
           </div>
         </div>
       </section>

@@ -154,6 +154,7 @@
           -webkit-box-orient: vertical;
           overflow: hidden;
           line-height: 1.2;
+          margin-bottom: 10px;
         }
 
         .post-text {
@@ -169,17 +170,11 @@
       }
 
       .post-footer {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        padding: 12px 15px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(5px);
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.05);
 
         .author-info {
           display: flex;

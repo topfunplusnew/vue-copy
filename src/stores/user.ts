@@ -77,6 +77,9 @@ export const useUserStore = defineStore('user', () => {
     selectedPost.value = undefined;
   }
 
+  //编辑用户信息
+  
+
   return { 
     // 状态
     user, 
