@@ -455,7 +455,7 @@ function formatDate(dateString) {
 </script>
 
 <template>
-  <div class="user-page">
+  <div class="otheruser-page">
     <!-- 顶部 Header -->
     <header class="header">
       <div class="nav-container">

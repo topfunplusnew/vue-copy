@@ -1,4 +1,4 @@
-@import './blog-detail';
+
 
 /* 整体页面背景 & 尺寸处理 */
 .user-page {
@@ -373,14 +373,42 @@
   justify-content: space-around;
   margin-bottom: 20px;
 }
-.follow-item {
-  text-align: center;
+.follow-item, .follower-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* 在非常窄的屏幕上减小内边距 */
+  @media (max-width: 400px) {
+    padding: 0 5px;
+  }
 }
-.follow-link {
+.follow-link, .follower-link {
   color: #fff;
   font-size: 1.5rem;
+  font-weight: 500;
   text-decoration: underline;
   margin-left: 4px;
+  position: relative;
+  padding-bottom: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: #4a90e2;
+    
+    /* 使用动画下划线替代静态下划线 */
+    &:after {
+      transform: scaleX(1);
+    }
+  }
 }
 
 .follower-item {
@@ -403,8 +431,37 @@
   text-align: center;
 }
 .number {
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   font-weight: bold;
+  margin-right: 8px;
+  position: relative;
+  z-index: 1;
+  
+  /* 添加微妙的光晕效果 */
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .follow-item:hover &:after,
+  .follower-item:hover &:after {
+    opacity: 1;
+  }
+  
+  /* 在非常窄的屏幕上减小字体大小 */
+  @media (max-width: 400px) {
+    font-size: 1.8rem;
+    margin-right: 5px;
+  }
 }
 .label {
   display: block;
@@ -1126,6 +1183,356 @@
         }
       }
     }
+  }
+}
+
+/* 社交弹窗样式 */
+.social-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.social-modal-container {
+  width: 90%;
+  max-width: 1000px;
+  height: 80vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+.social-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+.social-modal-content {
+  display: flex;
+  height: 100%;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.social-modal-column {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  
+  &.following-column {
+    border-right: 1px solid #eee;
+    
+    @media (max-width: 768px) {
+      border-right: none;
+      border-bottom: 1px solid #eee;
+      max-height: 50%;
+    }
+  }
+}
+
+.social-modal-title {
+  font-size: 1.8rem;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.social-user-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.social-user-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.social-user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+  border: 1px solid #eee;
+}
+
+.social-user-info {
+  flex: 1;
+  min-width: 0; /* 确保文本可以正确截断 */
+}
+
+.social-user-name {
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.social-user-meta {
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.social-action-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #4a90e2;
+  background: white;
+  color: #4a90e2;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #f0f7ff;
+  }
+  
+  &.following {
+    background: #4a90e2;
+    color: white;
+    
+    &:hover {
+      background: #3a80d2;
+    }
+  }
+}
+
+.social-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #888;
+    font-size: 1.4rem;
+  }
+}
+
+.social-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  p {
+    color: #888;
+    font-size: 1.6rem;
+  }
+}
+
+/* 社交弹窗动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 关注和粉丝行样式 - 现代设计 */
+.follow-stats-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 22px 0;
+  padding: 15px 0;
+  position: relative;
+  
+  /* 使用渐变边框替代实线边框 */
+  &:before, &:after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      rgba(255,255,255,0), 
+      rgba(255,255,255,0.3) 50%, 
+      rgba(255,255,255,0)
+    );
+  }
+  
+  &:before {
+    top: 0;
+  }
+  
+  &:after {
+    bottom: 0;
+  }
+  
+  /* 添加分隔线 */
+  .follower-item {
+    position: relative;
+    
+    &:before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 70%;
+      width: 1px;
+      background: linear-gradient(180deg, 
+        rgba(255,255,255,0), 
+        rgba(255,255,255,0.4) 50%, 
+        rgba(255,255,255,0)
+      );
+    }
+  }
+  
+  /* 在非常窄的屏幕上保持水平布局，但减小间距 */
+  @media (max-width: 400px) {
+    padding: 8px 0;
+    margin: 10px 0;
+  }
+}
+
+.follow-item, .follower-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* 在非常窄的屏幕上减小内边距 */
+  @media (max-width: 400px) {
+    padding: 0 5px;
+  }
+}
+
+.number {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-right: 8px;
+  position: relative;
+  z-index: 1;
+  
+  /* 添加微妙的光晕效果 */
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .follow-item:hover &:after,
+  .follower-item:hover &:after {
+    opacity: 1;
+  }
+  
+  /* 在非常窄的屏幕上减小字体大小 */
+  @media (max-width: 400px) {
+    font-size: 1.8rem;
+    margin-right: 5px;
+  }
+}
+
+.follow-link, .follower-link {
+  font-size: 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding-bottom: 2px;
+  
+  &:hover {
+    color: #4a90e2;
+    
+    /* 使用动画下划线替代静态下划线 */
+    &:after {
+      transform: scaleX(1);
+    }
+  }
+  
+  /* 创建动画下划线 */
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #4a90e2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
   }
 }
 

@@ -1,4 +1,9 @@
 /* 注册页面容器 */
+
+.header-title-signup {
+  padding-top: 50px;
+}
+
 .signup-container {
   width: 100%;
   max-width: 650px;  /* 容器宽度增加 */
@@ -7,6 +12,7 @@
   background-color: transparent; /* 取消背景色，使容器融入页面背景 */
   border-radius: 10px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  margin-top: 100px;
 }
 
 /*表单格式在forgetpassword.scss中已经定义，这里直接引用*/

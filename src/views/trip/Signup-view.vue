@@ -4,10 +4,7 @@ import walletItem from '@/components/wallet-item.vue';
 import Captcha from '@/components/Captcha.vue';  // 引入 DragSlider 组件
 import { userSignup } from '@/services/api';
 
-
-
-
-const msg = 'Sign Up';
+const msg = 'Start Your Journey in iPoloGO';
 
 const errorMessage = ref('');
 const isVerified = ref(false);  // 用于判断验证码是否通过
@@ -63,12 +60,14 @@ const handleSubmit = () => {
           <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
         </div>
       </div>
-      <h1 class="header-title">{{ msg }}</h1>
+      
     </header>
+
+    <h2 class="header-title-signup">{{ msg }}</h2>
 
     <!-- 注册表单 -->
     <div class="signup-container">
-      <h2 class="text">Start a new journey!</h2> <!-- 新增的文本 -->
+      
       <form @submit.prevent="handleSubmit">
         <!-- 错误提示 -->
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -113,14 +112,4 @@ const handleSubmit = () => {
   </div>
 </template>
 
-<style scoped>
-.text {
-  font-size: 40px; /* 设置更大的字体 */
-  font-weight: bold;
-  text-align: center;
-  color: #ffffff; /* 设置文本颜色 */
-  margin-bottom: 50px; /* 增加下方的间距，可以根据需要调整 */
-}
 
-
-</style>
