@@ -2,9 +2,8 @@ import type{ IBlogReq } from '@/types/blog';
 import axios from 'axios';
 import { Auth } from './auth.ts';
 import type { IPairToken, ILogin, IUserEdit } from '@/types/user.ts';
-import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
+import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
-import type { IBlogDeleteReq } from '@/types/blog';
 
 const auth = new Auth();
 /**
@@ -77,6 +76,7 @@ export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
 
 export const myblogdelete = (id: number) => http.delete('/blog', {params: {blog_id: id}});
 
+export const myblogedit = (data: IBlogEdit) => http.put('/blog', data);
 
 export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.image, {
   headers: {
