@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, nextTick } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import type { IBlogPost } from '@/types/blog';
 import { VueCropper } from 'vue-cropper';
@@ -201,6 +201,7 @@ const isWalletConnected = computed(() => {
 
 // 添加图片导航相关状态
 const currentImageIndex = ref(0);
+const newComment = ref('');
 
 // 添加图片导航方法
 function prevImage() {
@@ -214,7 +215,6 @@ function nextImage() {
     currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
   }
 }
-
 
 // 添加编辑模式状态
 const isEditMode = ref(false);
@@ -251,6 +251,51 @@ const deleteBlog = async (blogId: number, event: Event) => {
     }
   }
 };
+
+// 评论功能
+function submitComment() {
+  if (!newComment.value.trim()) return;
+  
+  // 创建新评论对象
+  const comment = {
+    id: Date.now(), // 临时ID
+    content: newComment.value,
+    user: {
+      name: user.value?.name || 'Anonymous',
+      avatar: user.value?.avatar || 'default-avatar.jpg'
+    },
+    create_at: new Date().toISOString()
+  };
+  
+  // 添加到评论列表
+  if (!selectedBlog.value.comments) {
+    selectedBlog.value.comments = [];
+  }
+  selectedBlog.value.comments.push(comment);
+  
+  // 更新评论计数
+  selectedBlog.value.comments_count = (selectedBlog.value.comments_count || 0) + 1;
+  
+  // 清空输入
+  newComment.value = '';
+  
+  // 滚动到新评论
+  nextTick(() => {
+    scrollToComments();
+  });
+}
+
+function scrollToComments() {
+  const commentsSection = document.querySelector('.comments-container');
+  const detailRight = document.querySelector('.detail-right');
+  
+  if (commentsSection && detailRight) {
+    detailRight.scrollTo({
+      top: commentsSection.offsetTop - 20,
+      behavior: 'smooth'
+    });
+  }
+}
 
 </script>
 
@@ -452,35 +497,12 @@ const deleteBlog = async (blogId: number, event: Event) => {
 
   <!-- 博客详情弹出层 -->
   <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
-    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog.isNFT }">
+    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
       <!-- 关闭按钮移到容器顶层 -->
       <button class="close-button" @click="closeBlogDetail">×</button>
       
-      <!-- 左侧内容区域 -->
+      <!-- 左侧区域：图片和统计信息 -->
       <div class="detail-left">
-        <!-- 顶部信息栏 -->
-        <div class="detail-header">
-          <!-- 左侧作者信息 -->
-          <div class="author-info">
-            <img 
-              :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
-              alt="Author Avatar" 
-              class="author-avatar"
-            />
-            <span class="author-name">{{ selectedBlog?.user?.name }}</span>
-          </div>
-
-          <!-- 中间标题 -->
-          <h2 class="blog-title">{{ selectedBlog.title }}</h2>
-
-          <!-- 右侧统计信息 -->
-          <div class="post-stats">
-            <span class="likes">❤️ {{ selectedBlog.likes }}</span>
-            <span class="comments">💬 {{ selectedBlog.comments_count }}</span>
-            <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
-          </div>
-        </div>
-
         <!-- 图片区域 -->
         <div class="image-section">
           <div class="image-slider">
@@ -498,43 +520,65 @@ const deleteBlog = async (blogId: number, event: Event) => {
             <button class="nav-btn next" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
           </div>
         </div>
+        
+        <!-- 统计信息栏 -->
+        <div class="stats-bar">
+          <!-- 统计信息 -->
+          <div class="stats-info">
+            <span class="likes">❤️ {{ selectedBlog.likes }}</span>
+            <span class="comments" @click="scrollToComments">💬 {{ selectedBlog.comments_count }}</span>
+            <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
+          </div>
+        </div>
+      </div>
 
-        <!-- 添加评论区域 -->
-        <div class="comments-container">
+      <!-- 右侧内容区域 -->
+      <div class="detail-right" ref="detailRight">
+        <!-- 用户信息和标题 -->
+        <div class="user-header">
+          <div class="author-info">
+            <img 
+              :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+              alt="Author Avatar" 
+              class="author-avatar"
+            />
+            <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+          </div>
+          <h2 class="blog-title">{{ selectedBlog.title }}</h2>
+        </div>
+        
+        <!-- 标签区域 -->
+        <div class="tags-section">
+          <div class="nft-tag" v-if="selectedBlog.isNFT">NFT</div>
+          <span class="tag" v-for="tag in selectedBlog?.tags" :key="tag">
+            {{ tag }}
+          </span>
+        </div>
+        
+        <!-- 博客内容 -->
+        <div class="content-section">
+          <p class="blog-content">{{ selectedBlog.content }}</p>
+        </div>
+        
+        <!-- 评论部分 -->
+        <div class="comments-container" ref="commentsSection">
           <div class="comments-header">
             <h3>Comments</h3>
             <span class="comment-count">{{ selectedBlog?.comments?.length || 0 }}</span>
           </div>
           <div class="comments-list">
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
-              <div class="comment-user">
+              <div class="comment-row">
                 <img 
                   :src="getImageUrl(comment.user.avatar)" 
                   alt="Commenter Avatar" 
                   class="comment-avatar"
                 />
-                <div class="comment-info">
-                  <span class="comment-username">{{ comment.user.name }}</span>
-                  <p class="comment-text">{{ comment.content }}</p>
-                </div>
+                <span class="comment-username">{{ comment.user.name }}</span>
+                <p class="comment-text">{{ comment.content }}</p>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- 右侧内容区域 -->
-      <div class="detail-right">
-        <!-- 标签区域 -->
-        <div class="tags-section">
-          <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag">
-            {{ tag }}
-          </span>
-        </div>
-
-        <!-- 博客内容 -->
-        <div class="content-section">
-          <p class="blog-content">{{ selectedBlog.content }}</p>
         </div>
       </div>
     </div>
