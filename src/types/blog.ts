@@ -39,3 +39,12 @@ export interface IBlogComment extends ICommon {
   blog_id: number; // blog id
   user: IUser;
 }
+
+export interface IBlogEdit {
+  title: string;
+  content: string;
+  image?: string[];
+  tags?: string[];
+  preferences?: string[];
+  isNFT?: boolean;
+}

@@ -1,115 +1,151 @@
 <script setup lang="ts">
-import walletItem from '@/components/wallet-item.vue';
-import type { ILogin } from '@/types/user';
-import { reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus';
-import { useUserStore } from '@/stores/user';
+import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import SignupView from './Signup-view.vue';
+import { useUserStore } from '@/stores/user';
+import walletItem from '@/components/wallet-item.vue';
+import { ElInput, ElMessage } from 'element-plus';
 
 const router = useRouter();
 const store = useUserStore();
-const params = reactive(<ILogin>{ email: '', password: '' });
-const loading = ref(false);
 
-function handleSubmit() {
-  if (!params.email || !params.password) {
-    ElMessage.error('Please enter your email and password');
+const loginForm = reactive({
+  email: '',
+  password: ''
+});
+
+const errorMessage = ref('');
+const isLoading = ref(false);
+const rememberMe = ref(false);
+
+const handleLogin = async () => {
+  if (!loginForm.email || !loginForm.password) {
+    errorMessage.value = 'Please enter both email and password.';
     return;
   }
 
-  loading.value = true;
-  store
-    .login(params)
-    .then((res) => {
-      ElMessage.success('Login successful');
-      router.push({ name: 'userpage' });
-    })
-    .catch((e) => {
-      if (e.response?.status === 400) {
-        ElMessage.error('Incorrect email or password');
-      } else {
-        ElMessage.error('Login failed, please try again later');
-      }
-    })
-    .finally(() => {
-      loading.value = false;
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    await store.login(loginForm);
+    
+    ElMessage({
+      message: 'Login successful!',
+      type: 'success',
+      duration: 2000
     });
-}
+    
+    // 登录成功后跳转到首页
+    router.push({ name: 'home' });
+  } catch (error) {
+    console.error(error);
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage.value = `Login failed: ${error.response.data.message}`;
+    } else {
+      errorMessage.value = 'Login failed. Please check your credentials and try again.';
+    }
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleForgotPassword = () => {
+  ElMessage({
+    message: 'Password reset functionality will be available soon.',
+    type: 'info',
+    duration: 3000
+  });
+};
+
+const handleSocialLogin = (provider) => {
+  ElMessage({
+    message: `${provider} login will be available soon.`,
+    type: 'info',
+    duration: 3000
+  });
+};
 </script>
 
 <template>
-  <div class="home">
-    <!-- Header 区域（保持原有设计） -->
+  <div class="login-page">
     <header class="header">
       <div class="nav-container">
         <div class="left-nav">
-          <router-link :to="{ name: 'home' }">
-            <el-button class="nav-button">HOME</el-button>
-          </router-link>
-          <router-link :to="{ name: 'about' }">
-            <el-button class="nav-button">ABOUT</el-button>
-          </router-link>
-          <router-link :to="{ name: 'blog' }">
-            <el-button class="nav-button">BLOG</el-button>
-          </router-link>
-          <router-link :to="{ name: 'contact' }">
-            <el-button class="nav-button">CONTACT</el-button>
-          </router-link>
-        </div>
-        <div class="right-nav">
+          <router-link :to="{ name: 'home' }"><el-button class="nav-button">HOME</el-button></router-link>
+          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
+          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
+          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
           <wallet-item />
-          <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">LOGIN</el-button>
-          </router-link>
-          <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">SIGN UP</el-button>
-          </router-link>
-          <router-link :to="{ name: 'userpage' }">
-            <el-button class="nav-button">User Page</el-button>
-          </router-link>
+          <router-link :to="{ name: 'login' }"><el-button class="nav-button">LOGIN</el-button></router-link>
+          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
         </div>
       </div>
-      <h1 class="welcome-text">Welcome Back!</h1>
     </header>
 
-    <!-- 主体部分：左右两栏结构 -->
-    <main class="main">
-      <div class="content-container">
-        <!-- 左侧：登录功能及相关选项 -->
-        <div class="left-panel">
-          <div class="login-container">
-            <div class="login-form">
-              <h2>Login</h2>
-              <form @submit.prevent="handleSubmit">
-                <input type="text" v-model="params.email" placeholder="Username / Email" required />
-                <input type="password" v-model="params.password" placeholder="Password" required />
-                <button type="submit" class="login-button" :disabled="loading">Login</button>
-              </form>
+    <div class="login-hero">
+      <h2 class="header-title-login">Welcome Back</h2>
+      <p class="login-subtitle">Sign in to continue your journey</p>
+    </div>
 
-              <!-- 忘记密码和注册链接 -->
-              <div class="links-container">
-                <router-link to="/forgetpassword" class="forgot-password-link">Forgot Password?</router-link>
-                <router-link to="/signup" class="signup-link">Sign up</router-link>
-              </div>
+    <div class="login-container">
+      <form @submit.prevent="handleLogin">
+        <h3 class="form-title-login">Sign In</h3>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
-              <!-- 分割线及 or -->
-              <div class="or-divider">
-                <span>or</span>
-              </div>
-              <!-- 快捷登录提示 -->
-              <p class="quick-login-text">Quick login in the following ways:</p>
-              <!-- 快捷登录模块 -->
-              <div class="social-login">
-                <button class="social-button google">Google</button>
-                <button class="social-button apple">Apple</button>
-              </div>
-            </div>
-          </div>
+        <div class="form-group-login">
+          <label for="email">Email</label>
+          <input type="email" id="email" v-model="loginForm.email" placeholder="Your email address" required />
         </div>
 
-      </div>
-    </main>
+        <div class="form-group-login">
+          <label for="password">Password</label>
+          <el-input
+            v-model="loginForm.password"
+            id="password"
+            type="password"
+            placeholder="Your password"
+            show-password
+            required
+          />
+        </div>
+
+        <div class="form-options">
+          <div class="remember-me">
+            <input type="checkbox" id="remember" v-model="rememberMe" />
+            <label for="remember">Remember me</label>
+          </div>
+          <a href="#" class="forgot-password" @click.prevent="handleForgotPassword">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="login-button" :disabled="isLoading">
+          <span v-if="!isLoading">Sign In</span>
+          <span v-else class="loading-spinner"></span>
+        </button>
+        
+        <div class="or-divider">
+          <span>or continue with</span>
+        </div>
+        
+        <div class="social-login">
+          <button type="button" class="social-button" @click="handleSocialLogin('Google')">
+            <img src="@/assets/google-logo.svg" alt="Google" />
+            Google
+          </button>
+          <button type="button" class="social-button" @click="handleSocialLogin('Apple')">
+            <img src="@/assets/apple-logo.svg" alt="Apple" />
+            Apple
+          </button>
+          <button type="button" class="social-button" @click="handleSocialLogin('WeChat')">
+            <img src="@/assets/wechat-logo.svg" alt="WeChat" />
+            WeChat
+          </button>
+        </div>
+        
+        <div class="signup-link">
+          Don't have an account? <router-link :to="{ name: 'signup' }">Sign up</router-link>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 

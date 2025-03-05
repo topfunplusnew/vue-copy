@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
@@ -311,6 +311,42 @@ function nextImage() {
   }
 }
 
+// 添加评论功能到博客弹窗
+const showCommentInput = ref(false);
+const newComment = ref('');
+
+const submitComment = () => {
+  if (!newComment.value.trim()) return;
+  if (!selectedBlog.value?.id) return;
+  store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
+    console.log(res);
+  }).catch(e=>{
+    console.log(e);
+  }).finally(()=>{
+    // 清空输入
+    newComment.value = '';
+    if(selectedBlog.value?.id) store.getBlogByID(selectedBlog.value?.id);
+    
+    // 滚动到新评论
+    nextTick(() => {
+      scrollToComments();
+    });
+  });  
+
+};
+
+const scrollToComments = () => {
+  const commentsSection = document.querySelector('.comments-container-home');
+  const detailRight = document.querySelector('.detail-right-home');
+  
+  if (commentsSection && detailRight) {
+    detailRight.scrollTo({
+      top: commentsSection.offsetTop - 20,
+      behavior: 'smooth'
+    });
+  }
+};
+
 </script>
 
 <template>
@@ -485,31 +521,8 @@ function nextImage() {
         <!-- 关闭按钮 -->
         <button class="close-button-home" @click="closeBlogDetail">×</button>
         
-        <!-- 左侧内容区域 -->
+        <!-- 左侧区域：图片和统计信息 -->
         <div class="detail-left-home">
-          <!-- 顶部信息栏 -->
-          <div class="detail-header-home">
-            <!-- 左侧作者信息 -->
-            <div class="author-info-home">
-              <img 
-                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
-                alt="Author Avatar" 
-                class="author-avatar-home"
-              />
-              <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
-            </div>
-
-            <!-- 中间标题 -->
-            <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
-
-            <!-- 右侧统计信息 -->
-            <div class="post-stats-home">
-              <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
-              <span class="comments-home">💬 {{ selectedBlog?.comments_count }}</span>
-              <span class="coins-home" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
-            </div>
-          </div>
-
           <!-- 图片区域 -->
           <div class="image-section-home">
             <div class="image-slider-home">
@@ -527,9 +540,66 @@ function nextImage() {
               <button class="nav-btn-home next-home" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
             </div>
           </div>
+          
+          <!-- 统计信息栏 -->
+          <div class="stats-bar-home">
+            <!-- 统计信息 -->
+            <div class="stats-info-home">
+              <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
+              <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
+              <span class="coins-home" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
+            </div>
 
-          <!-- 评论区域 -->
-          <div class="comments-container-home">
+            <!-- 简化的评论输入框 -->
+            <div class="quick-comment-input">
+              <input 
+                type="text" 
+                v-model="newComment" 
+                placeholder="Add a comment..." 
+                @keyup.enter="submitComment"
+                class="comment-input-home"
+              />
+              <button 
+                class="submit-quick-comment" 
+                @click="submitComment" 
+                :disabled="!newComment.trim()"
+              >
+                <span>💬</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧内容区域 -->
+        <div class="detail-right-home" ref="detailRight">
+          <!-- 用户信息和标题 -->
+          <div class="user-header-home">
+            <div class="author-info-home">
+              <img 
+                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+                alt="Author Avatar" 
+                class="author-avatar-home"
+              />
+              <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
+            </div>
+            <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
+          </div>
+          
+          <!-- 标签区域 -->
+          <div class="tags-section-home">
+            <div class="nft-tag-home" v-if="selectedBlog?.isNFT">NFT</div>
+            <span class="tag-home" v-for="tag in selectedBlog?.tags" :key="tag">
+              {{ tag }}
+            </span>
+          </div>
+          
+          <!-- 博客内容 -->
+          <div class="content-section-home">
+            <p class="blog-content-home">{{ selectedBlog?.content }}</p>
+          </div>
+          
+          <!-- 评论部分 -->
+          <div class="comments-container-home" ref="commentsSection">
             <div class="comments-header-home">
               <h3>Comments</h3>
               <span class="comment-count-home">{{ selectedBlog?.comments?.length || 0 }}</span>
@@ -547,21 +617,6 @@ function nextImage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- 右侧内容区域 -->
-        <div class="detail-right-home">
-          <!-- 标签区域 -->
-          <div class="tags-section-home">
-            <span v-for="tag in selectedBlog?.tags" :key="tag" class="tag-home">
-              {{ tag }}
-            </span>
-          </div>
-
-          <!-- 博客内容 -->
-          <div class="content-section-home">
-            <p class="blog-content-home">{{ selectedBlog?.content }}</p>
           </div>
         </div>
       </div>

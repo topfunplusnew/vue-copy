@@ -1,10 +1,9 @@
 import type{ IBlogReq } from '@/types/blog';
 import axios from 'axios';
 import { Auth } from './auth.ts';
-import type { IPairToken, ILogin, IUserEdit } from '@/types/user.ts';
-import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
+import type { IPairToken, ILogin, IUserEdit, IUserSignup } from '@/types/user.ts';
+import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
-import type { IBlogDeleteReq } from '@/types/blog';
 
 const auth = new Auth();
 /**
@@ -67,7 +66,7 @@ export const userLogin = (credentials: ILogin) =>
 
 // export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
 
-export const userSignup = (data: IUserEdit) => http.post('/user/signup', data);
+export const userSignup = (data: IUserSignup) => http.post('/user/signup', data);
 
 export const userProfile = () => http.get('/user/profile');
 
@@ -77,6 +76,7 @@ export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
 
 export const myblogdelete = (id: number) => http.delete('/blog', {params: {blog_id: id}});
 
+export const myblogedit = (data: IBlogEdit) => http.put('/blog', data);
 
 export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.image, {
   headers: {
@@ -105,5 +105,6 @@ export const chatHistory = () => http.get('/chat_history');
 
 export const restorechatHistory = (historyId: string) => http.get('/restore_chat_history', {params:{historyId}});
 
+export const comment2Blog = (blogId: number, content: string) => http.post('/blog/comment', {id:blogId, blog:true, content});
 
-
+export const comment2Comment = (commentId: number, content: string) => http.post('/user/comment', {id:commentId, content});

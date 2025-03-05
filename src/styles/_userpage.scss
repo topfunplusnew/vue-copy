@@ -1,4 +1,4 @@
-@import './blog-detail';
+
 
 /* 整体页面背景 & 尺寸处理 */
 .user-page {
@@ -26,6 +26,12 @@
     display: flex;
     gap: 1.5rem;
     align-items: center;
+    
+    /* 在窄屏幕上调整导航栏位置 */
+    @media (max-width: 992px) {
+      margin-left: 0;
+      justify-content: center;
+    }
   }
 
   .nav-button {
@@ -43,6 +49,12 @@
     transition:
     background-color 0.3s ease,
     transform 0.3s ease;
+    
+    /* 在窄屏幕上调整按钮大小 */
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+      padding: 8px 16px;
+    }
   }
 
   .el-button:hover {
@@ -78,6 +90,13 @@
   display: flex;
   /* 让内容从 header 下方开始 */
   margin-top: 0.5rem;
+  transition: flex-direction 0.3s ease, align-items 0.3s ease;
+  
+  /* 在窄屏幕上改为上下布局 */
+  @media (max-width: 992px) {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 /* 左侧用户面板 */
@@ -90,6 +109,14 @@
   padding: 20px;
   box-sizing: border-box;
   border-radius: 5px;
+  transition: width 0.3s ease, margin-bottom 0.3s ease;
+  
+  /* 在窄屏幕上调整宽度和高度 */
+  @media (max-width: 992px) {
+    width: 90%;
+    max-width: 600px;
+    margin-bottom: 20px;
+  }
 }
 
 /* 垂直分隔线，随 sidebar 同高 */
@@ -99,6 +126,12 @@
   // height: 100%;
   min-height: 30vh;
   /* 如果 header 是固定定位，需要自行计算 offset */
+  transition: opacity 0.3s ease, display 0.3s ease;
+  
+  /* 在窄屏幕上隐藏垂直分隔线 */
+  @media (max-width: 992px) {
+    display: none;
+  }
 }
 
 /* 右侧博客区 */
@@ -107,12 +140,33 @@
   overflow-y: auto; /* 自带滚动 */
   padding: 20px;
   box-sizing: border-box;
+  transition: width 0.3s ease;
+  
+  /* 在窄屏幕上调整宽度 */
+  @media (max-width: 992px) {
+    width: 100%;
+  }
 
   .blog-posts {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    /* 从 3 列修改为 4 列 */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2rem; /* 稍微减小间距 */
     padding: 0.5rem;
+    transition: grid-template-columns 0.3s ease;
+
+    /* 响应式布局 - 根据屏幕宽度调整列数 */
+    @media (max-width: 1400px) {
+      grid-template-columns: repeat(3, 1fr); /* 宽度小于1400px时显示3列 */
+    }
+    
+    @media (max-width: 1100px) {
+      grid-template-columns: repeat(2, 1fr); /* 宽度小于1100px时显示2列 */
+    }
+    
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(1, 1fr); /* 宽度小于768px时显示1列 */
+    }
 
     .blog-post {
       position: relative;
@@ -123,7 +177,8 @@
       cursor: pointer;
       display: flex;
       flex-direction: column;
-      height: 420px;
+      /* 减小高度以适应更小的宽度 */
+      height: 315px;
       
       &:hover {
         transform: translateY(-2px);
@@ -131,14 +186,15 @@
 
       .post-image {
         width: 100%;
-        height: 240px;
+        /* 减小图片高度 */
+        height: 200px; 
         object-fit: cover;
         flex-shrink: 0;
       }
 
       .post-content {
         flex: 1;
-        padding: 15px;
+        padding: 12px;
         display: flex;
         flex-direction: column;
         overflow: visible;
@@ -146,30 +202,35 @@
         padding-bottom: 60px;
 
         .post-title {
-          font-size: 2rem;
+          font-size: 1.4rem;
           font-weight: bold;
           color: #fff;
           display: -webkit-box;
-          -webkit-line-clamp: 2;
+          -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          line-height: 1.4;
-          margin: 0 0 10px 0;
+          line-height: 1.3;
+          margin: 0 0 5px 0;
           max-height: none;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
 
         .post-text {
-          font-size: 1.6rem;
+          font-size: 1.3rem;
           color: rgba(255, 255, 255, 0.8);
           display: -webkit-box;
-          -webkit-line-clamp: 2;
+          -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          line-height: 1.4;
-          margin: 0 0 10px 0;
+          line-height: 1.3;
+          margin: 0 0 5px 0;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
       }
 
+      /* 底部信息栏样式 */
       .post-footer {
         position: absolute;
         bottom: 0;
@@ -178,43 +239,29 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 10px;
+        padding: 6px 8px; /* 减小内边距 */
         background: rgba(0, 0, 0, 0.1);
         z-index: 2;
 
         .author-info {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-
           .post-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            object-fit: cover;
+            width: 24px; /* 减小头像大小 */
+            height: 24px;
           }
 
           .author-name {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.4rem;
-            white-space: nowrap;
+            font-size: 1.3rem; /* 减小字体大小 */
+            max-width: 60px; /* 限制宽度 */
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 100px;
           }
         }
 
         .post-stats {
-          display: flex;
-          gap: 12px;
-          
+          gap: 6px; /* 减小间距 */
+
           span {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.4rem;
-            white-space: nowrap;
+            font-size: 1.2rem; /* 减小字体大小 */
           }
         }
       }
@@ -326,14 +373,42 @@
   justify-content: space-around;
   margin-bottom: 20px;
 }
-.follow-item {
-  text-align: center;
+.follow-item, .follower-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* 在非常窄的屏幕上减小内边距 */
+  @media (max-width: 400px) {
+    padding: 0 5px;
+  }
 }
-.follow-link {
+.follow-link, .follower-link {
   color: #fff;
   font-size: 1.5rem;
+  font-weight: 500;
   text-decoration: underline;
   margin-left: 4px;
+  position: relative;
+  padding-bottom: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    color: #4a90e2;
+    
+    /* 使用动画下划线替代静态下划线 */
+    &:after {
+      transform: scaleX(1);
+    }
+  }
 }
 
 .follower-item {
@@ -356,8 +431,37 @@
   text-align: center;
 }
 .number {
-  font-size: 1.5rem;
+  font-size: 2.2rem;
   font-weight: bold;
+  margin-right: 8px;
+  position: relative;
+  z-index: 1;
+  
+  /* 添加微妙的光晕效果 */
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .follow-item:hover &:after,
+  .follower-item:hover &:after {
+    opacity: 1;
+  }
+  
+  /* 在非常窄的屏幕上减小字体大小 */
+  @media (max-width: 400px) {
+    font-size: 1.8rem;
+    margin-right: 5px;
+  }
 }
 .label {
   display: block;
@@ -461,7 +565,7 @@
       background: rgba(255, 215, 0, 0.2);
       padding: 4px 8px;
       border-radius: 4px;
-      font-size: 2rem;
+      font-size: 1.4rem;
       color: gold;
       backdrop-filter: blur(4px);
       border: 1px solid rgba(255, 215, 0, 0.3);
@@ -511,396 +615,352 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  padding: 20px; // 添加内边距，让弹窗与屏幕边缘保持一定距离
-
+  
+  /* 主容器 */
   .blog-detail-container {
-    position: relative;
-    background: rgba(255, 255, 255, 0.95);
-    min-width: 90vw;
-    min-height: 90vh;
-    border-radius: 10px;
+    width: 94%;
+    height: 85vh;
     display: flex;
+    border-radius: 16px;
+    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    background: white;
+    max-width: none;
+    transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+    
+    /* 在窄屏幕上调整为垂直布局 */
+    @media (max-width: 768px) {
+      flex-direction: column;
+      height: 90vh;
+    }
 
-    // 关闭按钮样式
+    /* 关闭按钮 */
     .close-button {
       position: absolute;
-      top: 15px;
-      right: 15px;
-      width: 32px;
-      height: 32px;
-      font-size: 24px;
-      background: rgba(0, 0, 0, 0.2);
+      top: 20px;
+      right: 50px;
+      width: 40px;
+      height:40px;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
       border: none;
       border-radius: 50%;
-      color: white;
+      font-size: 20px;
       cursor: pointer;
+      z-index: 1001;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.3s ease;
-      z-index: 1000;
-
+      
       &:hover {
-        background: rgba(0, 0, 0, 0.4);
+        background: rgba(0, 0, 0, 0.6);
         transform: rotate(90deg);
       }
     }
-
-    // NFT 标识
-    &.nft-post {
-      &::after {
-        content: 'NFT';
-        position: absolute;
-        top: 5px;
-        background: rgba(255, 215, 0, 0.1);
-        padding: 6px 12px;
-        border-radius: 4px;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: gold;
-        backdrop-filter: blur(4px);
-        border: 1px solid rgba(255, 215, 0, 0.3);
-        z-index: 2;
-      }
-    }
-
-    // 左侧内容区域
+    
+    /* 左侧区域：图片和统计信息 */
     .detail-left {
-      width: 60%;
-      height: 100%;
+      flex: 6;
+      background: white;
+      position: relative;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid rgba(0, 0, 0, 0.1);
-
-      // 顶部信息栏
-      .detail-header {
-        height: 80px;
-        padding: 0 20px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        background: white;
-
-        // 作者信息
-        .author-info {
-          margin-left: 20px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          min-width: 200px;
-
-          .author-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-          }
-
-          .author-name {
-            font-size: 1.6rem;
-            font-weight: 500;
-            color: #333;
-          }
-        }
-
-        // 博客标题
-        .blog-title {
-          flex: 1;
-          font-size: 2.4rem;
-          font-weight: bold;
-          color: #333;
-          text-align: center;
-          margin: 0;
-          padding: 0 20px;
-          // 标题过长时显示省略号
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        // 统计信息
-        .post-stats {
-          margin-right: 30px;
-          display: flex;
-          gap: 15px;
-          min-width: 200px;
-          justify-content: flex-end;
-
-          span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 1.6rem;
-            color: #1c1c1c;
-
-            &.coins {
-              color: gold;
-            }
-          }
-        }
+      transition: height 0.3s ease;
+      
+      /* 在窄屏幕上调整高度 */
+      @media (max-width: 768px) {
+        height: 50%;
       }
-
-      // 图片区域
+      
+      /* 图片显示区域 */
       .image-section {
+        flex: 1;
         position: relative;
         overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background: #f5f5f5;
-        height: 70vh; // 设置固定高度
-
+        
         .image-slider {
           width: 100%;
           height: 100%;
           position: relative;
-
+          
           .image-wrapper {
-            display: flex;
             width: 100%;
             height: 100%;
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            will-change: transform;
-
+            display: flex;
+            transition: transform 0.3s ease;
+            
             .detail-image {
-              width: 100%; // 图片宽度占满容器
-              height: 100%; // 高度占满容器
-              flex: 0 0 100%; // 每张图片占据整个容器宽度
-              object-fit: contain; // 保持图片比例
+              width: 100%;
+              height: 100%;
+              flex-shrink: 0;
+              object-fit: contain;
             }
           }
-
-          // 导航按钮样式
+          
+          /* 导航按钮 */
           .nav-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
             background: rgba(0, 0, 0, 0.3);
             color: white;
             border: none;
-            width: 40px;
-            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            font-size: 24px;
-            z-index: 2;
-
+            transition: all 0.3s ease;
+            
+            &:hover {
+              background: rgba(0, 0, 0, 0.6);
+            }
+            
             &.prev {
-              left: 20px;
-              border-radius: 0 4px 4px 0;
+              left: 15px;
             }
-
+            
             &.next {
-              right: 20px;
-              border-radius: 4px 0 0 4px;
-            }
-          }
-
-          // 鼠标悬停时显示导航按钮
-          &:hover .nav-btn {
-            opacity: 1;
-          }
-
-          // 添加图片指示器
-          .image-dots {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
-            padding: 8px 12px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 20px;
-            z-index: 2;
-
-            span {
-              width: 8px;
-              height: 8px;
-              border-radius: 50%;
-              background: rgba(255, 255, 255, 0.5);
-              cursor: pointer;
-              transition: all 0.3s ease;
-
-              &.active {
-                background: white;
-                transform: scale(1.2);
-              }
+              right: 15px;
             }
           }
         }
       }
-
-      // 评论区容器
-      .comments-container {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-
-        // 评论区头部
-        .comments-header {
-          margin-bottom: 16px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-
-          h3 {
-            font-size: 1.8rem;
-            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-            color: #333;
-            margin: 0;
-          }
-
-          .comment-count {
-            font-size: 1.4rem;
-            color: #666;
-            background: rgba(0, 0, 0, 0.05);
-            padding: 4px 12px;
-            border-radius: 12px;
-          }
-        }
-
-        // 评论列表
-        .comments-list {
-          max-height: 300px;
-          overflow-y: auto;
-
-          .comment-item {
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-
-            &:last-child {
-              border-bottom: none;
+      
+      /* 统计信息栏 */
+      .stats-bar {
+        height: 60px;
+        background: #f8f8f8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        border-top: 1px solid #eee;
+        
+        /* 统计信息 */
+        .stats-info {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          
+          span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover {
+              transform: translateY(-2px);
             }
-
-            .comment-user {
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              margin-bottom: 8px;
-
-              .comment-avatar {
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-                object-fit: cover;
-              }
-
-              .comment-info {
-                display: flex;
-                flex-direction: column;
-
-                .comment-username {
-                  font-size: 1.4rem;
-                  font-weight: 500;
-                  color: #333;
-                }
-
-                .comment-date {
-                  font-size: 1.2rem;
-                  color: #999;
-                }
-              }
-            }
-
-            .comment-text {
-              font-size: 1.4rem;
-              color: #666;
-              line-height: 1.4;
-              margin: 0;
-              padding-left: 48px; // 对齐头像右侧
-            }
-          }
-
-          // 滚动条样式
-          &::-webkit-scrollbar {
-            width: 6px;
-          }
-
-          &::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-          }
-
-          &::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 3px;
           }
         }
       }
     }
-
-    // 右侧信息区域
+    
+    /* 右侧内容区域 */
     .detail-right {
-      width: 40%;
-      height: 100%;
-      border-left: 1px solid rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-
-      // 标签区域样式
+      flex: 4;
+      background: white;
+      padding: 30px 0 30px 30px;
+      overflow-y: overlay;
+      position: relative;
+      transition: height 0.3s ease;
+      
+      /* 在窄屏幕上调整高度 */
+      @media (max-width: 768px) {
+        height: 50%;
+      }
+      
+      /* 自定义滚动条样式 */
+      &::-webkit-scrollbar {
+        width: 6px; /* 减小滚动条宽度 */
+        background-color: transparent; /* 滚动条背景透明 */
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
+        border-radius: 4px; /* 滚动条滑块圆角 */
+      }
+      
+      &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
+      }
+      
+      /* 内容容器，添加右侧内边距 */
+      .content-wrapper {
+        padding-right: 30px; /* 为内容添加右侧内边距 */
+      }
+      
+      /* 用户信息和标题 */
+      .user-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-right: 30px; /* 为标题区域添加右侧内边距 */
+        
+        .author-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+          
+          .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          
+          .author-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #555;
+          }
+        }
+        
+        /* 博客标题 - 居中显示 */
+        .blog-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #111;
+          margin: 0;
+          line-height: 1.3;
+          text-align: center; /* 标题居中 */
+          margin-top: 10px; /* 增加与作者信息的间距 */
+        }
+      }
+      
+      /* 标签部分 */
       .tags-section {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        margin-bottom: 16px;
-        padding-bottom: 16px;
-        padding: 20px 20px 16px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        flex-shrink: 0;
-
+        margin: 15px 0 20px 0;
+        justify-content: left; /* 标签左对齐 */
+        padding-right: 30px; /* 为标签区域添加右侧内边距 */
+        
         .tag {
-          padding: 4px 12px;
-          background: rgba(0, 0, 0, 0.05);
-          border-radius: 16px;
-          font-size: 1.4rem;
-          color: #666;
+          background: #f0f0f0;
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
           font-weight: 500;
-          transition: all 0.3s ease;
-
-          &:hover {
-            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .nft-tag {
+          background: linear-gradient(45deg, #ffd700, #ffaa00);
+          color: #111;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+          &::before {
+            content: "₿";
+            font-weight: bold;
           }
         }
       }
-
+      
+      /* 内容部分 */
       .content-section {
-        flex: 1;
-        padding: 20px;
-        overflow-y: auto;
-        max-height: 75vh;
-
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        // border-bottom: 1px solid #eee;
+        padding-right: 30px; /* 为内容区域添加右侧内边距 */
+        
         .blog-content {
-          font-size: 1.8rem;
-          text-align: justify; 
-          font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+          font-size: 15px;
           line-height: 1.6;
           color: #333;
           white-space: pre-wrap;
           margin: 0;
+          text-align: justify; /* 内容左右对齐 */
         }
-
-        &::-webkit-scrollbar {
-          width: 6px;
+      }
+      
+      /* 评论部分 */
+      .comments-container {
+        padding-right: 30px; /* 为评论区域添加右侧内边距 */
+        
+        .comments-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+          
+          h3 {
+            font-size: 16px;
+            margin: 0;
+            color: #333;
+          }
+          
+          .comment-count {
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #555;
+          }
         }
-
-        &::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-thumb:hover {
-          background: #555;
+        
+        .comments-list {
+          .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            
+            &:last-child {
+              border-bottom: none;
+            }
+            
+            .comment-row {
+              display: flex;
+              align-items: flex-start;
+              gap: 10px;
+              
+              .comment-avatar {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                flex-shrink: 0;
+              }
+              
+              .comment-username {
+                font-size: 14px;
+                font-weight: 500;
+                color: #333;
+                min-width: 80px;
+                max-width: 80px;
+                flex-shrink: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin-top: 3px;
+              }
+              
+              .comment-text {
+                flex: 1;
+                font-size: 14px;
+                color: #555;
+                margin: 3px 0 0;
+                line-height: 1.4;
+              }
+            }
+          }
         }
       }
     }
@@ -1148,6 +1208,356 @@
         }
       }
     }
+  }
+}
+
+/* 社交弹窗样式 */
+.social-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.social-modal-container {
+  width: 90%;
+  max-width: 1000px;
+  height: 80vh;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+.social-modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 36px;
+  height: 36px;
+  background: rgba(0, 0, 0, 0.1);
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.2);
+  }
+}
+
+.social-modal-content {
+  display: flex;
+  height: 100%;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.social-modal-column {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  
+  &.following-column {
+    border-right: 1px solid #eee;
+    
+    @media (max-width: 768px) {
+      border-right: none;
+      border-bottom: 1px solid #eee;
+      max-height: 50%;
+    }
+  }
+}
+
+.social-modal-title {
+  font-size: 1.8rem;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.social-user-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.social-user-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.social-user-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 15px;
+  border: 1px solid #eee;
+}
+
+.social-user-info {
+  flex: 1;
+  min-width: 0; /* 确保文本可以正确截断 */
+}
+
+.social-user-name {
+  font-weight: 600;
+  font-size: 1.6rem;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.social-user-meta {
+  font-size: 1.2rem;
+  color: #888;
+}
+
+.social-action-btn {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid #4a90e2;
+  background: white;
+  color: #4a90e2;
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    background: #f0f7ff;
+  }
+  
+  &.following {
+    background: #4a90e2;
+    color: white;
+    
+    &:hover {
+      background: #3a80d2;
+    }
+  }
+}
+
+.social-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  
+  p {
+    color: #888;
+    font-size: 1.4rem;
+  }
+}
+
+.social-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  p {
+    color: #888;
+    font-size: 1.6rem;
+  }
+}
+
+/* 社交弹窗动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 关注和粉丝行样式 - 现代设计 */
+.follow-stats-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 22px 0;
+  padding: 15px 0;
+  position: relative;
+  
+  /* 使用渐变边框替代实线边框 */
+  &:before, &:after {
+    content: '';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, 
+      rgba(255,255,255,0), 
+      rgba(255,255,255,0.3) 50%, 
+      rgba(255,255,255,0)
+    );
+  }
+  
+  &:before {
+    top: 0;
+  }
+  
+  &:after {
+    bottom: 0;
+  }
+  
+  /* 添加分隔线 */
+  .follower-item {
+    position: relative;
+    
+    &:before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 70%;
+      width: 1px;
+      background: linear-gradient(180deg, 
+        rgba(255,255,255,0), 
+        rgba(255,255,255,0.4) 50%, 
+        rgba(255,255,255,0)
+      );
+    }
+  }
+  
+  /* 在非常窄的屏幕上保持水平布局，但减小间距 */
+  @media (max-width: 400px) {
+    padding: 8px 0;
+    margin: 10px 0;
+  }
+}
+
+.follow-item, .follower-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 12px;
+  transition: transform 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+  
+  /* 在非常窄的屏幕上减小内边距 */
+  @media (max-width: 400px) {
+    padding: 0 5px;
+  }
+}
+
+.number {
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-right: 8px;
+  position: relative;
+  z-index: 1;
+  
+  /* 添加微妙的光晕效果 */
+  &:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120%;
+    height: 120%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .follow-item:hover &:after,
+  .follower-item:hover &:after {
+    opacity: 1;
+  }
+  
+  /* 在非常窄的屏幕上减小字体大小 */
+  @media (max-width: 400px) {
+    font-size: 1.8rem;
+    margin-right: 5px;
+  }
+}
+
+.follow-link, .follower-link {
+  font-size: 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  padding-bottom: 2px;
+  
+  &:hover {
+    color: #4a90e2;
+    
+    /* 使用动画下划线替代静态下划线 */
+    &:after {
+      transform: scaleX(1);
+    }
+  }
+  
+  /* 创建动画下划线 */
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background-color: #4a90e2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
   }
 }
 

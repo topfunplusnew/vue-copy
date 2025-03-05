@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList,getBlogPost, myblogdelete } from '@/services/api';
-import type { ILogin, IUser, IUserEdit } from '@/types/user';
+import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList,getBlogPost, myblogdelete, userSignup } from '@/services/api';
+import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPost } from '@/types/blog';
 
 export const useUserStore = defineStore('user', () => {
@@ -31,6 +31,12 @@ export const useUserStore = defineStore('user', () => {
     logoutApi();
     user.value = undefined;
     userPosts.value = [];
+  }
+
+  function signup(req: IUserSignup) {
+    return userSignup(req).then(({ data }) => {
+      user.value = data;
+    });
   }
 
   function getUserInfo() {
@@ -95,6 +101,7 @@ export const useUserStore = defineStore('user', () => {
     getUserBlogList,
     getUserBlogByID,
     delUserBlogByID,
-    clearSelectedPost
+    clearSelectedPost,
+    signup
   };
 });
