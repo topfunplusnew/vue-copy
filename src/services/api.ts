@@ -105,6 +105,9 @@ export const chatHistory = () => http.get('/chat_history');
 
 export const restorechatHistory = (historyId: string) => http.get('/restore_chat_history', {params:{historyId}});
 
-export const comment2Blog = (blogId: number, content: string) => http.post('/blog/comment', {id:blogId, blog:true, content});
+export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 
 export const comment2Comment = (commentId: number, content: string) => http.post('/user/comment', {id:commentId, content});
+
+
+export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});

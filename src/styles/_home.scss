@@ -34,7 +34,7 @@
         display: flex;
         gap: 3rem;
         align-items: flex-start;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
         margin-top: 1.5rem;
       
           .field {
@@ -54,20 +54,89 @@
           .ld-info {
             margin-top: 0.2rem;
             display: flex;
-            font-size: 2rem;
+            align-items: center;
             font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+            
+            .location-info {
+              display: flex;
+              flex-direction: column;
+              flex: 1;
+            }
+            
+            .location-name {
+              font-size: 1.8rem;
+              font-weight: 500;
+              margin-bottom: 4px;
+            }
+            
+            .weather-info {
+              display: flex;
+              align-items: center;
+              font-size: 1.6rem;
+              color: rgba(255, 255, 255, 0.9);
+              
+              .weather-icon {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                margin-right: 5px;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                
+                &.sunny {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>');
+                }
+                
+                &.cloudy {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M19 18H6a4 4 0 1 1 0-8h.71a5.5 5.5 0 0 1 10.79 0H18a3 3 0 0 1 1 5.83"/></svg>');
+                }
+                
+                &.rainy {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2387CEFA"><path d="M16 18a4 4 0 0 0 0-8h-1a6 6 0 1 0-11 3 4 4 0 0 0 0 8"/><path d="M8 20v2M16 20v2M12 18v2" stroke="%2387CEFA" stroke-width="2"/></svg>');
+                }
+                
+                &.snowy {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M16 18a4 4 0 0 0 0-8h-1a6 6 0 1 0-11 3 4 4 0 0 0 0 8"/><path d="M8 15h8M12 11v8M9 13l6 6M15 13l-6 6" stroke="%23FFFFFF" stroke-width="1"/></svg>');
+                }
+                
+                &.thunderstorm {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFD700"><path d="M16 18a4 4 0 0 0 0-8h-1a6 6 0 1 0-11 3 4 4 0 0 0 0 8" fill="%23808080"/><path d="M13 10l-4 8h4l-2 4 6-8h-4l2-4" fill="%23FFD700"/></svg>');
+                }
+                
+                &.windy {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FFFFFF"><path d="M9.59 4.59A2 2 0 1 1 11 8H2M12.59 19.41A2 2 0 1 0 14 16H2M17.73 7.73A2.5 2.5 0 1 1 19.5 12H2"/></svg>');
+                }
+                
+                &.foggy {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23CCCCCC"><path d="M5 5h14M5 9h14M5 13h14M5 17h14"/></svg>');
+                }
+                
+                &.slick {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2387CEFA"><path d="M16 18a4 4 0 0 0 0-8h-1a6 6 0 1 0-11 3 4 4 0 0 0 0 8"/><path d="M8 20l2 2M16 20l-2 2M12 18l-2 4" stroke="%2387CEFA" stroke-width="2"/></svg>');
+                }
+                
+                &.hot {
+                  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23FF4500"><circle cx="12" cy="12" r="5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/><path d="M10 10l4 4M14 10l-4 4" stroke="%23FF4500" stroke-width="1"/></svg>');
+                }
+              }
+              
+              .weather-data {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-weight: 400;
+                letter-spacing: 0.5px;
+              }
+            }
           }
       
           .flag {
             width: 30px;
             height: 20px;
             border-radius: 4px;
+            margin-right: 10px;
             object-fit: cover;
-          }
-      
-          .weather-icon {
-            width: 24px;
-            height: 24px;
           }
         }
       }

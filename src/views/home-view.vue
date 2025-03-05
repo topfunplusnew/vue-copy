@@ -3,13 +3,14 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
+import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { Auth } from '@/services/auth';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
-import { getWeatherData } from '@/utils/weatherService';
+
 import { generateUserPrompt } from '@/stores/userprompt';
 import { getImageUrl } from '@/utils';
 
@@ -17,8 +18,7 @@ import { getImageUrl } from '@/utils';
 // Trip Options 部分
 const selectedLocation = ref('');
 const selectedDestination = ref('');
-const weather = ref('');
-const weatherIcon = ref(''); // 存储天气图标 URL
+
 const userLocation = ref('');
 const userDestination = ref('');
 const userFlag = ref('');
@@ -29,6 +29,12 @@ const errorMessage = ref('');
 const store = useBlogStore();
 const router = useRouter();
 const auth = new Auth();
+const componentsStore = usecomponentsStore();
+
+const originWeather = computed(() => componentsStore.originWeather);
+const originWeatherIcon = computed(() => componentsStore.originWeatherIcon);
+const destinationWeather = computed(() => componentsStore.destinationWeather);
+const destinationWeatherIcon = computed(() => componentsStore.destinationWeatherIcon);
 
 const preferenceOptions = ref([
   { name: 'Sightseeing', icon: '🌆' },
@@ -68,9 +74,9 @@ const handleLocationClick = async () => {
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
-    const weatherData = await getWeatherData(city);
-    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon;
+    
+    componentsStore.getWeather(city, false);
+
     updateUserInput();
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
@@ -86,15 +92,7 @@ const handleLocationChange = async (value: string) => {
     userFlag.value = loc.flagUrl || '';
     userLocation.value = loc.label;
   }
-  try {
-    const weatherData = await getWeatherData(value);
-    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon;
-  } catch (error) {
-    console.log(error);
-    weather.value = '天气数据不可用';
-    weatherIcon.value = '';
-  }
+  componentsStore.getWeather(value, false);
   updateUserInput();
 };
 
@@ -107,15 +105,8 @@ const handleDestinationSelect = async (value: string) => {
   } else {
     destinationFlag.value = '';
   }
-  try {
-    const weatherData = await getWeatherData(value);
-    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon;
-  } catch (error) {
-    console.log(error);
-    weather.value = '天气数据不可用';
-    weatherIcon.value = '';
-  }
+  componentsStore.getWeather(value, true);
+
   updateUserInput();
 };
 
@@ -401,8 +392,13 @@ const scrollToComments = () => {
             </el-select>
             <div class="ld-info">
               <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
-              <span>{{ userLocation }}</span>
-              <span v-if="weather">{{ weather }}</span>
+              <div class="location-info">
+                <span class="location-name">{{ userLocation }}</span>
+                <div class="weather-info" v-if="originWeather">
+                  <span class="weather-icon" :class="originWeatherIcon"></span>
+                  <span class="weather-data">{{ originWeather }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -414,9 +410,13 @@ const scrollToComments = () => {
             </el-select>
             <div class="ld-info">
               <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
-              <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" />
-              <span>{{ userDestination }}</span>
-              <span v-if="weather">{{ weather }}</span>
+              <div class="location-info">
+                <span class="location-name">{{ userDestination }}</span>
+                <div class="weather-info" v-if="destinationWeather">
+                  <span class="weather-icon" :class="destinationWeatherIcon"></span>
+                  <span class="weather-data">{{ destinationWeather }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
