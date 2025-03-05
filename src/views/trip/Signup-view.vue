@@ -22,14 +22,28 @@ const editForm = reactive({
 });
 
 const passwordStrength = ref(0);
+const passwordRequirements = reactive({
+  length: false,
+  uppercase: false,
+  number: false,
+  special: false
+});
+
 const checkPasswordStrength = () => {
   let strength = 0;
   const password = editForm.password;
   
-  if (password.length >= 8) strength += 1;
-  if (/[A-Z]/.test(password)) strength += 1;
-  if (/[0-9]/.test(password)) strength += 1;
-  if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+  passwordRequirements.length = password.length >= 8;
+  if (passwordRequirements.length) strength += 1;
+  
+  passwordRequirements.uppercase = /[A-Z]/.test(password);
+  if (passwordRequirements.uppercase) strength += 1;
+  
+  passwordRequirements.number = /[0-9]/.test(password);
+  if (passwordRequirements.number) strength += 1;
+  
+  passwordRequirements.special = /[^A-Za-z0-9]/.test(password);
+  if (passwordRequirements.special) strength += 1;
   
   passwordStrength.value = strength;
 };
@@ -51,7 +65,13 @@ const handleSubmit = async () => {
   }
 
   if (passwordStrength.value < 2) {
-    errorMessage.value = 'Password is too weak. Please use a stronger password.';
+    let missingRequirements = [];
+    if (!passwordRequirements.length) missingRequirements.push('at least 8 characters');
+    if (!passwordRequirements.uppercase) missingRequirements.push('uppercase letter');
+    if (!passwordRequirements.number) missingRequirements.push('number');
+    if (!passwordRequirements.special) missingRequirements.push('special character');
+    
+    errorMessage.value = `Password is too weak. Please include: ${missingRequirements.join(', ')}`;
     return;
   }
 
@@ -63,7 +83,7 @@ const handleSubmit = async () => {
       email: editForm.email,
       password: editForm.password,
       password_confirm: editForm.password_confirm,
-      
+      name: editForm.name,
     });
     
     signupSuccess.value = true;
@@ -72,7 +92,11 @@ const handleSubmit = async () => {
     }, 2000);
   } catch (error) {
     console.error(error);
-    errorMessage.value = 'Registration failed. Please try again.';
+    if (error.response && error.response.data && error.response.data.message) {
+      errorMessage.value = `Registration failed: ${error.response.data.message}`;
+    } else {
+      errorMessage.value = 'Registration failed. Please try again.';
+    }
   } finally {
     isLoading.value = false;
   }
@@ -149,6 +173,7 @@ const handleSubmit = async () => {
           <span class="strength-text-signup" v-if="editForm.password">
             {{ ['Weak', 'Fair', 'Good', 'Strong'][passwordStrength - 1] || 'Too Weak' }}
           </span>
+          <div class="password-requirements" v-if="editForm.password">
         </div>
 
         <div class="form-group-signup">

@@ -18,6 +18,7 @@ export interface IUserSignup {
   email: string;
   password: string;
   password_confirm: string;
+  name: string;
 }
 
 export interface IUserEdit {

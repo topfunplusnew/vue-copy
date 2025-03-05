@@ -190,6 +190,28 @@
     font-size: 1.8rem;
     color: rgba(255, 255, 255, 0.7);
   }
+  
+  /* 密码要求列表 */
+  .password-requirements {
+    margin-top: 10px;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
+    
+    .requirement {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      
+      &.met {
+        color: #00ff6a;
+      }
+      
+      .requirement-icon {
+        margin-right: 8px;
+        font-weight: bold;
+      }
+    }
+  }
 }
 
 /* 错误消息 */
@@ -381,6 +403,10 @@
   
   .password-strength-signup {
     margin-left: 0;
+    
+    .password-requirements {
+      font-size: 1.1rem;
+    }
   }
   
   .captcha-container {
