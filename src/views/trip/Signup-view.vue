@@ -173,7 +173,6 @@ const handleSubmit = async () => {
           <span class="strength-text-signup" v-if="editForm.password">
             {{ ['Weak', 'Fair', 'Good', 'Strong'][passwordStrength - 1] || 'Too Weak' }}
           </span>
-          <div class="password-requirements" v-if="editForm.password">
         </div>
 
         <div class="form-group-signup">
