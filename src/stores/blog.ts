@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAllBlogList, getBlogPost } from '@/services/api';
+import { getAllBlogList, getBlogPost, comment2Blog, comment2Comment } from '@/services/api';
 import type { IBlogPost } from '@/types/blog';
 import type { IBlogReq } from '@/types/blog';
 
@@ -40,5 +40,12 @@ export const useBlogStore = defineStore('blog', () => {
   function clearBlog() {
     blog.value = <IBlogPost>{};
   }
-  return { blogs, condition, blog, getBlogList, getBlogByID, clearBlog };
+
+  function commenttoBlog(blogId: number, comment: string) {
+    return comment2Blog(blogId, comment);
+  }
+  function commenttoComment(commentId: number, comment: string) {
+    return comment2Comment(commentId, comment);
+  }
+  return { blogs, condition, blog, getBlogList, getBlogByID, clearBlog, commenttoBlog, commenttoComment };
 });

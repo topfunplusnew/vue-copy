@@ -62,8 +62,8 @@ const handleSubmit = async () => {
     await userSignup({
       email: editForm.email,
       password: editForm.password,
-      name: editForm.name || 'New User',
-      avatar: ''
+      password_confirm: editForm.password_confirm,
+      
     });
     
     signupSuccess.value = true;

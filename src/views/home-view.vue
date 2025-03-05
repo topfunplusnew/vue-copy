@@ -317,34 +317,22 @@ const newComment = ref('');
 
 const submitComment = () => {
   if (!newComment.value.trim()) return;
-  
-  // 创建新评论对象
-  const comment = {
-    id: Date.now(), // 临时ID
-    content: newComment.value,
-    user: {
-      name: store.user?.name || 'Anonymous',
-      avatar: store.user?.avatar || 'default-avatar.jpg'
-    },
-    create_at: new Date().toISOString()
-  };
-  
-  // 添加到评论列表
-  if (!selectedBlog.value.comments) {
-    selectedBlog.value.comments = [];
-  }
-  selectedBlog.value.comments.push(comment);
-  
-  // 更新评论计数
-  selectedBlog.value.comments_count = (selectedBlog.value.comments_count || 0) + 1;
-  
-  // 清空输入
-  newComment.value = '';
-  
-  // 滚动到新评论
-  nextTick(() => {
-    scrollToComments();
-  });
+  if (!selectedBlog.value?.id) return;
+  store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
+    console.log(res);
+  }).catch(e=>{
+    console.log(e);
+  }).finally(()=>{
+    // 清空输入
+    newComment.value = '';
+    if(selectedBlog.value?.id) store.getBlogByID(selectedBlog.value?.id);
+    
+    // 滚动到新评论
+    nextTick(() => {
+      scrollToComments();
+    });
+  });  
+
 };
 
 const scrollToComments = () => {

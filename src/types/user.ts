@@ -14,6 +14,12 @@ export interface ILogin {
   password: string; // 登录密码
 }
 
+export interface IUserSignup {
+  email: string;
+  password: string;
+  password_confirm: string;
+}
+
 export interface IUserEdit {
   name: string; // 可以修改用户名
   avatar: string; // 可以修改用户头像
