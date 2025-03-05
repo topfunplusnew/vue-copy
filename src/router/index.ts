@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginView from '@/views/trip/Login-view.vue';
-import SignupView from '@/views/trip/Signup-view.vue';
+import LoginView from '@/views/user/Login-view.vue';
+import SignupView from '@/views/user/Signup-view.vue';
 import PostView from '@/views/trip/Post-view.vue'; // 引入 Post-view 页面
 
 const router = createRouter({
@@ -44,12 +44,12 @@ const router = createRouter({
     {
       path: '/forgetpassword',
       name: 'forgetpassword',
-      component: () => import('@/views/trip/Forgetpassword.vue'),
+      component: () => import('@/views/user/Forgetpassword.vue'),
     },
     {
       path: '/userpage',
       name: 'userpage',
-      component: () => import('@/views/trip/userpage.vue'),
+      component: () => import('@/views/user/userpage.vue'),
     },
     {
       path: '/generator',

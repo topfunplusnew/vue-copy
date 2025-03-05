@@ -5,8 +5,6 @@ import Captcha from '@/components/Captcha.vue';  // 引入 DragSlider 组件
 import { userSignup } from '@/services/api';
 
 
-
-
 const msg = 'Sign Up';
 
 const errorMessage = ref('');

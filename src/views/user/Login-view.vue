@@ -1,22 +1,40 @@
 <script setup lang="ts">
 import walletItem from '@/components/wallet-item.vue';
 import type { ILogin } from '@/types/user';
-import { reactive } from 'vue';
+import { reactive, ref } from 'vue';
+import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
+import SignupView from './Signup-view.vue';
 
 const router = useRouter();
 const store = useUserStore();
 const params = reactive(<ILogin>{ email: '', password: '' });
+const loading = ref(false);
 
 function handleSubmit() {
+  if (!params.email || !params.password) {
+    ElMessage.error('Please enter your email and password');
+    return;
+  }
+
+  loading.value = true;
   store
     .login(params)
     .then((res) => {
-      console.log(res);
+      ElMessage.success('Login successful');
       router.push({ name: 'userpage' });
     })
-    .catch((e) => console.log(e.response.data.description || e.response.data.message));
+    .catch((e) => {
+      if (e.response?.status === 400) {
+        ElMessage.error('Incorrect email or password');
+      } else {
+        ElMessage.error('Login failed, please try again later');
+      }
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 </script>
 
@@ -66,7 +84,7 @@ function handleSubmit() {
               <form @submit.prevent="handleSubmit">
                 <input type="text" v-model="params.email" placeholder="Username / Email" required />
                 <input type="password" v-model="params.password" placeholder="Password" required />
-                <button type="submit" class="login-button">Login</button>
+                <button type="submit" class="login-button" :disabled="loading">Login</button>
               </form>
 
               <!-- 忘记密码和注册链接 -->
@@ -83,7 +101,6 @@ function handleSubmit() {
               <p class="quick-login-text">Quick login in the following ways:</p>
               <!-- 快捷登录模块 -->
               <div class="social-login">
-                <button class="social-button wechat">WeChat</button>
                 <button class="social-button google">Google</button>
                 <button class="social-button apple">Apple</button>
               </div>
@@ -91,22 +108,11 @@ function handleSubmit() {
           </div>
         </div>
 
-        <!-- 右侧：展示视频和图片 -->
-        <!-- <div class="right-panel">
-          <div class="media-display">
-
-            <video class="promo-video" controls>
-              <source src="path/to/video.mp4" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
-
-            <div class="image-gallery">
-              <img src="path/to/image1.jpg" alt="Promo Image 1" />
-              <img src="path/to/image2.jpg" alt="Promo Image 2" />
-            </div>
-          </div>
-        </div> -->
       </div>
     </main>
   </div>
 </template>
+
+<style lang="scss" scoped>
+@import '@/styles/_login.scss';
+</style>
