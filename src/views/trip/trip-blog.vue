@@ -4,6 +4,7 @@ import IconTooling from '@/components/icons/IconTooling.vue';
 import walletItem from '@/components/wallet-item.vue';
 import { blogPosts } from '@/data/blogpost.ts'; // 确保路径正确
 import LoginButton from '@/components/login-button.vue';
+import UserPage from '../user/userpage.vue';  // 从 '../trip/userpage.vue' 改为 '../user/userpage.vue'
 
 const msg = 'Our Latest Blog';
 const posts = ref(blogPosts);

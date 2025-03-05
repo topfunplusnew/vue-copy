@@ -148,3 +148,7 @@ const handleSocialLogin = (provider) => {
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+@import '@/styles/_login.scss';
+</style>

@@ -8,6 +8,7 @@ import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
 import { Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Auth } from '@/services/auth';
+import UserPage from '../user/userpage.vue';
 
 // 响应式数据
 const postText = ref('');
