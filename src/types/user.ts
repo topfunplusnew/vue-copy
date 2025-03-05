@@ -17,6 +17,8 @@ export interface ILogin {
 export interface IUserEdit {
   name: string; // 可以修改用户名
   avatar: string; // 可以修改用户头像
+  email?: string;
+  password?: string;
 }
 
 export interface IPairToken {

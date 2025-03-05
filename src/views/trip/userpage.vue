@@ -7,7 +7,7 @@ import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
 import type { IUserEdit } from '@/types/user';
 import { useRouter } from 'vue-router';
-import { getBlogPost, getMyBlogList, PostAvatar, myblogdelete } from '@/services/api';
+import { getBlogPost, getMyBlogList, PostAvatar, myblogdelete, myblogedit } from '@/services/api';
 import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
