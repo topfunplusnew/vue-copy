@@ -109,5 +109,4 @@ export const comment2Blog = (blogId: number, content: string) => http.post('/com
 
 export const comment2Comment = (commentId: number, content: string) => http.post('/user/comment', {id:commentId, content});
 
-
 export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});

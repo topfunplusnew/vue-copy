@@ -1,7 +1,6 @@
-@import './blog-detail';
-
-.home{
-/* 主体部分 */
+/* 主内容区域 */
+.home {
+  /* 主体部分 */
   .welcome-text2{
     font-size: rem;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
@@ -12,6 +11,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    z-index: 1;
 
     /* 合并后的卡片 */
     .combined-card {
@@ -275,7 +276,7 @@
 
   /*-----------------------------------------------------*/
   /* 社交帖子模块 */
-    .social-feed{
+    .social-feed {
       margin-top: 2rem;
       width: 96vw;
       margin-bottom: 2rem;
@@ -283,12 +284,9 @@
       background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(10px);
       border-radius: 16px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      height: calc(90vh - 80px);
-      overflow: hidden;
-
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      min-height: 50vh;
+      
       .social-header {
         flex-shrink: 0;
         padding-bottom: 0.8rem;
@@ -400,15 +398,13 @@
 
       /* 帖子展示区域 */
       .social-scroll {
-        flex: 1;
-        overflow-y: auto;
+        overflow: visible;
         padding: 0.5rem;
         
         .social-posts-panel {
           display: grid;
-          /* 从自适应布局改为固定5列 */
-          grid-template-columns: repeat(5, 1fr); /* 固定5列均等宽度 */
-          gap: 1rem; /* 稍微减小间距，为更多的卡片腾出空间 */
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 1rem;
           padding-bottom: 1rem;
           
           .social-post-home {
@@ -585,7 +581,7 @@
     
     /* 主容器 */
     .blog-detail-container-home {
-      width: 92%;
+      width: 94%;
       height: 85vh;
       display: flex;
       border-radius: 16px;
@@ -593,15 +589,17 @@
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       background: white;
       max-width: none;
+      transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+      position: relative; /* 确保关闭按钮可以相对于它定位 */
       
-      /* 关闭按钮 */
+      /* 关闭按钮 - 放置在右上角 */
       .close-button-home {
         position: absolute;
-        top: 90px;
-        right: 100px;
-        width: 40px;
-        height:40px;
-        background: rgba(0, 0, 0, 0.3);
+        top: 15px;
+        right: 15px;
+        width: 36px;
+        height: 36px;
+        background: rgba(0, 0, 0, 0.5);
         color: white;
         border: none;
         border-radius: 50%;
@@ -614,18 +612,30 @@
         transition: all 0.3s ease;
         
         &:hover {
-          background: rgba(0, 0, 0, 0.6);
+          background: rgba(0, 0, 0, 0.7);
           transform: rotate(90deg);
         }
       }
       
+      /* 在窄屏幕上调整为垂直布局 */
+      @media (max-width: 768px) {
+        flex-direction: column;
+        height: 90vh;
+      }
+      
       /* 左侧区域：图片和统计信息 */
       .detail-left-home {
-        width: 60%;
+        flex: 5;
         background: white;
         position: relative;
         display: flex;
         flex-direction: column;
+        transition: height 0.3s ease;
+        
+        /* 在窄屏幕上调整高度 */
+        @media (max-width: 768px) {
+          height: 50%;
+        }
         
         /* 图片显示区域 */
         .image-section-home {
@@ -637,22 +647,26 @@
           .image-slider-home {
             width: 100%;
             height: 100%;
+            padding: 0; /* 移除左内边距，防止图片位置偏移 */
             position: relative;
+            // overflow: hidden; /* 确保隐藏溢出内容 */
             
             .image-wrapper-home {
               width: 100%;
               height: 100%;
               display: flex;
+              transform-style: preserve-3d; /* 增强3D变换效果 */
               transition: transform 0.3s ease;
+              // overflow: hidden; /* 隐藏轮播切换时的其他图片 */
               
               .detail-image-home {
                 width: 100%;
                 height: 100%;
                 flex-shrink: 0;
-                object-fit: contain;
-                max-height: 100%;
-                max-width: 100%;
-                
+                object-fit: contain; /* 保持图片比例 */
+                box-sizing: border-box; /* 确保内边距计入总宽度 */
+                padding: 0 15px; /* 图片两侧添加内边距 */
+                background-color: #fff; /* 添加背景色，防止透明 */
               }
             }
             
@@ -667,16 +681,17 @@
               color: white;
               border: none;
               border-radius: 50%;
-              font-size: 24px;
+              font-size: 20px;
+              cursor: pointer;
               display: flex;
               align-items: center;
               justify-content: center;
-              cursor: pointer;
-              transition: background 0.3s;
-              z-index: 2;
+              transition: all 0.3s ease;
+              z-index: 10; /* 确保按钮在图片上方 */
               
               &:hover {
                 background: rgba(0, 0, 0, 0.6);
+                transform: translateY(-50%) scale(1.05); /* 保持垂直位置同时缩放 */
               }
               
               &.prev-home {
@@ -713,108 +728,95 @@
               font-size: 16px;
               font-weight: 500;
               cursor: pointer;
-              transition: transform 0.2s;
-              
-              &:hover {
-                transform: scale(1.1);
-              }
-              
-              /* 特殊样式：点赞 */
-              &.likes-home {
-                color: #ff4757;
-              }
-              
-              /* 特殊样式：评论 */
-              &.comments-home {
-                color: #1e90ff;
-              }
-              
-              /* 特殊样式：代币 */
-              &.coins-home {
-                color: goldenrod;
-              }
-            }
-          }
-          
-          /* 简化的评论输入框 */
-          .quick-comment-input {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-            max-width: 300px;
-            position: relative;
-            
-            .comment-input-home {
-              width: 100%;
-              height: 36px;
-              border: 1px solid #ddd;
-              border-radius: 18px;
-              padding: 0 40px 0 15px;
-              font-size: 14px;
-              background: white;
-              transition: all 0.3s ease;
-              
-              &:focus {
-                outline: none;
-                border-color: #1e90ff;
-                box-shadow: 0 0 0 2px rgba(30, 144, 255, 0.2);
-              }
-              
-              &:hover {
-                border-color: #1e90ff;
-              }
-            }
-            
-            .submit-quick-comment {
-              position: absolute;
-              right: 5px;
-              top: 50%;
-              transform: translateY(-50%);
-              width: 28px;
-              height: 28px;
-              border-radius: 50%;
-              background: #1e90ff;
-              color: white;
-              border: none;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              cursor: pointer;
               transition: all 0.2s;
               
               &:hover {
-                background: #0078e7;
-                transform: translateY(-50%) scale(1.1);
-              }
-              
-              &:disabled {
-                background: #cccccc;
-                cursor: not-allowed;
-              }
-              
-              span {
-                font-size: 14px;
+                transform: translateY(-2px);
               }
             }
+            
+            /* 为统计数据添加不同颜色 */
+            .likes-home {
+              color: #e74c3c; /* 红色 */
+            }
+            
+            .comments-home {
+              color: #3498db; /* 蓝色 */
+            }
+            
+            .coins-home {
+              color: #f39c12; /* 金色 */
+            }
+          }
+          
+          /* 美化评论输入区域 */
+          .quick-comment-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 280px;
+          }
+          
+          .comment-input-home {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f5f5f5;
+            transition: all 0.3s ease;
+            outline: none;
+          }
+          
+          .comment-input-home:focus {
+            border-color: #3498db;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+          }
+          
+          .submit-quick-comment {
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          
+          .submit-quick-comment:hover:not(:disabled) {
+            background: #2980b9;
+            transform: scale(1.05);
+          }
+          
+          .submit-quick-comment:disabled {
+            background: #ccc;
+            cursor: default;
           }
         }
       }
       
       /* 右侧内容区域 */
       .detail-right-home {
-        width: 50%;
-        background: #f9f9f9;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        padding: 20px;
-
-        position: relative; /* 确保滚动条相对于此元素定位 */
-      
+        flex: 4;
+        background: white;
+        padding: 30px 0 30px 30px;
+        overflow-y: overlay;
+        position: relative;
+        transition: height 0.3s ease;
+        
+        /* 在窄屏幕上调整高度 */
+        @media (max-width: 768px) {
+          height: 50%;
+        }
+        
         /* 自定义滚动条样式 */
         &::-webkit-scrollbar {
-          width: 8px; /* 滚动条宽度 */
+          width: 6px; /* 减小滚动条宽度 */
           background-color: transparent; /* 滚动条背景透明 */
         }
         
@@ -827,24 +829,28 @@
           background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
         }
         
-        /* 确保内容不会被滚动条遮挡 */
-        padding-right: 20px; /* 原来的padding(30px) + 滚动条宽度(8px) */
+        /* 内容容器，添加右侧内边距 */
+        .content-wrapper {
+          padding-right: 30px; /* 为内容添加右侧内边距 */
+        }
         
         /* 用户信息和标题 */
         .user-header-home {
-          margin-bottom: 20px;
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 15px;
           padding-bottom: 15px;
           border-bottom: 1px solid #eee;
+          padding-right: 30px; /* 为标题区域添加右侧内边距 */
           
-          /* 作者信息 - 修复头像尺寸问题 */
           .author-info-home {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             
             .author-avatar-home {
-              width: 40px; /* 减小头像尺寸 */
+              width: 40px;
               height: 40px;
               border-radius: 50%;
               object-fit: cover;
@@ -857,13 +863,15 @@
             }
           }
           
-          /* 博客标题 */
+          /* 博客标题 - 居中显示 */
           .blog-title-home {
             font-size: 20px;
             font-weight: bold;
             color: #111;
             margin: 0;
             line-height: 1.3;
+            text-align: center; /* 标题居中 */
+            margin-top: 10px; /* 增加与作者信息的间距 */
           }
         }
         
@@ -872,33 +880,34 @@
           display: flex;
           flex-wrap: wrap;
           gap: 8px;
-          margin-bottom: 20px;
+          margin: 15px 0 20px 0;
+          justify-content: left; /* 标签左对齐 */
+          padding-right: 30px; /* 为标签区域添加右侧内边距 */
           
-          /* NFT标签：特殊样式 */
+          .tag-home {
+            background: #f0f0f0;
+            color: #555;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+          }
+          
           .nft-tag-home {
             background: linear-gradient(45deg, #ffd700, #ffaa00);
             color: #111;
-            padding: 4px 8px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-size: 12px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 3px;
+            gap: 4px;
             
             &::before {
               content: "₿";
-              font-size: 14px;
+              font-weight: bold;
             }
-          }
-          
-          /* 普通标签 */
-          .tag-home {
-            background: #eee;
-            color: #555;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
           }
         }
         
@@ -906,7 +915,8 @@
         .content-section-home {
           padding-bottom: 20px;
           margin-bottom: 20px;
-          border-bottom: 1px solid #eee;
+          border-bottom: 1px solid #eee; /* 添加内容区域底部分隔线 */
+          padding-right: 30px; /* 为内容区域添加右侧内边距 */
           
           .blog-content-home {
             font-size: 15px;
@@ -914,12 +924,14 @@
             color: #333;
             white-space: pre-wrap;
             margin: 0;
-            text-align: justify;
+            text-align: justify; /* 内容左右对齐 */
           }
         }
         
         /* 评论部分 */
         .comments-container-home {
+          padding-right: 30px; /* 为评论区域添加右侧内边距 */
+          
           .comments-header-home {
             display: flex;
             justify-content: space-between;
@@ -956,7 +968,7 @@
                 gap: 10px;
                 
                 .comment-avatar-home {
-                  width: 28px; /* 减小评论头像尺寸 */
+                  width: 28px;
                   height: 28px;
                   border-radius: 50%;
                   object-fit: cover;
@@ -982,6 +994,7 @@
                   color: #555;
                   margin: 3px 0 0;
                   line-height: 1.4;
+                  word-break: break-word; /* 防止长文本溢出 */
                 }
               }
             }
@@ -991,95 +1004,97 @@
     }
   }
 
-  .no-results {
-    text-align: center;
-    padding: 20px;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.6rem;
-    font-style: italic;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    margin: 20px;
+  /* 闪光动画 */
+  @keyframes shine {
+    0% {
+      transform: translateX(-100%) rotate(45deg);
+    }
+    50% {
+      transform: translateX(100%) rotate(45deg);
+    }
+    100% {
+      transform: translateX(100%) rotate(45deg);
+    }
   }
-}
 
-.edit-mode-btn {
-  margin-left: 16px;
-}
+  .edit-mode-btn {
+    margin-left: 16px;
+  }
 
-.blog-post {
-  position: relative;
-  transition: all 0.3s ease;
-}
+  .blog-post {
+    position: relative;
+    transition: all 0.3s ease;
+  }
 
-.blog-post.edit-mode {
-  opacity: 0.8;
-  cursor: default;
-}
+  .blog-post.edit-mode {
+    opacity: 0.8;
+    cursor: default;
+  }
 
-.blog-post.edit-mode:hover {
-  transform: none;
-}
+  .blog-post.edit-mode:hover {
+    transform: none;
+  }
 
-.edit-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
-  display: flex;
-  gap: 8px;
-}
+  .edit-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    display: flex;
+    gap: 8px;
+  }
 
-.delete-btn {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
-.blog-post:hover .delete-btn {
-  opacity: 1;
-}
+  .blog-post:hover .delete-btn {
+    opacity: 1;
+  }
 
-/* 编辑模式下的删除按钮始终显示 */
-.blog-post.edit-mode .delete-btn {
-  opacity: 1;
-}
+  /* 编辑模式下的删除按钮始终显示 */
+  .blog-post.edit-mode .delete-btn {
+    opacity: 1;
+  }
 
-.social-filter-panel-horizontal {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  justify-content: center;
+  .social-filter-panel-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    justify-content: center;
 
-  button {
-    padding: 6px 12px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    button {
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      font-size: 1.8rem;
+
+      &.active, &:hover {
+        background: rgba(255, 255, 255, 0.5);
+      }
+
+      .filter-icon {
+        margin-right: 4px;
+      }
+    }
+  }
+
+  .horizontal-divider {
     border: none;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    font-size: 1.8rem;
-
-    &.active, &:hover {
-      background: rgba(255, 255, 255, 0.5);
-    }
-
-    .filter-icon {
-      margin-right: 4px;
-    }
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+    margin-bottom: 1rem;
   }
-}
 
-.horizontal-divider {
-  border: none;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.3);
-  margin-bottom: 1rem;
-}
-
-/* 评论输入区域 */
-.comment-input-container-home {
-  display: none;
+  /* 评论输入区域 */
+  .comment-input-container-home {
+    display: none;
+  } 
 }

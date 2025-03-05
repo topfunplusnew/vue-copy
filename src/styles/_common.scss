@@ -1,19 +1,34 @@
 @import './mixins';
 @import './variables';
 
-.home {
-  // /* 整体背景采用渐变 */
-  // // 
-  // // background-size: 200% 150%;
-  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
-  /* 调大背景尺寸，动画更柔和 */
-  background-size: 200% 150%;
-  animation: gradientAnimation 10s ease infinite;
+/* 全局背景样式 */
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* 固定背景层 */
+.background-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
+  background-size: 200% 150%;
+  animation: gradientAnimation 10s ease infinite;
+  z-index: -1;
+}
+
+/* 内容容器 */
+.home {
+  position: relative;
+  width: 100%;
   min-height: 100vh;
   color: #fff;
   font-family: 'Helvetica Neue', sans-serif;
+  z-index: 1;
 
   display: flex;
   flex-direction: column;
@@ -39,6 +54,7 @@
     font-size: 5rem;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
   }
+}
 
 @keyframes gradientAnimation {
   0% {
@@ -50,8 +66,6 @@
   100% {
     background-position: 0% 50%;
   }
-}
-
 }
 
 .header {
