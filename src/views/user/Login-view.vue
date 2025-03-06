@@ -5,6 +5,14 @@ import { useUserStore } from '@/stores/user';
 import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
 
+interface ApiError {
+  response?: {
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 const router = useRouter();
 const store = useUserStore();
 
@@ -35,12 +43,12 @@ const handleLogin = async () => {
       duration: 2000
     });
     
-    // 登录成功后跳转到首页
     router.push({ name: 'home' });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error(error);
-    if (error.response && error.response.data && error.response.data.message) {
-      errorMessage.value = `Login failed: ${error.response.data.message}`;
+    const apiError = error as ApiError;
+    if (apiError.response?.data?.message) {
+      errorMessage.value = `Login failed: ${apiError.response.data.message}`;
     } else {
       errorMessage.value = 'Login failed. Please check your credentials and try again.';
     }
@@ -49,15 +57,7 @@ const handleLogin = async () => {
   }
 };
 
-const handleForgotPassword = () => {
-  ElMessage({
-    message: 'Password reset functionality will be available soon.',
-    type: 'info',
-    duration: 3000
-  });
-};
-
-const handleSocialLogin = (provider) => {
+const handleSocialLogin = (provider: string) => {
   ElMessage({
     message: `${provider} login will be available soon.`,
     type: 'info',
@@ -114,7 +114,7 @@ const handleSocialLogin = (provider) => {
             <input type="checkbox" id="remember" v-model="rememberMe" />
             <label for="remember">Remember me</label>
           </div>
-          <a href="#" class="forgot-password" @click.prevent="handleForgotPassword">Forgot password?</a>
+          <router-link :to="{ name: 'forgetpassword' }" class="forgot-password">Forgot password?</router-link>
         </div>
 
         <button type="submit" class="login-button" :disabled="isLoading">
