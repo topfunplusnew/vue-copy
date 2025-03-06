@@ -280,6 +280,30 @@ const handlePostClick = async () => {
   }
 };
 
+// 关注状态
+const isFollowing = ref(false);
+
+// 关注
+const handleFollowClick = async (id) => {
+  if (!id) return;
+  
+  try {
+    if (isFollowing.value) {
+      // 取消关注功能
+      // await store.unfollowUser(id);
+      isFollowing.value = false;
+      ElMessage.success('Unfollowed successfully');
+    } else {
+      // 关注功能
+      // await store.followUser(id);
+      isFollowing.value = true;
+      ElMessage.success('Following successfully');
+    }
+  } catch (error) {
+    ElMessage.error('Failed to update follow status');
+  }
+}
+
 // 恢复登录按钮处理方法
 const handleLoginClick = async () => {
   if (auth.get()) {
@@ -617,13 +641,24 @@ function handleImageError(event: Event) {
       <div class="detail-right-home" ref="detailRight">
         <!-- 用户信息和标题 -->
         <div class="user-header-home">
-          <div class="author-info-home">
-            <img 
-              :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
-              alt="Author Avatar" 
-              class="author-avatar-home"
-            />
-            <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
+          <div class="author-container">
+            <div class="author-info-home">
+              <img 
+                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+                alt="Author Avatar" 
+                class="author-avatar-home"
+              />
+              <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
+              <el-button 
+                class="follow-btn" 
+                size="small"
+                :class="{ 'following': isFollowing }"
+                @click.stop="handleFollowClick(selectedBlog?.user?.id)"
+              >
+                <span class="follow-icon">+</span>
+                <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
+              </el-button>
+            </div>
           </div>
           <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
         </div>

@@ -74,7 +74,7 @@ export const userModify = (data: IUserEdit) => http.put('/user/profile', data);
 
 export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
 
-export const myblogdelete = (id: number) => http.delete('/blog', {params: {blog_id: id}});
+export const myblogdelete = (id: number) => http.delete('/blog', {params: {id: id}});
 
 export const myblogedit = (data: IBlogEdit) => http.put('/blog', data);
 

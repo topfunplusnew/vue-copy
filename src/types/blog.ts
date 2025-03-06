@@ -26,7 +26,7 @@ export interface IBlogPostCreate {
   content: string;
   image?: string[];
   tags?: string[];
-  preferences?: string[];
+  social_filters?: number;
   isNFT?: boolean;
 }
 

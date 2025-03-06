@@ -9,6 +9,12 @@ import { Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Auth } from '@/services/auth';
 import UserPage from '../user/userpage.vue';
+import { useBlogStore } from '@/stores/blog';
+
+const store = useBlogStore();
+
+const postData = computed(() => store.postData);
+
 
 // 响应式数据
 const postText = ref('');
@@ -22,22 +28,22 @@ const showPreview = ref(false);
 const auth = new Auth();
 
 const preferenceOptions = ref([
-  { name: 'Sightseeing', icon: '🌆' },
-  { name: 'Educational', icon: '🎓' },
-  { name: 'Business', icon: '💼' },
-  { name: 'Medical', icon: '🏥' },
-  { name: 'Cuisine', icon: '🍴' },
-  { name: 'Culture', icon: '🎭' },
+  { name: 'Sightseeing',val:1011, icon: '🌆' },
+  { name: 'Educational', val:1012, icon: '🎓' },
+  { name: 'Business', val:1013, icon: '💼' },
+  { name: 'Medical', val:1014, icon: '🏥' },
+  { name: 'Cuisine', val:1015, icon: '🍴' },
+  { name: 'Culture', val:1016, icon: '🎭' },
 ]);
 
 // 添加 NFT 选项的状态
 const mintNFT = ref(false);
 
 // 添加选中偏好的响应式数据
-const selectedOptions = ref<string[]>([]);
+const selectedOptions = ref<number[]>([]);
 
 // 添加切换偏好的方法
-const togglePreference = (optionName: string) => {
+const togglePreference = (optionName: number) => {
   const index = selectedOptions.value.indexOf(optionName);
   if (index === -1) {
     selectedOptions.value.push(optionName);
@@ -220,7 +226,7 @@ const postTweet = async () => {
       content: postText.value,
       image: images.value.map((img) => img.url),
       tags: tags.value,
-      preferences: selectedOptions.value,
+      social_filters: selectedOptions.value[0], //多选去掉[0]
       isNFT: mintNFT.value,
     };
 
@@ -313,8 +319,8 @@ const addTag = () => {
           v-for="option in preferenceOptions"
           :key="option.name"
           class="postprefer-option"
-          :class="{ 'postprefer-selected': selectedOptions.includes(option.name) }"
-          @click="togglePreference(option.name)"
+          :class="{ 'postprefer-selected': selectedOptions.includes(option.val) }"
+          @click="togglePreference(option.val)"
         >
           <span class="postprefer-icon">{{ option.icon }}</span>
           <span class="postprefer-name">{{ option.name }}</span>

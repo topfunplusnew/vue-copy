@@ -62,17 +62,6 @@ const router = createRouter({
     //   component: () => import('@/views/trip/bloglist.vue')
     // },
     {
-      path: '/blog/create',
-      name: 'blog-create',
-      component: () => import('@/views/trip/blogedit.vue'),
-    },
-    {
-      path: '/blog/edit/:id',
-      name: 'blog-edit',
-      component: () => import('@/views/trip/blogedit.vue'),
-      props: true,
-    },
-    {
       path: '/trip',
       name: 'trip',
       redirect: { name: 'tripid', params: { id: 1 } },

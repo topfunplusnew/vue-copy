@@ -1,8 +1,8 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList,getBlogPost, myblogdelete, userSignup } from '@/services/api';
+import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
-import type { IBlogPost } from '@/types/blog';
+import type { IBlogPost, IBlogEdit } from '@/types/blog';
 
 export const useUserStore = defineStore('user', () => {
   // 状态
@@ -74,8 +74,19 @@ export const useUserStore = defineStore('user', () => {
   function delUserBlogByID(id:number) {
     return myblogdelete(id).then(res =>{
       selectedPost.value = undefined;
-
     })
+  }
+
+  /**
+   * 编辑博客
+   * @param data 编辑数据
+   * @returns Promise
+   */
+  function editUserBlog(data: IBlogEdit) {
+    return myblogedit(data).then(() => {
+      // 成功后刷新博客列表
+      getUserBlogList();
+    });
   }
 
   // 清除选中的博客
@@ -101,6 +112,7 @@ export const useUserStore = defineStore('user', () => {
     getUserBlogList,
     getUserBlogByID,
     delUserBlogByID,
+    editUserBlog,
     clearSelectedPost,
     signup
   };

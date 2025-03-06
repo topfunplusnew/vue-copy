@@ -1,8 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAllBlogList, getBlogPost, comment2Blog, comment2Comment } from '@/services/api';
-import type { IBlogPost } from '@/types/blog';
-import type { IBlogReq } from '@/types/blog';
+import { getAllBlogList, getBlogPost, comment2Blog, comment2Comment, myblogedit, blogPost } from '@/services/api';
+import type { IBlogPost, IBlogReq, IBlogPostCreate } from '@/types/blog';
 
 export const useBlogStore = defineStore('blog', () => {
   const blogs = ref<IBlogPost[]>([]); // blog数组
@@ -10,6 +9,17 @@ export const useBlogStore = defineStore('blog', () => {
 
   const blog = ref<IBlogPost>(); // 单独blog
 
+  const postData = ref<IBlogPostCreate>({
+    title: '',
+    content: '',
+    image: [],
+    tags: [],
+    social_filters: 0,
+    isNFT: false,
+  }); // 发布blog的数据
+  function userPostblog() {
+    return blogPost(postData.value);
+  }
   /**
    * 获取blog列表
    * @returns
@@ -41,11 +51,15 @@ export const useBlogStore = defineStore('blog', () => {
     blog.value = <IBlogPost>{};
   }
 
+  function editmyblog(blogId: number, blog: IBlogPost) {
+    return myblogedit(blogId, blog);
+  }
+
   function commenttoBlog(blogId: number, comment: string) {
     return comment2Blog(blogId, comment);
   }
   function commenttoComment(commentId: number, comment: string) {
     return comment2Comment(commentId, comment);
   }
-  return { blogs, condition, blog, getBlogList, getBlogByID, clearBlog, commenttoBlog, commenttoComment };
+  return { blogs, condition, blog, postData, userPostblog,getBlogList, getBlogByID, clearBlog, commenttoBlog, commenttoComment, editmyblog };
 });
