@@ -3,13 +3,14 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
+import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { Auth } from '@/services/auth';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
-import { getWeatherData } from '@/utils/weatherService';
+
 import { generateUserPrompt } from '@/stores/userprompt';
 import { getImageUrl } from '@/utils';
 
@@ -17,8 +18,7 @@ import { getImageUrl } from '@/utils';
 // Trip Options 部分
 const selectedLocation = ref('');
 const selectedDestination = ref('');
-const weather = ref('');
-const weatherIcon = ref(''); // 存储天气图标 URL
+
 const userLocation = ref('');
 const userDestination = ref('');
 const userFlag = ref('');
@@ -29,6 +29,12 @@ const errorMessage = ref('');
 const store = useBlogStore();
 const router = useRouter();
 const auth = new Auth();
+const componentsStore = usecomponentsStore();
+
+const originWeather = computed(() => componentsStore.originWeather);
+const originWeatherIcon = computed(() => componentsStore.originWeatherIcon);
+const destinationWeather = computed(() => componentsStore.destinationWeather);
+const destinationWeatherIcon = computed(() => componentsStore.destinationWeatherIcon);
 
 const preferenceOptions = ref([
   { name: 'Sightseeing', icon: '🌆' },
@@ -68,9 +74,9 @@ const handleLocationClick = async () => {
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
-    const weatherData = await getWeatherData(city);
-    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon;
+    
+    componentsStore.getWeather(city, false);
+
     updateUserInput();
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : '定位失败';
@@ -86,15 +92,7 @@ const handleLocationChange = async (value: string) => {
     userFlag.value = loc.flagUrl || '';
     userLocation.value = loc.label;
   }
-  try {
-    const weatherData = await getWeatherData(value);
-    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon;
-  } catch (error) {
-    console.log(error);
-    weather.value = '天气数据不可用';
-    weatherIcon.value = '';
-  }
+  componentsStore.getWeather(value, false);
   updateUserInput();
 };
 
@@ -107,15 +105,8 @@ const handleDestinationSelect = async (value: string) => {
   } else {
     destinationFlag.value = '';
   }
-  try {
-    const weatherData = await getWeatherData(value);
-    weather.value = `${weatherData.description}, ${weatherData.temp}°C`;
-    weatherIcon.value = weatherData.icon;
-  } catch (error) {
-    console.log(error);
-    weather.value = '天气数据不可用';
-    weatherIcon.value = '';
-  }
+  componentsStore.getWeather(value, true);
+
   updateUserInput();
 };
 
@@ -163,15 +154,22 @@ onMounted(() => {
 
 // 修改：点击博客时传入帖子的 id 而非整个对象  // Modified
 const showBlogDetail = (id: number) => {
-  store.getBlogByID(id);
-  dialogBlog.value = true;
-  document.body.style.overflow = 'hidden';
+  // 重置图片索引
+  currentImageIndex.value = 0;
+  
+  store.getBlogByID(id).then(() => {
+    dialogBlog.value = true;
+    // 禁用背景滚动
+    document.body.style.overflow = 'hidden';
+  });
 };
 
 const closeBlogDetail = () => {
-  store.clearBlog();
   dialogBlog.value = false;
+  // 恢复背景滚动
   document.body.style.overflow = '';
+  // 清空评论输入
+  newComment.value = '';
 };
 
 const socialFilters = ref([
@@ -332,7 +330,16 @@ const submitComment = () => {
       scrollToComments();
     });
   });  
-
+  // 这里可以添加提交评论的逻辑
+  // 例如：store.addComment(selectedBlog.value.id, newComment.value);
+  
+  // 模拟添加评论
+  ElMessage({
+    message: 'Comment submitted successfully!',
+    type: 'success'
+  });
+  
+  newComment.value = '';
 };
 
 const scrollToComments = () => {
@@ -347,9 +354,20 @@ const scrollToComments = () => {
   }
 };
 
+// 添加图片错误处理方法
+function handleImageError(event: Event) {
+  // 设置默认图片
+  const target = event.target as HTMLImageElement;
+  target.src = '/path/to/fallback-image.jpg'; // 替换为你的默认图片路径
+  target.classList.add('image-error');
+}
+
 </script>
 
 <template>
+  <!-- 固定背景层 -->
+  <div class="background-layer"></div>
+  
   <div class="home">
     <!-- Header 区域 -->
     <header class="header">
@@ -380,7 +398,7 @@ const scrollToComments = () => {
         </div>
       </div>
     </header>
-
+    
     <h1 class="welcome-text">Welcome to iPoloGO</h1>
     <h2 class="welcome-text2">To Explore, To Share, To Earn</h2>
 
@@ -401,8 +419,13 @@ const scrollToComments = () => {
             </el-select>
             <div class="ld-info">
               <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
-              <span>{{ userLocation }}</span>
-              <span v-if="weather">{{ weather }}</span>
+              <div class="location-info">
+                <span class="location-name">{{ userLocation }}</span>
+                <div class="weather-info" v-if="originWeather">
+                  <span class="weather-icon" :class="originWeatherIcon"></span>
+                  <span class="weather-data">{{ originWeather }}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -414,9 +437,13 @@ const scrollToComments = () => {
             </el-select>
             <div class="ld-info">
               <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
-              <img v-if="weatherIcon" :src="weatherIcon" alt="Weather Icon" class="weather-icon" />
-              <span>{{ userDestination }}</span>
-              <span v-if="weather">{{ weather }}</span>
+              <div class="location-info">
+                <span class="location-name">{{ userDestination }}</span>
+                <div class="weather-info" v-if="destinationWeather">
+                  <span class="weather-icon" :class="destinationWeatherIcon"></span>
+                  <span class="weather-data">{{ destinationWeather }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -515,114 +542,128 @@ const scrollToComments = () => {
       </section>
     </main>
 
-    <!-- 博客详情弹出层 -->
-    <div class="blog-detail-overlay-home" v-if="dialogBlog" @click.self="closeBlogDetail">
-      <div class="blog-detail-container-home" :class="{ 'nft-post-home': selectedBlog?.isNFT }">
-        <!-- 关闭按钮 -->
-        <button class="close-button-home" @click="closeBlogDetail">×</button>
-        
-        <!-- 左侧区域：图片和统计信息 -->
-        <div class="detail-left-home">
-          <!-- 图片区域 -->
-          <div class="image-section-home">
-            <div class="image-slider-home">
-              <div class="image-wrapper-home" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
-                <img 
-                  v-for="(image, index) in selectedBlog?.image" 
-                  :key="index"
-                  :src="getImageUrl(image)"
-                  alt="Blog Image" 
-                  class="detail-image-home"
-                />
-              </div>
-              <!-- 导航按钮 -->
-              <button class="nav-btn-home prev-home" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
-              <button class="nav-btn-home next-home" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
-            </div>
-          </div>
-          
-          <!-- 统计信息栏 -->
-          <div class="stats-bar-home">
-            <!-- 统计信息 -->
-            <div class="stats-info-home">
-              <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
-              <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
-              <span class="coins-home" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
-            </div>
+    <!-- 搜索结果为空提示 -->
+    <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
+  
 
-            <!-- 简化的评论输入框 -->
-            <div class="quick-comment-input">
-              <input 
-                type="text" 
-                v-model="newComment" 
-                placeholder="Add a comment..." 
-                @keyup.enter="submitComment"
-                class="comment-input-home"
+  <!-- 博客详情弹出层 -->
+  <div class="blog-detail-overlay-home" v-if="dialogBlog" @click.self="closeBlogDetail">
+    <div class="blog-detail-container-home" :class="{ 'nft-post-home': selectedBlog?.isNFT }">
+      <!-- 关闭按钮 -->
+      <button class="close-button-home" @click="closeBlogDetail">×</button>
+      
+      <!-- 左侧区域：图片和统计信息 -->
+      <div class="detail-left-home">
+        <!-- 图片区域 -->
+        <div class="image-section-home">
+          <div class="image-slider-home">
+            <div class="image-wrapper-home" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
+              <img 
+                v-for="(image, index) in selectedBlog?.image" 
+                :key="index"
+                :src="getImageUrl(image)"
+                alt="Blog Image" 
+                class="detail-image-home"
+                @error="handleImageError"
+                
               />
-              <button 
-                class="submit-quick-comment" 
-                @click="submitComment" 
-                :disabled="!newComment.trim()"
-              >
-                <span>💬</span>
-              </button>
             </div>
+            <!-- 图片加载指示器 -->
+            <!-- <div class="image-loading" v-if="selectedBlog?.image?.length === 0">
+              <span>No images available</span>
+            </div> -->
+            <!-- 导航按钮 -->
+            <button 
+              class="nav-btn-home prev-home" 
+              @click.stop="prevImage" 
+              v-if="selectedBlog?.image?.length > 1">❮</button>
+            <button 
+              class="nav-btn-home next-home" 
+              @click.stop="nextImage" 
+              v-if="selectedBlog?.image?.length > 1">❯</button>
           </div>
         </div>
+        
+        <!-- 统计信息栏 -->
+        <div class="stats-bar-home">
+          <!-- 统计信息 -->
+          <div class="stats-info-home">
+            <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
+            <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
+            <span class="coins-home" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
+          </div>
 
-        <!-- 右侧内容区域 -->
-        <div class="detail-right-home" ref="detailRight">
-          <!-- 用户信息和标题 -->
-          <div class="user-header-home">
-            <div class="author-info-home">
-              <img 
-                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
-                alt="Author Avatar" 
-                class="author-avatar-home"
-              />
-              <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
-            </div>
-            <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
+          <!-- 简化的评论输入框 -->
+          <div class="quick-comment-input">
+            <input 
+              type="text" 
+              v-model="newComment" 
+              placeholder="Add a comment..." 
+              @keyup.enter="submitComment"
+              class="comment-input-home"
+            />
+            <button 
+              class="submit-quick-comment" 
+              @click="submitComment" 
+              :disabled="!newComment.trim()"
+            >
+              <span>💬</span>
+            </button>
           </div>
-          
-          <!-- 标签区域 -->
-          <div class="tags-section-home">
-            <div class="nft-tag-home" v-if="selectedBlog?.isNFT">NFT</div>
-            <span class="tag-home" v-for="tag in selectedBlog?.tags" :key="tag">
-              {{ tag }}
-            </span>
+        </div>
+      </div>
+
+      <!-- 右侧内容区域 -->
+      <div class="detail-right-home" ref="detailRight">
+        <!-- 用户信息和标题 -->
+        <div class="user-header-home">
+          <div class="author-info-home">
+            <img 
+              :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
+              alt="Author Avatar" 
+              class="author-avatar-home"
+            />
+            <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
           </div>
-          
-          <!-- 博客内容 -->
-          <div class="content-section-home">
-            <p class="blog-content-home">{{ selectedBlog?.content }}</p>
+          <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
+        </div>
+        
+        <!-- 标签区域 -->
+        <div class="tags-section-home">
+          <div class="nft-tag-home" v-if="selectedBlog?.isNFT">NFT</div>
+          <span class="tag-home" v-for="tag in selectedBlog?.tags" :key="tag">
+            {{ tag }}
+          </span>
+        </div>
+        
+        <!-- 博客内容 -->
+        <div class="content-section-home">
+          <p class="blog-content-home">{{ selectedBlog?.content }}</p>
+        </div>
+        
+        <!-- 评论部分 -->
+        <div class="comments-container-home" ref="commentsSection">
+          <div class="comments-header-home">
+            <h3>Comments</h3>
+            <span class="comment-count-home">{{ selectedBlog?.comments?.length || 0 }}</span>
           </div>
-          
-          <!-- 评论部分 -->
-          <div class="comments-container-home" ref="commentsSection">
-            <div class="comments-header-home">
-              <h3>Comments</h3>
-              <span class="comment-count-home">{{ selectedBlog?.comments?.length || 0 }}</span>
-            </div>
-            <div class="comments-list-home">
-              <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item-home">
-                <div class="comment-row-home">
-                  <img 
-                    :src="getImageUrl(comment.user.avatar)" 
-                    alt="Commenter Avatar" 
-                    class="comment-avatar-home"
-                  />
-                  <span class="comment-username-home">{{ comment.user.name }}</span>
-                  <p class="comment-text-home">{{ comment.content }}</p>
-                </div>
+          <div class="comments-list-home">
+            <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item-home">
+              <div class="comment-row-home">
+                <img 
+                  :src="getImageUrl(comment.user.avatar)" 
+                  alt="Commenter Avatar" 
+                  class="comment-avatar-home"
+                />
+                <span class="comment-username-home">{{ comment.user.name }}</span>
+                <p class="comment-text-home">{{ comment.content }}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- 搜索结果为空提示 -->
-    <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
   </div>
+  <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
+</div>
 </template>

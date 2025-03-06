@@ -269,6 +269,7 @@ const addTag = () => {
 </script>
 
 <template>
+  <div class="background-layer"></div>
   <div class="home">
     <!-- 导航栏 -->
     <header class="header">

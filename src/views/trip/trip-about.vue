@@ -32,6 +32,7 @@ const faqs = ref([
 </script>
 
 <template>
+  <div class="background-layer"></div>
   <div class="home">
     <header class="header">
       <div class="nav-container">

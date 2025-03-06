@@ -21,6 +21,7 @@ const closeBlogDetail = () => {
 </script>
 
 <template>
+  <div class="background-layer"></div>
   <div class="home">
     <!-- Header -->
     <header class="header">
@@ -120,7 +121,6 @@ const closeBlogDetail = () => {
 </template>
 
 <style lang="scss">
-@import '@/styles/_blog-detail.scss';
 
 .post-item {
   cursor: pointer;

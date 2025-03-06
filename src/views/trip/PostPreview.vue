@@ -1,4 +1,5 @@
 <template>
+  <div class="background-layer"></div>
   <div class="blog-detail-overlay" @click.self="emit('close')">
     <div class="blog-detail-container">
       <!-- 关闭按钮 -->

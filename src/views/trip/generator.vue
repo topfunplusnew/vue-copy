@@ -356,6 +356,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <div class="background-layer"></div>
   <div class="home">
     <!-- Header -->
     <header class="header">
