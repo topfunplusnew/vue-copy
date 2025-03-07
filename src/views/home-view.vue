@@ -866,26 +866,3 @@ const handleLoadingComplete = () => {
 </div>
 </template>
 
-<style lang="scss">
-/* 添加过渡效果 */
-.background-layer {
-  opacity: 0;
-  transition: opacity 0.8s ease-in;
-  
-  &.visible {
-    opacity: 1;
-  }
-}
-
-.home {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  
-  &.content-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>
-
