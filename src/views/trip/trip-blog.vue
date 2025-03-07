@@ -346,7 +346,7 @@ const handleCommand = (command) => {
       
     </header>
 
-    <h1 class="blog-header-title">{{ msg }}</h1>
+    <div class="blog-header-title">{{ msg }}</div>
 
     <!-- 改进的Blog Content部分 -->
     <div class="blog-page-container">
@@ -403,8 +403,8 @@ const handleCommand = (command) => {
               <span class="reading-time"><i class="el-icon-time"></i> {{ post.readingTime }}</span>
               <span class="blog-date">{{ formatDate(post.date) }}</span>
             </div>
-            <h3 class="blog-card-title">{{ post.title }}</h3>
-            <p class="blog-card-excerpt">{{ truncateText(post.content, 120) }}</p>
+            <div class="blog-card-title">{{ post.title }}</div>
+            <div class="blog-card-excerpt">{{ truncateText(post.content, 120) }}</div>
             <div class="blog-card-footer">
               <div class="author-info">
                 <img :src="post.authorAvatar || '/default-avatar.jpg'" alt="Author" class="author-avatar" />
