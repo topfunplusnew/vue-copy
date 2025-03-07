@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow, userFollowings, userFollowers, userUnfollow } from '@/services/api';
+import { userLogin, userProfile, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPost, IBlogEdit } from '@/types/blog';
 
@@ -146,6 +146,14 @@ export const useUserStore = defineStore('user', () => {
     return userUnfollow(id);
   }
   /**
+   * 是否关注
+   * @param id 用户id
+   * @returns
+   */
+  function isFollowing(id:number) {
+    return userIsFollowing(id);
+  }
+  /**
    * 获取关注用户
    * @param id 被关注用户，不填为用户自己
    * @returns
@@ -186,6 +194,7 @@ export const useUserStore = defineStore('user', () => {
     editUserInfo,
     follow,
     unfollow,
+    isFollowing,
     getFollowings,
     getFollowers,
     getUserBlogList,
