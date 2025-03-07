@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
 import { usecomponentsStore } from '@/stores/components';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import { ElMessageBox, ElMessage, useTransitionFallthrough } from 'element-plus';
 import { Auth } from '@/services/auth';
 import { useUserStore } from '@/stores/user';
 
@@ -288,26 +288,67 @@ const handlePostClick = async () => {
 // 关注状态
 const isFollowing = ref(false);
 
-// 关注
+// 添加一个计算属性，判断当前帖子是否是用户自己的
+const isOwnPost = computed(() => {
+  if (!userStore.user || !selectedBlog.value?.user) {
+    return false;
+  }
+  // 增加一些日志输出帮助调试
+  console.log('User ID:', userStore.user.id);
+  console.log('Post User ID:', selectedBlog.value.user.id);
+  
+  // 确保两个ID都转为字符串进行比较，以防类型不同导致比较失败
+  return String(userStore.user.id) === String(selectedBlog.value.user.id);
+});
+
+// 在博客详情打开时，检查关注状态
+watch(() => selectedBlog.value, (newBlog) => {
+  // 重新评估是否为自己的帖子
+  console.log('Is own post:', isOwnPost.value);
+  
+  // 如果选中了博客且不是自己的博客，则检查关注状态
+  if (newBlog && newBlog.user && !isOwnPost.value) {
+    // 这里可以调用API检查是否已关注
+    checkFollowStatus(newBlog.user.id);
+  } else {
+    // 自己的博客或无博客选中，重置关注状态
+    isFollowing.value = false;
+  }
+}, { immediate: true });
+
+// 添加一个函数来检查关注状态
+const checkFollowStatus = async (userId) => {
+  try {
+    // 假设API返回一个布尔值表示是否已关注
+    // const isFollowed = await userStore.checkFollowStatus(userId);
+    // isFollowing.value = isFollowed;
+    
+    // 临时模拟，实际应调用API
+    isFollowing.value = false;
+  } catch (error) {
+    console.error('Failed to check follow status:', error);
+  }
+};
+
+// 修复关注/取消关注功能的逻辑
 const handleFollowClick = async (id) => {
   if (!id) return;
-  
   try {
     if (isFollowing.value) {
       // 取消关注功能
-      // await store.unfollowUser(id);
+      await userStore.unfollow(id);  // 修正为unfollow
       isFollowing.value = false;
       ElMessage.success('Unfollowed successfully');
     } else {
       // 关注功能
-      // await store.followUser(id);
+      await userStore.follow(id);    // 修正为follow
       isFollowing.value = true;
       ElMessage.success('Following successfully');
     }
   } catch (error) {
-    ElMessage.error('Failed to update follow status');
+    ElMessage.error('Failed to update following status');
   }
-}
+};
 
 // 恢复登录按钮处理方法
 const handleLoginClick = async () => {
@@ -713,6 +754,7 @@ const handleCommand = (command) => {
               />
               <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
               <el-button 
+                v-if="!isOwnPost" 
                 class="follow-btn" 
                 size="small"
                 :class="{ 'following': isFollowing }"

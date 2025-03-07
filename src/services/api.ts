@@ -71,7 +71,7 @@ export const getMyBlogList = () => http.get('/my_blogs');
 
 export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
 
-export const chatWithAI = (prompt: string) => http.post('/chat', {prompt});
+export const chatWithAI = (prompt: string) => http.post('/chatz', {prompt});
 
 export const generateResponse = (req:IChatReq) => http.post('/chat', req);
 

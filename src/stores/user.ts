@@ -175,6 +175,8 @@ export const useUserStore = defineStore('user', () => {
     user,
     userPosts,
     selectedPost,
+    followings,
+    followers,
     // 计算属性
     totalLikes,
     // Actions
