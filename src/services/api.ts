@@ -84,3 +84,12 @@ export const comment2Blog = (blogId: number, content: string) => http.post('/com
 export const comment2Comment = (commentId: number, content: string) => http.post('/user/comment', {id:commentId, content});
 
 export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});
+
+
+/**
+ * 关注
+ */
+export const userFollow = (id:number) => http.post('/user/follow', {id});
+export const userUnfollow = (id:number) => http.delete('/user/follow', {params:{id}});
+export const userFollowings = (id:number) => http.get(`/user/followings/${id}`);
+export const userFollowers = (id:number) => http.get(`/user/followers/${id}`);
