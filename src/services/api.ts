@@ -91,5 +91,6 @@ export const homeviewweather = (city: string) => http.get('/weather', {params:{c
  */
 export const userFollow = (id:number) => http.post('/user/follow', {id});
 export const userUnfollow = (id:number) => http.delete('/user/follow', {params:{id}});
+export const userIsFollowing = (id:number) => http.get('user/follow', {params:{id}});
 export const userFollowings = (id:number) => http.get(`/user/followings/${id}`);
 export const userFollowers = (id:number) => http.get(`/user/followers/${id}`);
