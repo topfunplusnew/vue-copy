@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify, logout as logoutApi, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit } from '@/services/api';
+import { userLogin, userProfile, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPost, IBlogEdit } from '@/types/blog';
 
@@ -28,9 +28,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function logout() {
-    logoutApi();
-    user.value = undefined;
-    userPosts.value = [];
+    userLogout().then(() =>{
+      user.value = undefined;
+      userPosts.value = [];
+    });
   }
 
   function signup(req: IUserSignup) {
@@ -95,19 +96,19 @@ export const useUserStore = defineStore('user', () => {
   }
 
   //编辑用户信息
-  
 
-  return { 
+
+  return {
     // 状态
-    user, 
+    user,
     userPosts,
     selectedPost,
     // 计算属性
     totalLikes,
     // Actions
-    login, 
+    login,
     logout,
-    getUserInfo, 
+    getUserInfo,
     editUserInfo,
     getUserBlogList,
     getUserBlogByID,
