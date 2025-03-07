@@ -1,10 +1,30 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useUserStore } from '@/stores/user';
 import walletItem from '@/components/wallet-item.vue';
 import { ElMessage } from 'element-plus';
+import { getImageUrl } from '@/utils';
+import { auth } from '@/services/http';
 
 /** 页面标题，可在此修改 */
 const msg= 'Contact Us';
+
+// 初始化router和userStore
+const router = useRouter();
+const userStore = useUserStore();
+
+// 处理登录点击
+const handleLoginClick = () => {
+  router.push({ name: 'login' });
+};
+
+// 页面加载时获取用户信息（如果已登录）
+onMounted(() => {
+  if (auth.get() && !userStore.user) {
+    userStore.getUserInfo();
+  }
+});
 
 /** 简易表单数据 */
 const contactForm = ref({
@@ -63,6 +83,23 @@ function submitContact() {
     }, 3000);
   }, 1500);
 }
+
+// 前往个人主页
+const goToUserProfile = () => {
+  router.push({ name: 'userpage' });
+};
+
+// 处理下拉菜单命令
+const handleCommand = (command) => {
+  if (command === 'profile') {
+    router.push({ name: 'userpage' });
+  } else if (command === 'logout') {
+    userStore.logout();
+    ElMessage.success('Logged out successfully');
+    router.push({ path: '/' });
+  }
+};
+
 </script>
 
 <template>
@@ -78,9 +115,37 @@ function submitContact() {
           <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
         </div>
         <div class="right-nav">
-          <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">LOGIN</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
+          <walletItem />
+          <!-- 未登录状态显示登录和注册按钮 -->
+          <template v-if="!userStore.user">
+            <el-button class="nav-button" @click="handleLoginClick">LOGIN</el-button>
+            <router-link :to="{ name: 'signup' }">
+              <el-button class="nav-button">SIGN UP</el-button>
+            </router-link>
+          </template>
+          
+          <!-- 已登录状态显示用户头像和下拉菜单 -->
+          <div v-else class="user-profile-nav">
+            <div class="home-avatar-container" @click="goToUserProfile">
+              <img 
+                :src="getImageUrl(userStore.user.avatar || '')" 
+                alt="User Avatar" 
+                class="home-new-user-avatar"
+              />
+              <span class="home-new-username">{{ userStore.user.name }}</span>
+            </div>
+            <el-dropdown trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <i class="el-icon-arrow-down"></i>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
+                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </div>
       </div>
     </header>

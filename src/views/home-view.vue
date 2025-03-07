@@ -6,6 +6,7 @@ import { useBlogStore } from '@/stores/blog';
 import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { Auth } from '@/services/auth';
+import { useUserStore } from '@/stores/user';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
@@ -30,6 +31,7 @@ const store = useBlogStore();
 const router = useRouter();
 const auth = new Auth();
 const componentsStore = usecomponentsStore();
+const userStore = useUserStore();
 
 const originWeather = computed(() => componentsStore.originWeather);
 const originWeatherIcon = computed(() => componentsStore.originWeatherIcon);
@@ -147,6 +149,9 @@ onMounted(() => {
   // 页面载入时，自动获取一次定位和加载博客列表
   store.getBlogList();
   handleLocationClick();
+  if (auth.get() && !userStore.user) {
+    userStore.getUserInfo();
+  }
 });
 
 // -----------------------------
@@ -337,9 +342,30 @@ function nextImage() {
 const showCommentInput = ref(false);
 const newComment = ref('');
 
-const submitComment = () => {
+const submitComment = async () => {
   if (!newComment.value.trim()) return;
   if (!selectedBlog.value?.id) return;
+  
+  // 检查用户是否已登录
+  if (!auth.get()) {
+    try {
+      await ElMessageBox.confirm(
+        'You need to login first to comment. Would you like to login now?', 
+        'Login Required', 
+        {
+          confirmButtonText: 'Go to Login',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        }
+      );
+      router.push({ name: 'login' });
+    } catch {
+      // 用户点击取消
+      return;
+    }
+    return;
+  }
+
   store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
     console.log(res);
   }).catch(e=>{
@@ -354,8 +380,6 @@ const submitComment = () => {
       scrollToComments();
     });
   });  
-  // 这里可以添加提交评论的逻辑
-  // 例如：store.addComment(selectedBlog.value.id, newComment.value);
   
   // 模拟添加评论
   ElMessage({
@@ -386,6 +410,22 @@ function handleImageError(event: Event) {
   target.classList.add('image-error');
 }
 
+// 前往个人主页
+const goToUserProfile = () => {
+  router.push({ name: 'userpage' });
+};
+
+// 处理下拉菜单命令
+const handleCommand = (command) => {
+  if (command === 'profile') {
+    router.push({ name: 'userpage' });
+  } else if (command === 'logout') {
+    userStore.logout();
+    ElMessage.success('Logged out successfully');
+    router.push({ path: '/' });
+  }
+};
+
 </script>
 
 <template>
@@ -412,13 +452,36 @@ function handleImageError(event: Event) {
         </div>
         <div class="right-nav">
           <walletItem />
-          <el-button class="nav-button" @click="handleLoginClick"> LOGIN </el-button>
-          <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">SIGN UP</el-button>
-          </router-link>
-          <router-link :to="{ name: 'userpage' }">
-            <el-button class="nav-button">PROFILE</el-button>
-          </router-link>
+          <!-- 未登录状态显示登录和注册按钮 -->
+          <template v-if="!userStore.user">
+            <el-button class="nav-button" @click="handleLoginClick">LOGIN</el-button>
+            <router-link :to="{ name: 'signup' }">
+              <el-button class="nav-button">SIGN UP</el-button>
+            </router-link>
+          </template>
+          
+          <!-- 已登录状态显示用户头像和下拉菜单 -->
+          <div v-else class="user-profile-nav">
+            <div class="home-avatar-container" @click="goToUserProfile">
+              <img 
+                :src="getImageUrl(userStore.user.avatar || '')" 
+                alt="User Avatar" 
+                class="home-new-user-avatar"
+              />
+              <span class="home-new-username">{{ userStore.user.name }}</span>
+            </div>
+            <el-dropdown trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <i class="el-icon-arrow-down"></i>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
+                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
         </div>
       </div>
     </header>
@@ -702,3 +765,4 @@ function handleImageError(event: Event) {
   <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
 </div>
 </template>
+
