@@ -25,6 +25,7 @@ const sortOption = ref('newest'); // 排序选项
 const pageSize = ref(6); // 每页显示数量
 const currentPage = ref(1); // 当前页码
 const isLoadingMore = ref(false); // 是否加载更多中
+const menuActive = ref(false); // 添加导航菜单状态
 
 // 初始化router和userStore
 const router = useRouter();
@@ -287,6 +288,11 @@ const handleCommand = (command) => {
     router.push({ path: '/' });
   }
 };
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
 </script>
 
 <template>
@@ -294,8 +300,13 @@ const handleCommand = (command) => {
   <div class="home">
     <!-- Header -->
     <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+        <div class="left-nav" :class="{ 'active': menuActive }">
           <router-link :to="{ name: 'home' }">
             <el-button class="nav-button">HOME</el-button>
           </router-link>
@@ -343,28 +354,27 @@ const handleCommand = (command) => {
           </div>
         </div>
       </div>
-      
     </header>
 
-    <div class="blog-header-title">{{ msg }}</div>
+    <div class="blogos-header-title">{{ msg }}</div>
 
     <!-- 改进的Blog Content部分 -->
-    <div class="blog-page-container">
+    <div class="blogos-page-container">
       <!-- 博客过滤和搜索栏 -->
-      <div class="blog-filter-bar">
-        <div class="search-container">
+      <div class="blogos-filter-bar">
+        <div class="blogos-search-container">
           <input 
             type="text" 
             v-model="searchQuery" 
             placeholder="Search blogs..." 
-            class="blog-search-input"
+            class="blogos-search-input"
           />
-          <button class="search-button">
+          <button class="blogos-search-button">
             <span>🔍</span>
           </button>
         </div>
-        <div class="filter-options">
-          <el-select v-model="filterCategory" placeholder="Category" class="filter-select">
+        <div class="blogos-filter-options">
+          <el-select v-model="filterCategory" placeholder="Category" class="blogos-filter-select">
             <el-option label="All Categories" value=""></el-option>
             <el-option 
               v-for="category in uniqueCategories" 
@@ -373,7 +383,7 @@ const handleCommand = (command) => {
               :value="category"
             ></el-option>
           </el-select>
-          <el-select v-model="sortOption" placeholder="Sort by" class="filter-select">
+          <el-select v-model="sortOption" placeholder="Sort by" class="blogos-filter-select">
             <el-option label="Newest" value="newest"></el-option>
             <el-option label="Oldest" value="oldest"></el-option>
             <el-option label="Most Popular" value="popular"></el-option>
@@ -382,37 +392,37 @@ const handleCommand = (command) => {
       </div>
       
       <!-- 响应式博客网格 -->
-      <div class="blog-grid">
+      <div class="blogos-grid">
         <div 
           v-for="post in filteredPosts" 
           :key="post.id" 
-          class="blog-card"
+          class="blogos-card"
           @click="showBlogDetail(post)"
         >
-          <div class="blog-card-image" :style="{ backgroundImage: `url(${post.image || '/default-blog-image.jpg'})` }">
-            <div class="blog-card-overlay">
-              <div class="blog-categories">
-                <span v-for="(category, index) in post.categories" :key="index" class="category-badge">
+          <div class="blogos-card-image" :style="{ backgroundImage: `url(${post.image || '/default-blog-image.jpg'})` }">
+            <div class="blogos-card-overlay">
+              <div class="blogos-categories">
+                <span v-for="(category, index) in post.categories" :key="index" class="blogos-category-badge">
                   {{ category }}
                 </span>
               </div>
             </div>
           </div>
-          <div class="blog-card-content">
-            <div class="blog-card-meta">
+          <div class="blogos-card-content">
+            <div class="blogos-card-meta">
               <span class="reading-time"><i class="el-icon-time"></i> {{ post.readingTime }}</span>
-              <span class="blog-date">{{ formatDate(post.date) }}</span>
+              <span class="blogos-date">{{ formatDate(post.date) }}</span>
             </div>
             <div class="blog-card-title">{{ post.title }}</div>
             <div class="blog-card-excerpt">{{ truncateText(post.content, 120) }}</div>
-            <div class="blog-card-footer">
-              <div class="author-info">
-                <img :src="post.authorAvatar || '/default-avatar.jpg'" alt="Author" class="author-avatar" />
-                <span class="author-name">{{ post.author }}</span>
+            <div class="blogos-card-footer">
+              <div class="blogos-author-info">
+                <img :src="post.authorAvatar || '/default-avatar.jpg'" alt="Author" class="blogos-author-avatar" />
+                <span class="blogos-author-name">{{ post.author }}</span>
               </div>
-              <div class="blog-stats">
-                <span class="stat-item"><i class="el-icon-view"></i> {{ post.views || 0 }}</span>
-                <span class="stat-item"><i class="el-icon-chat-dot-round"></i> {{ post.comments?.length || 0 }}</span>
+              <div class="blogos-stats">
+                <span class="blogos-stat-item"><i class="el-icon-view"></i> {{ post.views || 0 }}</span>
+                <span class="blogos-stat-item"><i class="el-icon-chat-dot-round"></i> {{ post.comments?.length || 0 }}</span>
               </div>
             </div>
           </div>
@@ -420,14 +430,14 @@ const handleCommand = (command) => {
       </div>
       
       <!-- 加载更多按钮 -->
-      <div class="load-more-container" v-if="hasMorePosts">
-        <button class="load-more-button" @click="loadMorePosts" :disabled="isLoadingMore">
+      <div class="blogos-load-more-container" v-if="hasMorePosts">
+        <button class="blogos-load-more-button" @click="loadMorePosts" :disabled="isLoadingMore">
           {{ isLoadingMore ? 'Loading...' : 'Load More' }}
         </button>
       </div>
       
       <!-- 无结果提示 -->
-      <div class="no-results" v-if="filteredPosts.length === 0">
+      <div class="blogos-no-results" v-if="filteredPosts.length === 0">
         <h3>No posts found</h3>
         <p>Try adjusting your search or filters.</p>
       </div>
@@ -437,49 +447,49 @@ const handleCommand = (command) => {
     <el-dialog 
       v-model="dialogVisible" 
       :title="selectedPost?.title" 
-      custom-class="blog-detail-dialog"
+      custom-class="blogos-detail-dialog"
       :close-on-click-modal="true"
       :show-close="true"
       width="80%"
       top="5vh"
       destroy-on-close
     >
-      <div class="blog-detail-container">
+      <div class="blogos-detail-container">
         <!-- 博客详情头部 -->
-        <div class="blog-detail-header">
-          <div class="blog-author-container">
+        <div class="blogos-detail-header">
+          <div class="blogos-author-container">
             <img 
               :src="selectedPost?.authorAvatar || '/default-avatar.jpg'" 
               :alt="selectedPost?.author" 
               class="blog-author-avatar"
             />
-            <div class="blog-author-info">
-              <h4 class="blog-author-name">{{ selectedPost?.author }}</h4>
-              <div class="blog-publish-date">
+            <div class="blogos-author-info">
+              <h4 class="blogos-author-name">{{ selectedPost?.author }}</h4>
+              <div class="blogos-publish-date">
                 Published on {{ formatDate(selectedPost?.date) }}
               </div>
             </div>
             <el-button 
               v-if="selectedPost && !isOwnPost" 
-              class="follow-btn-blog" 
+              class="blogos-follow-btn-blog" 
               size="small"
-              :class="{ 'following': isFollowing }"
+              :class="{ 'blogos-following': isFollowing }"
               @click.stop="handleFollowClick(selectedPost.authorId)"
             >
-              <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
+              <span class="blogos-follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
             </el-button>
           </div>
-          <div class="blog-categories-container">
-            <span v-for="(category, index) in selectedPost?.categories" :key="index" class="blog-detail-category">
+          <div class="blogos-categories-container">
+            <span v-for="(category, index) in selectedPost?.categories" :key="index" class="blogos-detail-category">
               {{ category }}
             </span>
           </div>
         </div>
         
         <!-- 博客详情内容区 -->
-        <div class="blog-detail-content">
+        <div class="blogos-detail-content">
           <!-- 博客轮播图 -->
-          <div class="blog-image-carousel" v-if="selectedPost?.images && selectedPost.images.length > 0">
+          <div class="blogos-image-carousel" v-if="selectedPost?.images && selectedPost.images.length > 0">
             <el-carousel :interval="4000" type="card" height="400px">
               <el-carousel-item v-for="(image, index) in selectedPost.images" :key="index">
                 <img :src="image" :alt="`Blog image ${index + 1}`" class="carousel-image" />
@@ -488,40 +498,40 @@ const handleCommand = (command) => {
           </div>
           
           <!-- 或者显示单张特色图片 -->
-          <div class="blog-featured-image" v-else-if="selectedPost?.image">
-            <img :src="selectedPost.image" :alt="selectedPost.title" class="featured-image" />
+          <div class="blogos-featured-image" v-else-if="selectedPost?.image">
+            <img :src="selectedPost.image" :alt="selectedPost.title" class="blogos-featured-image" />
           </div>
           
           <!-- 博客正文 -->
-          <div class="blog-text-content">
+          <div class="blogos-text-content">
             <p>{{ selectedPost?.content }}</p>
           </div>
           
           <!-- 标签区域 -->
-          <div class="blog-tags-container" v-if="selectedPost?.tags && selectedPost.tags.length > 0">
+          <div class="blogos-tags-container" v-if="selectedPost?.tags && selectedPost.tags.length > 0">
             <h4>Tags:</h4>
-            <div class="tag-list">
-              <span v-for="(tag, index) in selectedPost.tags" :key="index" class="blog-tag">
+            <div class="blogos-tag-list">
+              <span v-for="(tag, index) in selectedPost.tags" :key="index" class="blogos-tag">
                 #{{ tag }}
               </span>
             </div>
           </div>
           
           <!-- 互动区域 -->
-          <div class="blog-interaction-bar">
-            <div class="interaction-left">
+          <div class="blogos-interaction-bar">
+            <div class="blogos-interaction-left">
               <button class="interaction-btn like-btn" @click.stop="toggleLike">
                 <i :class="isLiked ? 'el-icon-star-on' : 'el-icon-star-off'"></i>
                 <span>{{ likeCount }}</span>
               </button>
               <button class="interaction-btn comment-btn" @click.stop="focusCommentInput">
-                <i class="el-icon-chat-dot-round"></i>
+                <i class="blogos-el-icon-chat-dot-round"></i>
                 <span>{{ selectedPost?.comments?.length || 0 }}</span>
               </button>
             </div>
-            <div class="interaction-right">
-              <button class="interaction-btn share-btn" @click.stop="sharePost">
-                <i class="el-icon-share"></i>
+            <div class="blogos-interaction-right">
+              <button class="blogos-interaction-btn share-btn" @click.stop="sharePost">
+                <i class="blogos-el-icon-share"></i>
                 <span>Share</span>
               </button>
             </div>
@@ -529,20 +539,20 @@ const handleCommand = (command) => {
         </div>
         
         <!-- 评论区域 -->
-        <div class="blog-comments-section">
-          <h3 class="comments-title">Comments ({{ selectedPost?.comments?.length || 0 }})</h3>
+        <div class="blogos-comments-section">
+          <h3 class="blogos-comments-title">Comments ({{ selectedPost?.comments?.length || 0 }})</h3>
           
           <!-- 评论输入框 -->
-          <div class="comment-input-container">
+          <div class="blogos-comment-input-container">
             <textarea 
               ref="commentInput"
               v-model="newComment" 
               placeholder="Write a comment..." 
-              class="comment-textarea"
+              class="blogos-comment-textarea"
               rows="3"
             ></textarea>
             <button 
-              class="submit-comment-btn" 
+              class="blogos-submit-comment-btn" 
               @click.stop="submitComment"
               :disabled="!newComment.trim() || !userStore.user"
             >
@@ -551,31 +561,31 @@ const handleCommand = (command) => {
           </div>
           
           <!-- 评论列表 -->
-          <div class="comments-list">
+          <div class="blogos-comments-list">
             <div 
               v-for="comment in selectedPost?.comments" 
               :key="comment.id" 
-              class="comment-item"
+              class="blogos-comment-item"
             >
-              <div class="comment-header">
+              <div class="blogos-comment-header">
                 <img 
                   :src="comment.userAvatar || '/default-avatar.jpg'" 
                   :alt="comment.userName" 
-                  class="commenter-avatar"
+                  class="blogos-commenter-avatar"
                 />
-                <div class="comment-info">
-                  <div class="commenter-name">{{ comment.userName }}</div>
-                  <div class="comment-date">{{ formatDate(comment.date) }}</div>
+                <div class="blogos-comment-info">
+                  <div class="blogos-commenter-name">{{ comment.userName }}</div>
+                  <div class="blogos-comment-date">{{ formatDate(comment.date) }}</div>
                 </div>
               </div>
-              <div class="comment-content">
+              <div class="blogos-comment-content">
                 <p>{{ comment.content }}</p>
               </div>
-              <div class="comment-actions">
-                <button class="comment-action-btn" @click.stop="replyToComment(comment)">
+              <div class="blogos-comment-actions">
+                <button class="blogos-comment-action-btn" @click.stop="replyToComment(comment)">
                   Reply
                 </button>
-                <button class="comment-action-btn" @click.stop="likeComment(comment)">
+                <button class="blogos-comment-action-btn" @click.stop="likeComment(comment)">
                   {{ comment.isLiked ? 'Liked' : 'Like' }} ({{ comment.likes || 0 }})
                 </button>
               </div>
@@ -587,16 +597,4 @@ const handleCommand = (command) => {
   </div>
 </template>
 
-<style lang="scss">
-
-.post-item {
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-}
-</style>
 

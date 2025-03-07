@@ -30,6 +30,8 @@ function handleLogout() {
 // const user = reactive(userInfo);
 const user = computed(() => store.user);
 
+
+
 const posts = ref<IBlogPost[]>([]);
 // const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
@@ -323,8 +325,8 @@ function scrollToComments() {
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
-const followings = ref([]);
-const followers = ref([]);
+const followings = computed(() => store.followings);
+const followers = computed(() => store.followers);
 const loadingFollowings = ref(false);
 const loadingFollowers = ref(false);
 
@@ -334,8 +336,8 @@ function showSocialModal() {
   document.body.style.overflow = 'hidden'; // 防止背景滚动
   
   // 加载数据
-  loadFollowingsData();
-  loadFollowersData();
+  store.getFollowings();
+  store.getFollowers();
 }
 
 // 关闭社交弹窗
@@ -395,17 +397,8 @@ function unfollowUser(following) {
     }
   ).then(() => {
     // 模拟API调用
-    setTimeout(() => {
+    store.unfollow(following.id);
       ElMessage.success(`You have unfollowed ${following.name}`);
-      
-      // 从列表中移除
-      followings.value = followings.value.filter(f => f.id !== following.id);
-      
-      // 更新计数
-      if (user.value) {
-        user.value.followings = (user.value.followings || 0) - 1;
-      }
-    }, 500);
   }).catch(() => {
     // 用户取消操作
   });
@@ -476,14 +469,28 @@ function formatDate(dateString) {
     day: 'numeric' 
   });
 }
+
+// 添加导航菜单状态管理
+const menuActive = ref(false);
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
 </script>
 
 <template>
   <div class="user-page">
-    <!-- 顶部 Header -->
+    <!-- 顶部导航栏 -->
     <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+      
+        <div class="left-nav" :class="{ 'active': menuActive }">
           <router-link :to="{ name: 'home' }">
             <el-button class="nav-button">HOME</el-button>
           </router-link>
@@ -510,7 +517,7 @@ function formatDate(dateString) {
 
     <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
     <section class="main-content">
-      <!-- 左侧用户信息面板，固定宽度 & 100vh 高度 -->
+      <!-- 左侧用户信息面板 -->
       <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
         <div class="profile-buttons">
           <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
@@ -699,10 +706,10 @@ function formatDate(dateString) {
             
             <div v-else class="social-user-list">
               <div v-for="following in followings" :key="following.id" class="social-user-item">
-                <img :src="following.avatar" :alt="`${following.name}'s avatar`" class="social-user-avatar">
+                <img :src="`/images/${following.avatar}`" :alt="`${following.name}'s avatar`" class="social-user-avatar">
                 <div class="social-user-info">
                   <div class="social-user-name">{{ following.name }}</div>
-                  <div class="social-user-meta">Following since {{ formatDate(following.follow_time) }}</div>
+                  <div class="social-user-meta">Following since {{ formatDate(following.created_at) }}</div>
                 </div>
                 <button class="social-action-btn following" @click="unfollowUser(following)">
                   Unfollow

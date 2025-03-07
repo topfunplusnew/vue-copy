@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, reactive } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, computed, watch, onMounted, reactive, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
 import walletItem from '@/components/wallet-item.vue';
@@ -8,6 +8,8 @@ import { generateUserPrompt } from '@/stores/userprompt';
 import { setTripOptions } from '@/stores/tripoption';
 import { generateResponse } from '@/services/api';
 import type { IChatReq } from '@/types/chat';
+import { useUserStore } from '@/stores/user';
+import { getImageUrl } from '@/utils';
 
 
 // interface ChatMessage { sender: string; text: string; }
@@ -336,6 +338,9 @@ const toggleHistory = () => {
 };
 
 const route = useRoute();
+const router = useRouter();
+const userStore = useUserStore();
+
 // 页面加载时：如果路由 query 中传入了 prompt，则直接使用；否则调用 generateUserPrompt 生成默认文本
 onMounted(() => {
   const initialPrompt = route.query.prompt as string;
@@ -353,6 +358,35 @@ onMounted(() => {
   //   sendToAI(userChatInput.value);
   // }, 200);
 });
+
+// 处理登录点击
+const handleLoginClick = () => {
+  router.push({ name: 'login' });
+};
+
+// 处理下拉菜单命令
+const handleCommand = (command) => {
+  if (command === 'profile') {
+    router.push({ name: 'userpage' });
+  } else if (command === 'logout') {
+    userStore.logout();
+    router.push({ name: 'home' });
+  }
+};
+
+// 跳转到用户个人资料页面
+const goToUserProfile = () => {
+  router.push({ name: 'userpage' });
+};
+
+// 添加导航菜单状态管理
+// 导航菜单状态
+const menuActive = ref(false);
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
 </script>
 
 <template>
@@ -360,8 +394,14 @@ onMounted(() => {
   <div class="home">
     <!-- Header -->
     <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+      
+        <div class="left-nav" :class="{ 'active': menuActive }">
           <router-link :to="{ name: 'home' }">
             <el-button class="nav-button">HOME</el-button>
           </router-link>
@@ -376,21 +416,45 @@ onMounted(() => {
           </router-link>
         </div>
         <div class="right-nav">
-          <!-- <wallet-item /> -->
-          <router-link :to="{ name: 'login' }">
-            <el-button class="nav-button">Login</el-button>
-          </router-link>
-          <router-link :to="{ name: 'signup' }">
-            <el-button class="nav-button">Sign Up</el-button>
-          </router-link>
-          <!-- History 切换按钮 -->
-          <el-button class="nav-button" @click="toggleHistory">
-            {{ historyVisible ? 'Hide History' : 'Show History' }}
-          </el-button>
+          <walletItem />
+          <!-- 未登录状态显示登录和注册按钮 -->
+          <template v-if="!userStore.user">
+            <el-button class="nav-button" @click="handleLoginClick">LOGIN</el-button>
+            <router-link :to="{ name: 'signup' }">
+              <el-button class="nav-button">SIGN UP</el-button>
+            </router-link>
+          </template>
+          
+          <!-- 已登录状态显示用户头像和下拉菜单 -->
+          <div v-else class="user-profile-nav">
+            <div class="home-avatar-container" @click="goToUserProfile">
+              <img 
+                :src="getImageUrl(userStore.user.avatar || '')" 
+                alt="User Avatar" 
+                class="home-new-user-avatar"
+              />
+              <span class="home-new-username">{{ userStore.user.name }}</span>
+            </div>
+            <el-dropdown trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <i class="el-icon-arrow-down"></i>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
+                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <!-- History 切换按钮 -->
+            <el-button class="nav-button" @click="toggleHistory">
+              {{ historyVisible ? 'Hide History' : 'Show History' }}
+            </el-button>
+          </div>
         </div>
       </div>
-      <!-- <h2 class="header-title">Have Fun in iPoloGO</h2> -->
     </header>
+
 
     <!-- 外层内容容器 -->
     <div class="content-wrapper">

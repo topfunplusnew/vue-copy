@@ -272,22 +272,36 @@ const addTag = () => {
   }
   // ... 其他标签添加逻辑
 };
+
+// 添加导航菜单状态管理
+const menuActive = ref(false);
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
 </script>
 
 <template>
-  <div class="background-layer"></div>
-  <div class="home">
-    <!-- 导航栏 -->
+  <div class="post-view-container">
+    <!-- 顶部导航栏 -->
     <header class="header">
-      <div class="nav-container">
-        <!-- 左侧导航 -->
-        <div class="left-nav">
-          <router-link v-for="item in ['home', 'about', 'blog', 'contact']" :key="item" :to="{ name: item }">
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+      
+        <div class="left-nav" :class="{ 'active': menuActive }">
+          <router-link :to="{ name: 'home' }">
+            <el-button class="nav-button">HOME</el-button>
+          </router-link>
+          <router-link v-for="item in ['about', 'blog', 'contact']" :key="item" :to="{ name: item }">
             <el-button class="nav-button">{{ item.toUpperCase() }}</el-button>
           </router-link>
         </div>
-
-        <!-- 右侧导航 -->
+        
         <div class="right-nav">
           <wallet-item />
           <router-link v-for="item in ['login', 'signup', 'userpage']" :key="item" :to="{ name: item }">

@@ -107,12 +107,25 @@ const handleCommand = (command) => {
   <div class="home">
     <!-- Header -->
     <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
-          <router-link :to="{ name: 'home' }"><el-button class="nav-button">HOME</el-button></router-link>
-          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
-          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
-          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+        <div class="left-nav" :class="{ 'active': menuActive }">
+          <router-link :to="{ name: 'home' }">
+            <el-button class="nav-button">HOME</el-button>
+          </router-link>
+          <router-link :to="{ name: 'about' }">
+            <el-button class="nav-button">ABOUT</el-button>
+          </router-link>
+          <router-link :to="{ name: 'blog' }">
+            <el-button class="nav-button">BLOG</el-button>
+          </router-link>
+          <router-link :to="{ name: 'contact' }">
+            <el-button class="nav-button">CONTACT</el-button>
+          </router-link>
         </div>
         <div class="right-nav">
           <walletItem />

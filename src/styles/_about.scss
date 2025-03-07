@@ -11,35 +11,37 @@
     border-radius: 10px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
     width: 80%;
-    max-width: 900px;
+    max-width: 950px;
+    min-height: 400px;
     text-align: justify; /* 使文本左对齐 */
-  
-      p {
-        font-size: 1.8rem;
-        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-        color: #ddd;
-        line-height: 1.6;
-      }
-  
-      h1 {
-        font-size: 6rem;
-        font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-        margin: 0 auto;
-      }
   }
-}
 
 /* About页面的特殊样式 */
 
 .ipologo-intro {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 2rem auto;
-  padding: 2rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-radius: 15px;
+  padding: 0 2rem;
   text-align: center;
   
+  h1 {
+    font-size: 5.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(90deg, #64b3f4, #c2e59c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.5px;
+  }
+  
+  p {
+    font-size: 2rem;
+    text-align: justify;
+    line-height: 1.8;
+    max-width: 900px;
+    margin: 0 auto;
+    color: rgba(255, 255, 255, 0.9);
+  }
 }
 
 /* FAQ容器样式 */
@@ -61,55 +63,68 @@
 
 /* 特点卡片样式 */
 .features-container-about {
+  margin: 4rem auto;
   max-width: 1200px;
-  margin: 3rem auto;
-  padding: 0 1rem;
+  padding: 0 2rem;
 }
 
 .features-title-about {
   text-align: center;
-  margin-bottom: 2rem;
-  
-  background: linear-gradient(90deg, #f5f7fa, #c3cfe2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  font-size: 5rem;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-weight: bold;
+  margin-bottom: 3rem;
+  color: #fff;
 }
 
 .features-grid-about {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
-  margin-bottom: 3rem;
 }
 
 .feature-card-about {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  border-radius: 15px;
+  border-radius: 12px;
   padding: 2rem;
-  transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
   
   &:hover {
     transform: translateY(-10px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     
     .feature-overlay-about {
-      opacity: 1;
+      opacity: 0.1;
     }
-    
-    .feature-icon-about {
-      transform: scale(1.1) rotate(5deg);
-    }
+  }
+  
+  .feature-icon-about {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 40px;
+  }
+  
+  .about-feature-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+  
+  .feature-description-about {
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -182,57 +197,38 @@
   font-size: 1.5rem;
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   font-weight: bold;
-
 }
 
 /* 统计数据样式 */
 .stats-container-about {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   flex-wrap: wrap;
-  gap: 3rem;
+  max-width: 1200px;
   margin: 3rem auto;
   padding: 2rem;
-  max-width: 1000px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
 }
 
 .stat-item-about {
   text-align: center;
-  min-width: 150px;
-  position: relative;
+  padding: 1rem;
   
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 20%;
-    width: 60%;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-    border-radius: 3px;
+  .stat-value-about {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-label-about {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.7);
   }
 }
-
-.stat-value-about {
-  font-size: 2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #fff, #c3cfe2);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
-
-.stat-label-about {
-  font-size: 1.4rem;
-  color: rgba(255, 255, 255, 0.8);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
 /* FAQ 样式自定义 */
 .home .stable-width-collapse {
   width: 100% !important;
@@ -332,4 +328,96 @@
   line-height: 1.6;
   color: rgba(255, 255, 255, 0.9) !important;
   padding: 1rem 0;
+}
+
+/* 响应式字体调整 */
+@media (max-width: 992px) {
+  .features-title-about {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .features-grid-about {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .features-title-about {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .features-grid-about {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .features-title-about {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .features-grid-about {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-container-about {
+    padding: 1.5rem 1rem;
+    margin: 2rem auto;
+  }
+  
+  .stat-item-about {
+    padding: 0.8rem;
+  }
+  
+  .stat-value-about {
+    font-size: 2rem;
+  }
+  
+  .stat-label-about {
+    font-size: 1rem;
+  }
+  
+  .home .el-collapse-item {
+    min-width: 90%;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 576px) {
+  .features-title-about {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  
+  .features-grid-about {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-container-about {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .stat-item-about {
+    padding: 0.8rem;
+  }
+  
+  .stat-value-about {
+    font-size: 1.8rem;
+  }
+  
+  .stat-label-about {
+    font-size: 0.9rem;
+  }
+  
+  .home .el-collapse-item {
+    min-width: 90%;
+    max-width: 90%;
+  }
 }

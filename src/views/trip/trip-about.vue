@@ -115,14 +115,28 @@ const handleCommand = (command) => {
     router.push({ path: '/' });
   }
 };
+
+// 添加导航菜单状态管理
+const menuActive = ref(false);
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
 </script>
 
 <template>
   <div class="background-layer"></div>
   <div class="home">
     <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+        
+        <div class="left-nav" :class="{ 'active': menuActive }">
           <router-link :to="{ name: 'home' }">
             <el-button class="nav-button">HOME</el-button>
           </router-link>
@@ -184,14 +198,14 @@ const handleCommand = (command) => {
 
     <!-- 交互式特点展示区域 -->
     <div class="features-container-about">
-      <h2 class="features-title-about">iPoloGO Features</h2>
+      <div class="features-title-about">iPoloGO Features</div>
       <div class="features-grid-about">
         <div class="feature-card-about" v-for="(feature, index) in features" :key="index">
           <div class="feature-icon-about" :class="feature.class">
             <span v-html="feature.icon"></span>
           </div>
           <div class="about-feature-title">{{ feature.title }}</div>
-          <p class="feature-description-about">{{ feature.description }}</p>
+          <div class="feature-description-about">{{ feature.description }}</div>
           <div class="feature-overlay-about"></div>
         </div>
       </div>

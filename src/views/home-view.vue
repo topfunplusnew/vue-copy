@@ -7,6 +7,8 @@ import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage, useTransitionFallthrough } from 'element-plus';
 import { Auth } from '@/services/auth';
 import { useUserStore } from '@/stores/user';
+import BlurText from '@/components/BlurText.vue';
+import LoadingScreen from '@/components/LoadingScreen.vue';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
@@ -24,7 +26,8 @@ const userLocation = ref('');
 const userDestination = ref('');
 const userFlag = ref('');
 const destinationFlag = ref('');
-const isLoading = ref(false);
+const isLoading = ref(true);
+const contentReady = ref(false);
 const errorMessage = ref('');
 
 const store = useBlogStore();
@@ -152,6 +155,15 @@ onMounted(() => {
   if (auth.get() && !userStore.user) {
     userStore.getUserInfo();
   }
+  
+  // 确保页面始终会显示 - 安全机制
+  setTimeout(() => {
+    if (isLoading.value) {
+      console.log('强制完成加载');
+      isLoading.value = false;
+      contentReady.value = true;
+    }
+  }, 5000);
 });
 
 // -----------------------------
@@ -320,11 +332,9 @@ watch(() => selectedBlog.value, (newBlog) => {
 const checkFollowStatus = async (userId) => {
   try {
     // 假设API返回一个布尔值表示是否已关注
-    // const isFollowed = await userStore.checkFollowStatus(userId);
-    // isFollowing.value = isFollowed;
+    const isFollowed = await userStore.isFollowing(userId);
+    isFollowing.value = isFollowed.data.is_following;
     
-    // 临时模拟，实际应调用API
-    isFollowing.value = false;
   } catch (error) {
     console.error('Failed to check follow status:', error);
   }
@@ -467,17 +477,48 @@ const handleCommand = (command) => {
   }
 };
 
+// 导航菜单状态
+const menuActive = ref(false);
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
+
+// 处理动画完成
+const handleAnimationComplete = () => {
+  console.log('欢迎文本动画完成!');
+};
+
+// 处理加载完成事件
+const handleLoadingComplete = () => {
+  // 直接设置加载完成，不使用延迟
+  isLoading.value = false;
+  contentReady.value = true;
+};
+
 </script>
 
 <template>
-  <!-- 固定背景层 -->
-  <div class="background-layer"></div>
-  
-  <div class="home">
+  <!-- 加载页 -->
+  <LoadingScreen 
+    v-if="isLoading" 
+    @complete="handleLoadingComplete" 
+    :duration="1800"
+  />
+
+  <div class="background-layer" :class="{ 'visible': !isLoading }"></div>
+  <div class="home" :class="{ 'content-visible': !isLoading }">
     <!-- Header 区域 -->
     <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
+      <div class="nav-container" :class="{ 'menu-active': menuActive }">
+        <!-- 汉堡菜单按钮 -->
+        <button class="hamburger-menu" @click="toggleMenu">
+          <span v-if="menuActive">✕</span>
+          <span v-else>☰</span>
+        </button>
+        
+        <div class="left-nav" :class="{ 'active': menuActive }">
           <router-link :to="{ name: 'home' }">
             <el-button class="nav-button">HOME</el-button>
           </router-link>
@@ -491,6 +532,7 @@ const handleCommand = (command) => {
             <el-button class="nav-button">CONTACT</el-button>
           </router-link>
         </div>
+        
         <div class="right-nav">
           <walletItem />
           <!-- 未登录状态显示登录和注册按钮 -->
@@ -526,9 +568,25 @@ const handleCommand = (command) => {
         </div>
       </div>
     </header>
-    
-    <h1 class="welcome-text">Welcome to iPoloGO</h1>
-    <h2 class="welcome-text2">To Explore, To Share, To Earn</h2>
+    <!-- <h1 class="welcome-text">Welcome to iPoloGO</h1>
+    <h2 class="welcome-text2">To Explore, To Share, To Earn</h2> -->
+    <section class="welcome-section">
+      <BlurText
+        text="Welcome to iPoloGO"
+        delay={180}
+        animateBy="words"
+        direction="top"
+        @animation-complete="handleAnimationComplete"
+        class="welcome-text"
+      />
+      <BlurText
+        text="To Explore, To Share, To Earn"
+        delay={180}
+        animateBy="words"
+        direction="bottom"
+        class="welcome-text2"
+      />
+    </section>
 
     <!-- 主体区域 -->
     <main class="main">
@@ -807,4 +865,27 @@ const handleCommand = (command) => {
   <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
 </div>
 </template>
+
+<style lang="scss">
+/* 添加过渡效果 */
+.background-layer {
+  opacity: 0;
+  transition: opacity 0.8s ease-in;
+  
+  &.visible {
+    opacity: 1;
+  }
+}
+
+.home {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  
+  &.content-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
 

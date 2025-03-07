@@ -14,6 +14,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@react-spring/web": "^9.7.5",
     "@solana/web3.js": "^1.98.0",
     "axios": "^1.7.9",
     "element-plus": "^2.9.5",

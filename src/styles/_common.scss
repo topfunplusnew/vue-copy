@@ -87,7 +87,7 @@ body {
           opacity: 1;
         }
         
-        .user-avatar {
+        .home-new-user-avatar {
           border-color: #7289DA;
           box-shadow: 0 0 6px rgba(114, 137, 218, 0.5);
         }
@@ -198,44 +198,140 @@ body {
   }
 }
 
-.header {
-  .nav-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-  }
+/* 导航容器 */
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  position: relative;
 
-  .left-nav,
-  .right-nav {
-    display: flex;
-    gap: 1.5rem;
-    align-items: center;
-  }
-
-  .nav-button {
+  /* 汉堡菜单按钮 - 默认隐藏 */
+  .hamburger-menu {
+    display: none;
+    font-size: 1.8rem;
     background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 1001;
+    margin-right: 1rem;
     transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
   }
 
-  .el-button {
-    font-size: 1.5rem;
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
-    padding: 10px 20px;
-    background-color: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: #fff;
-    transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
+  /* 小屏幕布局调整 */
+  @media (max-width: 768px) {
+    flex-wrap: nowrap;
+    
+    .hamburger-menu {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      order: 1;
+    }
+    
+    .left-nav {
+      display: none; /* 默认隐藏导航菜单 */
+      
+      &.active {
+        display: flex;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: rgba(30, 30, 30, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 1rem;
+        z-index: 1000;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: 0 0 8px 8px;
+        animation: fadeInDown 0.3s ease;
+      }
+    }
+    
+    .right-nav {
+      order: 2;
+      margin-left: auto;
+    }
+    
+    .user-profile-nav {
+      width: auto;
+      justify-content: center;
+      margin: 0.5rem 0;
+    }
+    
+    /* 导航展开时显示用户菜单 */
+    .menu-active .user-profile-nav {
+      display: flex;
+    }
   }
+}
 
-  .el-button:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
+.left-nav,
+.right-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    .left-nav a, .left-nav .nav-button, .left-nav .el-button {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.nav-button {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.el-button {
+  font-size: 1.5rem;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  transition:
+  background-color 0.3s ease,
+  transform 0.3s ease;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    padding: 8px 16px;
+  }
+}
+
+.el-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* 添加动画 */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
