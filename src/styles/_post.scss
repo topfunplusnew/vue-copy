@@ -1,14 +1,14 @@
 /* Post页面的样式 */
-.post-view-container {
+.home .post-view-container {
   position: relative;
-    width: 100%;
-    max-width: 1000px;
-    margin: 0;
-    padding: 0.5rem 2rem 2rem 2rem;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 1000px;
+  margin-top: 2rem;
+  padding: 0.5rem 2rem 2rem 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   
     /* 标题 */
     .header-container {

@@ -264,12 +264,9 @@ onMounted(async () => {
   <div class="background-layer"></div>
  
   <!-- 保留公共头部 -->
-  <el-header class="post-header" height="auto">
-    <div class="home">
-      <common-header />
-    </div>
-  </el-header>
   
+  <div class="home">
+  <common-header />
   <el-container class="post-view-container">
   <el-main class="post-content">
     <!-- 内容卡片 -->
@@ -455,4 +452,5 @@ onMounted(async () => {
   :preferences="createData.social_filters" 
   @close="closePreview" 
 />
+</div>
 </template>
