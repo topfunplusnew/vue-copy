@@ -9,7 +9,7 @@ import { Auth } from '@/services/auth';
 import { useUserStore } from '@/stores/user';
 import BlurText from '@/components/BlurText.vue';
 import LoadingScreen from '@/components/LoadingScreen.vue';
-import commonHeader from '@/views/common/common-header.vue';
+import commonHeader from '@/layout/common-header.vue';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
@@ -80,7 +80,7 @@ const handleLocationClick = async () => {
     selectedLocation.value = city;
     userLocation.value = `${city}, ${country}`;
     userFlag.value = flagUrl;
-    
+
     componentsStore.getWeather(city, false);
 
     updateUserInput();
@@ -164,7 +164,7 @@ onMounted(() => {
   if (auth.get() && !userStore.user) {
     userStore.getUserInfo();
   }
-  
+
   // 确保页面始终会显示 - 安全机制
   setTimeout(() => {
     if (isLoading.value) {
@@ -186,7 +186,7 @@ onMounted(() => {
     },
     { threshold: 0.1 } // 当10%的目标元素可见时触发
   );
-  
+
   // 开始观察底部触发元素
   nextTick(() => {
     if (bottomTrigger.value) {
@@ -210,18 +210,18 @@ onUnmounted(() => {
 const showBlogDetail = async (id: number) => {
   // 重置图片索引
   currentImageIndex.value = 0;
-  
+
   try {
     // 添加参数指示后端返回所有回复，不分页
     await store.getBlogByID(id, { includeAllReplies: true });
     dialogBlog.value = true;
-    
+
     // 重置评论区状态
     expandedReplies.value = [];
     expandedComments.value = []; // 重置已展开的评论列表
     replyContent.value = '';
     replyTarget.value = null;
-    
+
     // 在对话框打开后滚动到顶部
     nextTick(() => {
       const detailBox = document.querySelector('.blog-details-home');
@@ -348,7 +348,7 @@ const isOwnPost = computed(() => {
   // 增加一些日志输出帮助调试
   console.log('User ID:', userStore.user.id);
   console.log('Post User ID:', selectedBlog.value.user.id);
-  
+
   // 确保两个ID都转为字符串进行比较，以防类型不同导致比较失败
   return String(userStore.user.id) === String(selectedBlog.value.user.id);
 });
@@ -357,7 +357,7 @@ const isOwnPost = computed(() => {
 watch(() => selectedBlog.value, (newBlog) => {
   // 重新评估是否为自己的帖子
   console.log('Is own post:', isOwnPost.value);
-  
+
   // 如果选中了博客且不是自己的博客，则检查关注状态
   if (newBlog && newBlog.user && !isOwnPost.value) {
     // 这里可以调用API检查是否已关注
@@ -374,7 +374,7 @@ const checkFollowStatus = async (userId) => {
     // 假设API返回一个布尔值表示是否已关注
     const isFollowed = await userStore.isFollowing(userId);
     isFollowing.value = isFollowed.data.is_following;
-    
+
   } catch (error) {
     console.error('Failed to check follow status:', error);
   }
@@ -436,13 +436,13 @@ const newComment = ref('');
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
   if (!selectedBlog.value?.id) return;
-  
+
   // 检查用户是否已登录
   if (!auth.get()) {
     try {
       await ElMessageBox.confirm(
-        'You need to login first to comment. Would you like to login now?', 
-        'Login Required', 
+        'You need to login first to comment. Would you like to login now?',
+        'Login Required',
         {
           confirmButtonText: 'Go to Login',
           cancelButtonText: 'Cancel',
@@ -465,26 +465,26 @@ const submitComment = async () => {
     // 清空输入
     newComment.value = '';
     if(selectedBlog.value?.id) store.getBlogByID(selectedBlog.value?.id);
-    
+
     // 滚动到新评论
     nextTick(() => {
       scrollToComments();
     });
-  });  
-  
+  });
+
   // 模拟添加评论
   ElMessage({
     message: 'Comment submitted successfully!',
     type: 'success'
   });
-  
+
   newComment.value = '';
 };
 
 const scrollToComments = () => {
   const commentsSection = document.querySelector('.comments-container-home');
   const detailRight = document.querySelector('.detail-right-home');
-  
+
   if (commentsSection && detailRight) {
     detailRight.scrollTo({
       top: commentsSection.offsetTop - 20,
@@ -543,16 +543,16 @@ const handleLoadingComplete = () => {
  */
 const loadMoreBlogs = async () => {
   if (isLoadingMore.value || !hasMoreBlogs.value) return;
-  
+
   isLoadingMore.value = true;
   try {
     // 增加页码
     currentPage.value++;
     console.log('Loading more blogs, page:', currentPage.value);
-    
+
     // 调用store方法加载更多博客
     const newBlogs = await store.loadMoreBlogs(currentPage.value);
-    
+
     // 如果没有更多博客，设置hasMoreBlogs为false
     if (!newBlogs || newBlogs.length === 0) {
       hasMoreBlogs.value = false;
@@ -591,7 +591,7 @@ const loadAllRepliesForComment = async (commentId: number) => {
     if (selectedBlog.value) {
       // 如果后端API支持按评论ID加载所有回复，可以这样调用
       // 示例: await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
-      
+
       // 临时解决方案: 如果后端已经返回了所有回复，这里可以直接返回
       console.log(`Loading all replies for comment all replies mment ${commentId}`);
     }
@@ -613,11 +613,11 @@ const toggleAllReplies = () => {
     const allCommentsWithReplies = selectedBlog.value.comments
       .filter(comment => comment.replies && comment.replies.length > 0)
       .map(comment => comment.id);
-      
-    const allExpanded = allCommentsWithReplies.every(id => 
+
+    const allExpanded = allCommentsWithReplies.every(id =>
       expandedReplies.value.includes(id)
     );
-    
+
     if (allExpanded) {
       // 如果所有回复都已展开，则全部折叠
       expandedReplies.value = [];
@@ -635,13 +635,13 @@ const toggleAllReplies = () => {
 // 获取是否全部展开状态
 const areAllRepliesExpanded = computed(() => {
   if (!selectedBlog.value || !selectedBlog.value.comments) return false;
-  
+
   const commentsWithReplies = selectedBlog.value.comments
     .filter(comment => comment.replies && comment.replies.length > 0);
-  
+
   if (commentsWithReplies.length === 0) return false;
-  
-  return commentsWithReplies.every(comment => 
+
+  return commentsWithReplies.every(comment =>
     expandedReplies.value.includes(comment.id)
   );
 });
@@ -649,7 +649,7 @@ const areAllRepliesExpanded = computed(() => {
 // 获取回复对象用户名
 const getReplyTargetName = (comment: any) => {
   if (!selectedBlog.value || !selectedBlog.value.comments) return '';
-  
+
   // 查找原始评论的用户名
   const originalComment = selectedBlog.value.comments.find(c => c.id === comment.parent_id);
   return originalComment ? originalComment.user.name : '';
@@ -661,8 +661,8 @@ const replyTarget = ref<{id: number, type: 'comment' | 'reply', parentId?: numbe
 // 切换回复输入框显示状态
 const toggleReplyInput = (id: number, type: string = 'comment', parentId?: number) => {
   // 如果当前已经是在回复这个评论/回复，则关闭回复框
-  if (replyTarget.value && 
-      replyTarget.value.id === id && 
+  if (replyTarget.value &&
+      replyTarget.value.id === id &&
       replyTarget.value.type === type) {
     replyTarget.value = null;
     replyContent.value = '';
@@ -672,13 +672,13 @@ const toggleReplyInput = (id: number, type: string = 'comment', parentId?: numbe
       console.error('回复需要提供父评论ID');
       return;
     }
-    
+
     replyTarget.value = {
       id,
       type,
       parentId
     };
-    
+
     // 添加延迟滚动到回复框，确保DOM已更新
     nextTick(() => {
       // 滚动到回复框
@@ -687,7 +687,7 @@ const toggleReplyInput = (id: number, type: string = 'comment', parentId?: numbe
         replyInputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
-    
+
     replyContent.value = '';
   }
 };
@@ -701,14 +701,14 @@ const cancelReply = () => {
 // 提交回复
 const submitReply = async () => {
   if (!replyContent.value.trim()) return;
-  
+
   isSubmittingReply.value = true;
   try {
     // 根据回复类型确定正确的父评论ID
-    const commentId = replyTarget.value?.type === 'comment' 
-      ? replyTarget.value.id 
+    const commentId = replyTarget.value?.type === 'comment'
+      ? replyTarget.value.id
       : replyTarget.value?.parentId;
-      
+
     await store.commenttoComment(replyTarget.value.id, replyContent.value);
     ElMessage.success('Reply added successfully');
     store.getBlogByID(selectedBlog.value?.id);
@@ -747,9 +747,9 @@ const expandReplies = async (commentId: number|undefined) => {
 
 <template>
   <!-- 加载页 -->
-  <LoadingScreen 
-    v-if="isLoading" 
-    @complete="handleLoadingComplete" 
+  <LoadingScreen
+    v-if="isLoading"
+    @complete="handleLoadingComplete"
     :duration="1800"
   />
 
@@ -788,7 +788,7 @@ const expandReplies = async (commentId: number|undefined) => {
           <!-- Localization -->
           <div class="field location-field">
             <div class="field-label">Localization</div>
-            <el-select v-model="selectedLocation" placeholder="Select location" 
+            <el-select v-model="selectedLocation" placeholder="Select location"
             class="select" filterable @change="handleLocationChange">
               <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
             </el-select>
@@ -807,9 +807,9 @@ const expandReplies = async (commentId: number|undefined) => {
           <!-- Destination -->
           <div class="field destination-field">
             <div class="field-label">Destination</div>
-            <el-select v-model="selectedDestination" placeholder="Select destination" 
+            <el-select v-model="selectedDestination" placeholder="Select destination"
             class="select" filterable @change="handleDestinationSelect">
-              <el-option v-for="(destination, index) in destinations" :key="index" 
+              <el-option v-for="(destination, index) in destinations" :key="index"
               :label="destination.label" :value="destination.value" />
             </el-select>
             <div class="ld-info">
@@ -828,7 +828,7 @@ const expandReplies = async (commentId: number|undefined) => {
 
         <!-- 旅游偏好  -->
         <div class="preference-options">
-          <span v-for="option in preferenceOptions" :key="option.name" class="preference-option" 
+          <span v-for="option in preferenceOptions" :key="option.name" class="preference-option"
           :class="{ selected: selectedOptions.includes(option.name) }" @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
@@ -837,7 +837,7 @@ const expandReplies = async (commentId: number|undefined) => {
 
         <!-- 用户行程输入框 -->
         <div class="input-container">
-          <el-input v-model="userInput" placeholder="Edit your trip prompt..." 
+          <el-input v-model="userInput" placeholder="Edit your trip prompt..."
           class="itinerary-input" type="textarea" :rows="4" @keydown.enter="handleEnter" />
           <button class="togenerator" @click="submitItinerary">Start Now</button>
         </div>
@@ -852,15 +852,15 @@ const expandReplies = async (commentId: number|undefined) => {
           <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
           <div class="social-header-controls">
             <!-- 搜索框 -->
-            <input type="text" v-model="searchQuery" placeholder="Explore Anything..." 
+            <input type="text" v-model="searchQuery" placeholder="Explore Anything..."
             class="search-input-home" @keydown="handleSearch" />
 
             <!-- 横排筛选选项 -->
             <div class="social-filter-panel-horizontal">
-              <button 
-                v-for="item in socialFilters" 
-                :key="item.label" 
-                :class="{ active: selectedFilters.includes(item.label) }" 
+              <button
+                v-for="item in socialFilters"
+                :key="item.label"
+                :class="{ active: selectedFilters.includes(item.label) }"
                 @click="toggleSocialFilter(item.label)"
               >
                 <span class="filter-icon">{{ item.icon }}</span>
@@ -879,19 +879,19 @@ const expandReplies = async (commentId: number|undefined) => {
         <!-- 博客展示区域 -->
         <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel" style="overflow-y: auto; max-height: none;">
-            <div 
-              class="social-post-home" 
+            <div
+              class="social-post-home"
               :class="{ 'nft-post-home': post.isNFT }"
-              v-for="post in allPosts" 
-              :key="post.id" 
+              v-for="post in allPosts"
+              :key="post.id"
               @click="showBlogDetail(post.id)"
             >
               <!-- 博客图片 -->
-              <img 
-                v-if="post.image && post.image.length > 0" 
-                :src="getImageUrl(post.image[0])" 
-                alt="Post Image" 
-                class="post-image-home" 
+              <img
+                v-if="post.image && post.image.length > 0"
+                :src="getImageUrl(post.image[0])"
+                alt="Post Image"
+                class="post-image-home"
               />
 
               <!-- 博客内容 -->
@@ -918,9 +918,9 @@ const expandReplies = async (commentId: number|undefined) => {
             </div>
             <div ref="bottomTrigger" class="bottom-load-container">
               <div v-if="isLoadingMore" class="loading-indicator">Loading more posts...</div>
-              <button 
-                v-else-if="hasMoreBlogs" 
-                class="load-more-btn-home" 
+              <button
+                v-else-if="hasMoreBlogs"
+                class="load-more-btn-home"
                 @click="loadMoreBlogs"
               >
                 Load More
@@ -934,28 +934,28 @@ const expandReplies = async (commentId: number|undefined) => {
 
     <!-- 搜索结果为空提示 -->
     <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
-  
+
 
   <!-- 博客详情弹出层 -->
   <div class="blog-detail-overlay-home" v-if="dialogBlog" @click.self="closeBlogDetail">
     <div class="blog-detail-container-home" :class="{ 'nft-post-home': selectedBlog?.isNFT }">
       <!-- 关闭按钮 -->
       <button class="close-button-home" @click="closeBlogDetail">×</button>
-      
+
       <!-- 左侧区域：图片和统计信息 -->
       <div class="detail-left-home">
         <!-- 图片区域 -->
         <div class="image-section-home">
           <div class="image-slider-home">
             <div class="image-wrapper-home" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
-              <img 
-                v-for="(image, index) in selectedBlog?.image" 
+              <img
+                v-for="(image, index) in selectedBlog?.image"
                 :key="index"
                 :src="getImageUrl(image)"
-                alt="Blog Image" 
+                alt="Blog Image"
                 class="detail-image-home"
                 @error="handleImageError"
-                
+
               />
             </div>
             <!-- 图片加载指示器 -->
@@ -963,17 +963,17 @@ const expandReplies = async (commentId: number|undefined) => {
               <span>No images available</span>
             </div> -->
             <!-- 导航按钮 -->
-            <button 
-              class="nav-btn-home prev-home" 
-              @click.stop="prevImage" 
+            <button
+              class="nav-btn-home prev-home"
+              @click.stop="prevImage"
               v-if="selectedBlog && selectedBlog?.image?.length > 1">❮</button>
-            <button 
-              class="nav-btn-home next-home" 
-              @click.stop="nextImage" 
+            <button
+              class="nav-btn-home next-home"
+              @click.stop="nextImage"
               v-if="selectedBlog && selectedBlog?.image?.length > 1">❯</button>
           </div>
         </div>
-        
+
         <!-- 统计信息栏 -->
         <div class="stats-bar-home">
           <!-- 统计信息 -->
@@ -985,16 +985,16 @@ const expandReplies = async (commentId: number|undefined) => {
 
           <!-- 简化的评论输入框 -->
           <div class="quick-comment-input">
-            <input 
-              type="text" 
-              v-model="newComment" 
-              placeholder="Add a comment..." 
+            <input
+              type="text"
+              v-model="newComment"
+              placeholder="Add a comment..."
               @keyup.enter="submitComment"
               class="comment-input-home"
             />
-            <button 
-              class="submit-quick-comment" 
-              @click="submitComment" 
+            <button
+              class="submit-quick-comment"
+              @click="submitComment"
               :disabled="!newComment.trim()"
             >
               <span>💬</span>
@@ -1009,15 +1009,15 @@ const expandReplies = async (commentId: number|undefined) => {
         <div class="user-header-home">
           <div class="author-container">
             <div class="author-info-home">
-              <img 
-                :src="getImageUrl(selectedBlog?.user?.avatar || '')" 
-                alt="Author Avatar" 
+              <img
+                :src="getImageUrl(selectedBlog?.user?.avatar || '')"
+                alt="Author Avatar"
                 class="author-avatar-home"
               />
               <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
-              <el-button 
-                v-if="!isOwnPost" 
-                class="follow-btn" 
+              <el-button
+                v-if="!isOwnPost"
+                class="follow-btn"
                 size="small"
                 :class="{ 'following': isFollowing }"
                 @click.stop="handleFollowClick(selectedBlog?.user?.id)"
@@ -1029,7 +1029,7 @@ const expandReplies = async (commentId: number|undefined) => {
           </div>
           <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
         </div>
-        
+
         <!-- 标签区域 -->
         <div class="tags-section-home">
           <div class="nft-tag-home" v-if="selectedBlog?.isNFT">NFT</div>
@@ -1037,12 +1037,12 @@ const expandReplies = async (commentId: number|undefined) => {
             {{ tag }}
           </span>
         </div>
-        
+
         <!-- 博客内容 -->
         <div class="content-section-home">
           <p class="blog-content-home">{{ selectedBlog?.content }}</p>
         </div>
-        
+
         <!-- 评论部分 -->
         <div class="comments-container-home" ref="commentsSection">
           <div class="comments-header-home">
@@ -1054,34 +1054,34 @@ const expandReplies = async (commentId: number|undefined) => {
           <div class="comments-list-home">
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item-home">
               <div class="comment-row-home">
-                <img 
-                  :src="getImageUrl(comment.user.avatar)" 
-                  alt="Commenter Avatar" 
+                <img
+                  :src="getImageUrl(comment.user.avatar)"
+                  alt="Commenter Avatar"
                   class="comment-avatar-home"
                 />
                 <span class="comment-username-home">{{ comment.user.name }}</span>
                 <div class="comment-content-wrapper">
-                  <p class="comment-text-home" 
+                  <p class="comment-text-home"
                   @click="toggleReplyInput(comment.id)">{{ comment.content }}</p>
-                  
+
                   <!-- 回复图标 -->
                   <el-tooltip content="Reply to this comment" placement="top">
                     <span class="reply-icon" @click="toggleReplyInput(comment.id)">↩️</span>
                   </el-tooltip>
                 </div>
               </div>
-              
+
               <!-- 显示评论的回复 -->
-              <div 
-                v-if="comment.replies && comment.replies.length > 0" 
+              <div
+                v-if="comment.replies && comment.replies.length > 0"
                 class="comment-replies-home"
               >
-                <div v-for="reply in comment.replies" :key="reply.id" 
+                <div v-for="reply in comment.replies" :key="reply.id"
                 class="reply-item-home">
                   <div class="reply-row-home">
-                    <img 
-                      :src="getImageUrl(reply.user.avatar)" 
-                      alt="Replier Avatar" 
+                    <img
+                      :src="getImageUrl(reply.user.avatar)"
+                      alt="Replier Avatar"
                       class="reply-avatar-home-view"
                     />
                     <div class="reply-info">
@@ -1090,11 +1090,11 @@ const expandReplies = async (commentId: number|undefined) => {
                         <span class="replying-to">replying to</span>
                         <span class="target-name-show">@{{ comment.user.name }}</span>
                       <div class="reply-content-wrapper">
-                        <p class="reply-text-home" 
+                        <p class="reply-text-home"
                           @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
                         <!-- 回复到回复的图标 -->
                         <el-tooltip content="Reply to this reply" placement="top">
-                          <span class="reply-icon-reply-to-reply" 
+                          <span class="reply-icon-reply-to-reply"
                           @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
                         </el-tooltip>
                       </div>
@@ -1103,7 +1103,7 @@ const expandReplies = async (commentId: number|undefined) => {
                   </div>
                   <!-- 添加查看更多回复按钮 -->
                 </div>
-                <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length" 
+                <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
                     class="view-more-replies" @click="expandReplies(comment.id)">
                   <span class="view-more-text-r2r">
                   View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
@@ -1111,17 +1111,17 @@ const expandReplies = async (commentId: number|undefined) => {
                   <span class="view-more-icon-r2r">↓</span>
                 </div>
               </div>
-              
+
               <!-- 回复输入框 -->
-              <div class="reply-input-container-home" v-if="replyTarget && 
-                ((replyTarget.type === 'comment' && replyTarget.id === comment.id) || 
+              <div class="reply-input-container-home" v-if="replyTarget &&
+                ((replyTarget.type === 'comment' && replyTarget.id === comment.id) ||
                 (replyTarget.type === 'reply' && replyTarget.parentId === comment.id))">
                 <div class="replying-to-label">
                   <span>Replying to</span>
-                  <span class="target-name">@{{ 
-                    replyTarget.type === 'comment' 
-                      ? comment.user.name 
-                      : comment.replies.find(r => r.id === replyTarget.id)?.user.name 
+                  <span class="target-name">@{{
+                    replyTarget.type === 'comment'
+                      ? comment.user.name
+                      : comment.replies.find(r => r.id === replyTarget.id)?.user.name
                   }}</span>
                 </div>
                 <el-input
@@ -1135,15 +1135,15 @@ const expandReplies = async (commentId: number|undefined) => {
                   class="reply-textarea-home"
                 ></el-input>
                 <div class="reply-actions-home">
-                  <el-button 
-                    size="small" 
-                    @click="cancelReply" 
+                  <el-button
+                    size="small"
+                    @click="cancelReply"
                     class="cancel-reply-btn-home"
                   >Cancel</el-button>
-                  <el-button 
-                    type="primary" 
-                    size="small" 
-                    @click="submitReply" 
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="submitReply"
                     :loading="isSubmittingReply"
                     :disabled="!replyContent.trim()"
                     class="submit-reply-btn-home"

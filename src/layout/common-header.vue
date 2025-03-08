@@ -9,7 +9,7 @@
           <span v-if="menuActive">✕</span>
           <span v-else>☰</span>
         </button>
-        
+
         <div class="left-nav" :class="{ 'active': menuActive }">
           <router-link :to="{ name: 'home' }">
             <el-button class="nav-button">HOME</el-button>
@@ -24,7 +24,7 @@
             <el-button class="nav-button">CONTACT</el-button>
           </router-link>
         </div>
-        
+
         <div class="right-nav">
           <walletItem />
           <!-- 未登录状态显示登录和注册按钮 -->
@@ -34,13 +34,13 @@
               <el-button class="nav-button">SIGN UP</el-button>
             </router-link>
           </template>
-          
+
           <!-- 已登录状态显示用户头像和下拉菜单 -->
           <div v-else class="user-profile-nav">
             <div class="home-avatar-container" @click="goToUserProfile">
-              <img 
-                :src="getImageUrl(userStore.user.avatar || '')" 
-                alt="User Avatar" 
+              <img
+                :src="getImageUrl(userStore.user.avatar || '')"
+                alt="User Avatar"
                 class="home-new-user-avatar"
               />
               <span class="home-new-username">{{ userStore.user.name }}</span>
@@ -63,16 +63,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
-import { useBlogStore } from '@/stores/blog';
-import { usecomponentsStore } from '@/stores/components';
-import { ElMessageBox, ElMessage, useTransitionFallthrough } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { Auth } from '@/services/auth';
 import { useUserStore } from '@/stores/user';
 
-import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
 import { getImageUrl } from '@/utils';
@@ -82,15 +79,9 @@ import { getImageUrl } from '@/utils';
 const selectedLocation = ref('');
 const selectedDestination = ref('');
 
-const userLocation = ref('');
-const userFlag = ref('');
-const isLoading = ref(true);
-const errorMessage = ref('');
 
-const store = useBlogStore();
 const router = useRouter();
 const auth = new Auth();
-const componentsStore = usecomponentsStore();
 const userStore = useUserStore();
 
 
@@ -118,18 +109,14 @@ watch([selectedLocation, selectedDestination, selectedOptions], () => {
 
 
 
-const selectedBlog = computed(() => store.blog);
 
 // 添加分页和无限滚动相关的状态
 // 滚动加载相关状态
-const currentPage = ref(1);
-const isLoadingMore = ref(false);
-const hasMoreBlogs = ref(true);
 
 onMounted(() => {
 
     userStore.getUserInfo();
-  
+
 });
 
 

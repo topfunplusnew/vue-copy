@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { auth } from '@/services/http';
 import '@/styles/_about.scss'; // 引入About页面的SCSS样式
-import commonHeader from '@/views/common/common-header.vue';
+import commonHeader from '@/layout/common-header.vue';
 // 初始化router和userStore
-const router = useRouter();
 const userStore = useUserStore();
 
 // 处理登录点击
@@ -99,7 +97,6 @@ const faqs = ref([
 // 处理下拉菜单命令
 
 // 添加导航菜单状态管理
-const menuActive = ref(false);
 
 // 切换菜单显示
 </script>
@@ -133,7 +130,7 @@ const menuActive = ref(false);
         </div>
       </div>
     </div>
-    
+
     <!-- 统计数据展示 -->
     <div class="stats-container-about">
       <div class="stat-item-about" v-for="(stat, index) in stats" :key="index">

@@ -65,7 +65,7 @@ const handleSubmit = async () => {
   }
 
   if (passwordStrength.value < 2) {
-    let missingRequirements = [];
+    const missingRequirements = [];
     if (!passwordRequirements.length) missingRequirements.push('at least 8 characters');
     if (!passwordRequirements.uppercase) missingRequirements.push('uppercase letter');
     if (!passwordRequirements.number) missingRequirements.push('number');

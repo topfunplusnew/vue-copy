@@ -107,7 +107,7 @@ function cropSuccess() {
     if (showEditProfile.value) {
       editForm.avatar = data;
     } else {
-      user.avatar = data; // 直接更新用户头像
+      user.value.avatar = data; // 直接更新用户头像
     }
     showCropper.value = false;
   });

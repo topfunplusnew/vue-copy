@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted } from 'vue';
 
 const props = defineProps({
@@ -25,7 +25,7 @@ onMounted(() => {
     clearTimeout(minLoadTime);
     window.removeEventListener('load', startHideAnimation);
     isVisible.value = false;
-    
+
     // 加载完成后的延迟，给淡出动画留时间
     setTimeout(() => {
       emit('complete');
@@ -103,4 +103,4 @@ onMounted(() => {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
-</style> 
+</style>

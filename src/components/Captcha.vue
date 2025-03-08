@@ -48,7 +48,7 @@
       },
       mouseMoveFn(e) {
         if (this.mouseMoveStata) {
-          let width = e.clientX - this.beginClientX;
+          const width = e.clientX - this.beginClientX;
           if (width > 0 && width <= this.maxwidth) {
             document.getElementsByClassName('handler')[0].style.left = width + 'px';
             document.getElementsByClassName('drag_bg')[0].style.width = width + 'px';
@@ -59,7 +59,7 @@
       },
       moseUpFn(e) {
         this.mouseMoveStata = false;
-        let width = e.clientX - this.beginClientX;
+        const width = e.clientX - this.beginClientX;
         if (width < this.maxwidth) {
           document.getElementsByClassName('handler')[0].style.left = 0 + 'px';
           document.getElementsByClassName('drag_bg')[0].style.width = 0 + 'px';

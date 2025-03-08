@@ -6,7 +6,7 @@ import { Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Auth } from '@/services/auth';
 import { useBlogStore } from '@/stores/blog';
-import commonHeader from '@/views/common/common-header.vue';
+import commonHeader from '@/layout/common-header.vue';
 import { getImageUrl } from '@/utils';
 
 const store = useBlogStore();
@@ -262,9 +262,9 @@ onMounted(async () => {
 
 <template>
   <div class="background-layer"></div>
- 
+
   <!-- 保留公共头部 -->
-  
+
   <div class="home">
   <common-header />
   <el-container class="post-view-container">
@@ -274,31 +274,31 @@ onMounted(async () => {
       <template #header>
         <div class="post-card-header">
           <h2 class="post-title">Share your happiness!</h2>
-          <el-button 
-            type="primary" 
-            @click="handlePreviewClick" 
-            :disabled="!canPreview" 
+          <el-button
+            type="primary"
+            @click="handlePreviewClick"
+            :disabled="!canPreview"
             class="preview-btn"
           >
             Preview
           </el-button>
         </div>
       </template>
-      
+
       <!-- 博客创建表单 -->
       <el-form :model="createData" label-position="top">
         <!-- 标题输入 -->
         <el-form-item label="Title">
-          <el-input 
-            v-model="createData.title" 
-            type="textarea" 
+          <el-input
+            v-model="createData.title"
+            type="textarea"
             :autosize="{ minRows: 1, maxRows: 2 }"
             placeholder="Enter a catchy title"
             maxlength="50"
             show-word-limit
           ></el-input>
         </el-form-item>
-        
+
         <!-- 社交筛选器 -->
         <el-form-item label="Categories">
           <div class="filter-tags">
@@ -315,17 +315,17 @@ onMounted(async () => {
             </el-tag>
           </div>
         </el-form-item>
-        
+
         <!-- 内容输入 -->
         <el-form-item label="Content">
-          <el-input 
-            v-model="createData.content" 
-            type="textarea" 
+          <el-input
+            v-model="createData.content"
+            type="textarea"
             :autosize="{ minRows: 4, maxRows: 8 }"
             placeholder="What's happening? Share your experience..."
           ></el-input>
         </el-form-item>
-        
+
         <!-- 图片上传 -->
         <el-form-item label="Photos (up to 9)">
           <el-upload
@@ -340,7 +340,7 @@ onMounted(async () => {
             <el-icon><Plus /></el-icon>
             <div class="upload-text">Select Images</div>
           </el-upload>
-          
+
           <!-- 图片预览 -->
           <div class="image-gallery" v-if="createData.image.length">
             <el-image
@@ -373,7 +373,7 @@ onMounted(async () => {
             </el-image>
           </div>
         </el-form-item>
-        
+
         <!-- 标签输入 -->
         <el-form-item label="Tags (up to 5)">
           <div class="tags-input-area">
@@ -406,20 +406,20 @@ onMounted(async () => {
             </div>
           </div>
         </el-form-item>
-        
+
         <!-- 评论权限 -->
         <el-form-item label="Who can reply?">
           <el-radio-group v-model="createData.comment_permission">
-            <el-radio 
-              v-for="option in commentPermission" 
-              :key="option.id" 
+            <el-radio
+              v-for="option in commentPermission"
+              :key="option.id"
               :label="option.id"
             >
               {{ option.name }} can reply
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        
+
         <!-- NFT 选项 -->
         <el-form-item>
           <el-checkbox v-model="createData.isNFT">
@@ -429,7 +429,7 @@ onMounted(async () => {
             </div>
           </el-checkbox>
         </el-form-item>
-        
+
         <!-- 操作按钮 -->
         <el-form-item>
           <div class="action-buttons">
@@ -443,14 +443,14 @@ onMounted(async () => {
 </el-container>
 
 <!-- 预览组件 -->
-<PostPreview 
-  v-if="showPreview" 
+<PostPreview
+  v-if="showPreview"
   :title="createData.title"
-  :content="createData.content" 
-  :images="createData.image" 
-  :tags="tags" 
-  :preferences="createData.social_filters" 
-  @close="closePreview" 
+  :content="createData.content"
+  :images="createData.image"
+  :tags="tags"
+  :preferences="createData.social_filters"
+  @close="closePreview"
 />
 </div>
 </template>

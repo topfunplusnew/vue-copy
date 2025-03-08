@@ -1,8 +1,9 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters, 
+import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters,
   comment2Comment, myblogedit, blogPost, Postimage, comments } from '@/services/api';
 import type { IBlogPost, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
+import type { UploadFile } from 'element-plus';
 
 export const useBlogStore = defineStore('blog', () => {
   const blogs = ref<IBlogPost[]>([]); // blog数组
@@ -37,9 +38,9 @@ export const useBlogStore = defineStore('blog', () => {
   function userPostblog() {
     return blogPost(createData.value);
   }
-  function userPostimage(file: any) {
+  function userPostimage(file: UploadFile) {
     const formData = new FormData();
-    formData.append('files', file.raw);
+    if(file.raw) formData.append('files', file.raw);
     return new Promise((resolve, reject) => {
       Postimage({ image: formData }).then(({data}) => {
         const arr = data.success as string[];
@@ -73,7 +74,7 @@ export const useBlogStore = defineStore('blog', () => {
   function loadMoreBlogs(page: number) {
     // 添加页码到查询条件
     const queryParams = { ...condition.value, page };
-    
+
     return getAllBlogList(queryParams)
       .then(({ data }) => {
         // 将新加载的博客追加到现有列表，而不是替换
@@ -126,8 +127,8 @@ export const useBlogStore = defineStore('blog', () => {
       }
     });
   }
-  return { 
-    blogs, condition, blog, createData, socialFilters, 
+  return {
+    blogs, condition, blog, createData, socialFilters,
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
     commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs, getComments };

@@ -1,24 +1,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import walletItem from '@/components/wallet-item.vue';
 import { ElMessage } from 'element-plus';
-import { getImageUrl } from '@/utils';
 import { auth } from '@/services/http';
-import commonHeader from '@/views/common/common-header.vue';
+import commonHeader from '@/layout/common-header.vue';
 
 /** 页面标题，可在此修改 */
 const msg= 'Contact Us';
 
 // 初始化router和userStore
-const router = useRouter();
 const userStore = useUserStore();
 
 // 处理登录点击
-const handleLoginClick = () => {
-  router.push({ name: 'login' });
-};
 
 // 页面加载时获取用户信息（如果已登录）
 onMounted(() => {
@@ -47,7 +40,7 @@ function submitContact() {
     });
     return;
   }
-  
+
   // 简单的邮箱验证
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(contactForm.value.email)) {
@@ -57,9 +50,9 @@ function submitContact() {
     });
     return;
   }
-  
+
   isSubmitting.value = true;
-  
+
   // 在这里处理提交逻辑，如发送邮件或请求后端API
   // 模拟API请求
   setTimeout(() => {
@@ -67,17 +60,17 @@ function submitContact() {
       message: `Thanks, ${contactForm.value.name}! Your message has been sent.`,
       type: 'success'
     });
-    
+
     // 提交后清空
     contactForm.value = {
       name: '',
       email: '',
       message: ''
     };
-    
+
     formSubmitted.value = true;
     isSubmitting.value = false;
-    
+
     // 3秒后重置表单状态
     setTimeout(() => {
       formSubmitted.value = false;
@@ -86,20 +79,8 @@ function submitContact() {
 }
 
 // 前往个人主页
-const goToUserProfile = () => {
-  router.push({ name: 'userpage' });
-};
 
 // 处理下拉菜单命令
-const handleCommand = (command) => {
-  if (command === 'profile') {
-    router.push({ name: 'userpage' });
-  } else if (command === 'logout') {
-    userStore.logout();
-    ElMessage.success('Logged out successfully');
-    router.push({ path: '/' });
-  }
-};
 
 </script>
 
@@ -124,7 +105,7 @@ const handleCommand = (command) => {
             <h2>Our Email</h2>
             <p class="email-display">ipologo.os@gmail.com</p>
           </div>
-          
+
           <div class="info-card">
             <h2>Follow Us</h2>
             <div class="social-links">
@@ -148,13 +129,13 @@ const handleCommand = (command) => {
         <section class="contact-form-section">
           <div class="contact-form-contact" :class="{ 'submitted': formSubmitted }">
             <h2 class='form-title-contact'>Send Us a Message</h2>
-            
+
             <div v-if="formSubmitted" class="success-message-contact">
               <i class="el-icon-check-circle"></i>
               <h3>Message Sent!</h3>
               <p>We'll get back to you soon.</p>
             </div>
-            
+
             <form v-else @submit.prevent="submitContact">
               <div class="form-field-contact">
                 <label for="name">Name</label>
@@ -189,7 +170,7 @@ const handleCommand = (command) => {
                   class="input-box-contact"
                 />
               </div>
-              
+
               <button type="submit" class="submit-button-contact" :disabled="isSubmitting">
                 <span v-if="!isSubmitting">Send Message</span>
                 <span v-else class="loading-spinner-contact"></span>
