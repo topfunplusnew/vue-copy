@@ -1,5 +1,6 @@
+
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
@@ -9,6 +10,7 @@ import { Auth } from '@/services/auth';
 import { useUserStore } from '@/stores/user';
 import BlurText from '@/components/BlurText.vue';
 import LoadingScreen from '@/components/LoadingScreen.vue';
+import commonHeader from '@/views/common/common-header.vue';
 
 // 引入定位和天气
 import { destinations } from '@/assets/destinations';
@@ -148,6 +150,14 @@ const condition = computed(() => store.condition);
 const dialogBlog = ref(false);
 const selectedBlog = computed(() => store.blog);
 
+// 添加分页和无限滚动相关的状态
+// 滚动加载相关状态
+const currentPage = ref(1);
+const isLoadingMore = ref(false);
+const hasMoreBlogs = ref(true);
+const bottomTrigger = ref(null);
+const observer = ref(null);
+
 onMounted(() => {
   // 页面载入时，自动获取一次定位和加载博客列表
   store.getBlogList();
@@ -164,6 +174,34 @@ onMounted(() => {
       contentReady.value = true;
     }
   }, 5000);
+
+  // 添加Intersection Observer设置
+  // 设置无限滚动观察器
+  observer.value = new IntersectionObserver(
+    (entries) => {
+      const entry = entries[0];
+      if (entry.isIntersecting && !isLoadingMore.value && hasMoreBlogs.value) {
+        console.log('Trigger element is visible, loading more blogs...');
+        loadMoreBlogs();
+      }
+    },
+    { threshold: 0.1 } // 当10%的目标元素可见时触发
+  );
+  
+  // 开始观察底部触发元素
+  nextTick(() => {
+    if (bottomTrigger.value) {
+      observer.value.observe(bottomTrigger.value);
+      console.log('Now observing the bottom trigger element');
+    }
+  });
+});
+
+// 清理IntersectionObserver
+onUnmounted(() => {
+  if (observer.value) {
+    observer.value.disconnect();
+  }
 });
 
 // -----------------------------
@@ -175,6 +213,8 @@ const showBlogDetail = (id: number) => {
   currentImageIndex.value = 0;
   
   store.getBlogByID(id).then(() => {
+    // 添加调试输出
+    console.log('Blog comments:', selectedBlog.value?.comments);
     dialogBlog.value = true;
     // 禁用背景滚动
     document.body.style.overflow = 'hidden';
@@ -190,7 +230,7 @@ const closeBlogDetail = () => {
 };
 
 const socialFilters = ref([
-  { label: 'Recommendation', icon: '⭐' },
+  { label: 'Star', icon: '⭐' },
   { label: 'Most Popular', icon: '🔥' },
   { label: 'NFT', icon: '🖼️' },
   { label: 'Sightseeing', icon: '🌇' },
@@ -256,20 +296,6 @@ const loadMorePosts = () => {
     postsToShow.value += 6;
   }
 };
-
-const bottomTrigger = ref<HTMLElement | null>(null);
-// onMounted(() => {
-//   if (bottomTrigger.value) {
-//     const observer = new IntersectionObserver(entries => {
-//       entries.forEach(entry => {
-//         if (entry.isIntersecting && postsToShow.value < allPosts.value.length) { // Modified
-//           loadMorePosts();
-//         }
-//       });
-//     });
-//     observer.observe(bottomTrigger.value);
-//   }
-// });
 
 function handleSearch(event: KeyboardEvent) {
   if (event.key === 'Enter') {
@@ -497,6 +523,113 @@ const handleLoadingComplete = () => {
   contentReady.value = true;
 };
 
+// 添加加载更多博客的方法
+/**
+ * 加载更多博客的方法
+ */
+const loadMoreBlogs = async () => {
+  if (isLoadingMore.value || !hasMoreBlogs.value) return;
+  
+  isLoadingMore.value = true;
+  try {
+    // 增加页码
+    currentPage.value++;
+    console.log('Loading more blogs, page:', currentPage.value);
+    
+    // 调用store方法加载更多博客
+    const newBlogs = await store.loadMoreBlogs(currentPage.value);
+    
+    // 如果没有更多博客，设置hasMoreBlogs为false
+    if (!newBlogs || newBlogs.length === 0) {
+      hasMoreBlogs.value = false;
+      console.log('No more blogs to load');
+    }
+  } catch (error) {
+    console.error('Failed to load more blogs:', error);
+  } finally {
+    isLoadingMore.value = false;
+  }
+};
+
+// 添加评论回复相关的状态
+const activeCommentId = ref<number | null>(null);
+const replyContent = ref('');
+const isSubmittingReply = ref(false);
+
+// 添加评论回复相关的方法
+/**
+ * 切换评论回复输入框
+ * @param commentId 要回复的评论ID
+ */
+const toggleReplyInput = (commentId: number) => {
+  // 检查用户是否已登录
+  if (!userStore.user) {
+    ElMessageBox.confirm(
+      'Login to reply to this comment',
+      'Please Login',
+      {
+        confirmButtonText: 'Login',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+    ).then(() => {
+      router.push({ name: 'login' });
+    }).catch(() => {
+      // 用户取消，不做任何操作
+    });
+    return;
+  }
+  
+  // 如果点击当前已激活的评论，则关闭输入框
+  if (activeCommentId.value === commentId) {
+    activeCommentId.value = null;
+  } else {
+    // 否则切换到新的评论
+    activeCommentId.value = commentId;
+    replyContent.value = ''; // 清空回复内容
+  }
+};
+
+/**
+ * 提交评论回复
+ */
+const submitReply = async () => {
+  if (!activeCommentId.value || !replyContent.value.trim()) {
+    return;
+  }
+  
+  store.commenttoComment(activeCommentId.value, replyContent.value).then(res=>{
+    console.log(res);
+  }).then(() => {
+    // 重新获取博客详情以更新评论和回复列表
+    return store.getBlogByID(selectedBlog.value?.id as number);
+  }).catch(e=>{
+    console.log(e);
+  }).finally(()=>{
+    // 重置状态
+    replyContent.value = '';
+    activeCommentId.value = null;
+
+    // 滚动到新评论
+    nextTick(() => {
+      scrollToComments();
+    });
+
+    ElMessage({
+      type: 'success',
+      message: 'Reply to comment successfully'
+    });
+  });
+};
+
+/**
+ * 取消回复
+ */
+const cancelReply = () => {
+  activeCommentId.value = null;
+  replyContent.value = '';
+};
+
 </script>
 
 <template>
@@ -509,65 +642,7 @@ const handleLoadingComplete = () => {
 
   <div class="background-layer" :class="{ 'visible': !isLoading }"></div>
   <div class="home" :class="{ 'content-visible': !isLoading }">
-    <!-- Header 区域 -->
-    <header class="header">
-      <div class="nav-container" :class="{ 'menu-active': menuActive }">
-        <!-- 汉堡菜单按钮 -->
-        <button class="hamburger-menu" @click="toggleMenu">
-          <span v-if="menuActive">✕</span>
-          <span v-else>☰</span>
-        </button>
-        
-        <div class="left-nav" :class="{ 'active': menuActive }">
-          <router-link :to="{ name: 'home' }">
-            <el-button class="nav-button">HOME</el-button>
-          </router-link>
-          <router-link :to="{ name: 'about' }">
-            <el-button class="nav-button">ABOUT</el-button>
-          </router-link>
-          <router-link :to="{ name: 'blog' }">
-            <el-button class="nav-button">BLOG</el-button>
-          </router-link>
-          <router-link :to="{ name: 'contact' }">
-            <el-button class="nav-button">CONTACT</el-button>
-          </router-link>
-        </div>
-        
-        <div class="right-nav">
-          <walletItem />
-          <!-- 未登录状态显示登录和注册按钮 -->
-          <template v-if="!userStore.user">
-            <el-button class="nav-button" @click="handleLoginClick">LOGIN</el-button>
-            <router-link :to="{ name: 'signup' }">
-              <el-button class="nav-button">SIGN UP</el-button>
-            </router-link>
-          </template>
-          
-          <!-- 已登录状态显示用户头像和下拉菜单 -->
-          <div v-else class="user-profile-nav">
-            <div class="home-avatar-container" @click="goToUserProfile">
-              <img 
-                :src="getImageUrl(userStore.user.avatar || '')" 
-                alt="User Avatar" 
-                class="home-new-user-avatar"
-              />
-              <span class="home-new-username">{{ userStore.user.name }}</span>
-            </div>
-            <el-dropdown trigger="click" @command="handleCommand">
-              <span class="el-dropdown-link">
-                <i class="el-icon-arrow-down"></i>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-        </div>
-      </div>
-    </header>
+    <common-header />
     <!-- <h1 class="welcome-text">Welcome to iPoloGO</h1>
     <h2 class="welcome-text2">To Explore, To Share, To Earn</h2> -->
     <section class="welcome-section">
@@ -684,7 +759,7 @@ const handleLoadingComplete = () => {
 
         <!-- 博客展示区域 -->
         <div class="social-scroll">
-          <div class="social-posts-panel" ref="postsPanel">
+          <div class="social-posts-panel" ref="postsPanel" style="overflow-y: auto; max-height: none;">
             <div 
               class="social-post-home" 
               :class="{ 'nft-post-home': post.isNFT }"
@@ -722,7 +797,17 @@ const handleLoadingComplete = () => {
                 </div>
               </div>
             </div>
-            <div ref="bottomTrigger"></div>
+            <div ref="bottomTrigger" class="bottom-load-container">
+              <div v-if="isLoadingMore" class="loading-indicator">Loading more posts...</div>
+              <button 
+                v-else-if="hasMoreBlogs" 
+                class="load-more-btn-home" 
+                @click="loadMoreBlogs"
+              >
+                Load More
+              </button>
+              <div v-else>No more posts to show</div>
+            </div>
           </div>
         </div>
       </section>
@@ -854,7 +939,58 @@ const handleLoadingComplete = () => {
                   class="comment-avatar-home"
                 />
                 <span class="comment-username-home">{{ comment.user.name }}</span>
-                <p class="comment-text-home">{{ comment.content }}</p>
+                <div class="comment-content-wrapper">
+                  <p class="comment-text-home" @click="toggleReplyInput(comment.id)">{{ comment.content }}</p>
+                  
+                  <!-- 回复图标 -->
+                  <el-tooltip content="Reply to this comment" placement="top">
+                    <span class="reply-icon" @click="toggleReplyInput(comment.id)">↩️</span>
+                  </el-tooltip>
+                </div>
+              </div>
+              
+              <!-- 显示评论的回复 -->
+              <div v-if="comment.replies && comment.replies.length > 0" class="comment-replies-home">
+                <div v-for="reply in comment.replies" :key="reply.id" class="reply-item-home">
+                  <div class="reply-row-home">
+                    <img 
+                      :src="getImageUrl(reply.user.avatar)" 
+                      alt="Replier Avatar" 
+                      class="reply-avatar-home"
+                    />
+                    <span class="reply-username-home">{{ reply.user.name }}</span>
+                    <p class="reply-text-home">{{ reply.content }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 回复输入框 -->
+              <div class="reply-input-container-home" v-if="activeCommentId === comment.id">
+                <el-input
+                  v-model="replyContent"
+                  type="textarea"
+                  :rows="2"
+                  resize="none"
+                  placeholder="Reply to this comment..."
+                  maxlength="200"
+                  show-word-limit
+                  class="reply-textarea-home"
+                ></el-input>
+                <div class="reply-actions-home">
+                  <el-button 
+                    size="small" 
+                    @click="cancelReply" 
+                    class="cancel-reply-btn-home"
+                  >Cancel</el-button>
+                  <el-button 
+                    type="primary" 
+                    size="small" 
+                    @click="submitReply" 
+                    :loading="isSubmittingReply"
+                    :disabled="!replyContent.trim()"
+                    class="submit-reply-btn-home"
+                  >Reply</el-button>
+                </div>
               </div>
             </div>
           </div>

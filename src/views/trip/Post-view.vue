@@ -1,20 +1,19 @@
 <script setup lang="ts">
-import walletItem from '@/components/wallet-item.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import PostPreview from '@/views/trip/PostPreview.vue';
-import { blogPost, Postimage } from '@/services/api';
-import type { IBlogPostCreate, IBlogPostimage } from '@/types/blog';
 import { Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Auth } from '@/services/auth';
-import UserPage from '../user/userpage.vue';
 import { useBlogStore } from '@/stores/blog';
+import commonHeader from '@/views/common/common-header.vue';
+import { getImageUrl } from '@/utils';
 
 const store = useBlogStore();
 
-const postData = computed(() => store.postData);
-
+const socialFilters = computed(() => store.socialFilters); // 社会过滤器
+const createData = computed(() => store.createData); // 创建数据
+const commentPermission = computed(() => store.commentPermission); // 评论权限
 
 // 响应式数据
 const postText = ref('');
@@ -27,28 +26,19 @@ const router = useRouter();
 const showPreview = ref(false);
 const auth = new Auth();
 
-const preferenceOptions = ref([
-  { name: 'Sightseeing',val:1011, icon: '🌆' },
-  { name: 'Educational', val:1012, icon: '🎓' },
-  { name: 'Business', val:1013, icon: '💼' },
-  { name: 'Medical', val:1014, icon: '🏥' },
-  { name: 'Cuisine', val:1015, icon: '🍴' },
-  { name: 'Culture', val:1016, icon: '🎭' },
-]);
 
-// 添加 NFT 选项的状态
-const mintNFT = ref(false);
 
 // 添加选中偏好的响应式数据
 const selectedOptions = ref<number[]>([]);
 
 // 添加切换偏好的方法
-const togglePreference = (optionName: number) => {
-  const index = selectedOptions.value.indexOf(optionName);
+const togglePreference = (id: number) => {
+  console.log(createData.value.social_filters, id,createData.value.social_filters.indexOf(id));
+  const index = createData.value.social_filters.indexOf(id);
   if (index === -1) {
-    selectedOptions.value.push(optionName);
+    createData.value.social_filters.push(id);
   } else {
-    selectedOptions.value.splice(index, 1);
+    createData.value.social_filters.splice(index, 1);
   }
 };
 
@@ -120,18 +110,8 @@ const handleImageUpload = async (file: any) => {
   }
 
   try {
-    const formData = new FormData();
-    formData.append('files', file.raw);
-
-    const response = await Postimage({ image: formData });
-    if (response.data && response.data.success) {
-      const arr = response.data.success as string[];
-      for (const url of arr) {
-        images.value.push({
-          src: `${import.meta.env.IPG_IMAGE_URL}/${url}`,
-          url,
-        });
-      }
+    const data:any = await store.userPostimage(file);
+    if (data && data.success) {
       ElMessage({
         message: 'Image uploaded successfully',
         type: 'success',
@@ -202,13 +182,13 @@ const saveDraft = () => {
   console.log('Draft Saved:', postText.value);
 };
 
-const selectReplyOption = (option: string) => {
-  selectedReplyOption.value = option;
+const selectReplyOption = (option: number) => {
+  createData.value.comment_permission = option;
 };
 
 // 修改发布博客处理
 const postTweet = async () => {
-  if (!postTitle.value || !postText.value) {
+  if (!createData.value.title || !createData.value.content) {
     ElMessage.warning('Please add title and content');
     return;
   }
@@ -221,16 +201,10 @@ const postTweet = async () => {
       type: 'info',
     });
 
-    const postData: IBlogPostCreate = {
-      title: postTitle.value,
-      content: postText.value,
-      image: images.value.map((img) => img.url),
-      tags: tags.value,
-      social_filters: selectedOptions.value[0], //多选去掉[0]
-      isNFT: mintNFT.value,
-    };
 
-    await blogPost(postData);
+    createData.value.tags = tags.value;
+
+    await store.userPostblog();
     ElMessage.success('Blog posted successfully');
     router.push({ name: 'userpage' });
   } catch (error: any) {
@@ -280,149 +254,205 @@ const menuActive = ref(false);
 const toggleMenu = () => {
   menuActive.value = !menuActive.value;
 };
+
+onMounted(async () => {
+  await store.getSocialFilter();
+});
 </script>
 
 <template>
-  <div class="post-view-container">
-    <!-- 顶部导航栏 -->
-    <header class="header">
-      <div class="nav-container" :class="{ 'menu-active': menuActive }">
-        <!-- 汉堡菜单按钮 -->
-        <button class="hamburger-menu" @click="toggleMenu">
-          <span v-if="menuActive">✕</span>
-          <span v-else>☰</span>
-        </button>
-      
-        <div class="left-nav" :class="{ 'active': menuActive }">
-          <router-link :to="{ name: 'home' }">
-            <el-button class="nav-button">HOME</el-button>
-          </router-link>
-          <router-link v-for="item in ['about', 'blog', 'contact']" :key="item" :to="{ name: item }">
-            <el-button class="nav-button">{{ item.toUpperCase() }}</el-button>
-          </router-link>
-        </div>
-        
-        <div class="right-nav">
-          <wallet-item />
-          <router-link v-for="item in ['login', 'signup', 'userpage']" :key="item" :to="{ name: item }">
-            <el-button class="nav-button">
-              {{ item === 'userpage' ? 'User Page' : item.toUpperCase() }}
-            </el-button>
-          </router-link>
-        </div>
-      </div>
-    </header>
-
-    <!-- 主要内容区域 -->
-    <div class="post-container">
-      <!-- 标题区域 -->
-      <div class="header-container">
-        <h2 class="posttext">Share your happiness！</h2>
-        <button @click="handlePreviewClick" class="preview-button" :disabled="!canPreview" :class="{ 'preview-button-disabled': !canPreview }">Preview</button>
-      </div>
-
-      <!-- 编辑区域 -->
-      <div class="title-container">
-        <textarea v-model="postTitle" class="title-editor" placeholder="Title" maxlength="50"></textarea>
-        <span v-if="postTitle" class="title-count"> {{ postTitle.length }}/50 </span>
-      </div>
-
-      <!-- 旅游偏好  -->
-      <div class="postprefer-options">
-        <span
-          v-for="option in preferenceOptions"
-          :key="option.name"
-          class="postprefer-option"
-          :class="{ 'postprefer-selected': selectedOptions.includes(option.val) }"
-          @click="togglePreference(option.val)"
-        >
-          <span class="postprefer-icon">{{ option.icon }}</span>
-          <span class="postprefer-name">{{ option.name }}</span>
-        </span>
-      </div>
-
-      <textarea v-model="postText" class="text-editor" placeholder="What's happening?"></textarea>
-
-      <!-- 图片上传部分 -->
-      <div class="image-upload">
-        <div class="upload-text">Add photos (up to 9)</div>
-        <el-upload class="upload-container" :show-file-list="false" :on-change="handleImageUpload" :auto-upload="false" :multiple="true" accept="image/*">
-          <template #trigger>
-            <el-button type="primary">
-              <el-icon><Plus /></el-icon>
-              Select Images
-            </el-button>
-          </template>
-        </el-upload>
-
-        <!-- 图片预览部分 -->
-        <div class="image-preview-container" v-if="images.length">
-          <div v-for="(image, index) in images" :key="index" class="image-preview">
-            <img :src="image.src" :alt="`Preview ${index + 1}`" />
-            <button class="remove-image" @click="removeImage(index)">×</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 修改：标签输入区域 -->
-      <div class="tags-section">
-        <div class="tags-container">
-          <div v-for="(tag, index) in tags" :key="index" class="tag">
-            {{ tag }}
-            <span class="tag-remove" @click="removeTag(index)" title="Remove tag">×</span>
-          </div>
-        </div>
-        <div class="tag-input-container">
-          <textarea v-model="tagInput" class="tag-editor" placeholder="Add tag" @keydown="handleTagInput" maxlength="15"></textarea>
-          <span class="tag-count" v-if="tags.length > 0"> {{ tags.length }}/5 tags </span>
-        </div>
-      </div>
-
-      <!-- 回复权限选择 -->
-      <div class="reply-options">
-        <span class="reply-label">Who can reply?</span>
-        <button v-for="option in ['Everyone', 'Followers', 'Only me']" :key="option" class="option-button" :class="{ selected: selectedReplyOption === option }" @click="selectReplyOption(option)">
-          {{ option }} can reply
-        </button>
-      </div>
-
-      <!-- 添加 NFT 选项 -->
-      <div class="nft-option">
-        <label class="nft-checkbox-label">
-          <input type="checkbox" v-model="mintNFT" class="nft-checkbox" />
-          <span class="checkbox-custom"></span>
-          <span class="nft-label-text">Make your NFT</span>
-        </label>
-      </div>
-
-      <!-- 操作按钮 -->
-      <div class="action-buttons">
-        <button @click="saveDraft" class="save-draft">Save Draft</button>
-        <button @click="postTweet" class="post-button">Post</button>
-      </div>
+  <div class="background-layer"></div>
+ 
+  <!-- 保留公共头部 -->
+  <el-header class="post-header" height="auto">
+    <div class="home">
+      <common-header />
     </div>
-
-    <!-- 添加 PostPreview 组件 -->
-    <PostPreview v-if="showPreview" :title="postTitle" :content="postText" :images="images" :tags="tags" :preferences="selectedOptions" @close="closePreview" />
-  </div>
-</template>
-
-<style lang="scss">
-@import '@/styles/_post.scss';
-
-// 可以添加自定义样式
-.custom-message-box {
-  .el-message-box__header {
-    padding-top: 20px;
-  }
+  </el-header>
   
-  .el-message-box__content {
-    padding: 20px;
-    font-size: 16px;
-  }
+  <el-container class="post-view-container">
+  <el-main class="post-content">
+    <!-- 内容卡片 -->
+    <el-card class="post-card">
+      <template #header>
+        <div class="post-card-header">
+          <h2 class="post-title">Share your happiness!</h2>
+          <el-button 
+            type="primary" 
+            @click="handlePreviewClick" 
+            :disabled="!canPreview" 
+            class="preview-btn"
+          >
+            Preview
+          </el-button>
+        </div>
+      </template>
+      
+      <!-- 博客创建表单 -->
+      <el-form :model="createData" label-position="top">
+        <!-- 标题输入 -->
+        <el-form-item label="Title">
+          <el-input 
+            v-model="createData.title" 
+            type="textarea" 
+            :autosize="{ minRows: 1, maxRows: 2 }"
+            placeholder="Enter a catchy title"
+            maxlength="50"
+            show-word-limit
+          ></el-input>
+        </el-form-item>
+        
+        <!-- 社交筛选器 -->
+        <el-form-item label="Categories">
+          <div class="filter-tags">
+            <el-tag
+              v-for="option in socialFilters"
+              :key="option.id"
+              :class="{ 'active-tag': createData.social_filters.includes(option.id) }"
+              @click="togglePreference(option.id)"
+              effect="plain"
+              class="filter-tag"
+            >
+              <span class="filter-icon">{{ option.icon }}</span>
+              <span>{{ option.name }}</span>
+            </el-tag>
+          </div>
+        </el-form-item>
+        
+        <!-- 内容输入 -->
+        <el-form-item label="Content">
+          <el-input 
+            v-model="createData.content" 
+            type="textarea" 
+            :autosize="{ minRows: 4, maxRows: 8 }"
+            placeholder="What's happening? Share your experience..."
+          ></el-input>
+        </el-form-item>
+        
+        <!-- 图片上传 -->
+        <el-form-item label="Photos (up to 9)">
+          <el-upload
+            class="post-upload"
+            :show-file-list="false"
+            :on-change="handleImageUpload"
+            :auto-upload="false"
+            multiple
+            accept="image/*"
+            list-type="picture-card"
+          >
+            <el-icon><Plus /></el-icon>
+            <div class="upload-text">Select Images</div>
+          </el-upload>
+          
+          <!-- 图片预览 -->
+          <div class="image-gallery" v-if="createData.image.length">
+            <el-image
+              v-for="(image, index) in createData.image"
+              :key="index"
+              :src="getImageUrl(image)"
+              :preview-src-list="createData.image.map(img => getImageUrl(img))"
+              fit="cover"
+              class="preview-image"
+            >
+              <template #error>
+                <div class="image-slot">
+                  <el-icon><Picture /></el-icon>
+                </div>
+              </template>
+              <template #placeholder>
+                <div class="image-slot">
+                  <el-icon><Loading /></el-icon>
+                </div>
+              </template>
+              <div class="image-actions">
+                <el-button
+                  type="danger"
+                  circle
+                  size="small"
+                  icon="Delete"
+                  @click.stop="removeImage(index)"
+                ></el-button>
+              </div>
+            </el-image>
+          </div>
+        </el-form-item>
+        
+        <!-- 标签输入 -->
+        <el-form-item label="Tags (up to 5)">
+          <div class="tags-input-area">
+            <div class="tags-list">
+              <el-tag
+                v-for="(tag, index) in tags"
+                :key="index"
+                closable
+                @close="removeTag(index)"
+                class="post-tag"
+              >
+                {{ tag }}
+              </el-tag>
+            </div>
+            <div class="tag-input">
+              <el-input
+                v-model="tagInput"
+                placeholder="Add tag"
+                @keydown="handleTagInput"
+                maxlength="15"
+                class="tag-input-field"
+              >
+                <template #append>
+                  <el-button @click="addTag" :disabled="tags.length >= 5 || !tagInput.trim()">
+                    Add
+                  </el-button>
+                </template>
+              </el-input>
+              <div class="tag-count" v-if="tags.length > 0">{{ tags.length }}/5 tags</div>
+            </div>
+          </div>
+        </el-form-item>
+        
+        <!-- 评论权限 -->
+        <el-form-item label="Who can reply?">
+          <el-radio-group v-model="createData.comment_permission">
+            <el-radio 
+              v-for="option in commentPermission" 
+              :key="option.id" 
+              :label="option.id"
+            >
+              {{ option.name }} can reply
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        
+        <!-- NFT 选项 -->
+        <el-form-item>
+          <el-checkbox v-model="createData.isNFT">
+            <div class="nft-option">
+              <span class="nft-icon">🖼️</span>
+              Make your NFT
+            </div>
+          </el-checkbox>
+        </el-form-item>
+        
+        <!-- 操作按钮 -->
+        <el-form-item>
+          <div class="action-buttons">
+            <el-button @click="saveDraft" plain>Save Draft</el-button>
+            <el-button @click="postTweet" type="primary">Post</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </el-main>
+</el-container>
 
-  .el-message-box__btns {
-    padding: 10px 20px 20px;
-  }
-}
-</style>
+<!-- 预览组件 -->
+<PostPreview 
+  v-if="showPreview" 
+  :title="createData.title"
+  :content="createData.content" 
+  :images="createData.image" 
+  :tags="tags" 
+  :preferences="createData.social_filters" 
+  @close="closePreview" 
+/>
+</template>

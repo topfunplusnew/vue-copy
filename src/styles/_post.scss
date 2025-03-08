@@ -1,8 +1,9 @@
 /* Post页面的样式 */
-.post-container {
+.post-view-container {
+  position: relative;
     width: 100%;
     max-width: 1000px;
-    margin-top: 4rem;
+    margin: 0;
     padding: 0.5rem 2rem 2rem 2rem;
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
@@ -574,5 +575,102 @@
     background: rgba(0, 0, 0, 0.1);
     border-radius: 3px;
   }
+}
+    
+/* 博客发布页面样式 */
+.post-view-container {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  padding-top: 0; 
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+
+  .post-header {
+    position: relative;
+    z-index: 10;
+    padding: 0;
+    margin: 0;
+  }
+
+  .post-content {
+    padding-top: 20px;
+    margin-top: 0;
+    flex: 1;
+    position: relative;
+  }
+
+  .post-card {
+    max-width: 900px;
+    margin: 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    
+    .post-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      
+      .post-title {
+        margin: 0;
+        color: #333;
+      }
+      
+      .preview-btn {
+        background: #4e6ef2;
+      }
+    }
+    
+    /* 其他样式保持不变... */
+  }
+}
+
+/* 修复背景层与内容的关系 */
+.background-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .post-view-container {
+    .post-content {
+      padding: 10px;
+    }
+    
+    .post-card {
+      padding: 15px;
+      margin-top: 0;
+    }
+    
+    /* 其他响应式样式保持不变... */
+  }
+}
+
+/* 确保整个应用容器没有多余空间 */
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 修复Element Plus组件的样式覆盖问题 */
+.el-container, .el-main {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.el-header {
+  padding: 0 !important;
+  height: auto !important;
 }
     

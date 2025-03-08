@@ -1,24 +1,55 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAllBlogList, getBlogPost, comment2Blog, comment2Comment, myblogedit, blogPost } from '@/services/api';
-import type { IBlogPost, IBlogReq, IBlogPostCreate } from '@/types/blog';
+import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters, comment2Comment, myblogedit, blogPost, Postimage } from '@/services/api';
+import type { IBlogPost, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
 
 export const useBlogStore = defineStore('blog', () => {
   const blogs = ref<IBlogPost[]>([]); // blog数组
   const condition = ref<IBlogReq>({}); // 查询blog列表的条件
-
+  const socialFilters = ref<ISocialFilter[]>([]); // 社会过滤器
   const blog = ref<IBlogPost>(); // 单独blog
 
-  const postData = ref<IBlogPostCreate>({
+  const createData = ref<IBlogPostCreate>({
     title: '',
     content: '',
     image: [],
     tags: [],
-    social_filters: 0,
+    social_filters: [],
+    comment_permission: 0,
     isNFT: false,
-  }); // 发布blog的数据
+  });
+
+  const commentPermission = [{id: 0, name: 'Everyone'}, {id: 10, name: 'Followers'}, {id: 11, name: 'Only me'}];
+  /**
+   * 获取社会过滤器
+   * @returns Promise
+   */
+  function getSocialFilter() {
+    return blogSocialFilters().then(({data}) => {
+      socialFilters.value = data;
+    });
+  }
+  /**
+   * 发布blog
+   * @returns Promise
+   */
   function userPostblog() {
-    return blogPost(postData.value);
+    return blogPost(createData.value);
+  }
+  function userPostimage(file: any) {
+    const formData = new FormData();
+    formData.append('files', file.raw);
+    return new Promise((resolve, reject) => {
+      Postimage({ image: formData }).then(({data}) => {
+        const arr = data.success as string[];
+        for (const url of arr) {
+          createData.value.image.push(url);
+        }
+        resolve(data);
+      }).catch((e) => {
+        reject(e);
+      });
+    });
   }
   /**
    * 获取blog列表
@@ -31,6 +62,28 @@ export const useBlogStore = defineStore('blog', () => {
       })
       .catch((e) => {
         console.log(e);
+      });
+  }
+  /**
+   * 加载更多博客（用于无限滚动）
+   * @param page 页码
+   * @returns Promise
+   */
+  function loadMoreBlogs(page: number) {
+    // 添加页码到查询条件
+    const queryParams = { ...condition.value, page };
+    
+    return getAllBlogList(queryParams)
+      .then(({ data }) => {
+        // 将新加载的博客追加到现有列表，而不是替换
+        if (data.blogs && data.blogs.length > 0) {
+          blogs.value = [...blogs.value, ...data.blogs];
+        }
+        return data.blogs || [];
+      })
+      .catch((e) => {
+        console.error('Failed to load more blogs:', e);
+        return [];
       });
   }
   /**
@@ -51,8 +104,8 @@ export const useBlogStore = defineStore('blog', () => {
     blog.value = <IBlogPost>{};
   }
 
-  function editmyblog(blogId: number, blog: IBlogPost) {
-    return myblogedit(blogId, blog);
+  function editmyblog() {
+    return myblogedit(createData.value);
   }
 
   function commenttoBlog(blogId: number, comment: string) {
@@ -61,5 +114,9 @@ export const useBlogStore = defineStore('blog', () => {
   function commenttoComment(commentId: number, comment: string) {
     return comment2Comment(commentId, comment);
   }
-  return { blogs, condition, blog, postData, userPostblog,getBlogList, getBlogByID, clearBlog, commenttoBlog, commenttoComment, editmyblog };
+  return { 
+    blogs, condition, blog, createData, socialFilters, 
+    commentPermission,
+    getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
+    commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs };
 });

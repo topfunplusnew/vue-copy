@@ -34,7 +34,7 @@
               <img 
                 v-for="(image, index) in images" 
                 :key="index"
-                :src="getImageUrl(image.url)"
+                :src="getImageUrl(image)"
                 alt="Blog Image" 
                 class="detail-image"
               />
@@ -89,7 +89,7 @@
         <!-- 偏好标签区域 -->
         <div class="tags-section" v-if="preferences.length">
           <span v-for="pref in preferences" :key="pref" class="tag">
-            {{ getPreferenceIcon(pref) }} {{ pref }}
+            {{ pref }}
           </span>
         </div>
 
@@ -118,9 +118,9 @@ const currentImageIndex = ref(0);
 const props = defineProps<{
   title: string
   content: string
-  images: { url: string }[]
+  images: string[]
   tags: string[]
-  preferences: string[]
+  preferences: number[]
 }>();
 
 const emit = defineEmits<{

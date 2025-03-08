@@ -8,7 +8,7 @@ const props = defineProps({
   },
   delay: {
     type: Number,
-    default: 100,
+    default: 200,
   },
   animateBy: {
     type: String,

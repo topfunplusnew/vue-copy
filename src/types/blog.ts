@@ -24,10 +24,17 @@ export interface IBlogReq extends IRequest {
 export interface IBlogPostCreate {
   title: string;
   content: string;
-  image?: string[];
-  tags?: string[];
-  social_filters?: number;
+  image: string[];
+  tags: string[];
+  social_filters: number[];
+  comment_permission: number;
   isNFT?: boolean;
+}
+
+export interface ISocialFilter {
+  id: number;
+  name: string;
+  icon: string;
 }
 
 export interface IBlogPostimage {

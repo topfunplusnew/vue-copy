@@ -37,7 +37,7 @@ onMounted(() => {
 <template>
   <div class="loading-screen" :class="{ 'fade-out': !isVisible }">
     <div class="loading-content">
-      <div class="loading-logo">iPOLOGO</div>
+      <div class="loading-logo">WELCOME TO iPOLOGO</div>
       <div class="loading-spinner">
         <div class="spinner-circle"></div>
       </div>

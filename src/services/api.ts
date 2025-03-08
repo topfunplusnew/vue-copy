@@ -48,6 +48,8 @@ export const userModify = (data: IUserEdit) => http.put('/user/profile', data);
 
 export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
 
+export const blogSocialFilters = () => http.get('/social_filters');
+
 export const myblogdelete = (id: number) => http.delete('/blog', {params: {id: id}});
 
 export const myblogedit = (data: IBlogEdit) => http.put('/blog', data);
@@ -71,17 +73,17 @@ export const getMyBlogList = () => http.get('/my_blogs');
 
 export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
 
-export const chatWithAI = (prompt: string) => http.post('/chatz', {prompt});
+export const chatWithAI = (prompt: string) => http.post('/chatz', {content:prompt});
 
-export const generateResponse = (req:IChatReq) => http.post('/chat', req);
+export const generateResponse = (req:IChatReq) => http.post('/chatz', req);
 
-export const chatHistory = () => http.get('/chat_history');
+export const chatHistory = () => http.get('/chatz_history');
 
 export const restorechatHistory = (historyId: string) => http.get('/restore_chat_history', {params:{historyId}});
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 
-export const comment2Comment = (commentId: number, content: string) => http.post('/user/comment', {id:commentId, content});
+export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});
 
 export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});
 

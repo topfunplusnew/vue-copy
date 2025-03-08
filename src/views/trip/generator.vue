@@ -49,8 +49,8 @@ const sendToAI = async (content: string) => {
   try {
     chatMessages.value.push({ sender: 'user', text: content });
     const chatReq: IChatReq = {
-      prompt: content,
-      Conversation_id: conversationId.value
+      content: content,
+      // conversation_id: conversationId.value
     };
     const response = await generateResponse(chatReq);
 
