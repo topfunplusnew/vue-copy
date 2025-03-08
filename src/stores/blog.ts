@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters, comment2Comment, myblogedit, blogPost, Postimage } from '@/services/api';
+import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters, 
+  comment2Comment, myblogedit, blogPost, Postimage, comments } from '@/services/api';
 import type { IBlogPost, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
 
 export const useBlogStore = defineStore('blog', () => {
@@ -114,9 +115,20 @@ export const useBlogStore = defineStore('blog', () => {
   function commenttoComment(commentId: number, comment: string) {
     return comment2Comment(commentId, comment);
   }
+  function getComments(commentId: number) {
+    return comments(commentId).then(({data}) => {
+      if (blog.value) {
+        for(const comment of blog.value.comments) {
+          if(comment.id === commentId) {
+            comment.replies = data.list;
+          }
+        }
+      }
+    });
+  }
   return { 
     blogs, condition, blog, createData, socialFilters, 
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
-    commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs };
+    commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs, getComments };
 });

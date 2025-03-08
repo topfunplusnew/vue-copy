@@ -76,8 +76,8 @@ export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req})
 
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
-
 export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});
+export const comments = (commentId: number) => http.get(`/comments/${commentId}`);
 
 export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});
 
