@@ -45,6 +45,8 @@ export interface IBlogComment extends ICommon {
   content: string; // 评论内容
   blog_id: number; // blog id
   user: IUser;
+  replies: IBlogComment[];
+  replies_count: number;
 }
 
 export interface IBlogEdit {

@@ -335,3 +335,128 @@ body {
     transform: translateY(0);
   }
 }
+
+/* 登录/注册按钮样式修复 */
+.el-button.nav-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin: 0 5px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+}
+
+/* 修复登录表单按钮样式 */
+.login-container,
+.signup-container {
+  .el-button {
+    /* 确保登录表单中的按钮文字颜色 */
+    &--primary {
+      color: white !important;
+    }
+    
+    &--default {
+      color: #333 !important;
+    }
+  }
+  
+  /* 修复输入框文本颜色 */
+  .el-input__inner {
+    color: #333 !important;
+  }
+  
+  /* 修复表单标签颜色 */
+  .el-form-item__label {
+    color: #333 !important;
+  }
+}
+
+/* 全局对话框按钮修复 */
+.el-message-box {
+  /* 增强消息框按钮样式 */
+  .el-message-box__btns {
+    button {
+      font-weight: 500 !important;
+    }
+    
+    /* 确认按钮（蓝色背景) */
+    .el-button--primary {
+      background-color: #409eff !important;
+      color: white !important;
+      border-color: #409eff !important;
+      
+      &:hover,
+      &:focus {
+        background-color: #66b1ff !important;
+        border-color: #66b1ff !important;
+        color: white !important;
+      }
+    }
+    
+    /* 取消按钮 */
+    .el-button--default {
+      background-color: #6a6666 !important; /* 浅灰色背景 */
+      color: #ffffff !important; /* 深色文本 */
+      border-color: #dcdfe6 !important;
+      
+      &:hover,
+      &:focus {
+        background-color: #e0e0e0 !important; /* 更深的灰色背景 */
+        color: #409eff !important; /* 蓝色文本 */
+        border-color: #c6e2ff !important;
+      }
+    }
+  }
+}
+
+/* 确保对话框内容也可见 */
+.el-message-box {
+  /* 标题和内容文本 */
+  .el-message-box__title,
+  .el-message-box__message {
+    color: #333 !important;
+  }
+  
+  /* 强制设置对话框背景为白色 */
+  background-color: white !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* 专门针对确认对话框的增强 */
+.el-message-box.el-message-box--center {
+  .el-message-box__btns {
+    .el-button {
+      padding: 8px 20px !important;
+      border-radius: 4px !important;
+      font-size: 14px !important;
+    }
+  }
+}
+
+/* 其他对话框和弹窗样式修复 */
+.el-dialog,
+.el-popover,
+.el-dropdown-menu {
+  .el-button--primary {
+    color: white !important;
+    background-color: #409eff !important;
+  }
+  
+  .el-button--default {
+    color: #606266 !important;
+    background-color: #f4f4f5 !important;
+  }
+  
+  /* 用户已登录状态下的下拉菜单项 */
+  .el-dropdown-item {
+    color: #333 !important;
+  }
+}

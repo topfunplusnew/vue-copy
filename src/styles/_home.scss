@@ -509,7 +509,7 @@
               padding: 10px 20px;
               border-radius: 4px;
               cursor: pointer;
-              font-size: 2.2rem ;
+              font-size: 2rem ;
               transition: all 0.3s ease;
               
               &:hover {
@@ -1179,51 +1179,63 @@
     }
   }
 
-  /* 内容部分 */
+  /* 博客内容 */
   .content-section-home {
-    padding-bottom: 20px;
     margin-bottom: 20px;
     border-bottom: 1px solid #eee; /* 添加内容区域底部分隔线 */
     padding-right: 30px; /* 为内容区域添加右侧内边距 */
+    padding-bottom: 10px;
     
     .blog-content-home {
-      font-size: 15px;
+      font-size: 16px;
       line-height: 1.6;
       color: #333;
       white-space: pre-wrap;
       margin: 0;
       text-align: justify; /* 内容左右对齐 */
+      margin-bottom: 10px;
     }
   }
 
   /* 评论部分 */
   .comments-container-home {
-    padding-right: 30px; /* 为评论区域添加右侧内边距 */
+    padding-right: 20px;
+    margin-top: 0; /* 减少评论区顶部边距 */
+    position: relative;
     
     .comments-header-home {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
+      margin-top: 5px; /* 添加顶部边距 */
       
+      /* 确保评论标题可见 */
       h3 {
         font-size: 16px;
-        margin: 0;
+        font-weight: 600;
         color: #333;
+        margin: 0;
+        padding: 0;
       }
       
+      /* 评论计数样式 */
       .comment-count-home {
-        background: #eee;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
+        background: #f0f0f0;
         color: #555;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 12px;
+        font-weight: 500;
       }
     }
     
     .comments-list-home {
+      margin-top: 0; /* 减少评论列表顶部边距 */
+      
+      /* 评论项容器 */
       .comment-item-home {
-        padding: 10px 0;
+        padding: 8px 0; /* 减少评论项内边距 */
         border-bottom: 1px solid #eee;
         
         &:last-child {
@@ -1234,27 +1246,20 @@
           display: flex;
           align-items: flex-start;
           gap: 10px;
+          margin-bottom: 10px;
           
           .comment-avatar-home {
-            width: 28px;
-            height: 28px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             object-fit: cover;
-            flex-shrink: 0;
-            border: 1px solid #eee;
           }
           
           .comment-username-home {
-            font-size: 14px;
             font-weight: 500;
             color: #333;
-            min-width: 80px;
-            max-width: 80px;
-            flex-shrink: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            margin-top: 3px;
+            margin-right: 10px;
+            margin-top: 15px;
           }
           
           .comment-content-wrapper {
@@ -1267,14 +1272,10 @@
               flex: 1;
               font-size: 14px;
               color: #555;
-              margin: 3px 0 0;
+              margin: 15px 0 0;
               line-height: 1.4;
               word-break: break-word;
               cursor: pointer;
-              
-              &:hover {
-                color: #333;
-              }
             }
             
             .reply-icon {
@@ -1290,79 +1291,139 @@
               }
             }
           }
-          
-          &:hover .reply-icon {
-            opacity: 1;
-          }
         }
         
         /* 评论回复样式 */
         .comment-replies-home {
-          margin-left: 40px;
-          margin-top: 8px;
-          border-left: 2px solid #eee;
-          padding-left: 15px;
-          
-          .reply-item-home {
-            padding: 8px 0;
+          padding-right: 20px;
+          margin-top: 0; /* 减少评论区顶部边距 */
+          position: relative;
+
+          .reply-row-home {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
             
-            &:not(:last-child) {
-              border-bottom: 1px dashed rgba(0,0,0,0.05);
+            .reply-avatar-home-view {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              object-fit: cover;
             }
             
-            .reply-row-home {
+            .reply-info {
               display: flex;
-              align-items: flex-start;
-              gap: 8px;
+              flex-direction: column;
+              flex: 1;
+              padding-top: 25px;
               
-              .reply-avatar-home {
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                object-fit: cover;
-                flex-shrink: 0;
+              .reply-header {
+                display: flex;
+                align-items: center;
+                margin-bottom: 2px;
+                
+                .reply-username-home {
+                  font-weight: 500;
+                  color: #333;
+                  margin-right: 10px;
+                  margin-top: -30px;
+                }
+                
+                .replying-to {
+                  font-size: 11px;
+                  color: #999;
+                  margin-right: 10px;
+                  margin-top: -30px;
+                }
+                
+                .target-name-show {
+                  font-size: 12px;
+                  color: #4e6ef2;
+                  font-weight: 500;
+                  margin-right: 0;
+                  margin-top: -30px;
+                }
+                
+                .reply-content-wrapper{
+                  flex: 1;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+    
+                  .reply-text-home {
+                    flex: 1;
+                    font-size: 14px;
+                    color: #555;
+                    padding-left: 0;
+                    margin-left: -70px; /* 添加负边距让文本更靠左 */
+                    padding-top: 0;
+                    margin-top:-15px;
+                    line-height: 1.4;
+                    word-break: break-word;
+                    cursor: pointer;
+                    transition: color 0.2s ease;
+                    
+                    &:hover {
+                      color: #4e6ef2; /* 鼠标悬停时文本变色，提示可点击 */
+                    }
+                  }
+    
+                  .reply-icon-reply-to-reply{
+                    font-size: 16px;
+                    color: #999;
+                    margin-left: 10px;
+                    cursor: pointer;
+                    opacity: 0; /* 默认隐藏 */
+                    transition: opacity 0.2s ease;
+                    
+                    &:hover {
+                      color: #4e6ef2; /* 悬停时颜色更明显 */
+                      opacity: 1;
+                    }
+                  }
+                }
+                &:hover .reply-icon-reply-to-reply {
+                  opacity: 1;
+                }
               }
-              
-              .reply-username-home {
-                font-size: 12px;
-                font-weight: 500;
-                color: #555;
-                min-width: 70px;
-                max-width: 70px;
-                flex-shrink: 0;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-                margin-top: 2px;
-              }
-              
-              .reply-text-home {
-                flex: 1;
-                font-size: 12px;
-                color: #666;
-                margin: 3px 0 0;
-                line-height: 1.4;
-                word-break: break-word;
-              }
-            }
           }
         }
+      }
         
         /* 回复输入区域 */
         .reply-input-container-home {
-          margin-left: 40px;
-          margin-top: 10px;
-          border-left: 3px solid #eee;
-          padding-left: 15px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-top: 8px;
+          padding: 8px 10px;
+          background: rgba(0, 0, 0, 0.02);
+          border-radius: 12px;
+          
+          .replying-to-label {
+            font-size: 13px;
+            color: #777;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            margin-right: 5px;
+            
+            .target-name {
+              margin-left: 5px;
+              font-weight: 500;
+              color: #4e6ef2;
+            }
+          }
           
           .reply-textarea-home {
-            margin-bottom: 10px;
+            flex: 1;
+            margin-right: 10px;
             
             .el-textarea__inner {
               background: rgba(255, 255, 255, 0.8);
               border: 1px solid #ddd;
               border-radius: 4px;
-              padding: 8px 12px;
+              padding: 6px 10px;
               font-size: 14px;
               
               &:focus {
@@ -1374,13 +1435,16 @@
           
           .reply-actions-home {
             display: flex;
-            justify-content: flex-end;
-            gap: 10px;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
             
             .cancel-reply-btn-home {
               background: transparent;
               border: 1px solid #ddd;
               color: #666;
+              padding: 6px 12px;
+              height: auto;
               
               &:hover {
                 border-color: #ccc;
@@ -1391,6 +1455,8 @@
             .submit-reply-btn-home {
               background: #4e6ef2;
               border: none;
+              padding: 6px 12px;
+              height: auto;
               
               &:hover {
                 background: #3a5bd9;
@@ -1446,5 +1512,140 @@
 @media (max-width: 500px) {
   .social-scroll .social-posts-panel {
     grid-template-columns: 1fr;
+  }
+}
+
+/* 博客详情对话框的响应式样式 */
+@media (max-width: 768px) {
+  .blog-detail-home {
+    flex-direction: column;
+    
+    .detail-left-home {
+      width: 100%;
+      max-height: 300px;
+    }
+    
+    .detail-right-home {
+      width: 100%;
+      max-height: calc(100vh - 350px);
+    }
+  }
+  
+  /* 评论行响应式布局 */
+  .comment-row-home {
+    flex-wrap: wrap;
+    
+    .comment-username-home {
+      margin-top: 0;
+    }
+    
+    .comment-content-wrapper {
+      width: 100%;
+      margin-top: 5px;
+      margin-left: 50px; /* 与头像对齐 */
+    }
+  }
+  
+  /* 回复区域响应式布局 */
+  .reply-info {
+    padding-top: 0 !important;
+    
+    .reply-header {
+      flex-wrap: wrap;
+      
+      .reply-username-home,
+      .replying-to,
+      .target-name-show {
+        margin-top: 0 !important;
+      }
+    }
+    
+    .reply-content-wrapper {
+      .reply-text-home {
+        margin-left: 0 !important;
+        margin-top: 5px !important;
+      }
+    }
+  }
+  
+  /* 回复输入框响应式布局 */
+  .reply-input-container-home {
+    flex-direction: column;
+    align-items: flex-start;
+    
+    .replying-to-label {
+      margin-bottom: 5px;
+    }
+    
+    .reply-textarea-home {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+    
+    .reply-actions-home {
+      align-self: flex-end;
+    }
+  }
+}
+
+/* 超窄屏幕额外调整 */
+@media (max-width: 480px) {
+  .reply-row-home {
+    flex-direction: column;
+    
+    .reply-avatar-home-view {
+      margin-bottom: 5px;
+    }
+    
+    .reply-info {
+      margin-left: 0;
+      
+      .reply-header {
+        margin-bottom: 10px;
+      }
+    }
+  }
+  
+  /* 使评论更紧凑 */
+  .comment-replies-home {
+    padding-right: 0;
+  }
+  
+  /* 调整回复图标位置 */
+  .reply-icon-reply-to-reply,
+  .reply-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+  }
+}
+
+/* 添加查看更多回复按钮样式 */
+.view-more-replies {
+  margin: 8px 0 5px 40px;
+  color: #4e6ef2;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    text-decoration: underline;
+    color: #3a5bd9;
+  }
+  
+  .view-more-text {
+    margin-right: 5px;
+  }
+  
+  .view-more-icon {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover .view-more-icon {
+    transform: translateY(2px);
   }
 }
