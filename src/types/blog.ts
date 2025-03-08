@@ -46,7 +46,7 @@ export interface IBlogComment extends ICommon {
   blog_id: number; // blog id
   user: IUser;
   replies: IBlogComment[];
-  replies_count: number;
+  total_replies: number;
 }
 
 export interface IBlogEdit {

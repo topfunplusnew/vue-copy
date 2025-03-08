@@ -735,12 +735,12 @@ const displayedReplies = (comment: any) => {
 };
 
 // 展开查看所有回复
-const expandReplies = async (commentId: number) => {
+const expandReplies = async (commentId: number|undefined) => {
   // 如果需要调用API加载更多回复，可以在这里添加
-  // 例如：await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
-  
+  // await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
+  if (commentId) store.getComments(commentId);
   // 标记该评论已展开
-  expandedComments.value.push(commentId);
+  // expandedComments.value.push(commentId);
 };
 
 </script>
@@ -1071,12 +1071,12 @@ const expandReplies = async (commentId: number) => {
                 </div>
               </div>
               
-              <!-- 显示评论的回复，去掉折叠条件，直接显示 -->
+              <!-- 显示评论的回复 -->
               <div 
                 v-if="comment.replies && comment.replies.length > 0" 
                 class="comment-replies-home"
               >
-                <div v-for="reply in displayedReplies(comment)" :key="reply.id" 
+                <div v-for="reply in comment.replies" :key="reply.id" 
                 class="reply-item-home">
                   <div class="reply-row-home">
                     <img 
@@ -1101,12 +1101,14 @@ const expandReplies = async (commentId: number) => {
                       </div>
                     </div>
                   </div>
+                  <!-- 添加查看更多回复按钮 -->
                 </div>
-                <!-- 添加查看更多回复按钮 -->
-                <div v-if="comment.replies.length > 2 && !expandedReplies.includes(comment.id)" 
-                  class="view-more-replies" @click="expandReplies(comment.id)">
-                  <span class="view-more-text">View {{ comment.replies.length - 2 }} more {{ comment.replies.length - 2 === 1 ? 'reply' : 'replies' }}</span>
-                  <span class="view-more-icon">↓</span>
+                <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length" 
+                    class="view-more-replies" @click="expandReplies(comment.id)">
+                  <span class="view-more-text-r2r">
+                  View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
+                  </span>
+                  <span class="view-more-icon-r2r">↓</span>
                 </div>
               </div>
               

@@ -1636,16 +1636,16 @@
     color: #3a5bd9;
   }
   
-  .view-more-text {
+  .view-more-text-r2r {
     margin-right: 5px;
   }
   
-  .view-more-icon {
+  .view-more-icon-r2r {
     font-size: 14px;
     transition: transform 0.2s ease;
   }
   
-  &:hover .view-more-icon {
+  &:hover .view-more-icon-r2r {
     transform: translateY(2px);
   }
 }
