@@ -34,10 +34,11 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://ipologo.com/', //jyh
+        // target: 'http://127.0.0.1:9211',
         changeOrigin: true,
       },
       '/images': {
-        target: 'http://ipologo.com/', //jyh
+        target: 'http://ipologo.com/',
         changeOrigin: true,
       },
     },

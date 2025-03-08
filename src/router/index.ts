@@ -54,7 +54,7 @@ const router = createRouter({
     {
       path: '/generator',
       name: 'generator',
-      component: () => import('@/views/trip/generator.vue'),
+      component: () => import('@/views/chat/trip-generator.vue'),
     },
     // {
     //   path: '/blog2',

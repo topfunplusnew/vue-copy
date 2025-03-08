@@ -5,6 +5,7 @@ import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
 
 
+
 /**
  * 用户登录
  * @param credentials 登录信息
@@ -73,13 +74,6 @@ export const getMyBlogList = () => http.get('/my_blogs');
 
 export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
 
-export const chatWithAI = (prompt: string) => http.post('/chatz', {content:prompt});
-
-export const generateResponse = (req:IChatReq) => http.post('/chatz', req);
-
-export const chatHistory = () => http.get('/chatz_history');
-
-export const restorechatHistory = (historyId: string) => http.get('/restore_chat_history', {params:{historyId}});
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 
@@ -96,3 +90,18 @@ export const userUnfollow = (id:number) => http.delete('/user/follow', {params:{
 export const userIsFollowing = (id:number) => http.get('user/follow', {params:{id}});
 export const userFollowings = (id:number) => http.get(`/user/followings/${id}`);
 export const userFollowers = (id:number) => http.get(`/user/followers/${id}`);
+
+
+/**
+ * chat
+ */
+export const chatStream = (req:IChatReq) => http.post('/chatz', req, {
+  headers: {
+    'Accept': 'text/event-stream'
+  },
+  responseType:'stream',
+  adapter:'fetch'
+}); // chat 流试显示
+export const chatConversations = () => http.get('/chat/history'); // 主题列表
+export const chatRestore = (conversationID:number) => http.get(`/chat/restore/${conversationID}`); //根据主题返回本主题下的所有历史记录
+

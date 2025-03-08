@@ -1,106 +1,51 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, reactive, nextTick } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { ref, computed, watch, onMounted, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
-import { tripOptionsData, allCurrencies } from '@/assets/tripOptionsData.js';
-import walletItem from '@/components/wallet-item.vue';
-import { generateUserPrompt } from '@/stores/userprompt';
-import { setTripOptions } from '@/stores/tripoption';
-import { generateResponse } from '@/services/api';
-import type { IChatReq } from '@/types/chat';
-import { useUserStore } from '@/stores/user';
-import { getImageUrl } from '@/utils';
+import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
+import { useChatStore } from '@/stores/chat';
+import commonHeader from '@/layout/common-header.vue';
+import MarkdownIt from 'markdown-it';
+const md = new MarkdownIt();
 
 
-// interface ChatMessage { sender: string; text: string; }
-// interface HistoryRecord { summary: string; messages: ChatMessage[]; }
+const store = useChatStore();
+const message = computed(()=> store.message);
+const messages = computed(() => store.messages);
+const conversations = computed(() => store.conversations);
 
-interface ChatMessage { 
-  sender: 'user' | 'assistant' | 'system'; 
-  text: string; 
+
+
+
+function loadHistory(id:number|undefined) {
+  if(id) store.getChatsByConversationID(id).catch(e=>console.log(e));
 }
 
-
-const chatMessages = ref<ChatMessage[]>([]);
-const historyRecords = ref<HistoryRecord[]>([]);
 const userChatInput = ref('');
 const loading = ref(false);
-const error = ref('');
-const conversationId = ref(''); // 用于跟踪对话ID
 
-const updateMessage = (index: number, event: Event) => {
-  const target = event.target as HTMLElement;
-  chatMessages.value[index].text = target.innerText;
-};
 
-// const sendMessage = () => {
-//   if (!userChatInput.value.trim()) return;
-//   chatMessages.value.push({ sender: 'user', text: userChatInput.value });
-//   const agentReply = "iPoloGO: " + userChatInput.value;
-//   chatMessages.value.push({ sender: 'agent', text: agentReply });
-//   userChatInput.value = '';
-// };
 
-const sendToAI = async (content: string) => {
-  if (!content.trim() || loading.value) return;
-  loading.value = true;
-  error.value = '';
 
-  try {
-    chatMessages.value.push({ sender: 'user', text: content });
-    const chatReq: IChatReq = {
-      content: content,
-      // conversation_id: conversationId.value
-    };
-    const response = await generateResponse(chatReq);
+function handleUserInput(event: Event | KeyboardEvent) {
 
-    if (response.data.conversation_id) {
-      conversationId.value = response.data.conversation_id;
-    }
+  if ((event as KeyboardEvent).shiftKey) return; // 如果按住 shift，允许换行
 
-    chatMessages.value.push({ sender: 'assistant', text: response.data.message });
-    userChatInput.value = '';
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to get response';
-    ElMessage.error(error.value);
-  } finally {
-    loading.value = false;
-  }
-}
-
-const handleUserInput = async (event: KeyboardEvent) => {
-  if (event.shiftKey) return; // 如果按住 shift，允许换行
-  
   if (userChatInput.value.trim()) {
-    await sendToAI(userChatInput.value);
-    userChatInput.value = ''; // 清空输入框，恢复到 placeholder 状态
+    // await sendToAI(userChatInput.value);
+    store.chat(userChatInput.value.trim()).then(()=>{
+      userChatInput.value = ''; // 清空输入框，恢复到 placeholder 状态
+    }).catch(e=>{
+      console.log(e);
+      if(e.status == 401) ElMessage.error('请登录');
+    })
   }
 };
 
 const finishConversation = () => {
-  if (chatMessages.value.length === 0) {
-    ElMessage.info("No conversation to finish.");
-    return;
-  }
-  const summary = generateSummary(chatMessages.value);
-  historyRecords.value.push({ summary, messages: [...chatMessages.value] });
-  chatMessages.value = [];
+  store.clear()
 };
 
-const generateSummary = (messages: ChatMessage[]): string => {
-  let summary = "General Conversation";
-  if (messages.some(m => m.text.toLowerCase().includes("trip"))) {
-    summary = "Trip planning: location to destination";
-  }
-  return summary;
-};
 
-const loadHistory = (index: number) => {
-  const record = historyRecords.value[index];
-  if (record) {
-    chatMessages.value = [...record.messages];
-  }
-};
 
 const tripSelections = reactive({
   Transportation: [] as string[],
@@ -109,8 +54,8 @@ const tripSelections = reactive({
   Tickets: [] as string[],
   Activities: [] as string[],
   Budget: {
-    Currency: '',
-    Total: '',
+    Currency: 0,
+    Total: 0,
     Transportation: 25,
     Hotel: 25,
     Tickets: 25,
@@ -137,7 +82,7 @@ const availableTransportationClasses = computed(() => {
 });
 
 const groupedHotels = computed(() => {
-  const groups: { [key: string]: any[] } = {};
+  const groups: { [key: string]: {name:string, icon:string}[] } = {};
   tripOptionsData.Hotel.forEach(item => {
     const group = item.group || "Other";
     if (!groups[group]) {
@@ -161,7 +106,7 @@ const updateBudgetProportions = (changedKey: keyof typeof tripSelections.Budget,
 
   const otherKeys = keys.filter(k => k !== changedKey);
   const desiredOthersSum = 100 - newValue;
-  let othersCurrentSum = otherKeys.reduce((sum, key) => sum + tripSelections.Budget[key], 0);
+  const othersCurrentSum = otherKeys.reduce((sum, key) => sum + tripSelections.Budget[key], 0);
 
   if (othersCurrentSum === 0) {
     // 如果其他项都为 0，则平分剩余比例
@@ -191,15 +136,10 @@ watch(() => tripSelections.Budget.Hotel, (val) => { updateBudgetProportions("Hot
 watch(() => tripSelections.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
 watch(() => tripSelections.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
 
-const budgetTotal = computed(() => {
-  const b = tripSelections.Budget;
-  return b.Transportation + b.Hotel + b.Tickets + b.Activities;
-});
 
 
 // Date Element Plus 组件
 
-const datepickervalue = ref('')
 
 const dateShortcuts = [
   {
@@ -257,14 +197,6 @@ const dateShortcuts = [
   }
 ];
 
-const disabledDate = (date: Date) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const start = new Date(today);
-  const end = new Date(today);
-  end.setDate(start.getDate() + 1);
-  return date < start || date >= end;
-};
 
 const calculateDuration = () => {
   if (tripSelections.Duration.length === 2) {
@@ -288,7 +220,7 @@ watch(() => tripSelections.Duration, (newDates) => {
 
 // 以下 tripPrompt 作为备用生成逻辑
 const tripPrompt = computed(() => {
-  let parts: string[] = [];
+  const parts: string[] = [];
   if (tripSelections.Duration.length === 2) {
     const startDate = new Date(tripSelections.Duration[0]).toLocaleDateString();
     const endDate = new Date(tripSelections.Duration[1]).toLocaleDateString();
@@ -324,7 +256,7 @@ const tripPrompt = computed(() => {
 
 const insertTripPrompt = async () => {
   if (tripPrompt.value && !loading.value) {
-    await sendToAI(tripPrompt.value);
+    store.chat(tripPrompt.value);
   }
 };
 
@@ -332,128 +264,23 @@ const selectedMapType = ref('World Map');
 const userLocation = ref('Current Location');
 const selectedDestination = ref('Destination');
 
-const historyVisible = ref(false);
+const historyVisible = ref(true);
 const toggleHistory = () => {
   historyVisible.value = !historyVisible.value;
 };
 
-const route = useRoute();
-const router = useRouter();
-const userStore = useUserStore();
 
-// 页面加载时：如果路由 query 中传入了 prompt，则直接使用；否则调用 generateUserPrompt 生成默认文本
 onMounted(() => {
-  const initialPrompt = route.query.prompt as string;
-  if (initialPrompt) {
-    // 直接发送初始 prompt，不需要保存在输入框中
-    sendToAI(initialPrompt);
-  } else {
-    // 生成默认 prompt 并发送
-    const defaultPrompt = generateUserPrompt("Current Location", "Destination", []);
-    sendToAI(defaultPrompt);
-  }
-  
-  // 移除延时发送的部分，因为已经在上面直接发送了
-  // setTimeout(() => {
-  //   sendToAI(userChatInput.value);
-  // }, 200);
+  store.getConversions();
 });
 
-// 处理登录点击
-const handleLoginClick = () => {
-  router.push({ name: 'login' });
-};
-
-// 处理下拉菜单命令
-const handleCommand = (command) => {
-  if (command === 'profile') {
-    router.push({ name: 'userpage' });
-  } else if (command === 'logout') {
-    userStore.logout();
-    router.push({ name: 'home' });
-  }
-};
-
-// 跳转到用户个人资料页面
-const goToUserProfile = () => {
-  router.push({ name: 'userpage' });
-};
-
-// 添加导航菜单状态管理
-// 导航菜单状态
-const menuActive = ref(false);
-
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
-};
 </script>
 
 <template>
   <div class="background-layer"></div>
   <div class="home">
     <!-- Header -->
-    <header class="header">
-      <div class="nav-container" :class="{ 'menu-active': menuActive }">
-        <!-- 汉堡菜单按钮 -->
-        <button class="hamburger-menu" @click="toggleMenu">
-          <span v-if="menuActive">✕</span>
-          <span v-else>☰</span>
-        </button>
-      
-        <div class="left-nav" :class="{ 'active': menuActive }">
-          <router-link :to="{ name: 'home' }">
-            <el-button class="nav-button">HOME</el-button>
-          </router-link>
-          <router-link :to="{ name: 'about' }">
-            <el-button class="nav-button">ABOUT</el-button>
-          </router-link>
-          <router-link :to="{ name: 'blog' }">
-            <el-button class="nav-button">BLOG</el-button>
-          </router-link>
-          <router-link :to="{ name: 'contact' }">
-            <el-button class="nav-button">CONTACT</el-button>
-          </router-link>
-        </div>
-        <div class="right-nav">
-          <walletItem />
-          <!-- 未登录状态显示登录和注册按钮 -->
-          <template v-if="!userStore.user">
-            <el-button class="nav-button" @click="handleLoginClick">LOGIN</el-button>
-            <router-link :to="{ name: 'signup' }">
-              <el-button class="nav-button">SIGN UP</el-button>
-            </router-link>
-          </template>
-          
-          <!-- 已登录状态显示用户头像和下拉菜单 -->
-          <div v-else class="user-profile-nav">
-            <div class="home-avatar-container" @click="goToUserProfile">
-              <img 
-                :src="getImageUrl(userStore.user.avatar || '')" 
-                alt="User Avatar" 
-                class="home-new-user-avatar"
-              />
-              <span class="home-new-username">{{ userStore.user.name }}</span>
-            </div>
-            <el-dropdown trigger="click" @command="handleCommand">
-              <span class="el-dropdown-link">
-                <i class="el-icon-arrow-down"></i>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-            <!-- History 切换按钮 -->
-            <el-button class="nav-button" @click="toggleHistory">
-              {{ historyVisible ? 'Hide History' : 'Show History' }}
-            </el-button>
-          </div>
-        </div>
-      </div>
-    </header>
+    <common-header />
 
 
     <!-- 外层内容容器 -->
@@ -464,12 +291,12 @@ const toggleMenu = () => {
           <h3>History</h3>
           <ul>
             <li
-              v-for="(record, idx) in historyRecords"
+              v-for="(conversation, idx) in conversations"
               :key="idx"
-              @click="loadHistory(idx)"
+              @click="loadHistory(conversation.id)"
               class="history-item"
             >
-              {{ record.summary }}  
+              {{ conversation.title }}
             </li>
           </ul>
           <el-button type="text" @click="toggleHistory">Close</el-button>
@@ -483,15 +310,16 @@ const toggleMenu = () => {
           <h3>Chat with iPoloGO</h3>
           <div class="chat-box">
             <div
-              v-for="(msg, index) in chatMessages"
+              v-for="(msg, index) in messages"
               :key="index"
               class="chat-message"
-              :class="msg.sender"
-              contenteditable="true"
-              @blur="updateMessage(index, $event)"
-            >
-              {{ msg.text }}
-            </div>
+              :class="msg.role"
+              v-html="md.render(msg.content)"
+            ></div>
+            <div
+              v-if="message.length > 0"
+              class="chat-message ai"
+            >{{ message }}</div>
           </div>
           <div class="chat-input">
             <el-input
@@ -657,7 +485,7 @@ const toggleMenu = () => {
                     :min="0"
                     :max="100"
                     show-input
-                    @change="(val) => updateBudgetProportions('Transportation', val)"
+                    @change="(val) => updateBudgetProportions('Transportation', val as number)"
                   />
                 </div>
                 <div class="budget-row slider-row">
@@ -667,7 +495,7 @@ const toggleMenu = () => {
                     :min="0"
                     :max="100"
                     show-input
-                    @change="(val) => updateBudgetProportions('Hotel', val)"
+                    @change="(val) => updateBudgetProportions('Hotel', val as number)"
                   />
                 </div>
                 <div class="budget-row slider-row">
@@ -677,7 +505,7 @@ const toggleMenu = () => {
                     :min="0"
                     :max="100"
                     show-input
-                    @change="(val) => updateBudgetProportions('Tickets', val)"
+                    @change="(val) => updateBudgetProportions('Tickets', val as number)"
                   />
                 </div>
                 <div class="budget-row slider-row">
@@ -687,7 +515,7 @@ const toggleMenu = () => {
                     :min="0"
                     :max="100"
                     show-input
-                    @change="(val) => updateBudgetProportions('Activities', val)"
+                    @change="(val) => updateBudgetProportions('Activities', val as number)"
                   />
                 </div>
               </div>
