@@ -182,9 +182,9 @@ const saveDraft = () => {
   console.log('Draft Saved:', postText.value);
 };
 
-const selectReplyOption = (option: number) => {
-  createData.value.comment_permission = option;
-};
+// const selectReplyOption = (option: number) => {
+//   createData.value.comment_permission = option;
+// };
 
 // 修改发布博客处理
 const postTweet = async () => {

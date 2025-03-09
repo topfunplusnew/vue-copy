@@ -79,11 +79,9 @@ import { getImageUrl } from '@/utils';
 const selectedLocation = ref('');
 const selectedDestination = ref('');
 
-
 const router = useRouter();
 const auth = new Auth();
 const userStore = useUserStore();
-
 
 
 // 用户选择的旅游偏好
@@ -101,15 +99,6 @@ watch([selectedLocation, selectedDestination, selectedOptions], () => {
   }
 });
 
-
-
-
-
-
-
-
-
-
 // 添加分页和无限滚动相关的状态
 // 滚动加载相关状态
 
@@ -119,9 +108,7 @@ onMounted(() => {
 
 });
 
-
 // -----------------------------
-
 
 // 恢复登录按钮处理方法
 const handleLoginClick = async () => {
@@ -140,10 +127,7 @@ const handleLoginClick = async () => {
 
 // 添加图片导航方法
 
-
 // 添加评论功能到博客弹窗
-
-
 
 // 添加图片错误处理方法
 
@@ -180,7 +164,5 @@ const toggleMenu = () => {
 // 添加评论回复相关的状态
 
 // 添加评论回复相关的方法
-
-
 
 </script>

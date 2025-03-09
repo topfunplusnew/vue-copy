@@ -11,7 +11,7 @@ import BlurText from '@/components/BlurText.vue';
 import LoadingScreen from '@/components/LoadingScreen.vue';
 import commonHeader from '@/layout/common-header.vue';
 
-// 引入定位和天气
+// 引入定位和天气 
 import { destinations } from '@/assets/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
 
@@ -143,7 +143,7 @@ const submitItinerary = () => {
 };
 
 const allPosts = computed(() => store.blogs);
-const condition = computed(() => store.condition);
+// const condition = computed(() => store.condition);
 
 
 const dialogBlog = ref(false);
@@ -300,16 +300,17 @@ const filteredPosts = computed(() => {
 });
 
 const postsToShow = ref(12);
-const postsDisplayed = computed(() => {
-  return filteredPosts.value.slice(0, postsToShow.value);
-});
 
-const loadMorePosts = () => {
-  if (postsToShow.value < allPosts.value.length) {
-    // Modified: 使用 userPosts.value.length
-    postsToShow.value += 6;
-  }
-};
+// const postsDisplayed = computed(() => {
+//   return filteredPosts.value.slice(0, postsToShow.value);
+// });
+
+// const loadMorePosts = () => {
+//   if (postsToShow.value < allPosts.value.length) {
+//     // Modified: 使用 userPosts.value.length
+//     postsToShow.value += 6;
+//   }
+// };
 
 function handleSearch(event: KeyboardEvent) {
   if (event.key === 'Enter') {
@@ -401,19 +402,21 @@ const handleFollowClick = async (id) => {
 };
 
 // 恢复登录按钮处理方法
-const handleLoginClick = async () => {
-  if (auth.get()) {
-    // 已登录状态
-    ElMessage({
-      message: 'You are already logged in',
-      type: 'info',
-      duration: 2000,
-    });
-    return;
-  }
-  // 未登录状态，跳转到登录页面
-  router.push({ name: 'login' });
-};
+// const handleLoginClick = async () => {
+//   if (auth.get()) {
+//     // 已登录状态
+//     ElMessage({
+//       message: 'You are already logged in',
+//       type: 'info',
+//       duration: 2000,
+//     });
+//     return;
+//   }
+//   // 未登录状态，跳转到登录页面
+//   router.push({ name: 'login' });
+// };
+
+
 const currentImageIndex = ref(0);
 
 // 添加图片导航方法
@@ -430,7 +433,7 @@ function nextImage() {
 }
 
 // 添加评论功能到博客弹窗
-const showCommentInput = ref(false);
+// const showCommentInput = ref(false);
 const newComment = ref('');
 
 const submitComment = async () => {
@@ -502,20 +505,20 @@ function handleImageError(event: Event) {
 }
 
 // 前往个人主页
-const goToUserProfile = () => {
-  router.push({ name: 'userpage' });
-};
+// const goToUserProfile = () => {
+//   router.push({ name: 'userpage' });
+// };
 
 // 处理下拉菜单命令
-const handleCommand = (command) => {
-  if (command === 'profile') {
-    router.push({ name: 'userpage' });
-  } else if (command === 'logout') {
-    userStore.logout();
-    ElMessage.success('Logged out successfully');
-    router.push({ path: '/' });
-  }
-};
+// const handleCommand = (command) => {
+//   if (command === 'profile') {
+//     router.push({ name: 'userpage' });
+//   } else if (command === 'logout') {
+//     userStore.logout();
+//     ElMessage.success('Logged out successfully');
+//     router.push({ path: '/' });
+//   }
+// };
 
 // 导航菜单状态
 const menuActive = ref(false);
@@ -566,94 +569,94 @@ const loadMoreBlogs = async () => {
 };
 
 // 评论相关的状态
-const activeCommentId = ref<number | null>(null);
+// const activeCommentId = ref<number | null>(null);
 const replyContent = ref('');
 const isSubmittingReply = ref(false);
 // 展开回复相关的状态
 const expandedReplies = ref<number[]>([]);
 
 // 切换回复展开/折叠
-const toggleReplies = (commentId: number) => {
-  if (expandedReplies.value.includes(commentId)) {
-    // 如果已展开，则折叠
-    expandedReplies.value = expandedReplies.value.filter(id => id !== commentId);
-  } else {
-    // 如果未展开，则展开并加载所有回复
-    expandedReplies.value.push(commentId);
-    // 确保加载该评论的所有回复
-    loadAllRepliesForComment(commentId);
-  }
-};
+// const toggleReplies = (commentId: number) => {
+//   if (expandedReplies.value.includes(commentId)) {
+//     // 如果已展开，则折叠
+//     expandedReplies.value = expandedReplies.value.filter(id => id !== commentId);
+//   } else {
+//     // 如果未展开，则展开并加载所有回复
+//     expandedReplies.value.push(commentId);
+//     // 确保加载该评论的所有回复
+//     loadAllRepliesForComment(commentId);
+//   }
+// };
 
 // 加载评论的所有回复
-const loadAllRepliesForComment = async (commentId: number) => {
-  try {
-    if (selectedBlog.value) {
-      // 如果后端API支持按评论ID加载所有回复，可以这样调用
-      // 示例: await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
+// const loadAllRepliesForComment = async (commentId: number) => {
+//   try {
+//     if (selectedBlog.value) {
+//       // 如果后端API支持按评论ID加载所有回复，可以这样调用
+//       // 示例: await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
 
-      // 临时解决方案: 如果后端已经返回了所有回复，这里可以直接返回
-      console.log(`Loading all replies for comment all replies mment ${commentId}`);
-    }
-  } catch (error) {
-    console.error('Failed to load all replies:', error);
-    ElMessage.error('Failed to load all replies');
-  }
-};
+//       // 临时解决方案: 如果后端已经返回了所有回复，这里可以直接返回
+//       console.log(`Loading all replies for comment all replies mment ${commentId}`);
+//     }
+//   } catch (error) {
+//     console.error('Failed to load all replies:', error);
+//     ElMessage.error('Failed to load all replies');
+//   }
+// };
 
 // 检查回复是否已展开
-const isRepliesExpanded = (commentId: number) => {
-  return expandedReplies.value.includes(commentId);
-};
+// const isRepliesExpanded = (commentId: number) => {
+//   return expandedReplies.value.includes(commentId);
+// };
 
-// 全部展开函数也需要确保加载所有回复
-const toggleAllReplies = () => {
-  if (selectedBlog.value && selectedBlog.value.comments) {
-    // 检查是否所有回复都已展开
-    const allCommentsWithReplies = selectedBlog.value.comments
-      .filter(comment => comment.replies && comment.replies.length > 0)
-      .map(comment => comment.id);
+// // 全部展开函数也需要确保加载所有回复
+// const toggleAllReplies = () => {
+//   if (selectedBlog.value && selectedBlog.value.comments) {
+//     // 检查是否所有回复都已展开
+//     const allCommentsWithReplies = selectedBlog.value.comments
+//       .filter(comment => comment.replies && comment.replies.length > 0)
+//       .map(comment => comment.id);
 
-    const allExpanded = allCommentsWithReplies.every(id =>
-      expandedReplies.value.includes(id)
-    );
+//     const allExpanded = allCommentsWithReplies.every(id =>
+//       expandedReplies.value.includes(id)
+//     );
 
-    if (allExpanded) {
-      // 如果所有回复都已展开，则全部折叠
-      expandedReplies.value = [];
-    } else {
-      // 否则全部展开
-      expandedReplies.value = [...allCommentsWithReplies];
-      // 确保加载所有评论的所有回复
-      allCommentsWithReplies.forEach(commentId => {
-        loadAllRepliesForComment(commentId);
-      });
-    }
-  }
-};
+//     if (allExpanded) {
+//       // 如果所有回复都已展开，则全部折叠
+//       expandedReplies.value = [];
+//     } else {
+//       // 否则全部展开
+//       expandedReplies.value = [...allCommentsWithReplies];
+//       // 确保加载所有评论的所有回复
+//       allCommentsWithReplies.forEach(commentId => {
+//         loadAllRepliesForComment(commentId);
+//       });
+//     }
+//   }
+// };
 
 // 获取是否全部展开状态
-const areAllRepliesExpanded = computed(() => {
-  if (!selectedBlog.value || !selectedBlog.value.comments) return false;
+// const areAllRepliesExpanded = computed(() => {
+//   if (!selectedBlog.value || !selectedBlog.value.comments) return false;
 
-  const commentsWithReplies = selectedBlog.value.comments
-    .filter(comment => comment.replies && comment.replies.length > 0);
+//   const commentsWithReplies = selectedBlog.value.comments
+//     .filter(comment => comment.replies && comment.replies.length > 0);
 
-  if (commentsWithReplies.length === 0) return false;
+//   if (commentsWithReplies.length === 0) return false;
 
-  return commentsWithReplies.every(comment =>
-    expandedReplies.value.includes(comment.id)
-  );
-});
+//   return commentsWithReplies.every(comment =>
+//     expandedReplies.value.includes(comment.id)
+//   );
+// });
 
 // 获取回复对象用户名
-const getReplyTargetName = (comment: any) => {
-  if (!selectedBlog.value || !selectedBlog.value.comments) return '';
+// const getReplyTargetName = (comment: any) => {
+//   if (!selectedBlog.value || !selectedBlog.value.comments) return '';
 
-  // 查找原始评论的用户名
-  const originalComment = selectedBlog.value.comments.find(c => c.id === comment.parent_id);
-  return originalComment ? originalComment.user.name : '';
-};
+//   // 查找原始评论的用户名
+//   const originalComment = selectedBlog.value.comments.find(c => c.id === comment.parent_id);
+//   return originalComment ? originalComment.user.name : '';
+// };
 
 // 添加回复目标状态
 const replyTarget = ref<{id: number, type: 'comment' | 'reply', parentId?: number} | null>(null);
@@ -768,7 +771,7 @@ const expandReplies = async (commentId: number|undefined) => {
         class="welcome-text"
       />
       <BlurText
-        text="To Explore, To Share, To Earn"
+        text="To Explore, To Share, To Earn [Beta For internal iPoloGO members only.]"
         delay={180}
         animateBy="words"
         direction="bottom"
@@ -813,7 +816,8 @@ const expandReplies = async (commentId: number|undefined) => {
               :label="destination.label" :value="destination.value" />
             </el-select>
             <div class="ld-info">
-              <img v-if="destinationFlag" :src="destinationFlag" alt="Destination Flag" class="flag" />
+              <img v-if="destinationFlag" :src="destinationFlag" 
+              alt="Destination Flag" class="flag" />
               <div class="location-info">
                 <span class="location-name">{{ userDestination }}</span>
                 <div class="weather-info" v-if="destinationWeather">

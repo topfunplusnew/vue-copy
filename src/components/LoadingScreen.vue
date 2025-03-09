@@ -41,7 +41,7 @@ onMounted(() => {
       <div class="loading-spinner">
         <div class="spinner-circle"></div>
       </div>
-      <div class="loading-text">Loading your experience...</div>
+      <div class="loading-text">...</div>
     </div>
   </div>
 </template>
