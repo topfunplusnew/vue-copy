@@ -61,7 +61,7 @@ const stats = ref([
   { value: '10K+', label: 'Active Users' },
   { value: '50K+', label: 'Itineraries Created' },
   { value: '120+', label: 'Countries Covered' },
-  { value: '1M+', label: 'iPoloCoins Earned' }
+  // { value: '1M+', label: 'iPoloCoins Earned' }
 ]);
 
 // FAQ 数据
@@ -126,7 +126,6 @@ const faqs = ref([
           </div>
           <div class="about-feature-title">{{ feature.title }}</div>
           <div class="feature-description-about">{{ feature.description }}</div>
-          <div class="feature-overlay-about"></div>
         </div>
       </div>
     </div>
