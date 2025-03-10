@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import PostPreview from '@/views/trip/PostPreview.vue';
 import { Plus } from '@element-plus/icons-vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage, ElMessageBox, type UploadFile } from 'element-plus';
 import { Auth } from '@/services/auth';
 import { useBlogStore } from '@/stores/blog';
 import commonHeader from '@/layout/common-header.vue';
@@ -18,7 +18,6 @@ const commentPermission = computed(() => store.commentPermission); // 评论权�
 // 响应式数据
 const postText = ref('');
 const postTitle = ref('');
-const selectedReplyOption = ref<string>('everyone');
 const images = ref<{ url: string; src: string }[]>([]);
 const tagInput = ref('');
 const tags = ref<string[]>([]);
@@ -29,7 +28,6 @@ const auth = new Auth();
 
 
 // 添加选中偏好的响应式数据
-const selectedOptions = ref<number[]>([]);
 
 // 添加切换偏好的方法
 const togglePreference = (id: number) => {
@@ -89,7 +87,7 @@ const handlePreviewClick = () => {
 };
 
 // 修改图片上传处理
-const handleImageUpload = async (file: any) => {
+const handleImageUpload = async (file: UploadFile) => {
   if (!checkLogin()) {
     try {
       await showLoginConfirm();
@@ -108,17 +106,13 @@ const handleImageUpload = async (file: any) => {
     });
     return;
   }
-
-  try {
-    const data:any = await store.userPostimage(file);
-    if (data && data.success) {
-      ElMessage({
-        message: 'Image uploaded successfully',
-        type: 'success',
-        duration: 2000,
-      });
-    }
-  } catch (error: any) {
+  store.userPostimage(file).then(() =>{
+    ElMessage({
+      message: 'Image uploaded successfully',
+      type: 'success',
+      duration: 2000,
+    });
+  }).catch(error =>{
     if (error.response?.status === 401) {
       ElMessage({
         message: 'Please login first',
@@ -133,7 +127,7 @@ const handleImageUpload = async (file: any) => {
       type: 'error',
       duration: 2000,
     });
-  }
+  })
 };
 
 const removeImage = (index: number) => {
@@ -141,7 +135,8 @@ const removeImage = (index: number) => {
 };
 
 // 修改：标签处理函数
-const handleTagInput = (event: KeyboardEvent) => {
+const handleTagInput = (evt: Event|KeyboardEvent) => {
+  const event = evt as KeyboardEvent;
   if (event.key === 'Enter' || event.key === ' ') {
     event.preventDefault();
     const value = tagInput.value.trim();
@@ -192,33 +187,23 @@ const postTweet = async () => {
     ElMessage.warning('Please add title and content');
     return;
   }
-
-  try {
-    // 添加发布确认弹窗
-    await ElMessageBox.confirm('Are you sure you want to publish this blog?', 'Confirm Publication', {
-      confirmButtonText: 'Publish',
-      cancelButtonText: 'Continue Editing',
-      type: 'info',
-    });
-
-
+  ElMessageBox.confirm('Are you sure you want to publish this blog?', 'Confirm Publication', {
+    confirmButtonText: 'Publish',
+    cancelButtonText: 'Continue Editing',
+    type: 'info',
+  }).then(() =>{
     createData.value.tags = tags.value;
-
-    await store.userPostblog();
-    ElMessage.success('Blog posted successfully');
-    router.push({ name: 'userpage' });
-  } catch (error: any) {
-    if (error.message === 'cancel') {
-      // 用户选择继续编辑
-      return;
-    }
-    if (error.response?.status === 401) {
-      ElMessage.error('Session expired, please login again');
-      router.push({ name: 'login' });
-      return;
-    }
-    ElMessage.error('Failed to post blog');
-  }
+    store.userPostblog().then(() =>{
+      ElMessage.success('Blog posted successfully');
+      router.push({ name: 'userpage' });
+    }).catch(error =>{
+      if (error.response?.status === 401) {
+        ElMessage.error('Session expired, please login again');
+        router.push({ name: 'login' });
+      }
+      ElMessage.error('Failed to post blog');
+    });
+  });
 };
 
 // 添加计算属性来判断是否可以预览
@@ -227,11 +212,6 @@ const canPreview = computed(() => {
 });
 
 // 修改预览函数
-const previewPost = () => {
-  if (canPreview.value) {
-    showPreview.value = true;
-  }
-};
 
 // 添加关闭预览的函数
 const closePreview = () => {
@@ -248,12 +228,8 @@ const addTag = () => {
 };
 
 // 添加导航菜单状态管理
-const menuActive = ref(false);
 
 // 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
-};
 
 onMounted(async () => {
   await store.getSocialFilter();

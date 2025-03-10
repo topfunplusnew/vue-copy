@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { ref, onMounted, computed, nextTick } from 'vue';
 
 const props = defineProps({
@@ -34,17 +34,10 @@ const elements = computed(() => {
   return props.animateBy === 'words' ? props.text.split(' ') : props.text.split('');
 });
 
-const visible = ref(false);
-const observer = ref(null);
+const observer = ref();
 const textRef = ref(null);
-const completedAnimations = ref(0);
 
 // 设置元素初始状态
-const initialStyles = computed(() => {
-  return props.direction === 'top'
-    ? 'opacity: 0; filter: blur(10px); transform: translate3d(0, -50px, 0);'
-    : 'opacity: 0; filter: blur(10px); transform: translate3d(0, 50px, 0);';
-});
 
 // 使用CSS动画替代JavaScript计时器
 const animationStarted = ref(false);
@@ -52,7 +45,7 @@ const animationStarted = ref(false);
 // 更简化的动画触发函数
 const startAnimation = () => {
   animationStarted.value = true;
-  
+
   // 使用单个setTimeout来触发完成事件，而不是为每个元素都设置一个
   const totalDuration = elements.value.length * props.delay + 500; // 添加额外时间确保完成
   setTimeout(() => {
@@ -67,16 +60,16 @@ onMounted(() => {
       startAnimation();
       return;
     }
-    
+
     observer.value = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting && !animationStarted.value) {
         startAnimation();
-        
+
         // 取消观察
         observer.value.disconnect();
       }
     });
-    
+
     observer.value.observe(textRef.value);
   });
 });
@@ -84,8 +77,8 @@ onMounted(() => {
 
 <template>
   <p :class="`blur-text ${className}`" ref="textRef">
-    <span 
-      v-for="(element, index) in elements" 
+    <span
+      v-for="(element, index) in elements"
       :key="index"
       class="blur-text-element"
       :class="{ 'animate': animationStarted }"
@@ -154,4 +147,4 @@ onMounted(() => {
     transform: translate3d(0, 0px, 0);
   }
 }
-</style> 
+</style>

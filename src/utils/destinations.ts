@@ -1,4 +1,4 @@
-export const destinations = [
+export const destinations:{label:string, value:string, flagUrl?:string}[] = [
   { label: 'Amsterdam', value: 'Amsterdam' },
   { label: 'Athens', value: 'Athens' },
   { label: 'Auckland', value: 'Auckland' },

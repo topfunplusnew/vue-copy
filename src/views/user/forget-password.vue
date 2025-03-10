@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
 
@@ -27,19 +27,19 @@ const passwordRequirements = reactive({
 const checkPasswordStrength = () => {
   let strength = 0;
   const password = editForm.password;
-  
+
   passwordRequirements.length = password.length >= 8;
   if (passwordRequirements.length) strength += 1;
-  
+
   passwordRequirements.uppercase = /[A-Z]/.test(password);
   if (passwordRequirements.uppercase) strength += 1;
-  
+
   passwordRequirements.number = /[0-9]/.test(password);
   if (passwordRequirements.number) strength += 1;
-  
+
   passwordRequirements.special = /[^A-Za-z0-9]/.test(password);
   if (passwordRequirements.special) strength += 1;
-  
+
   passwordStrength.value = strength;
 };
 
@@ -67,7 +67,7 @@ const handleSubmit = async () => {
     if (!passwordRequirements.uppercase) missingRequirements.push('uppercase letter');
     if (!passwordRequirements.number) missingRequirements.push('number');
     if (!passwordRequirements.special) missingRequirements.push('special character');
-    
+
     errorMessage.value = `Password is too weak. Please include: ${missingRequirements.join(', ')}`;
     return;
   }
@@ -79,7 +79,7 @@ const handleSubmit = async () => {
     successMessage.value = 'Password reset successfully!';
     errorMessage.value = '';
     ElMessage.success('Password reset email has been sent!');
-  } catch (error) {
+  } catch {
     errorMessage.value = 'Failed to reset password. Please try again.';
   } finally {
     isLoading.value = false;
@@ -91,12 +91,12 @@ const sendConfirmationEmail = async () => {
     errorMessage.value = 'Please enter your email address.';
     return;
   }
-  
+
   try {
     // TODO: 实现发送确认邮件的逻辑
     await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟API调用
     ElMessage.success('Confirmation email sent successfully!');
-  } catch (error) {
+  } catch {
     ElMessage.error('Failed to send confirmation email.');
   }
 };
@@ -135,29 +135,29 @@ const sendConfirmationEmail = async () => {
 
         <div class="form-group-forget">
           <label for="username">Username</label>
-          <input 
-            type="text" 
-            id="username" 
-            v-model="editForm.username" 
+          <input
+            type="text"
+            id="username"
+            v-model="editForm.username"
             placeholder="Enter your username"
-            required 
+            required
           />
         </div>
 
         <div class="form-group-forget">
           <label for="email">Email</label>
-          <input 
-            type="email" 
-            id="email" 
-            v-model="editForm.email" 
+          <input
+            type="email"
+            id="email"
+            v-model="editForm.email"
             placeholder="Enter your email address"
-            required 
+            required
           />
         </div>
 
-        <button 
-          type="button" 
-          class="confirm-email-button" 
+        <button
+          type="button"
+          class="confirm-email-button"
           @click="sendConfirmationEmail"
           :disabled="!editForm.email"
         >
@@ -178,8 +178,8 @@ const sendConfirmationEmail = async () => {
         </div>
         <div class="password-strength-signup">
           <div class="strength-meter-signup">
-            <div 
-              class="strength-bar-signup" 
+            <div
+              class="strength-bar-signup"
               :style="{ width: `${passwordStrength * 25}%` }"
               :class="{
                 'weak': passwordStrength === 1,
@@ -198,7 +198,7 @@ const sendConfirmationEmail = async () => {
           <label for="password_confirm">Confirm Password</label>
           <el-input
             v-model="editForm.password_confirm"
-            type="password" 
+            type="password"
             id="password_confirm"
             placeholder="Confirm your new password"
             show-password
@@ -227,7 +227,7 @@ const sendConfirmationEmail = async () => {
   margin-left: 155px;
   margin-bottom: 20px;
   width: 76%;
-  
+
   .strength-meter-signup {
     height: 4px;
     background-color: rgba(255, 255, 255, 0.1);
@@ -235,28 +235,28 @@ const sendConfirmationEmail = async () => {
     overflow: hidden;
     margin-bottom: 5px;
   }
-  
+
   .strength-bar-signup {
     height: 100%;
     transition: all 0.3s ease;
-    
+
     &.weak {
       background-color: #ff4d4d;
     }
-    
+
     &.medium {
       background-color: #ffaa00;
     }
-    
+
     &.strong {
       background-color: #2ecc71;
     }
-    
+
     &.very-strong {
       background-color: #00ff6a;
     }
   }
-  
+
   .strength-text-signup {
     display: block;
     margin-top: 4px;

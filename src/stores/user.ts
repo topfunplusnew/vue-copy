@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { userLogin, userProfile, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPost, IBlogEdit } from '@/types/blog';
+import { auth } from '@/services/http';
 
 export const useUserStore = defineStore('user', () => {
   // 状态
@@ -14,6 +15,7 @@ export const useUserStore = defineStore('user', () => {
 
   // 计算属性
   const totalLikes = computed(() => userPosts.value.reduce((sum, post) => sum + post.likes, 0));
+
 
   /**
    * 登录
@@ -32,6 +34,9 @@ export const useUserStore = defineStore('user', () => {
           reject(e);
         });
     });
+  }
+  function isLogin() {
+    return auth.get() && user.value;
   }
 
   /**
@@ -189,6 +194,7 @@ export const useUserStore = defineStore('user', () => {
     totalLikes,
     // Actions
     login,
+    isLogin,
     logout,
     getUserInfo,
     editUserInfo,

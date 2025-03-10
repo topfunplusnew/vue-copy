@@ -22,8 +22,8 @@ export interface IUserSignup {
 }
 
 export interface IUserEdit {
-  name: string; // 可以修改用户名
-  avatar: string; // 可以修改用户头像
+  name?: string; // 可以修改用户名
+  avatar?: string; // 可以修改用户头像
   email?: string;
   password?: string;
 }

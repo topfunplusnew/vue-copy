@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import walletItem from '@/components/wallet-item.vue';
 import { useBlogStore } from '@/stores/blog';
 import { usecomponentsStore } from '@/stores/components';
-import { ElMessageBox, ElMessage, useTransitionFallthrough } from 'element-plus';
-import { Auth } from '@/services/auth';
+import { ElMessageBox, ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import BlurText from '@/components/BlurText.vue';
 import LoadingScreen from '@/components/LoadingScreen.vue';
 import commonHeader from '@/layout/common-header.vue';
 
-// 引入定位和天气 
-import { destinations } from '@/assets/destinations';
+// 引入定位和天气
+import { destinations } from '@/utils/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
@@ -33,7 +31,6 @@ const errorMessage = ref('');
 
 const store = useBlogStore();
 const router = useRouter();
-const auth = new Auth();
 const componentsStore = usecomponentsStore();
 const userStore = useUserStore();
 
@@ -42,14 +39,8 @@ const originWeatherIcon = computed(() => componentsStore.originWeatherIcon);
 const destinationWeather = computed(() => componentsStore.destinationWeather);
 const destinationWeatherIcon = computed(() => componentsStore.destinationWeatherIcon);
 
-const preferenceOptions = ref([
-  { name: 'Sightseeing', icon: '🌆' },
-  { name: 'Educational', icon: '🎓' },
-  { name: 'Business', icon: '💼' },
-  { name: 'Medical', icon: '🏥' },
-  { name: 'Cuisine', icon: '🍴' },
-  { name: 'Culture', icon: '🎭' },
-]);
+const socialFilters = computed(() => store.socialFilters); // 社会过滤器
+
 
 // 用户选择的旅游偏好
 const selectedOptions = ref<string[]>([]);
@@ -155,15 +146,13 @@ const currentPage = ref(1);
 const isLoadingMore = ref(false);
 const hasMoreBlogs = ref(true);
 const bottomTrigger = ref(null);
-const observer = ref(null);
+const observer = ref();
 
 onMounted(() => {
+  store.getSocialFilter();
   // 页面载入时，自动获取一次定位和加载博客列表
   store.getBlogList();
   handleLocationClick();
-  if (auth.get() && !userStore.user) {
-    userStore.getUserInfo();
-  }
 
   // 确保页面始终会显示 - 安全机制
   setTimeout(() => {
@@ -213,7 +202,7 @@ const showBlogDetail = async (id: number) => {
 
   try {
     // 添加参数指示后端返回所有回复，不分页
-    await store.getBlogByID(id, { includeAllReplies: true });
+    await store.getBlogByID(id);
     dialogBlog.value = true;
 
     // 重置评论区状态
@@ -243,17 +232,6 @@ const closeBlogDetail = () => {
   newComment.value = '';
 };
 
-const socialFilters = ref([
-  { label: 'Star', icon: '⭐' },
-  { label: 'Most Popular', icon: '🔥' },
-  { label: 'NFT', icon: '🖼️' },
-  { label: 'Sightseeing', icon: '🌇' },
-  { label: 'Educational', icon: '🎓' },
-  { label: 'Business', icon: '💼' },
-  { label: 'Medical', icon: '🏥' },
-  { label: 'Cuisine', icon: '🍴' },
-  { label: 'Culture', icon: '🎭' },
-]);
 
 const selectedFilters = ref<string[]>([]);
 const isFilterMenuOpen = ref(false);
@@ -272,37 +250,7 @@ const toggleFilterMenu = () => {
 
 const searchQuery = ref('');
 
-// 修改：确保使用 userPosts.value  // Modified
-const filteredPosts = computed(() => {
-  let posts = allPosts.value;
-  const query = searchQuery.value.toLowerCase().trim();
 
-  // 先应用搜索过滤
-  if (query) {
-    posts = posts.filter((post) => {
-      const titleMatch = post.title.toLowerCase().includes(query);
-      const contentMatch = post.content.toLowerCase().includes(query);
-      const locationMatch = post.location?.toLowerCase().includes(query);
-      const tagMatch = post.tags.some((tag) => tag.toLowerCase().includes(query));
-      const userMatch = post.user.name.toLowerCase().includes(query);
-      return titleMatch || contentMatch || locationMatch || tagMatch || userMatch;
-    });
-  }
-
-  // 再应用标签过滤
-  if (selectedFilters.value.length === 0) {
-    return posts;
-  }
-  if (selectedFilters.value.includes('Recommendation')) {
-    return posts;
-  } else if (selectedFilters.value.includes('Most Popular')) {
-    return [...posts].sort((a, b) => b.likes - a.likes);
-  } else if (selectedFilters.value.includes('NFT')) {
-    return posts.filter((post) => post.isNFT);
-  } else {
-    return posts.filter((post) => post.tags.some((tag) => selectedFilters.value.includes(tag)));
-  }
-});
 
 const postsToShow = ref(12);
 
@@ -313,22 +261,17 @@ function handleSearch(event: KeyboardEvent) {
   }
 }
 
-const handlePostClick = async () => {
-  if (!auth.get()) {
-    try {
-      await ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
-        confirmButtonText: 'Go to Login',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-      });
-      router.push({ name: 'login' });
-    } catch {
-      // 用户点击取消
-      return;
-    }
-  } else {
-    // 已登录，直接跳转到发布页面
+const handlePostClick = () => {
+  if (userStore.isLogin()) {
     router.push({ name: 'PostView' });
+  } else {
+    ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
+      confirmButtonText: 'Go to Login',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }).then(() =>{
+      router.push({ name: 'login' });
+    });
   }
 };
 
@@ -356,7 +299,7 @@ watch(() => selectedBlog.value, (newBlog) => {
   // 如果选中了博客且不是自己的博客，则检查关注状态
   if (newBlog && newBlog.user && !isOwnPost.value) {
     // 这里可以调用API检查是否已关注
-    checkFollowStatus(newBlog.user.id);
+    if(newBlog.user.id) checkFollowStatus(newBlog.user.id);
   } else {
     // 自己的博客或无博客选中，重置关注状态
     isFollowing.value = false;
@@ -364,7 +307,7 @@ watch(() => selectedBlog.value, (newBlog) => {
 }, { immediate: true });
 
 // 添加一个函数来检查关注状态
-const checkFollowStatus = async (userId) => {
+const checkFollowStatus = async (userId:number) => {
   try {
     // 假设API返回一个布尔值表示是否已关注
     const isFollowed = await userStore.isFollowing(userId);
@@ -376,7 +319,7 @@ const checkFollowStatus = async (userId) => {
 };
 
 // 修复关注/取消关注功能的逻辑
-const handleFollowClick = async (id) => {
+const handleFollowClick = async (id:number|undefined) => {
   if (!id) return;
   try {
     if (isFollowing.value) {
@@ -391,6 +334,7 @@ const handleFollowClick = async (id) => {
       ElMessage.success('Following successfully');
     }
   } catch (error) {
+    console.log(error);
     ElMessage.error('Failed to update following status');
   }
 };
@@ -419,23 +363,20 @@ const submitComment = async () => {
   if (!selectedBlog.value?.id) return;
 
   // 检查用户是否已登录
-  if (!auth.get()) {
-    try {
-      await ElMessageBox.confirm(
-        'You need to login first to comment. Would you like to login now?',
-        'Login Required',
-        {
-          confirmButtonText: 'Go to Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning',
-        }
-      );
+  if (userStore.isLogin()) {
+    //
+  }else {
+    ElMessageBox.confirm(
+      'You need to login first to comment. Would you like to login now?',
+      'Login Required',
+      {
+        confirmButtonText: 'Go to Login',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+    ).then(() =>{
       router.push({ name: 'login' });
-    } catch {
-      // 用户点击取消
-      return;
-    }
-    return;
+    })
   }
 
   store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
@@ -463,7 +404,7 @@ const submitComment = async () => {
 };
 
 const scrollToComments = () => {
-  const commentsSection = document.querySelector('.comments-container-home');
+  const commentsSection = document.querySelector('.comments-container-home') as HTMLElement;
   const detailRight = document.querySelector('.detail-right-home');
 
   if (commentsSection && detailRight) {
@@ -482,13 +423,7 @@ function handleImageError(event: Event) {
   target.classList.add('image-error');
 }
 
-// 导航菜单状态
-const menuActive = ref(false);
 
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
-};
 
 // 处理动画完成
 const handleAnimationComplete = () => {
@@ -538,10 +473,11 @@ const isSubmittingReply = ref(false);
 const expandedReplies = ref<number[]>([]);
 
 // 添加回复目标状态
-const replyTarget = ref<{id: number, type: 'comment' | 'reply', parentId?: number} | null>(null);
+const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
 
 // 切换回复输入框显示状态
-const toggleReplyInput = (id: number, type: string = 'comment', parentId?: number) => {
+const toggleReplyInput = (id: number|undefined, type: string = 'comment', parentId?: number) => {
+  if (!id) return;
   // 如果当前已经是在回复这个评论/回复，则关闭回复框
   if (replyTarget.value &&
       replyTarget.value.id === id &&
@@ -586,14 +522,11 @@ const submitReply = async () => {
 
   isSubmittingReply.value = true;
   try {
-    // 根据回复类型确定正确的父评论ID
-    const commentId = replyTarget.value?.type === 'comment'
-      ? replyTarget.value.id
-      : replyTarget.value?.parentId;
 
-    await store.commenttoComment(replyTarget.value.id, replyContent.value);
+
+    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
     ElMessage.success('Reply added successfully');
-    store.getBlogByID(selectedBlog.value?.id);
+    if(selectedBlog.value?.id)store.getBlogByID(selectedBlog.value?.id);
     replyTarget.value = null;
     replyContent.value = '';
   } catch (error) {
@@ -608,13 +541,6 @@ const submitReply = async () => {
 const expandedComments = ref<number[]>([]);
 
 // 决定显示哪些回复 - 默认只显示前2条
-const displayedReplies = (comment: any) => {
-  if (expandedComments.value.includes(comment.id)) {
-    return comment.replies; // 如果已展开，显示所有回复
-  } else {
-    return comment.replies.slice(0, 2); // 否则只显示前2条
-  }
-};
 
 // 展开查看所有回复
 const expandReplies = async (commentId: number|undefined) => {
@@ -639,17 +565,17 @@ const expandReplies = async (commentId: number|undefined) => {
   <div class="home" :class="{ 'content-visible': !isLoading }">
     <common-header />
     <section class="welcome-section">
-      <BlurText
+      <blur-text
         text="Welcome to iPoloGO"
-        delay={180}
+        :delay="180"
         animateBy="words"
         direction="top"
         @animation-complete="handleAnimationComplete"
         class="welcome-text"
       />
-      <BlurText
+      <blur-text
         text="To Explore, To Share, To Earn [Beta For internal iPoloGO members only.]"
-        delay={180}
+        :delay="180"
         animateBy="words"
         direction="bottom"
         class="welcome-text2"
@@ -692,7 +618,7 @@ const expandReplies = async (commentId: number|undefined) => {
               :label="destination.label" :value="destination.value" />
             </el-select>
             <div class="ld-info">
-              <!-- <img v-if="destinationFlag" :src="destinationFlag" 
+              <!-- <img v-if="destinationFlag" :src="destinationFlag"
               alt="Destination Flag" class="flag" /> -->
               <div class="location-info">
                 <div class="weather-info" v-if="destinationWeather">
@@ -708,9 +634,9 @@ const expandReplies = async (commentId: number|undefined) => {
 
         <!-- 旅游偏好  -->
         <div class="preference-options">
-          <span v-for="option in preferenceOptions" :key="option.name" 
+          <span v-for="option in socialFilters" :key="option.name"
           class="preference-option"
-          :class="{ selected: selectedOptions.includes(option.name) }" 
+          :class="{ selected: selectedOptions.includes(option.name) }"
           @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
@@ -734,9 +660,9 @@ const expandReplies = async (commentId: number|undefined) => {
           <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
           <div class="social-header-controls">
             <!-- 搜索框 -->
-            <input type="text" v-model="searchQuery" 
+            <input type="text" v-model="searchQuery"
             placeholder="Explore Anything..."
-            class="search-input-home" 
+            class="search-input-home"
             @keydown="handleSearch" />
 
             <!-- 筛选选项汉堡菜单按钮 (移动端显示) -->
@@ -750,17 +676,17 @@ const expandReplies = async (commentId: number|undefined) => {
             <div class="social-filter-panel-horizontal" :class="{ 'expanded': isFilterMenuOpen }">
               <button
                 v-for="item in socialFilters"
-                :key="item.label"
-                :class="{ active: selectedFilters.includes(item.label) }"
-                @click="toggleSocialFilter(item.label)"
+                :key="item.id"
+                :class="{ active: selectedFilters.includes(item.name) }"
+                @click="toggleSocialFilter(item.name)"
               >
                 <span class="filter-icon">{{ item.icon }}</span>
-                <span class="filter-label">{{ item.label }}</span>
+                <span class="filter-label">{{ item.name }}</span>
               </button>
             </div>
 
             <!-- Post按钮 -->
-            <el-button class="custom-post-button" 
+            <el-button class="custom-post-button"
             @click="handlePostClick">Post</el-button>
           </div>
         </div>
@@ -770,7 +696,7 @@ const expandReplies = async (commentId: number|undefined) => {
 
         <!-- 博客展示区域 -->
         <div class="social-scroll">
-          <div class="social-posts-panel" ref="postsPanel" 
+          <div class="social-posts-panel" ref="postsPanel"
           style="overflow-y: auto; max-height: none;">
             <div
               class="social-post-home"
@@ -826,7 +752,7 @@ const expandReplies = async (commentId: number|undefined) => {
     </main>
 
     <!-- 搜索结果为空提示 -->
-    <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
+    <div v-if="searchQuery && allPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
 
 
   <!-- 博客详情弹出层 -->
@@ -1014,7 +940,7 @@ const expandReplies = async (commentId: number|undefined) => {
                   <span class="target-name">@{{
                     replyTarget.type === 'comment'
                       ? comment.user.name
-                      : comment.replies.find(r => r.id === replyTarget.id)?.user.name
+                      : comment.replies.find(r => r.id === replyTarget?.id)?.user.name
                   }}</span>
                 </div>
                 <el-input
@@ -1049,7 +975,7 @@ const expandReplies = async (commentId: number|undefined) => {
       </div>
     </div>
   </div>
-  <div v-if="searchQuery && filteredPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
+  <div v-if="searchQuery && allPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
 </div>
 </template>
 

@@ -4,12 +4,10 @@ import type { IBlogPost } from '@/types/blog';
 import macauImg from '@/assets/macau.jpg';
 
 // 生成随机数的辅助函数
-const randomInt = (min: number, max: number) => 
+const randomInt = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 // 随机选择数组中的一个元素
-const randomPick = <T>(arr: T[]): T => 
-  arr[Math.floor(Math.random() * arr.length)];
 
 // 标签列表
 const tags = ['Sightseeing', 'Educational', 'Business', 'Medical', 'Gastronomy', 'Culture'];

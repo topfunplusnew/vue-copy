@@ -11,7 +11,7 @@
       ></div>
     </div>
   </template>
-  
+
   <script>
   export default {
     data() {
@@ -73,7 +73,7 @@
     },
   };
   </script>
-  
+
   <style scoped>
   .drag {
     position: relative;

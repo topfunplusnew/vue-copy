@@ -42,12 +42,12 @@ export const useBlogStore = defineStore('blog', () => {
     const formData = new FormData();
     if(file.raw) formData.append('files', file.raw);
     return new Promise((resolve, reject) => {
-      Postimage({ image: formData }).then(({data}) => {
-        const arr = data.success as string[];
+      Postimage({ image: formData }).then(res => {
+        const arr = res.data.success as string[];
         for (const url of arr) {
           createData.value.image.push(url);
         }
-        resolve(data);
+        resolve(res);
       }).catch((e) => {
         reject(e);
       });

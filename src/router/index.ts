@@ -44,37 +44,18 @@ const router = createRouter({
     {
       path: '/forgetpassword',
       name: 'forgetpassword',
-      component: () => import('@/views/user/Forgetpassword.vue'),
+      component: () => import('@/views/user/forget-password.vue'),
     },
     {
       path: '/userpage',
       name: 'userpage',
-      component: () => import('@/views/user/userpage.vue'),
+      component: () => import('@/views/user/user-page.vue'),
     },
     {
       path: '/generator',
       name: 'generator',
       component: () => import('@/views/chat/trip-generator.vue'),
-    },
-    // {
-    //   path: '/blog2',
-    //   name: 'blog2',
-    //   component: () => import('@/views/trip/bloglist.vue')
-    // },
-    {
-      path: '/trip',
-      name: 'trip',
-      redirect: { name: 'tripid', params: { id: 1 } },
-      component: () => import('@/views/trip/trip-layout.vue'),
-      children: [
-        {
-          path: '/trip/:id',
-          name: 'tripid',
-          component: () => import('@/views/trip/trip-main.vue'),
-          props: true,
-        },
-      ],
-    },
+    }
   ],
 });
 

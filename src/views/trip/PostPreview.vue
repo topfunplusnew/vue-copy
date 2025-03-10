@@ -7,7 +7,7 @@
 
       <!-- 放大 Preview 标签 -->
       <div class="preview-label">Preview</div>
-      
+
       <!-- 左侧内容区域 -->
       <div class="detail-left">
         <!-- 顶部信息栏 -->
@@ -31,24 +31,24 @@
         <div class="image-section" v-if="images.length">
           <div class="image-slider">
             <div class="image-wrapper" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
-              <img 
-                v-for="(image, index) in images" 
+              <img
+                v-for="(image, index) in images"
                 :key="index"
                 :src="getImageUrl(image)"
-                alt="Blog Image" 
+                alt="Blog Image"
                 class="detail-image"
               />
             </div>
-            
+
             <!-- 添加导航按钮 -->
-            <button 
-              v-if="images.length > 1" 
-              class="nav-btn prev" 
+            <button
+              v-if="images.length > 1"
+              class="nav-btn prev"
               @click.stop="prevImage"
             >❮</button>
-            <button 
-              v-if="images.length > 1" 
-              class="nav-btn next" 
+            <button
+              v-if="images.length > 1"
+              class="nav-btn next"
               @click.stop="nextImage"
             >❯</button>
 
@@ -146,23 +146,8 @@ const nextImage = () => {
   }
 };
 
-const showLargeImage = (imageUrl: string) => {
-  // 可以在这里添加点击图片放大的逻辑
-  console.log('Show large image:', imageUrl);
-}
 
 // 添加图标映射函数
-const getPreferenceIcon = (preference: string): string => {
-  const iconMap: { [key: string]: string } = {
-    'Sightseeing': '🌆',
-    'Educational': '🎓',
-    'Business': '💼',
-    'Medical': '🏥',
-    'Gastronomy': '🍴',
-    'Culture': '🎭'
-  };
-  return iconMap[preference] || '';
-};
 </script>
 
 <style lang="scss">

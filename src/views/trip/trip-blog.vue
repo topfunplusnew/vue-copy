@@ -4,11 +4,9 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { ElMessage } from 'element-plus';
 import { getImageUrl } from '@/utils';
-import IconTooling from '@/components/icons/IconTooling.vue';
 import walletItem from '@/components/wallet-item.vue';
 import { blogPosts } from '@/data/blogpost.ts'; // 确保路径正确
-import LoginButton from '@/components/login-button.vue';
-import UserPage from '../user/userpage.vue';  // 从 '../trip/userpage.vue' 改为 '../user/userpage.vue'
+import { formatDate } from '@/utils/date';
 
 const msg = 'Our Latest Blog';
 const posts = ref(blogPosts);
@@ -36,19 +34,9 @@ const handleLoginClick = () => {
   router.push({ name: 'login' });
 };
 
-// 格式化日期
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  });
-};
 
 // 截断文本
-const truncateText = (text, maxLength) => {
+const truncateText = (text:string, maxLength:number) => {
   if (!text) return '';
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + '...';
@@ -57,25 +45,24 @@ const truncateText = (text, maxLength) => {
 // 计算属性：过滤和排序后的帖子
 const filteredPosts = computed(() => {
   let result = [...posts.value];
-  
+
   // 应用搜索过滤
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
-    result = result.filter(post => 
+    result = result.filter(post =>
       post.title.toLowerCase().includes(query) ||
-      post.content.toLowerCase().includes(query) ||
-      post.author.toLowerCase().includes(query) ||
+      post.content?.toLowerCase().includes(query) ||
       post.categories.some(cat => cat.toLowerCase().includes(query))
     );
   }
-  
+
   // 应用类别过滤
   if (filterCategory.value) {
-    result = result.filter(post => 
+    result = result.filter(post =>
       post.categories.includes(filterCategory.value)
     );
   }
-  
+
   // 应用排序
   if (sortOption.value === 'newest') {
     result.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -84,16 +71,11 @@ const filteredPosts = computed(() => {
   } else if (sortOption.value === 'popular') {
     result.sort((a, b) => (b.views || 0) - (a.views || 0));
   }
-  
+
   return result;
 });
 
 // 计算属性：分页后的帖子
-const paginatedPosts = computed(() => {
-  const start = 0;
-  const end = currentPage.value * pageSize.value;
-  return filteredPosts.value.slice(start, end);
-});
 
 // 计算是否有更多帖子
 const hasMorePosts = computed(() => {
@@ -126,20 +108,16 @@ const showBlogDetail = (post) => {
   isLiked.value = false; // 重置点赞状态
   likeCount.value = post.likes || 0;
   newComment.value = ''; // 清空评论
-  
+
   // 检查是否已关注作者
   checkFollowStatus(post.authorId);
 };
 
-const closeBlogDetail = () => {
-  selectedPost.value = null;
-  dialogVisible.value = false;
-};
 
 // 加载更多帖子
 const loadMorePosts = async () => {
   if (isLoadingMore.value || !hasMorePosts.value) return;
-  
+
   isLoadingMore.value = true;
   // 模拟加载延迟
   await new Promise(resolve => setTimeout(resolve, 800));
@@ -153,7 +131,7 @@ const checkFollowStatus = async (userId) => {
     isFollowing.value = false;
     return;
   }
-  
+
   try {
     // 此处应调用实际API来检查关注状态
     // 暂时使用模拟数据
@@ -169,7 +147,7 @@ const handleFollowClick = async (userId) => {
     ElMessage.warning('Please login to follow users');
     return;
   }
-  
+
   try {
     if (isFollowing.value) {
       await userStore.unfollow(userId);
@@ -180,7 +158,7 @@ const handleFollowClick = async (userId) => {
       isFollowing.value = true;
       ElMessage.success('Following successfully');
     }
-  } catch (error) {
+  } catch {
     ElMessage.error('Failed to update following status');
   }
 };
@@ -191,10 +169,10 @@ const toggleLike = () => {
     ElMessage.warning('Please login to like posts');
     return;
   }
-  
+
   isLiked.value = !isLiked.value;
   likeCount.value += isLiked.value ? 1 : -1;
-  
+
   // 应该发送API请求更新点赞状态
   // 暂时只是前端模拟
 };
@@ -214,11 +192,11 @@ const submitComment = () => {
     ElMessage.warning('Please login to comment');
     return;
   }
-  
+
   if (!newComment.value.trim()) {
     return;
   }
-  
+
   // 创建新评论对象
   const comment = {
     id: Date.now(),
@@ -229,16 +207,16 @@ const submitComment = () => {
     likes: 0,
     isLiked: false
   };
-  
+
   // 添加到评论列表
   if (!selectedPost.value.comments) {
     selectedPost.value.comments = [];
   }
   selectedPost.value.comments.push(comment);
-  
+
   // 清空输入
   newComment.value = '';
-  
+
   ElMessage.success('Comment posted successfully');
 };
 
@@ -254,10 +232,10 @@ const likeComment = (comment) => {
     ElMessage.warning('Please login to like comments');
     return;
   }
-  
+
   comment.isLiked = !comment.isLiked;
   comment.likes = (comment.likes || 0) + (comment.isLiked ? 1 : -1);
-  
+
   // 应该发送API请求更新评论点赞状态
   // 暂时只是前端模拟
 };
@@ -329,13 +307,13 @@ const toggleMenu = () => {
               <el-button class="nav-button">SIGN UP</el-button>
             </router-link>
           </template>
-          
+
           <!-- 已登录状态显示用户头像和下拉菜单 -->
           <div v-else class="user-profile-nav">
             <div class="home-avatar-container" @click="goToUserProfile">
-              <img 
-                :src="getImageUrl(userStore.user.avatar || '')" 
-                alt="User Avatar" 
+              <img
+                :src="getImageUrl(userStore.user.avatar || '')"
+                alt="User Avatar"
                 class="home-new-user-avatar"
               />
               <span class="home-new-username">{{ userStore.user.name }}</span>
@@ -363,10 +341,10 @@ const toggleMenu = () => {
       <!-- 博客过滤和搜索栏 -->
       <div class="blogos-filter-bar">
         <div class="blogos-search-container">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
-            placeholder="Search blogs..." 
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Search blogs..."
             class="blogos-search-input"
           />
           <button class="blogos-search-button">
@@ -376,10 +354,10 @@ const toggleMenu = () => {
         <div class="blogos-filter-options">
           <el-select v-model="filterCategory" placeholder="Category" class="blogos-filter-select">
             <el-option label="All Categories" value=""></el-option>
-            <el-option 
-              v-for="category in uniqueCategories" 
-              :key="category" 
-              :label="category" 
+            <el-option
+              v-for="category in uniqueCategories"
+              :key="category"
+              :label="category"
               :value="category"
             ></el-option>
           </el-select>
@@ -390,12 +368,12 @@ const toggleMenu = () => {
           </el-select>
         </div>
       </div>
-      
+
       <!-- 响应式博客网格 -->
       <div class="blogos-grid">
-        <div 
-          v-for="post in filteredPosts" 
-          :key="post.id" 
+        <div
+          v-for="post in filteredPosts"
+          :key="post.id"
           class="blogos-card"
           @click="showBlogDetail(post)"
         >
@@ -428,14 +406,14 @@ const toggleMenu = () => {
           </div>
         </div>
       </div>
-      
+
       <!-- 加载更多按钮 -->
       <div class="blogos-load-more-container" v-if="hasMorePosts">
         <button class="blogos-load-more-button" @click="loadMorePosts" :disabled="isLoadingMore">
           {{ isLoadingMore ? 'Loading...' : 'Load More' }}
         </button>
       </div>
-      
+
       <!-- 无结果提示 -->
       <div class="blogos-no-results" v-if="filteredPosts.length === 0">
         <h3>No posts found</h3>
@@ -444,9 +422,9 @@ const toggleMenu = () => {
     </div>
 
     <!-- Blog Detail Dialog -->
-    <el-dialog 
-      v-model="dialogVisible" 
-      :title="selectedPost?.title" 
+    <el-dialog
+      v-model="dialogVisible"
+      :title="selectedPost?.title"
       custom-class="blogos-detail-dialog"
       :close-on-click-modal="true"
       :show-close="true"
@@ -458,9 +436,9 @@ const toggleMenu = () => {
         <!-- 博客详情头部 -->
         <div class="blogos-detail-header">
           <div class="blogos-author-container">
-            <img 
-              :src="selectedPost?.authorAvatar || '/default-avatar.jpg'" 
-              :alt="selectedPost?.author" 
+            <img
+              :src="selectedPost?.authorAvatar || '/default-avatar.jpg'"
+              :alt="selectedPost?.author"
               class="blog-author-avatar"
             />
             <div class="blogos-author-info">
@@ -469,9 +447,9 @@ const toggleMenu = () => {
                 Published on {{ formatDate(selectedPost?.date) }}
               </div>
             </div>
-            <el-button 
-              v-if="selectedPost && !isOwnPost" 
-              class="blogos-follow-btn-blog" 
+            <el-button
+              v-if="selectedPost && !isOwnPost"
+              class="blogos-follow-btn-blog"
               size="small"
               :class="{ 'blogos-following': isFollowing }"
               @click.stop="handleFollowClick(selectedPost.authorId)"
@@ -485,7 +463,7 @@ const toggleMenu = () => {
             </span>
           </div>
         </div>
-        
+
         <!-- 博客详情内容区 -->
         <div class="blogos-detail-content">
           <!-- 博客轮播图 -->
@@ -496,17 +474,17 @@ const toggleMenu = () => {
               </el-carousel-item>
             </el-carousel>
           </div>
-          
+
           <!-- 或者显示单张特色图片 -->
           <div class="blogos-featured-image" v-else-if="selectedPost?.image">
             <img :src="selectedPost.image" :alt="selectedPost.title" class="blogos-featured-image" />
           </div>
-          
+
           <!-- 博客正文 -->
           <div class="blogos-text-content">
             <p>{{ selectedPost?.content }}</p>
           </div>
-          
+
           <!-- 标签区域 -->
           <div class="blogos-tags-container" v-if="selectedPost?.tags && selectedPost.tags.length > 0">
             <h4>Tags:</h4>
@@ -516,7 +494,7 @@ const toggleMenu = () => {
               </span>
             </div>
           </div>
-          
+
           <!-- 互动区域 -->
           <div class="blogos-interaction-bar">
             <div class="blogos-interaction-left">
@@ -537,40 +515,40 @@ const toggleMenu = () => {
             </div>
           </div>
         </div>
-        
+
         <!-- 评论区域 -->
         <div class="blogos-comments-section">
           <h3 class="blogos-comments-title">Comments ({{ selectedPost?.comments?.length || 0 }})</h3>
-          
+
           <!-- 评论输入框 -->
           <div class="blogos-comment-input-container">
-            <textarea 
+            <textarea
               ref="commentInput"
-              v-model="newComment" 
-              placeholder="Write a comment..." 
+              v-model="newComment"
+              placeholder="Write a comment..."
               class="blogos-comment-textarea"
               rows="3"
             ></textarea>
-            <button 
-              class="blogos-submit-comment-btn" 
+            <button
+              class="blogos-submit-comment-btn"
               @click.stop="submitComment"
               :disabled="!newComment.trim() || !userStore.user"
             >
               {{ userStore.user ? 'Post Comment' : 'Login to Comment' }}
             </button>
           </div>
-          
+
           <!-- 评论列表 -->
           <div class="blogos-comments-list">
-            <div 
-              v-for="comment in selectedPost?.comments" 
-              :key="comment.id" 
+            <div
+              v-for="comment in selectedPost?.comments"
+              :key="comment.id"
               class="blogos-comment-item"
             >
               <div class="blogos-comment-header">
-                <img 
-                  :src="comment.userAvatar || '/default-avatar.jpg'" 
-                  :alt="comment.userName" 
+                <img
+                  :src="comment.userAvatar || '/default-avatar.jpg'"
+                  :alt="comment.userName"
                   class="blogos-commenter-avatar"
                 />
                 <div class="blogos-comment-info">

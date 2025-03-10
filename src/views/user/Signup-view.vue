@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
-import Captcha from '@/components/Captcha.vue';
+import Captcha from '@/components/captcha-item.vue';
 import { userSignup } from '@/services/api';
 import { useRouter } from 'vue-router';
 import { ElInput } from 'element-plus';
@@ -32,19 +32,19 @@ const passwordRequirements = reactive({
 const checkPasswordStrength = () => {
   let strength = 0;
   const password = editForm.password;
-  
+
   passwordRequirements.length = password.length >= 8;
   if (passwordRequirements.length) strength += 1;
-  
+
   passwordRequirements.uppercase = /[A-Z]/.test(password);
   if (passwordRequirements.uppercase) strength += 1;
-  
+
   passwordRequirements.number = /[0-9]/.test(password);
   if (passwordRequirements.number) strength += 1;
-  
+
   passwordRequirements.special = /[^A-Za-z0-9]/.test(password);
   if (passwordRequirements.special) strength += 1;
-  
+
   passwordStrength.value = strength;
 };
 
@@ -70,36 +70,35 @@ const handleSubmit = async () => {
     if (!passwordRequirements.uppercase) missingRequirements.push('uppercase letter');
     if (!passwordRequirements.number) missingRequirements.push('number');
     if (!passwordRequirements.special) missingRequirements.push('special character');
-    
+
     errorMessage.value = `Password is too weak. Please include: ${missingRequirements.join(', ')}`;
     return;
   }
 
   isLoading.value = true;
   errorMessage.value = '';
-  
-  try {
-    await userSignup({
-      email: editForm.email,
-      password: editForm.password,
-      password_confirm: editForm.password_confirm,
-      name: editForm.name,
-    });
-    
+
+  userSignup({
+    email: editForm.email,
+    password: editForm.password,
+    password_confirm: editForm.password_confirm,
+    name: editForm.name,
+  }).then(() =>{
     signupSuccess.value = true;
     setTimeout(() => {
       router.push({ name: 'login' });
     }, 2000);
-  } catch (error) {
-    console.error(error);
+  }).catch(error =>{
     if (error.response && error.response.data && error.response.data.message) {
       errorMessage.value = `Registration failed: ${error.response.data.message}`;
     } else {
       errorMessage.value = 'Registration failed. Please try again.';
     }
-  } finally {
+  }).finally(()=>{
     isLoading.value = false;
-  }
+
+  });
+
 };
 </script>
 
@@ -130,7 +129,7 @@ const handleSubmit = async () => {
         <h3>Registration Successful!</h3>
         <p>Redirecting to login page...</p>
       </div>
-      
+
       <form @submit.prevent="handleSubmit" v-else>
         <h3 class="form-title-signup">Create Your Account</h3>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -159,8 +158,8 @@ const handleSubmit = async () => {
         </div>
         <div class="password-strength-signup">
           <div class="strength-meter-signup">
-            <div 
-              class="strength-bar-signup" 
+            <div
+              class="strength-bar-signup"
               :style="{ width: `${passwordStrength * 25}%` }"
               :class="{
                 'weak': passwordStrength === 1,
@@ -198,7 +197,7 @@ const handleSubmit = async () => {
           <span v-if="!isLoading">Sign Up</span>
           <span v-else class="loading-spinner"></span>
         </button>
-        
+
         <div class="login-link">
           Already have an account? <router-link :to="{ name: 'login' }">Log in</router-link>
         </div>
