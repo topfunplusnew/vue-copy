@@ -157,7 +157,7 @@ onMounted(() => {
   // 确保页面始终会显示 - 安全机制
   setTimeout(() => {
     if (isLoading.value) {
-      console.log('强制完成加载');
+      console.log('Done loading');
       isLoading.value = false;
       contentReady.value = true;
     }
@@ -423,8 +423,6 @@ function handleImageError(event: Event) {
   target.classList.add('image-error');
 }
 
-
-
 // 处理动画完成
 const handleAnimationComplete = () => {
   console.log('Loading animation complete!');
@@ -635,8 +633,8 @@ const expandReplies = async (commentId: number|undefined) => {
         <!-- 旅游偏好  -->
         <div class="preference-options">
           <span v-for="option in socialFilters" :key="option.name"
-          class="preference-option"
-          :class="{ selected: selectedOptions.includes(option.name) }"
+            class="preference-option"
+            :class="{ selected: selectedOptions.includes(option.name) }"
           @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
@@ -659,7 +657,7 @@ const expandReplies = async (commentId: number|undefined) => {
 
           <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
           <div class="social-header-controls">
-            <!-- 搜索框 -->
+             <!-- 搜索框 -->
             <input type="text" v-model="searchQuery"
             placeholder="Explore Anything..."
             class="search-input-home"
@@ -688,21 +686,21 @@ const expandReplies = async (commentId: number|undefined) => {
             <!-- Post按钮 -->
             <el-button class="custom-post-button"
             @click="handlePostClick">Post</el-button>
+            </div>
           </div>
-        </div>
 
         <!-- 水平分割线 -->
         <hr class="horizontal-divider" />
 
         <!-- 博客展示区域 -->
-        <div class="social-scroll">
+          <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel"
           style="overflow-y: auto; max-height: none;">
             <div
               class="social-post-home"
               :class="{ 'nft-post-home': post.isNFT }"
               v-for="post in allPosts"
-              :key="post.id"
+                :key="post.id"
               @click="showBlogDetail(post.id)"
             >
               <!-- 博客图片 -->
@@ -728,10 +726,10 @@ const expandReplies = async (commentId: number|undefined) => {
                 </div>
 
                 <!-- 统计信息 -->
-                <div class="post-stats">
-                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <div class="post-stats">
+                    <span class="likes">❤️ {{ post.likes }}</span>
                   <span class="comments">💬 {{ post.comments_count }}</span>
-                  <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
+                    <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
                 </div>
               </div>
             </div>
@@ -926,7 +924,7 @@ const expandReplies = async (commentId: number|undefined) => {
                     class="view-more-replies" @click="expandReplies(comment.id)">
                   <span class="view-more-text-r2r">
                   View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
-                  </span>
+              </span>
                   <span class="view-more-icon-r2r">↓</span>
                 </div>
               </div>
@@ -976,6 +974,6 @@ const expandReplies = async (commentId: number|undefined) => {
     </div>
   </div>
   <div v-if="searchQuery && allPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
-</div>
+  </div>
 </template>
 

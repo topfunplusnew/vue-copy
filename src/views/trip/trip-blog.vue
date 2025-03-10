@@ -8,6 +8,8 @@ import walletItem from '@/components/wallet-item.vue';
 import { blogPosts } from '@/data/blogpost.ts'; // 确保路径正确
 import { formatDate } from '@/utils/date';
 
+import { useBlogStore } from '@/stores/blog';
+
 const msg = 'Our Latest Blog';
 const posts = ref(blogPosts);
 const selectedPost = ref(null); // 添加选中的博客状态
@@ -28,6 +30,9 @@ const menuActive = ref(false); // 添加导航菜单状态
 // 初始化router和userStore
 const router = useRouter();
 const userStore = useUserStore();
+const store = useBlogStore();
+
+const Posts = computed(() => store.blogs);
 
 // 处理登录点击
 const handleLoginClick = () => {
@@ -91,14 +96,6 @@ const uniqueCategories = computed(() => {
     });
   });
   return Array.from(categories);
-});
-
-// 计算是否是自己的帖子
-const isOwnPost = computed(() => {
-  if (!userStore.user || !selectedPost.value) {
-    return false;
-  }
-  return userStore.user.id === selectedPost.value.authorId;
 });
 
 // 添加显示和关闭博客详情的方法
@@ -338,37 +335,6 @@ const toggleMenu = () => {
 
     <!-- 改进的Blog Content部分 -->
     <div class="blogos-page-container">
-      <!-- 博客过滤和搜索栏 -->
-      <div class="blogos-filter-bar">
-        <div class="blogos-search-container">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search blogs..."
-            class="blogos-search-input"
-          />
-          <button class="blogos-search-button">
-            <span>🔍</span>
-          </button>
-        </div>
-        <div class="blogos-filter-options">
-          <el-select v-model="filterCategory" placeholder="Category" class="blogos-filter-select">
-            <el-option label="All Categories" value=""></el-option>
-            <el-option
-              v-for="category in uniqueCategories"
-              :key="category"
-              :label="category"
-              :value="category"
-            ></el-option>
-          </el-select>
-          <el-select v-model="sortOption" placeholder="Sort by" class="blogos-filter-select">
-            <el-option label="Newest" value="newest"></el-option>
-            <el-option label="Oldest" value="oldest"></el-option>
-            <el-option label="Most Popular" value="popular"></el-option>
-          </el-select>
-        </div>
-      </div>
-
       <!-- 响应式博客网格 -->
       <div class="blogos-grid">
         <div
@@ -380,7 +346,8 @@ const toggleMenu = () => {
           <div class="blogos-card-image" :style="{ backgroundImage: `url(${post.image || '/default-blog-image.jpg'})` }">
             <div class="blogos-card-overlay">
               <div class="blogos-categories">
-                <span v-for="(category, index) in post.categories" :key="index" class="blogos-category-badge">
+                <span v-for="(category, index) in post.categories" :key="index" 
+                class="blogos-category-badge">
                   {{ category }}
                 </span>
               </div>
@@ -395,12 +362,7 @@ const toggleMenu = () => {
             <div class="blog-card-excerpt">{{ truncateText(post.content, 120) }}</div>
             <div class="blogos-card-footer">
               <div class="blogos-author-info">
-                <img :src="post.authorAvatar || '/default-avatar.jpg'" alt="Author" class="blogos-author-avatar" />
                 <span class="blogos-author-name">{{ post.author }}</span>
-              </div>
-              <div class="blogos-stats">
-                <span class="blogos-stat-item"><i class="el-icon-view"></i> {{ post.views || 0 }}</span>
-                <span class="blogos-stat-item"><i class="el-icon-chat-dot-round"></i> {{ post.comments?.length || 0 }}</span>
               </div>
             </div>
           </div>
@@ -428,7 +390,7 @@ const toggleMenu = () => {
       custom-class="blogos-detail-dialog"
       :close-on-click-modal="true"
       :show-close="true"
-      width="80%"
+      width="90%"
       top="5vh"
       destroy-on-close
     >
@@ -436,29 +398,16 @@ const toggleMenu = () => {
         <!-- 博客详情头部 -->
         <div class="blogos-detail-header">
           <div class="blogos-author-container">
-            <img
-              :src="selectedPost?.authorAvatar || '/default-avatar.jpg'"
-              :alt="selectedPost?.author"
-              class="blog-author-avatar"
-            />
             <div class="blogos-author-info">
-              <h4 class="blogos-author-name">{{ selectedPost?.author }}</h4>
+              <h4 class="blogos-author-name">{{ selectedPost?.author?.name }}</h4>
               <div class="blogos-publish-date">
-                Published on {{ formatDate(selectedPost?.date) }}
+                {{ formatDate(selectedPost?.date) }}
               </div>
             </div>
-            <el-button
-              v-if="selectedPost && !isOwnPost"
-              class="blogos-follow-btn-blog"
-              size="small"
-              :class="{ 'blogos-following': isFollowing }"
-              @click.stop="handleFollowClick(selectedPost.authorId)"
-            >
-              <span class="blogos-follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
-            </el-button>
           </div>
           <div class="blogos-categories-container">
-            <span v-for="(category, index) in selectedPost?.categories" :key="index" class="blogos-detail-category">
+            <span v-for="(category, index) in selectedPost?.categories" :key="index" 
+            class="blogos-detail-category">
               {{ category }}
             </span>
           </div>
@@ -492,81 +441,6 @@ const toggleMenu = () => {
               <span v-for="(tag, index) in selectedPost.tags" :key="index" class="blogos-tag">
                 #{{ tag }}
               </span>
-            </div>
-          </div>
-
-          <!-- 互动区域 -->
-          <div class="blogos-interaction-bar">
-            <div class="blogos-interaction-left">
-              <button class="interaction-btn like-btn" @click.stop="toggleLike">
-                <i :class="isLiked ? 'el-icon-star-on' : 'el-icon-star-off'"></i>
-                <span>{{ likeCount }}</span>
-              </button>
-              <button class="interaction-btn comment-btn" @click.stop="focusCommentInput">
-                <i class="blogos-el-icon-chat-dot-round"></i>
-                <span>{{ selectedPost?.comments?.length || 0 }}</span>
-              </button>
-            </div>
-            <div class="blogos-interaction-right">
-              <button class="blogos-interaction-btn share-btn" @click.stop="sharePost">
-                <i class="blogos-el-icon-share"></i>
-                <span>Share</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 评论区域 -->
-        <div class="blogos-comments-section">
-          <h3 class="blogos-comments-title">Comments ({{ selectedPost?.comments?.length || 0 }})</h3>
-
-          <!-- 评论输入框 -->
-          <div class="blogos-comment-input-container">
-            <textarea
-              ref="commentInput"
-              v-model="newComment"
-              placeholder="Write a comment..."
-              class="blogos-comment-textarea"
-              rows="3"
-            ></textarea>
-            <button
-              class="blogos-submit-comment-btn"
-              @click.stop="submitComment"
-              :disabled="!newComment.trim() || !userStore.user"
-            >
-              {{ userStore.user ? 'Post Comment' : 'Login to Comment' }}
-            </button>
-          </div>
-
-          <!-- 评论列表 -->
-          <div class="blogos-comments-list">
-            <div
-              v-for="comment in selectedPost?.comments"
-              :key="comment.id"
-              class="blogos-comment-item"
-            >
-              <div class="blogos-comment-header">
-                <img
-                  :src="comment.userAvatar || '/default-avatar.jpg'"
-                  :alt="comment.userName"
-                  class="blogos-commenter-avatar"
-                />
-                <div class="blogos-comment-info">
-                  <div class="blogos-commenter-name">{{ comment.userName }}</div>
-                  <div class="blogos-comment-date">{{ formatDate(comment.date) }}</div>
-                </div>
-              </div>
-              <div class="blogos-comment-content">
-                <p>{{ comment.content }}</p>
-              </div>
-              <div class="blogos-comment-actions">
-                <button class="blogos-comment-action-btn" @click.stop="replyToComment(comment)">
-                  Reply
-                </button>
-                <button class="blogos-comment-action-btn" @click.stop="likeComment(comment)">
-                  {{ comment.isLiked ? 'Liked' : 'Like' }} ({{ comment.likes || 0 }})
-                </button>
-              </div>
             </div>
           </div>
         </div>

@@ -8,26 +8,7 @@
   color:#fff
 }
 
-.blogos-page-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem; 
-}
 
-.blogos-page-container h3
-{
-  font-size: 25px;
-  margin-left: auto;
-  margin-right: auto;
-  color: #ffffff;
-}
-
-/* 帖子列表 */
-.blogos-post-list {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
 
 /* 每个帖子卡片 */
 .blogos-post-item {
@@ -44,129 +25,12 @@
   box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 
-/* Meta 信息 */
-.blogos-meta-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-.blogos-reading-time {
-  color: #ffffff;
-  font-size: 1.5rem;
-}
-.blogos-categories {
-  display: flex;
-  gap: 0.5rem;
-}
-.blogos-category-tag {
-  background-color: #f0f0f0;
-  color: #555;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8em;
-}
-
-/* 帖子标题 */
-.blogos-post-title {
-  color: #ffffff;
-  font-size: 1.5rem;
-  line-height: 1.5;
-  margin: 0.5rem 0;
-}
-
-/* 分割线 */
-.blogos-divider {
-  height: 1px;
-  background-color: #000000;
-  margin-top: 1rem;
-}
 
 /* 新的博客页面容器 */
 .blogos-page-container {
   max-width: 1200px;
   margin: 2rem auto;
   padding: 0 1.5rem;
-}
-
-/* 博客过滤栏 */
-.blogos-filter-bar {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: nowrap;
-  gap: 1rem;
-}
-
-.blogos-search-container {
-  position: relative;
-  flex: 0 0 auto;
-  min-width: 250px;
-  max-width: 400px;
-}
-
-.blogos-search-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  padding-right: 3rem;
-  border-radius: 30px;
-  border: none;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 2rem;
-  transition: all 0.3s ease;
-  
-  &:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 0 0 2px rgba(150, 150, 150, 0.5);
-  }
-  
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-  }
-}
-
-.blogos-search-button {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
-  }
-}
-
-.blogos-filter-options {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: nowrap;
-}
-
-.blogos-filter-select {
-  width: 150px;
-  
-  .el-input__inner {
-    background: rgba(255, 255, 255, 0.15) !important;
-    border: none !important;
-    color: white !important;
-    border-radius: 20px !important;
-  }
-  
-  .el-input__suffix {
-    color: white !important;
-  }
 }
 
 /* 博客网格布局 */
@@ -249,7 +113,7 @@
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 30px;
-  font-size: 0.8rem;
+  font-size:1rem;
   backdrop-filter: blur(5px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -288,13 +152,13 @@
   display: flex;
   justify-content: space-between;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 0.85rem;
+  font-size: 1.2rem;
   margin-bottom: 0.75rem;
   letter-spacing: 0.03em;
 }
 
 .blogos-card-title {
-  font-size: 1.1rem;
+  font-size: 2rem;
   color: white;
   margin: 0.5rem 0 1rem;
   line-height: 1.3;
@@ -324,7 +188,7 @@
   line-height: 1.65;
   margin-bottom: 1.5rem;
   flex: 1;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
 .blogos-card-footer {
@@ -404,408 +268,675 @@
   }
 }
 
-/* 没有结果的样式 */
-.blogos-no-results {
-  text-align: center;
-  padding: 4rem 2rem;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.2rem;
-  
-  &::before {
-    content: '🔍';
-    font-size: 3rem;
-    display: block;
-    margin-bottom: 1rem;
-    animation: subtle-float 3s ease-in-out infinite;
-  }
-}
 
 /* 博客详情弹窗样式 */
 .blogos-detail-dialog {
-  background: rgba(23, 25, 35, 0.92) !important;
-  backdrop-filter: blur(20px) !important;
+  background: linear-gradient(135deg, #1e2128, #2a2d3a) !important;
+  backdrop-filter: blur(15px) !important;
   border-radius: 16px !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+  overflow: hidden !important;
+  max-width: 1300px !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   
   .el-dialog__header {
-    background: linear-gradient(to right, rgba(114, 137, 218, 0.7), rgba(73, 93, 158, 0.7)) !important;
-    padding: 1.5rem !important;
-    margin: 0 !important;
+    padding: 1.8rem 2rem !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    border-bottom: 1px solid rgba(100, 179, 244, 0.2) !important;
+    margin-right: 0 !important;
+    position: relative !important;
     
-    .el-dialog__title {
-      color: white !important;
-      font-size: 1.8rem !important;
-      font-weight: 600 !important;
+    &::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: -1px !important;
+      left: 0 !important;
+      width: 150px !important;
+      height: 1px !important;
+      background: linear-gradient(90deg, rgba(100, 179, 244, 0.8), transparent) !important;
+    }
+  }
+  
+  .el-dialog__title {
+    color: #f8f9fa !important;
+    font-weight: 600 !important;
+    font-size: 2rem !important;
+    line-height: 1.3 !important;
+    display: block !important;
+    max-width: 90% !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    letter-spacing: 0.5px !important;
+
+  }
+  
+  .el-dialog__headerbtn {
+    top: 1.5rem !important;
+    right: 1.5rem !important;
+    font-size: 1.5rem !important;
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: rgba(100, 179, 244, 0.15) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    
+    &:hover {
+      background: rgba(100, 179, 244, 0.3) !important;
+      transform: rotate(90deg) !important;
     }
     
-    .el-dialog__headerbtn {
-      top: 1.5rem !important;
-      right: 1.5rem !important;
-      
-      .el-dialog__close {
-        color: white !important;
-        font-size: 1.2rem !important;
-      }
+    .el-dialog__close {
+      color: #f8f9fa !important;
     }
   }
   
   .el-dialog__body {
     padding: 0 !important;
-    color: white !important;
-  }
-}
-
-.blogos-detail-container {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  padding: 0.5rem;
-}
-
-.blogos-detail-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -1rem;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-  }
-}
-
-.blogos-author-container {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.blogos-author-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
-  }
-}
-
-.blogos-author-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.blogos-author-name {
-  font-size: 1.25rem;
-  margin: 0;
-  font-weight: 600;
-  color: white;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.blogos-publish-date {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.blogos-follow-btn-blog {
-  background: linear-gradient(135deg, rgba(120, 120, 120, 0.8), rgba(90, 90, 90, 0.8));
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 30px;
-  padding: 0.25rem 1rem;
-  font-size: 0.9rem;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  
-  &:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(150, 150, 150, 0.9), rgba(120, 120, 120, 0.9));
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-  
-  &.blogos-following {
-    background: linear-gradient(135deg, rgba(80, 80, 80, 0.5), rgba(50, 50, 50, 0.5));
+    color: #e9ecef !important;
+    overflow-y: auto !important;
+    max-height: 80vh !important;
+    scrollbar-color: rgba(100, 179, 244, 0.5) transparent !important;
     
-    &:hover {
-      background: linear-gradient(135deg, rgba(255, 100, 100, 0.7), rgba(200, 50, 50, 0.7));
+    &::-webkit-scrollbar {
+      width: 6px !important;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(100, 179, 244, 0.5) !important;
+      border-radius: 10px !important;
     }
   }
 }
 
-.blogos-categories-container {
+/* 博客详情内容容器 */
+.blogos-detail-container {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  padding-bottom: 2rem !important;
+  background: linear-gradient(180deg, #20232c, #2a2d3a) !important;
+}
+
+/* 博客详情头部 */
+.blogos-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
   flex-wrap: wrap;
+  gap: 1rem;
+  position: relative !important;
+  
+  &::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 2rem !important;
+    right: 2rem !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.1), 
+      transparent) !important;
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* 作者容器 */
+.blogos-author-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+.blogos-author-info {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.blogos-author-name {
+  font-size: 1.6rem !important;
+  font-weight: 600 !important;
+  color: #f8f9fa !important;
+  margin: 0 0 0.2rem 0 !important;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem !important;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 1rem !important;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem !important;
+  }
+}
+
+.blogos-publish-date {
+  font-size: 1.6rem !important;
+  color: #adb5bd !important;
+
+  @media (max-width: 768px) {
+    font-size: 1rem !important;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem !important;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.6rem !important;
+  }
+}
+
+/* 分类容器 */
+.blogos-categories-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
 }
 
 .blogos-detail-category {
-  background: rgba(114, 137, 218, 0.2);
-  color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  border: 1px solid rgba(114, 137, 218, 0.4);
+  background: linear-gradient(135deg, rgba(100, 179, 244, 0.3), rgba(100, 179, 244, 0.1)) !important;
+  color: #f8f9fa !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 20px !important;
+  font-size: 1.6rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  border: 1px solid rgba(100, 179, 244, 0.3) !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    background: linear-gradient(135deg, rgba(100, 179, 244, 0.4), rgba(100, 179, 244, 0.2)) !important;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1rem !important;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem !important;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.6rem !important;
+  }
 }
 
+/* 图片区域样式 */
+.blogos-image-carousel, .blogos-featured-image {
+  width: 100% !important;
+  margin: 0.5rem 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.blogos-featured-image img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+  aspect-ratio: 16/9 !important;
+  display: block !important;
+  transition: transform 0.5s ease !important;
+  
+  &:hover {
+    transform: scale(1.02) !important;
+  }
+}
+
+.carousel-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transition: transform 0.5s ease !important;
+  
+  &:hover {
+    transform: scale(1.02) !important;
+  }
+}
+
+/* 博客内容区域 */
 .blogos-detail-content {
-  padding: 2rem;
-}
-
-.blogos-image-carousel {
-  margin-bottom: 2rem;
-  
-  .carousel-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-  }
-}
-
-.blogos-featured-image {
-  margin-bottom: 2rem;
-  
-  .featured-image {
-    width: 100%;
-    height: auto;
-    max-height: 500px;
-    object-fit: contain;
-    border-radius: 8px;
-  }
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  margin-left: 2rem !important;
+  margin-right: 2rem !important;
+  padding: 2rem !important;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
 .blogos-text-content {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 2rem;
+  font-size: 1.6rem !important;
+  line-height: 1.8 !important;
+  color: #dee2e6 !important;
+  white-space: pre-line !important;
+  letter-spacing: 0.03em !important;
+  text-align: justify !important;
   
-  p {
-    margin-bottom: 1.5rem;
+  @media (max-width: 768px) {
+    font-size: 1.2rem !important;
+    line-height: 1.6 !important;
   }
 }
 
+/* 标签区域 */
 .blogos-tags-container {
-  margin-bottom: 2rem;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.75rem !important;
+  margin-top: 1rem !important;
+  
   
   h4 {
-    font-size: 1.1rem;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    color: #f8f9fa !important;
+    position: relative !important;
+    display: inline-block !important;
+    padding-bottom: 0.5rem !important;
+    
+    &::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 40px !important;
+      height: 2px !important;
+      background: linear-gradient(90deg, rgba(100, 179, 244, 0.8), transparent) !important;
+    }
   }
 }
 
 .blogos-tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
 }
 
 .blogos-tag {
-  color: rgba(114, 137, 218, 0.9);
-  background: rgba(114, 137, 218, 0.1);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(194, 229, 156, 0.3), rgba(194, 229, 156, 0.1)) !important;
+  color: #e9ecef !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 20px !important;
+  font-size: 0.9rem !important;
+  transition: all 0.25s ease !important;
+  display: inline-block !important;
+  border: 1px solid rgba(194, 229, 156, 0.3) !important;
   
   &:hover {
-    background: rgba(114, 137, 218, 0.2);
+    transform: translateY(-2px) !important;
+    background: linear-gradient(135deg, rgba(194, 229, 156, 0.4), rgba(194, 229, 156, 0.2)) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
   }
 }
 
-.blogos-interaction-bar {
-  display: flex;
-  justify-content: space-between;
-  padding: 1rem 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2rem;
+/* 交互区域 */
+.blogos-interactions {
+  padding: 1.5rem 2rem !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  position: relative !important;
 }
 
-.blogos-interaction-left, .blogos-interaction-right {
+.blogos-interaction-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.blogos-interaction-left,
+.blogos-interaction-right {
   display: flex;
   gap: 1rem;
 }
 
-.blogos-interaction-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
+.interaction-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   border-radius: 20px;
+  background: none;
+  border: none;
+  color: #dee2e6;
   cursor: pointer;
   transition: all 0.3s ease;
   
-  i {
-    font-size: 1.2rem;
-  }
-  
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: rgba(100, 179, 244, 0.15);
+    transform: translateY(-2px);
   }
   
-  &.like-btn.active, &.like-btn:active {
-    color: rgba(239, 83, 80, 0.9);
+  &.active {
+    background: rgba(100, 179, 244, 0.2);
+    color: #64b3f4;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgba(100, 179, 244, 0.2);
   }
+}
+
+.like-btn.active i {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* 评论区域 */
 .blogos-comments-section {
   padding: 2rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: rgba(0, 0, 0, 0.05) !important;
 }
 
 .blogos-comments-title {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-  font-weight: 600;
-}
-
-.comment-input-container {
-  margin-bottom: 2rem;
-}
-
-.blogos-comment-textarea {
-  width: 100%;
-  padding: 1rem;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: white;
-  font-size: 1rem;
-  transition: all 0.25s ease;
-  resize: vertical;
-  min-height: 100px;
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  color: #f8f9fa !important;
+  position: relative !important;
   
-  &:focus {
-    outline: none;
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(150, 150, 150, 0.6);
-    box-shadow: 0 0 0 2px rgba(150, 150, 150, 0.2);
-  }
-  
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.45);
-    font-style: italic;
+  &::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -8px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, rgba(194, 229, 156, 0.8), transparent) !important;
   }
 }
 
-.blogos-submit-comment-btn {
-  background: linear-gradient(135deg, rgba(120, 120, 120, 0.8), rgba(90, 90, 90, 0.8));
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 30px;
-  padding: 0.6rem 1.75rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  float: right;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+.blogos-comment-input-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  padding: 1.2rem !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   
-  &:hover:not(:disabled) {
-    background: linear-gradient(135deg, rgba(150, 150, 150, 0.9), rgba(120, 120, 120, 0.9));
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+}
+
+.blogos-comment-user-avatar {
+  flex-shrink: 0 !important;
+  
+  img {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid rgba(100, 179, 244, 0.3) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    
+    @media (max-width: 576px) {
+      width: 32px !important;
+      height: 32px !important;
+    }
+  }
+}
+
+.blogos-comment-input {
+  flex: 1;
+  
+  textarea {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(100, 179, 244, 0.2) !important;
+    border-radius: 8px !important;
+    color: #e9ecef !important;
+    resize: none !important;
+    
+    &:focus {
+      border-color: rgba(100, 179, 244, 0.6) !important;
+      box-shadow: 0 0 0 2px rgba(100, 179, 244, 0.2) !important;
+    }
+  }
+}
+
+.blogos-post-comment-btn {
+  margin-top: 10px !important;
+  background: linear-gradient(135deg, #64b3f4, #c2e59c) !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+  
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(100, 179, 244, 0.3) !important;
+  }
+}
+
+.blogos-login-to-comment {
+  text-align: center !important;
+  padding: 1.5rem !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  
+  p {
+    color: #adb5bd !important;
+    margin: 0 !important;
   }
   
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
+  a {
+    color: #64b3f4 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    
+    &:hover {
+      text-decoration: underline !important;
+    }
   }
 }
 
 .blogos-comments-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  margin-top: 1.5rem !important;
 }
 
 .blogos-comment-item {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 1.2rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s ease !important;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.07) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
   }
 }
 
 .blogos-comment-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 0.8rem !important;
 }
 
-.blogos-commenter-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
+.blogos-comment-user {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.8rem !important;
 }
 
-.blogos-comment-info {
-  display: flex;
-  flex-direction: column;
+.blogos-comment-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 2px solid rgba(194, 229, 156, 0.3) !important;
 }
 
-.blogos-commenter-name {
-  font-weight: 600;
-  font-size: 1rem;
+.blogos-comment-username {
+  font-weight: 500 !important;
+  color: #f8f9fa !important;
 }
 
 .blogos-comment-date {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.85rem !important;
+  color: #adb5bd !important;
 }
 
 .blogos-comment-content {
-  font-size: 1rem;
-  line-height: 1.6;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1rem;
+  color: #dee2e6 !important;
+  margin-bottom: 1rem !important;
+  line-height: 1.5 !important;
 }
 
 .blogos-comment-actions {
-  display: flex;
-  gap: 1rem;
+  display: flex !important;
+  gap: 1rem !important;
 }
 
 .blogos-comment-action-btn {
-  background: none;
-  border: none;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.9rem;
-  padding: 0.25rem 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  background: none !important;
+  border: none !important;
+  color: #adb5bd !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.4rem 0.8rem !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
   
   &:hover {
-    color: white;
-    text-decoration: underline;
+    color: #dee2e6 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+  
+  &.active {
+    color: #c2e59c !important;
+  }
+  
+  &.delete-btn {
+    color: #ff6b6b !important;
+    
+    &:hover {
+      background: rgba(255, 99, 99, 0.1) !important;
+    }
+  }
+}
+
+.no-comments {
+  text-align: center !important;
+  padding: 2rem !important;
+  color: #adb5bd !important;
+  font-style: italic !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  margin-top: 1rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .blogos-detail-dialog {
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+  
+  .el-dialog__title {
+    font-size: 1.5rem !important;
+  }
+  
+  .blogos-detail-header, 
+  .blogos-detail-content, 
+  .blogos-interactions, 
+  .blogos-comments-section {
+    padding: 1rem !important;
+  }
+  
+  .blogos-image-carousel .el-carousel {
+    height: 250px !important;
+  }
+  
+  .blogos-text-content {
+    padding: 1rem !important;
+  }
+  
+  .blogos-detail-content {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .blogos-detail-dialog {
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+  }
+  
+  .el-dialog__body {
+    max-height: calc(100vh - 60px) !important;
+  }
+  
+  .el-dialog__title {
+    font-size: 1.3rem !important;
+  }
+  
+  .blogos-image-carousel .el-carousel {
+    height: 200px !important;
+  }
+  
+  .blogos-tag {
+    font-size: 0.8rem !important;
+    padding: 0.3rem 0.8rem !important;
+  }
+  
+  .blogos-detail-content {
+    padding: 1rem !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  .blogos-comment-actions {
+    flex-wrap: wrap !important;
   }
 }
 
@@ -879,15 +1010,6 @@
     gap: 1rem;
     align-items: flex-start;
   }
-  
-  .blogos-detail-dialog {
-    width: 95% !important;
-    margin: 0 auto !important;
-  }
-  
-  .blogos-comment-actions {
-    flex-wrap: wrap;
-  }
 }
 
 /* Responsive Design */
@@ -937,27 +1059,3 @@
   }
 }
 
-/* 博客页面标题 */
-.blogos-header-title {
-  text-align: center;
-  margin: 2rem 0;
-  font-size: 3.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, #cccccc 0%, #aaaaaa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 4px;
-    background: linear-gradient(90deg, rgba(170, 170, 170, 0.5), rgba(140, 140, 140, 0.5));
-    border-radius: 2px;
-  }
-}

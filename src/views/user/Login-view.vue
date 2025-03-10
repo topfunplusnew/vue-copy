@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
+import commonHeader from '@/layout/common-header.vue';
 
 interface ApiError {
   response?: {
@@ -16,10 +17,47 @@ interface ApiError {
 const router = useRouter();
 const store = useUserStore();
 
+
+const showBlogDetail = async (id: number) => {
+  // 重置图片索引
+  currentImageIndex.value = 0;
+
+  try {
+    // 添加参数指示后端返回所有回复，不分页
+    await store.getBlogByID(id);
+    dialogBlog.value = true;
+
+    // 重置评论区状态
+    expandedReplies.value = [];
+    expandedComments.value = []; // 重置已展开的评论列表
+    replyContent.value = '';
+    replyTarget.value = null;
+
+    // 在对话框打开后滚动到顶部
+    nextTick(() => {
+      const detailBox = document.querySelector('.blog-details-home');
+      if (detailBox) {
+        detailBox.scrollTop = 0;
+      }
+    });
+  } catch (error) {
+    console.error('无法加载博客详情:', error);
+    ElMessage.error('Failed to load blog details');
+  }
+};
+
 const loginForm = reactive({
   email: '',
   password: ''
 });
+
+const closeBlogDetail = () => {
+  dialogBlog.value = false;
+  // 恢复背景滚动
+  document.body.style.overflow = '';
+  // 清空评论输入
+  newComment.value = '';
+};
 
 const errorMessage = ref('');
 const isLoading = ref(false);
@@ -68,19 +106,7 @@ const handleSocialLogin = (provider: string) => {
 
 <template>
   <div class="login-page">
-    <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
-          <router-link :to="{ name: 'home' }"><el-button class="nav-button">HOME</el-button></router-link>
-          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
-          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
-          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
-          <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">LOGIN</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
-        </div>
-      </div>
-    </header>
+    <common-header />
 
     <div class="login-hero">
       <h2 class="header-title-login">Welcome Back</h2>
@@ -149,6 +175,4 @@ const handleSocialLogin = (provider: string) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-@import '@/styles/_login.scss';
-</style>
+
