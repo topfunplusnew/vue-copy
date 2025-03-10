@@ -12,7 +12,12 @@ export const usecomponentsStore = defineStore('components', ()=>{
     function getWeather(city: string, isDestination = false) {
         return homeviewweather(city).then((res)=>{
             const weatherData = res.data as IWeather;
-            const weatherText = `${weatherData.condition}, ${weatherData.temperature}°C, Humidity:${weatherData.humidity}%, WindSpeed:${weatherData.wind_speed}km/h`;
+            // const weatherText = `${weatherData.condition}, 
+            // ${weatherData.temperature}°C,
+            // Humidity:${weatherData.humidity}%, WindSpeed:${weatherData.wind_speed}km/h`;
+
+            const weatherText = `${weatherData.city}, ${weatherData.condition}, 
+            ${weatherData.temperature}°C`;
             
             if (isDestination) {
                 destinationWeather.value = weatherText;

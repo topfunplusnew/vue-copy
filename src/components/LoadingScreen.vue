@@ -103,4 +103,17 @@ onMounted(() => {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 768px) {
+  .loading-logo {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-logo {
+    font-size: 2rem;
+  }
+}
+
 </style>

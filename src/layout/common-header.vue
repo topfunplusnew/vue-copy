@@ -99,16 +99,12 @@ watch([selectedLocation, selectedDestination, selectedOptions], () => {
   }
 });
 
-// 添加分页和无限滚动相关的状态
-// 滚动加载相关状态
-
 onMounted(() => {
 
     userStore.getUserInfo();
 
 });
 
-// -----------------------------
 
 // 恢复登录按钮处理方法
 const handleLoginClick = async () => {
@@ -124,12 +120,6 @@ const handleLoginClick = async () => {
   // 未登录状态，跳转到登录页面
   router.push({ name: 'login' });
 };
-
-// 添加图片导航方法
-
-// 添加评论功能到博客弹窗
-
-// 添加图片错误处理方法
 
 // 前往个人主页
 const goToUserProfile = () => {
@@ -154,15 +144,5 @@ const menuActive = ref(false);
 const toggleMenu = () => {
   menuActive.value = !menuActive.value;
 };
-
-// 处理动画完成
-
-// 处理加载完成事件
-
-// 添加加载更多博客的方法
-
-// 添加评论回复相关的状态
-
-// 添加评论回复相关的方法
 
 </script>

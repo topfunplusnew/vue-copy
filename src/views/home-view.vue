@@ -256,13 +256,18 @@ const socialFilters = ref([
 ]);
 
 const selectedFilters = ref<string[]>([]);
-const toggleSocialFilter = (filterLabel: string) => {
-  const idx = selectedFilters.value.indexOf(filterLabel);
-  if (idx > -1) {
-    selectedFilters.value.splice(idx, 1);
+const isFilterMenuOpen = ref(false);
+
+const toggleSocialFilter = (filter: string) => {
+  if (selectedFilters.value.includes(filter)) {
+    selectedFilters.value = selectedFilters.value.filter(f => f !== filter);
   } else {
-    selectedFilters.value.push(filterLabel);
+    selectedFilters.value.push(filter);
   }
+};
+
+const toggleFilterMenu = () => {
+  isFilterMenuOpen.value = !isFilterMenuOpen.value;
 };
 
 const searchQuery = ref('');
@@ -300,17 +305,6 @@ const filteredPosts = computed(() => {
 });
 
 const postsToShow = ref(12);
-
-// const postsDisplayed = computed(() => {
-//   return filteredPosts.value.slice(0, postsToShow.value);
-// });
-
-// const loadMorePosts = () => {
-//   if (postsToShow.value < allPosts.value.length) {
-//     // Modified: 使用 userPosts.value.length
-//     postsToShow.value += 6;
-//   }
-// };
 
 function handleSearch(event: KeyboardEvent) {
   if (event.key === 'Enter') {
@@ -401,22 +395,6 @@ const handleFollowClick = async (id) => {
   }
 };
 
-// 恢复登录按钮处理方法
-// const handleLoginClick = async () => {
-//   if (auth.get()) {
-//     // 已登录状态
-//     ElMessage({
-//       message: 'You are already logged in',
-//       type: 'info',
-//       duration: 2000,
-//     });
-//     return;
-//   }
-//   // 未登录状态，跳转到登录页面
-//   router.push({ name: 'login' });
-// };
-
-
 const currentImageIndex = ref(0);
 
 // 添加图片导航方法
@@ -504,22 +482,6 @@ function handleImageError(event: Event) {
   target.classList.add('image-error');
 }
 
-// 前往个人主页
-// const goToUserProfile = () => {
-//   router.push({ name: 'userpage' });
-// };
-
-// 处理下拉菜单命令
-// const handleCommand = (command) => {
-//   if (command === 'profile') {
-//     router.push({ name: 'userpage' });
-//   } else if (command === 'logout') {
-//     userStore.logout();
-//     ElMessage.success('Logged out successfully');
-//     router.push({ path: '/' });
-//   }
-// };
-
 // 导航菜单状态
 const menuActive = ref(false);
 
@@ -574,89 +536,6 @@ const replyContent = ref('');
 const isSubmittingReply = ref(false);
 // 展开回复相关的状态
 const expandedReplies = ref<number[]>([]);
-
-// 切换回复展开/折叠
-// const toggleReplies = (commentId: number) => {
-//   if (expandedReplies.value.includes(commentId)) {
-//     // 如果已展开，则折叠
-//     expandedReplies.value = expandedReplies.value.filter(id => id !== commentId);
-//   } else {
-//     // 如果未展开，则展开并加载所有回复
-//     expandedReplies.value.push(commentId);
-//     // 确保加载该评论的所有回复
-//     loadAllRepliesForComment(commentId);
-//   }
-// };
-
-// 加载评论的所有回复
-// const loadAllRepliesForComment = async (commentId: number) => {
-//   try {
-//     if (selectedBlog.value) {
-//       // 如果后端API支持按评论ID加载所有回复，可以这样调用
-//       // 示例: await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
-
-//       // 临时解决方案: 如果后端已经返回了所有回复，这里可以直接返回
-//       console.log(`Loading all replies for comment all replies mment ${commentId}`);
-//     }
-//   } catch (error) {
-//     console.error('Failed to load all replies:', error);
-//     ElMessage.error('Failed to load all replies');
-//   }
-// };
-
-// 检查回复是否已展开
-// const isRepliesExpanded = (commentId: number) => {
-//   return expandedReplies.value.includes(commentId);
-// };
-
-// // 全部展开函数也需要确保加载所有回复
-// const toggleAllReplies = () => {
-//   if (selectedBlog.value && selectedBlog.value.comments) {
-//     // 检查是否所有回复都已展开
-//     const allCommentsWithReplies = selectedBlog.value.comments
-//       .filter(comment => comment.replies && comment.replies.length > 0)
-//       .map(comment => comment.id);
-
-//     const allExpanded = allCommentsWithReplies.every(id =>
-//       expandedReplies.value.includes(id)
-//     );
-
-//     if (allExpanded) {
-//       // 如果所有回复都已展开，则全部折叠
-//       expandedReplies.value = [];
-//     } else {
-//       // 否则全部展开
-//       expandedReplies.value = [...allCommentsWithReplies];
-//       // 确保加载所有评论的所有回复
-//       allCommentsWithReplies.forEach(commentId => {
-//         loadAllRepliesForComment(commentId);
-//       });
-//     }
-//   }
-// };
-
-// 获取是否全部展开状态
-// const areAllRepliesExpanded = computed(() => {
-//   if (!selectedBlog.value || !selectedBlog.value.comments) return false;
-
-//   const commentsWithReplies = selectedBlog.value.comments
-//     .filter(comment => comment.replies && comment.replies.length > 0);
-
-//   if (commentsWithReplies.length === 0) return false;
-
-//   return commentsWithReplies.every(comment =>
-//     expandedReplies.value.includes(comment.id)
-//   );
-// });
-
-// 获取回复对象用户名
-// const getReplyTargetName = (comment: any) => {
-//   if (!selectedBlog.value || !selectedBlog.value.comments) return '';
-
-//   // 查找原始评论的用户名
-//   const originalComment = selectedBlog.value.comments.find(c => c.id === comment.parent_id);
-//   return originalComment ? originalComment.user.name : '';
-// };
 
 // 添加回复目标状态
 const replyTarget = ref<{id: number, type: 'comment' | 'reply', parentId?: number} | null>(null);
@@ -759,8 +638,6 @@ const expandReplies = async (commentId: number|undefined) => {
   <div class="background-layer" :class="{ 'visible': !isLoading }"></div>
   <div class="home" :class="{ 'content-visible': !isLoading }">
     <common-header />
-    <!-- <h1 class="welcome-text">Welcome to iPoloGO</h1>
-    <h2 class="welcome-text2">To Explore, To Share, To Earn</h2> -->
     <section class="welcome-section">
       <BlurText
         text="Welcome to iPoloGO"
@@ -784,7 +661,7 @@ const expandReplies = async (commentId: number|undefined) => {
       <!-- 行程规划模块 -->
       <div class="combined-card">
         <div class="plan-header">
-          <h3>Plan Your Itinerary</h3>
+          <div class="plan-it-text">Plan Your Itinerary</div>
         </div>
         <hr class="horizontal-divider" />
         <div class="location-destination-row">
@@ -796,9 +673,8 @@ const expandReplies = async (commentId: number|undefined) => {
               <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
             </el-select>
             <div class="ld-info">
-              <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" />
+              <!-- <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" /> -->
               <div class="location-info">
-                <span class="location-name">{{ userLocation }}</span>
                 <div class="weather-info" v-if="originWeather">
                   <span class="weather-icon" :class="originWeatherIcon"></span>
                   <span class="weather-data">{{ originWeather }}</span>
@@ -816,10 +692,9 @@ const expandReplies = async (commentId: number|undefined) => {
               :label="destination.label" :value="destination.value" />
             </el-select>
             <div class="ld-info">
-              <img v-if="destinationFlag" :src="destinationFlag" 
-              alt="Destination Flag" class="flag" />
+              <!-- <img v-if="destinationFlag" :src="destinationFlag" 
+              alt="Destination Flag" class="flag" /> -->
               <div class="location-info">
-                <span class="location-name">{{ userDestination }}</span>
                 <div class="weather-info" v-if="destinationWeather">
                   <span class="weather-icon" :class="destinationWeatherIcon"></span>
                   <span class="weather-data">{{ destinationWeather }}</span>
@@ -828,12 +703,15 @@ const expandReplies = async (commentId: number|undefined) => {
             </div>
           </div>
         </div>
+
         <hr class="horizontal-divider" />
 
         <!-- 旅游偏好  -->
         <div class="preference-options">
-          <span v-for="option in preferenceOptions" :key="option.name" class="preference-option"
-          :class="{ selected: selectedOptions.includes(option.name) }" @click="togglePreference(option.name)">
+          <span v-for="option in preferenceOptions" :key="option.name" 
+          class="preference-option"
+          :class="{ selected: selectedOptions.includes(option.name) }" 
+          @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
           </span>
@@ -851,16 +729,25 @@ const expandReplies = async (commentId: number|undefined) => {
       <section class="social-feed">
         <div class="social-header">
           <!-- 标题单独一行 -->
-          <h3>Explore iPoloGO Community</h3>
+          <div class="social-header-text">Explore iPoloGO Community</div>
 
           <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
           <div class="social-header-controls">
             <!-- 搜索框 -->
-            <input type="text" v-model="searchQuery" placeholder="Explore Anything..."
-            class="search-input-home" @keydown="handleSearch" />
+            <input type="text" v-model="searchQuery" 
+            placeholder="Explore Anything..."
+            class="search-input-home" 
+            @keydown="handleSearch" />
+
+            <!-- 筛选选项汉堡菜单按钮 (移动端显示) -->
+            <button class="filter-menu-toggle" @click="toggleFilterMenu">
+              <span class="filter-icon-bar"></span>
+              <span class="filter-icon-bar"></span>
+              <span class="filter-icon-bar"></span>
+            </button>
 
             <!-- 横排筛选选项 -->
-            <div class="social-filter-panel-horizontal">
+            <div class="social-filter-panel-horizontal" :class="{ 'expanded': isFilterMenuOpen }">
               <button
                 v-for="item in socialFilters"
                 :key="item.label"
@@ -873,7 +760,8 @@ const expandReplies = async (commentId: number|undefined) => {
             </div>
 
             <!-- Post按钮 -->
-            <el-button class="custom-post-button" @click="handlePostClick">Post</el-button>
+            <el-button class="custom-post-button" 
+            @click="handlePostClick">Post</el-button>
           </div>
         </div>
 
@@ -882,7 +770,8 @@ const expandReplies = async (commentId: number|undefined) => {
 
         <!-- 博客展示区域 -->
         <div class="social-scroll">
-          <div class="social-posts-panel" ref="postsPanel" style="overflow-y: auto; max-height: none;">
+          <div class="social-posts-panel" ref="postsPanel" 
+          style="overflow-y: auto; max-height: none;">
             <div
               class="social-post-home"
               :class="{ 'nft-post-home': post.isNFT }"
