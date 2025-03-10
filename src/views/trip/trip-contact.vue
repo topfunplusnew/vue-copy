@@ -127,7 +127,8 @@ function submitContact() {
 
         <!-- 右侧：联系表单 -->
         <section class="contact-form-section">
-          <div class="contact-form-contact" :class="{ 'submitted': formSubmitted }">
+          <div class="contact-form-contact" 
+          :class="{ 'submitted': formSubmitted }">
             <h2 class='form-title-contact'>Send Us a Message</h2>
 
             <div v-if="formSubmitted" class="success-message-contact">
@@ -142,7 +143,7 @@ function submitContact() {
                 <el-input
                   id="name"
                   v-model="contactForm.name"
-                  placeholder="Your Name"
+                  placeholder="What do you want us to call you?"
                   clearable
                   class="input-box-contact"
                 />
@@ -166,7 +167,7 @@ function submitContact() {
                   id="message"
                   v-model="contactForm.message"
                   placeholder="Your Message"
-                  :rows="6"
+                  :rows="4"
                   class="input-box-contact"
                 />
               </div>

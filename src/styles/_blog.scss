@@ -1,5 +1,7 @@
 /* Blog Container in trip-blog.vue*/
 .home .blogos-header-title {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
   font-size: 5rem;
   font-weight: 700;
   background: linear-gradient(90deg, #64b3f4, #c2e59c);
@@ -7,8 +9,6 @@
   -webkit-text-fill-color: transparent;
   color:#fff
 }
-
-
 
 /* 每个帖子卡片 */
 .blogos-post-item {
