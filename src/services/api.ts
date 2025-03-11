@@ -3,6 +3,7 @@ import type { IPairToken, ILogin, IUserEdit, IUserSignup } from '@/types/user.ts
 import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
+import type { IRequest } from '@/types/service';
 
 
 
@@ -68,15 +69,11 @@ export const PostAvatar = (data: IBlogPostimage) => http.post('/file/avatar', da
 });
 
 // export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
-export const getBlogPost = (id: string) => http.get('/blog', {params:{id}});
+export const getBlogPost = (id: string) => http.get('/blog', {params:{id}}); // 根据id获取blog
 
-export const getMyBlogList = () => http.get('/my_blogs');
-
-export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
-
-export const getOsBlogPost = (id:string) => http.get('/blog/official', {params:{id}});
-
-export const getOsBlogList = () => http.get('/blogs/official');
+export const getMyBlogList = (req:IBlogReq = {}) => http.get('/my_blogs', {params:req}); // blog列表，可以搜索分页
+export const getAllBlogList = (req:IBlogReq = {}) => http.get('/blogs', {params:req}); // 我的blog，blog列表一样的搜索和分页
+export const getOsBlogList = (req:IRequest = {}) => http.get('/blogs/official', {params:req}); // 官方blog，可以分页
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});

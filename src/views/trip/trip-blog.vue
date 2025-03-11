@@ -1,64 +1,39 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue';
-import { useRouter } from 'vue-router';
-import { useUserStore } from '@/stores/user';
+import { ref, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { getImageUrl } from '@/utils';
-import walletItem from '@/components/wallet-item.vue';
 import { formatDate } from '@/utils/date';
 import { useBlogStore } from '@/stores/blog';
+import commonHeader from '@/layout/common-header.vue';
 
 const msg = 'Our Latest Blog';
 const store = useBlogStore();
-const allosBlog = computed(() => store.blogos);
-const selectedosPost = ref(null); // 添加选中的博客状态
+const selectedosPost = computed(()=> store.blog); // 添加选中的博客状态
 const dialogVisible = ref(false); // 控制弹窗显示
 const isLoadingMore = ref(false); // 是否加载更多中
-const menuActive = ref(false); // 添加导航菜单状态
-const currentPage = ref(1); // 当前页码
-const pageSize = ref(6); // 每页显示数量
 
-// 初始化router和userStore
-const router = useRouter();
-const userStore = useUserStore();
 
-const blogos = computed(() => store.blogos);
-// 处理登录点击
-const handleLoginClick = () => {
-  router.push({ name: 'login' });
-};
+const blogs = computed(() => store.blogos);
+
 
 const showOsBlogDetail = async (id: number) => {
-  await store.getBlogosPost(id);
-  selectedosPost.value = store.blogos[0]; // 获取选中的博客
-  dialogVisible.value = true;
+  store.getBlogByID(id).then(() =>{
+    dialogVisible.value = true;
+  }).catch(e => {
+    console.log(e)
+    ElMessage.error(e)
+  })
 };
 
-// 计算过滤后的博客列表
-const filteredPosts = computed(() => {
-  if (!blogos.value || blogos.value.length === 0) return [];
-  return blogos.value;
-});
 
 // 计算是否有更多博客加载
 const hasMorePosts = computed(() => {
-  return filteredPosts.value.length > currentPage.value * pageSize.value;
+  return false
 });
 
 // 加载更多博客
 const loadMorePosts = async () => {
-  if (isLoadingMore.value) return;
-  isLoadingMore.value = true;
-  
-  try {
-    // 模拟加载延迟
-    await new Promise(resolve => setTimeout(resolve, 800));
-    currentPage.value++;
-  } catch (error) {
-    console.error('Failed to load more posts:', error);
-  } finally {
-    isLoadingMore.value = false;
-  }
+  store.getBlogosList();
 };
 
 // 截断文本
@@ -74,95 +49,21 @@ onMounted(() => {
   store.getBlogosList();
 });
 
-// 前往个人主页
-const goToUserProfile = () => {
-  router.push({ name: 'userpage' });
-};
 
-// 处理下拉菜单命令
-const handleCommand = (command) => {
-  if (command === 'profile') {
-    router.push({ name: 'userpage' });
-  } else if (command === 'logout') {
-    userStore.logout();
-    ElMessage.success('Logged out successfully');
-    router.push({ path: '/' });
-  }
-};
-
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
-};
 </script>
 
 <template>
   <div class="background-layer"></div>
   <div class="home">
     <!-- Header -->
-    <header class="header">
-      <div class="nav-container" :class="{ 'menu-active': menuActive }">
-        <!-- 汉堡菜单按钮 -->
-        <button class="hamburger-menu" @click="toggleMenu">
-          <span v-if="menuActive">✕</span>
-          <span v-else>☰</span>
-        </button>
-        <div class="left-nav" :class="{ 'active': menuActive }">
-          <router-link :to="{ name: 'home' }">
-            <el-button class="nav-button">HOME</el-button>
-          </router-link>
-          <router-link :to="{ name: 'about' }">
-            <el-button class="nav-button">ABOUT</el-button>
-          </router-link>
-          <router-link :to="{ name: 'blog' }">
-            <el-button class="nav-button">BLOG</el-button>
-          </router-link>
-          <router-link :to="{ name: 'contact' }">
-            <el-button class="nav-button">CONTACT</el-button>
-          </router-link>
-        </div>
-        <div class="right-nav">
-          <walletItem />
-          <!-- 未登录状态显示登录和注册按钮 -->
-          <template v-if="!userStore.user">
-            <el-button class="nav-button" @click="handleLoginClick">LOGIN</el-button>
-            <router-link :to="{ name: 'signup' }">
-              <el-button class="nav-button">SIGN UP</el-button>
-            </router-link>
-          </template>
-
-          <!-- 已登录状态显示用户头像和下拉菜单 -->
-          <div v-else class="user-profile-nav">
-            <div class="home-avatar-container" @click="goToUserProfile">
-              <img
-                :src="getImageUrl(userStore.user.avatar || '')"
-                alt="User Avatar"
-                class="home-new-user-avatar"
-              />
-              <span class="home-new-username">{{ userStore.user.name }}</span>
-            </div>
-            <el-dropdown trigger="click" @command="handleCommand">
-              <span class="el-dropdown-link">
-                <i class="el-icon-arrow-down"></i>
-              </span>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-        </div>
-      </div>
-    </header>
+    <common-header />
 
     <div class="blogos-header-title">{{ msg }}</div>
 
     <!-- 改进的Blog Content部分 -->
     <div class="blogos-page-container">
       <!-- 加载中显示 -->
-      <div v-if="!filteredPosts || filteredPosts.length === 0" class="blogos-loading-blogs">
+      <div v-if="!blogs" class="blogos-loading-blogs">
         <div class="blogos-loading-spinner"></div>
         <p>Loading blogs...</p>
       </div>
@@ -170,15 +71,15 @@ const toggleMenu = () => {
       <!-- 响应式博客网格 -->
       <div class="blogos-grid" v-else>
         <div
-          v-for="post in filteredPosts"
+          v-for="post in blogs"
           :key="post.id"
           class="blogos-card"
           @click="showOsBlogDetail(post.id)"
         >
-          <div class="blogos-card-image" :style="{ backgroundImage: `url(${post.image[0] || '/default-blog-image.jpg'})` }">
+          <div class="blogos-card-image" :style="{ backgroundImage: `url(${getImageUrl(post.image[0])})` }">
             <div class="blogos-card-overlay">
               <div class="blogos-categories">
-                <span v-for="(tag, index) in post.tags" :key="index" 
+                <span v-for="(tag, index) in post.tags" :key="index"
                 class="blogos-category-badge">
                   {{ tag }}
                 </span>
@@ -209,7 +110,7 @@ const toggleMenu = () => {
       </div>
 
       <!-- 无结果提示 -->
-      <div class="blogos-no-results" v-if="filteredPosts.length === 0">
+      <div class="blogos-no-results" v-if="blogs.length === 0">
         <h3>No posts found</h3>
         <p>Try adjusting your search or filters.</p>
       </div>
@@ -238,7 +139,7 @@ const toggleMenu = () => {
             </div>
           </div>
           <div class="blogos-categories-container">
-            <span v-for="(tag, index) in selectedosPost?.tags" :key="index" 
+            <span v-for="(tag, index) in selectedosPost?.tags" :key="index"
             class="blogos-detail-category">
               {{ tag }}
             </span>
@@ -251,7 +152,7 @@ const toggleMenu = () => {
           <div class="blogos-image-carousel" v-if="selectedosPost?.image && selectedosPost.image.length > 0">
             <el-carousel :interval="4000" type="card" height="400px">
               <el-carousel-item v-for="(image, index) in selectedosPost.image" :key="index">
-                <img :src="image" :alt="`Blog image ${index + 1}`" class="carousel-image" />
+                <img :src="getImageUrl(image)" :alt="`Blog image ${index + 1}`" class="carousel-image" />
               </el-carousel-item>
             </el-carousel>
           </div>

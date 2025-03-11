@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters,
-  comment2Comment, myblogedit, blogPost, Postimage, comments, getOsBlogPost, getOsBlogList } from '@/services/api';
+  comment2Comment, myblogedit, blogPost, Postimage, comments, getOsBlogList } from '@/services/api';
 import type { IBlogPost, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
 import type { UploadFile } from 'element-plus';
 
@@ -104,20 +104,6 @@ export const useBlogStore = defineStore('blog', () => {
         console.log(e);
       });
   }
-  /**
-   * 获取官方博客
-   * @param id
-   * @returns
-   */
-  function getBlogosPost(id: string) {
-    return getOsBlogPost(id)
-      .then(({data}) => {
-        blogos.value = data.blogs;
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }
     /**
    * 获取官方博客列表
    * @returns
@@ -126,9 +112,6 @@ export const useBlogStore = defineStore('blog', () => {
     return getOsBlogList()
     .then(({data}) => {
       blogos.value = data.blogs;
-    })
-    .catch((e) => {
-      console.log(e);
     });
   }
 
@@ -158,10 +141,10 @@ export const useBlogStore = defineStore('blog', () => {
     });
   }
   return {
-    blogs, condition, blog, createData, socialFilters,
+    blogs, condition, blog, createData, socialFilters,blogos,
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
     commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs, getComments,
-    getBlogosPost, getBlogosList
+    getBlogosList
   };
 });

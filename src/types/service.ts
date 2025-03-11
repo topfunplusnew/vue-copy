@@ -6,8 +6,8 @@ export interface IApiUrls {
  * 请求
  */
 export interface IRequest {
-  pageNum?: number;
-  pageSize?: number;
+  page?: number;
+  per_page?: number;
 }
 
 export interface IResponse<T = unknown> {
