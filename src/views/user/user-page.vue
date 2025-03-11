@@ -10,6 +10,8 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
+import commonHeader from '@/layout/common-header.vue';
+
 const store = useUserStore();
 const router = useRouter();
 

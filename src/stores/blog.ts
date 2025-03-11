@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters,
-  comment2Comment, myblogedit, blogPost, Postimage, comments } from '@/services/api';
+  comment2Comment, myblogedit, blogPost, Postimage, comments, getOsBlogPost, getOsBlogList } from '@/services/api';
 import type { IBlogPost, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
 import type { UploadFile } from 'element-plus';
 
@@ -10,6 +10,7 @@ export const useBlogStore = defineStore('blog', () => {
   const condition = ref<IBlogReq>({}); // 查询blog列表的条件
   const socialFilters = ref<ISocialFilter[]>([]); // 社会过滤器
   const blog = ref<IBlogPost>(); // 单独blog
+  const blogos = ref<IBlogPost[]>([]); // 官方博客列表
 
   const createData = ref<IBlogPostCreate>({
     title: '',
@@ -66,6 +67,7 @@ export const useBlogStore = defineStore('blog', () => {
         console.log(e);
       });
   }
+
   /**
    * 加载更多博客（用于无限滚动）
    * @param page 页码
@@ -102,6 +104,34 @@ export const useBlogStore = defineStore('blog', () => {
         console.log(e);
       });
   }
+  /**
+   * 获取官方博客
+   * @param id
+   * @returns
+   */
+  function getBlogosPost(id: string) {
+    return getOsBlogPost(id)
+      .then(({data}) => {
+        blogos.value = data.blogs;
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  }
+    /**
+   * 获取官方博客列表
+   * @returns
+   */
+  function getBlogosList() {
+    return getOsBlogList()
+    .then(({data}) => {
+      blogos.value = data.blogs;
+    })
+    .catch((e) => {
+      console.log(e);
+    });
+  }
+
   function clearBlog() {
     blog.value = <IBlogPost>{};
   }
@@ -131,5 +161,7 @@ export const useBlogStore = defineStore('blog', () => {
     blogs, condition, blog, createData, socialFilters,
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
-    commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs, getComments };
+    commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs, getComments,
+    getBlogosPost, getBlogosList
+  };
 });

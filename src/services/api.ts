@@ -74,6 +74,9 @@ export const getMyBlogList = () => http.get('/my_blogs');
 
 export const getAllBlogList = (req:IBlogReq) => http.get('/blogs', {params:req});
 
+export const getOsBlogPost = (id:string) => http.get('/blog/official', {params:{id}});
+
+export const getOsBlogList = () => http.get('/blogs/official');
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});

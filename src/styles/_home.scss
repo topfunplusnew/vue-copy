@@ -447,21 +447,33 @@
         font-weight: bold;
         font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
         border-radius: 8px;
-        background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(255,255,255,0.1));
+        background: linear-gradient(45deg, rgba(255,255,255,0.25), rgba(30,30,30,0.2));
         backdrop-filter: blur(10px);
         color: #fefefe;
         border: none;
         cursor: pointer;
-        transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, background-position 0.8s ease;
         z-index: 2;
-        animation: pulse 4s infinite ease-in-out;
+        background-size: 200% auto;
+        background-position: 0% center;
         margin-top: 0.5rem;
+        letter-spacing: 1px;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
       
       .togenerator:hover {
-        background: linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.2));
-        transform: scale(1.05);
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        background-position: 100% center;
+        transform: scale(1.01);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        background: linear-gradient(45deg, rgba(255,255,255,0.35), rgba(30,30,30,0.1));
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      
+      .togenerator:active {
+        transform: scale(0.98);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
       }
     }
 

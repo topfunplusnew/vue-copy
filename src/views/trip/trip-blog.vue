@@ -5,40 +5,61 @@ import { useUserStore } from '@/stores/user';
 import { ElMessage } from 'element-plus';
 import { getImageUrl } from '@/utils';
 import walletItem from '@/components/wallet-item.vue';
-import { blogPosts } from '@/data/blogpost.ts'; // 确保路径正确
 import { formatDate } from '@/utils/date';
-
 import { useBlogStore } from '@/stores/blog';
 
 const msg = 'Our Latest Blog';
-const posts = ref(blogPosts);
-const selectedPost = ref(null); // 添加选中的博客状态
+const store = useBlogStore();
+const allosBlog = computed(() => store.blogos);
+const selectedosPost = ref(null); // 添加选中的博客状态
 const dialogVisible = ref(false); // 控制弹窗显示
-const newComment = ref(''); // 评论输入
-const commentInput = ref(null); // 评论输入框引用
-const isFollowing = ref(false); // 是否关注作者
-const isLiked = ref(false); // 是否点赞
-const likeCount = ref(0); // 点赞数
-const searchQuery = ref(''); // 搜索查询
-const filterCategory = ref(''); // 分类过滤
-const sortOption = ref('newest'); // 排序选项
-const pageSize = ref(6); // 每页显示数量
-const currentPage = ref(1); // 当前页码
 const isLoadingMore = ref(false); // 是否加载更多中
 const menuActive = ref(false); // 添加导航菜单状态
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(6); // 每页显示数量
 
 // 初始化router和userStore
 const router = useRouter();
 const userStore = useUserStore();
-const store = useBlogStore();
 
-const Posts = computed(() => store.blogs);
-
+const blogos = computed(() => store.blogos);
 // 处理登录点击
 const handleLoginClick = () => {
   router.push({ name: 'login' });
 };
 
+const showOsBlogDetail = async (id: number) => {
+  await store.getBlogosPost(id);
+  selectedosPost.value = store.blogos[0]; // 获取选中的博客
+  dialogVisible.value = true;
+};
+
+// 计算过滤后的博客列表
+const filteredPosts = computed(() => {
+  if (!blogos.value || blogos.value.length === 0) return [];
+  return blogos.value;
+});
+
+// 计算是否有更多博客加载
+const hasMorePosts = computed(() => {
+  return filteredPosts.value.length > currentPage.value * pageSize.value;
+});
+
+// 加载更多博客
+const loadMorePosts = async () => {
+  if (isLoadingMore.value) return;
+  isLoadingMore.value = true;
+  
+  try {
+    // 模拟加载延迟
+    await new Promise(resolve => setTimeout(resolve, 800));
+    currentPage.value++;
+  } catch (error) {
+    console.error('Failed to load more posts:', error);
+  } finally {
+    isLoadingMore.value = false;
+  }
+};
 
 // 截断文本
 const truncateText = (text:string, maxLength:number) => {
@@ -47,205 +68,10 @@ const truncateText = (text:string, maxLength:number) => {
   return text.substring(0, maxLength) + '...';
 };
 
-// 计算属性：过滤和排序后的帖子
-const filteredPosts = computed(() => {
-  let result = [...posts.value];
-
-  // 应用搜索过滤
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(post =>
-      post.title.toLowerCase().includes(query) ||
-      post.content?.toLowerCase().includes(query) ||
-      post.categories.some(cat => cat.toLowerCase().includes(query))
-    );
-  }
-
-  // 应用类别过滤
-  if (filterCategory.value) {
-    result = result.filter(post =>
-      post.categories.includes(filterCategory.value)
-    );
-  }
-
-  // 应用排序
-  if (sortOption.value === 'newest') {
-    result.sort((a, b) => new Date(b.date) - new Date(a.date));
-  } else if (sortOption.value === 'oldest') {
-    result.sort((a, b) => new Date(a.date) - new Date(b.date));
-  } else if (sortOption.value === 'popular') {
-    result.sort((a, b) => (b.views || 0) - (a.views || 0));
-  }
-
-  return result;
-});
-
-// 计算属性：分页后的帖子
-
-// 计算是否有更多帖子
-const hasMorePosts = computed(() => {
-  return filteredPosts.value.length > currentPage.value * pageSize.value;
-});
-
-// 计算所有唯一类别
-const uniqueCategories = computed(() => {
-  const categories = new Set();
-  posts.value.forEach(post => {
-    post.categories.forEach(category => {
-      categories.add(category);
-    });
-  });
-  return Array.from(categories);
-});
-
-// 添加显示和关闭博客详情的方法
-const showBlogDetail = (post) => {
-  selectedPost.value = post;
-  dialogVisible.value = true;
-  isLiked.value = false; // 重置点赞状态
-  likeCount.value = post.likes || 0;
-  newComment.value = ''; // 清空评论
-
-  // 检查是否已关注作者
-  checkFollowStatus(post.authorId);
-};
-
-
-// 加载更多帖子
-const loadMorePosts = async () => {
-  if (isLoadingMore.value || !hasMorePosts.value) return;
-
-  isLoadingMore.value = true;
-  // 模拟加载延迟
-  await new Promise(resolve => setTimeout(resolve, 800));
-  currentPage.value++;
-  isLoadingMore.value = false;
-};
-
-// 检查关注状态
-const checkFollowStatus = async (userId) => {
-  if (!userId || !userStore.user) {
-    isFollowing.value = false;
-    return;
-  }
-
-  try {
-    // 此处应调用实际API来检查关注状态
-    // 暂时使用模拟数据
-    isFollowing.value = false;
-  } catch (error) {
-    console.error('Failed to check follow status:', error);
-  }
-};
-
-// 处理关注/取消关注
-const handleFollowClick = async (userId) => {
-  if (!userId || !userStore.user) {
-    ElMessage.warning('Please login to follow users');
-    return;
-  }
-
-  try {
-    if (isFollowing.value) {
-      await userStore.unfollow(userId);
-      isFollowing.value = false;
-      ElMessage.success('Unfollowed successfully');
-    } else {
-      await userStore.follow(userId);
-      isFollowing.value = true;
-      ElMessage.success('Following successfully');
-    }
-  } catch {
-    ElMessage.error('Failed to update following status');
-  }
-};
-
-// 切换点赞状态
-const toggleLike = () => {
-  if (!userStore.user) {
-    ElMessage.warning('Please login to like posts');
-    return;
-  }
-
-  isLiked.value = !isLiked.value;
-  likeCount.value += isLiked.value ? 1 : -1;
-
-  // 应该发送API请求更新点赞状态
-  // 暂时只是前端模拟
-};
-
-// 聚焦评论输入框
-const focusCommentInput = () => {
-  nextTick(() => {
-    if (commentInput.value) {
-      commentInput.value.focus();
-    }
-  });
-};
-
-// 提交评论
-const submitComment = () => {
-  if (!userStore.user) {
-    ElMessage.warning('Please login to comment');
-    return;
-  }
-
-  if (!newComment.value.trim()) {
-    return;
-  }
-
-  // 创建新评论对象
-  const comment = {
-    id: Date.now(),
-    content: newComment.value,
-    userName: userStore.user.name,
-    userAvatar: userStore.user.avatar,
-    date: new Date().toISOString(),
-    likes: 0,
-    isLiked: false
-  };
-
-  // 添加到评论列表
-  if (!selectedPost.value.comments) {
-    selectedPost.value.comments = [];
-  }
-  selectedPost.value.comments.push(comment);
-
-  // 清空输入
-  newComment.value = '';
-
-  ElMessage.success('Comment posted successfully');
-};
-
-// 回复评论
-const replyToComment = (comment) => {
-  focusCommentInput();
-  newComment.value = `@${comment.userName} `;
-};
-
-// 点赞评论
-const likeComment = (comment) => {
-  if (!userStore.user) {
-    ElMessage.warning('Please login to like comments');
-    return;
-  }
-
-  comment.isLiked = !comment.isLiked;
-  comment.likes = (comment.likes || 0) + (comment.isLiked ? 1 : -1);
-
-  // 应该发送API请求更新评论点赞状态
-  // 暂时只是前端模拟
-};
-
-// 分享博客
-const sharePost = () => {
-  // 实现分享功能
-  ElMessage.info('Sharing functionality will be implemented soon');
-};
-
 // 在组件挂载时初始化数据
 onMounted(() => {
-  // 这里可以放置初始化逻辑，如从API获取博客列表
+  // 从API获取官方博客列表
+  store.getBlogosList();
 });
 
 // 前往个人主页
@@ -335,34 +161,40 @@ const toggleMenu = () => {
 
     <!-- 改进的Blog Content部分 -->
     <div class="blogos-page-container">
+      <!-- 加载中显示 -->
+      <div v-if="!filteredPosts || filteredPosts.length === 0" class="blogos-loading-blogs">
+        <div class="blogos-loading-spinner"></div>
+        <p>Loading blogs...</p>
+      </div>
+
       <!-- 响应式博客网格 -->
-      <div class="blogos-grid">
+      <div class="blogos-grid" v-else>
         <div
           v-for="post in filteredPosts"
           :key="post.id"
           class="blogos-card"
-          @click="showBlogDetail(post)"
+          @click="showOsBlogDetail(post.id)"
         >
-          <div class="blogos-card-image" :style="{ backgroundImage: `url(${post.image || '/default-blog-image.jpg'})` }">
+          <div class="blogos-card-image" :style="{ backgroundImage: `url(${post.image[0] || '/default-blog-image.jpg'})` }">
             <div class="blogos-card-overlay">
               <div class="blogos-categories">
-                <span v-for="(category, index) in post.categories" :key="index" 
+                <span v-for="(tag, index) in post.tags" :key="index" 
                 class="blogos-category-badge">
-                  {{ category }}
+                  {{ tag }}
                 </span>
               </div>
             </div>
           </div>
           <div class="blogos-card-content">
             <div class="blogos-card-meta">
-              <span class="reading-time"><i class="el-icon-time"></i> {{ post.readingTime }}</span>
-              <span class="blogos-date">{{ formatDate(post.date) }}</span>
+              <span class="reading-time"><i class="el-icon-time"></i> {{ Math.ceil(post.content.length / 1000) }} min read</span>
+              <span class="blogos-date">{{ formatDate(post.created_at) }}</span>
             </div>
             <div class="blog-card-title">{{ post.title }}</div>
             <div class="blog-card-excerpt">{{ truncateText(post.content, 120) }}</div>
             <div class="blogos-card-footer">
               <div class="blogos-author-info">
-                <span class="blogos-author-name">{{ post.author }}</span>
+                <span class="blogos-author-name">{{ post.user?.name || 'Anonymous' }}</span>
               </div>
             </div>
           </div>
@@ -386,7 +218,7 @@ const toggleMenu = () => {
     <!-- Blog Detail Dialog -->
     <el-dialog
       v-model="dialogVisible"
-      :title="selectedPost?.title"
+      :title="selectedosPost?.title"
       custom-class="blogos-detail-dialog"
       :close-on-click-modal="true"
       :show-close="true"
@@ -399,16 +231,16 @@ const toggleMenu = () => {
         <div class="blogos-detail-header">
           <div class="blogos-author-container">
             <div class="blogos-author-info">
-              <h4 class="blogos-author-name">{{ selectedPost?.author?.name }}</h4>
+              <h4 class="blogos-author-name">{{ selectedosPost?.user?.name || 'Anonymous' }}</h4>
               <div class="blogos-publish-date">
-                {{ formatDate(selectedPost?.date) }}
+                {{ formatDate(selectedosPost?.created_at) }}
               </div>
             </div>
           </div>
           <div class="blogos-categories-container">
-            <span v-for="(category, index) in selectedPost?.categories" :key="index" 
+            <span v-for="(tag, index) in selectedosPost?.tags" :key="index" 
             class="blogos-detail-category">
-              {{ category }}
+              {{ tag }}
             </span>
           </div>
         </div>
@@ -416,29 +248,29 @@ const toggleMenu = () => {
         <!-- 博客详情内容区 -->
         <div class="blogos-detail-content">
           <!-- 博客轮播图 -->
-          <div class="blogos-image-carousel" v-if="selectedPost?.images && selectedPost.images.length > 0">
+          <div class="blogos-image-carousel" v-if="selectedosPost?.image && selectedosPost.image.length > 0">
             <el-carousel :interval="4000" type="card" height="400px">
-              <el-carousel-item v-for="(image, index) in selectedPost.images" :key="index">
+              <el-carousel-item v-for="(image, index) in selectedosPost.image" :key="index">
                 <img :src="image" :alt="`Blog image ${index + 1}`" class="carousel-image" />
               </el-carousel-item>
             </el-carousel>
           </div>
 
           <!-- 或者显示单张特色图片 -->
-          <div class="blogos-featured-image" v-else-if="selectedPost?.image">
-            <img :src="selectedPost.image" :alt="selectedPost.title" class="blogos-featured-image" />
+          <div class="blogos-featured-image" v-else-if="selectedosPost?.image && selectedosPost.image[0]">
+            <img :src="selectedosPost.image[0]" :alt="selectedosPost.title" class="blogos-featured-image" />
           </div>
 
           <!-- 博客正文 -->
           <div class="blogos-text-content">
-            <p>{{ selectedPost?.content }}</p>
+            <p>{{ selectedosPost?.content }}</p>
           </div>
 
           <!-- 标签区域 -->
-          <div class="blogos-tags-container" v-if="selectedPost?.tags && selectedPost.tags.length > 0">
+          <div class="blogos-tags-container" v-if="selectedosPost?.tags && selectedosPost.tags.length > 0">
             <h4>Tags:</h4>
             <div class="blogos-tag-list">
-              <span v-for="(tag, index) in selectedPost.tags" :key="index" class="blogos-tag">
+              <span v-for="(tag, index) in selectedosPost.tags" :key="index" class="blogos-tag">
                 #{{ tag }}
               </span>
             </div>

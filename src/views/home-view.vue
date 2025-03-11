@@ -136,7 +136,6 @@ const submitItinerary = () => {
 const allPosts = computed(() => store.blogs);
 // const condition = computed(() => store.condition);
 
-
 const dialogBlog = ref(false);
 const selectedBlog = computed(() => store.blog);
 
@@ -232,7 +231,6 @@ const closeBlogDetail = () => {
   newComment.value = '';
 };
 
-
 const selectedFilters = ref<string[]>([]);
 const isFilterMenuOpen = ref(false);
 
@@ -249,7 +247,6 @@ const toggleFilterMenu = () => {
 };
 
 const searchQuery = ref('');
-
 
 
 const postsToShow = ref(12);
@@ -644,7 +641,8 @@ const expandReplies = async (commentId: number|undefined) => {
         <!-- 用户行程输入框 -->
         <div class="input-container">
           <el-input v-model="userInput" placeholder="Edit your trip prompt..."
-          class="itinerary-input" type="textarea" :rows="4" @keydown.enter="handleEnter" />
+          class="itinerary-input" type="textarea" :rows="4" 
+          @keydown.enter="handleEnter" />
           <button class="togenerator" @click="submitItinerary">Start Now</button>
         </div>
       </div>
@@ -755,7 +753,8 @@ const expandReplies = async (commentId: number|undefined) => {
 
   <!-- 博客详情弹出层 -->
   <div class="blog-detail-overlay-home" v-if="dialogBlog" @click.self="closeBlogDetail">
-    <div class="blog-detail-container-home" :class="{ 'nft-post-home': selectedBlog?.isNFT }">
+    <div class="blog-detail-container-home" 
+    :class="{ 'nft-post-home': selectedBlog?.isNFT }">
       <!-- 关闭按钮 -->
       <button class="close-button-home" @click="closeBlogDetail">×</button>
 
