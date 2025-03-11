@@ -141,16 +141,17 @@ const selectedBlog = computed(() => store.blog);
 
 // 添加分页和无限滚动相关的状态
 // 滚动加载相关状态
-const currentPage = ref(1);
-const isLoadingMore = ref(false);
-const hasMoreBlogs = ref(true);
 const bottomTrigger = ref(null);
 const observer = ref();
 
-onMounted(() => {
-  store.getSocialFilter();
-  // 页面载入时，自动获取一次定位和加载博客列表
+function nextPage() {
   store.getBlogList();
+}
+
+onMounted(async() => {
+  await store.getSocialFilter();
+  // 页面载入时，自动获取一次定位和加载博客列表
+  await store.getBlogList(true);
   handleLocationClick();
 
   // 确保页面始终会显示 - 安全机制
@@ -167,9 +168,9 @@ onMounted(() => {
   observer.value = new IntersectionObserver(
     (entries) => {
       const entry = entries[0];
-      if (entry.isIntersecting && !isLoadingMore.value && hasMoreBlogs.value) {
+      if (entry.isIntersecting && !allPosts.value.loading && allPosts.value.has_next) {
         console.log('Trigger element is visible, loading more blogs...');
-        loadMoreBlogs();
+        nextPage();
       }
     },
     { threshold: 0.1 } // 当10%的目标元素可见时触发
@@ -231,15 +232,17 @@ const closeBlogDetail = () => {
   newComment.value = '';
 };
 
-const selectedFilters = ref<string[]>([]);
+const selectedFilters = ref<number[]>([]);
 const isFilterMenuOpen = ref(false);
 
-const toggleSocialFilter = (filter: string) => {
+const toggleSocialFilter = (filter: number) => {
   if (selectedFilters.value.includes(filter)) {
     selectedFilters.value = selectedFilters.value.filter(f => f !== filter);
   } else {
     selectedFilters.value.push(filter);
   }
+  allPosts.value.args['social_filter[]'] = selectedFilters.value;
+  store.getBlogList(true);
 };
 
 const toggleFilterMenu = () => {
@@ -249,13 +252,10 @@ const toggleFilterMenu = () => {
 const searchQuery = ref('');
 
 
-const postsToShow = ref(12);
 
-function handleSearch(event: KeyboardEvent) {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    postsToShow.value = 12;
-  }
+function handleSearch() {
+  allPosts.value.args.keyword =  searchQuery.value;
+  store.getBlogList(true);
 }
 
 const handlePostClick = () => {
@@ -432,33 +432,7 @@ const handleLoadingComplete = () => {
   contentReady.value = true;
 };
 
-// 添加加载更多博客的方法
-/**
- * 加载更多博客的方法
- */
-const loadMoreBlogs = async () => {
-  if (isLoadingMore.value || !hasMoreBlogs.value) return;
 
-  isLoadingMore.value = true;
-  try {
-    // 增加页码
-    currentPage.value++;
-    console.log('Loading more blogs, page:', currentPage.value);
-
-    // 调用store方法加载更多博客
-    const newBlogs = await store.loadMoreBlogs(currentPage.value);
-
-    // 如果没有更多博客，设置hasMoreBlogs为false
-    if (!newBlogs || newBlogs.length === 0) {
-      hasMoreBlogs.value = false;
-      console.log('No more blogs to load');
-    }
-  } catch (error) {
-    console.error('Failed to load more blogs:', error);
-  } finally {
-    isLoadingMore.value = false;
-  }
-};
 
 // 评论相关的状态
 // const activeCommentId = ref<number | null>(null);
@@ -641,7 +615,7 @@ const expandReplies = async (commentId: number|undefined) => {
         <!-- 用户行程输入框 -->
         <div class="input-container">
           <el-input v-model="userInput" placeholder="Edit your trip prompt..."
-          class="itinerary-input" type="textarea" :rows="4" 
+          class="itinerary-input" type="textarea" :rows="4"
           @keydown.enter="handleEnter" />
           <button class="togenerator" @click="submitItinerary">Start Now</button>
         </div>
@@ -659,7 +633,7 @@ const expandReplies = async (commentId: number|undefined) => {
             <input type="text" v-model="searchQuery"
             placeholder="Explore Anything..."
             class="search-input-home"
-            @keydown="handleSearch" />
+            @keyup.enter="handleSearch" />
 
             <!-- 筛选选项汉堡菜单按钮 (移动端显示) -->
             <button class="filter-menu-toggle" @click="toggleFilterMenu">
@@ -673,8 +647,8 @@ const expandReplies = async (commentId: number|undefined) => {
               <button
                 v-for="item in socialFilters"
                 :key="item.id"
-                :class="{ active: selectedFilters.includes(item.name) }"
-                @click="toggleSocialFilter(item.name)"
+                :class="{ active: selectedFilters.includes(item.id) }"
+                @click="toggleSocialFilter(item.id)"
               >
                 <span class="filter-icon">{{ item.icon }}</span>
                 <span class="filter-label">{{ item.name }}</span>
@@ -697,7 +671,7 @@ const expandReplies = async (commentId: number|undefined) => {
             <div
               class="social-post-home"
               :class="{ 'nft-post-home': post.isNFT }"
-              v-for="post in allPosts"
+              v-for="post in allPosts?.items"
                 :key="post.id"
               @click="showBlogDetail(post.id)"
             >
@@ -732,11 +706,11 @@ const expandReplies = async (commentId: number|undefined) => {
               </div>
             </div>
             <div ref="bottomTrigger" class="bottom-load-container">
-              <div v-if="isLoadingMore" class="loading-indicator">Loading more posts...</div>
+              <div v-if="allPosts.loading" class="loading-indicator">Loading more posts...</div>
               <button
-                v-else-if="hasMoreBlogs"
+                v-else-if="allPosts?.has_next"
                 class="load-more-btn-home"
-                @click="loadMoreBlogs"
+                @click="nextPage"
               >
                 Load More
               </button>
@@ -748,12 +722,12 @@ const expandReplies = async (commentId: number|undefined) => {
     </main>
 
     <!-- 搜索结果为空提示 -->
-    <div v-if="searchQuery && allPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
+    <div v-if="allPosts?.items.length === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
 
 
   <!-- 博客详情弹出层 -->
   <div class="blog-detail-overlay-home" v-if="dialogBlog" @click.self="closeBlogDetail">
-    <div class="blog-detail-container-home" 
+    <div class="blog-detail-container-home"
     :class="{ 'nft-post-home': selectedBlog?.isNFT }">
       <!-- 关闭按钮 -->
       <button class="close-button-home" @click="closeBlogDetail">×</button>
@@ -972,7 +946,7 @@ const expandReplies = async (commentId: number|undefined) => {
       </div>
     </div>
   </div>
-  <div v-if="searchQuery && allPosts.length === 0" class="no-results">No posts found for "{{ searchQuery }}"</div>
+  <div v-if="allPosts?.items.length === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
   </div>
 </template>
 

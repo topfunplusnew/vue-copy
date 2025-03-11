@@ -10,7 +10,6 @@ const msg = 'Our Latest Blog';
 const store = useBlogStore();
 const selectedosPost = computed(()=> store.blog); // 添加选中的博客状态
 const dialogVisible = ref(false); // 控制弹窗显示
-const isLoadingMore = ref(false); // 是否加载更多中
 
 
 const blogs = computed(() => store.blogos);
@@ -26,10 +25,6 @@ const showOsBlogDetail = async (id: number) => {
 };
 
 
-// 计算是否有更多博客加载
-const hasMorePosts = computed(() => {
-  return false
-});
 
 // 加载更多博客
 const loadMorePosts = async () => {
@@ -46,7 +41,7 @@ const truncateText = (text:string, maxLength:number) => {
 // 在组件挂载时初始化数据
 onMounted(() => {
   // 从API获取官方博客列表
-  store.getBlogosList();
+  store.getBlogosList(true);
 });
 
 
@@ -71,7 +66,7 @@ onMounted(() => {
       <!-- 响应式博客网格 -->
       <div class="blogos-grid" v-else>
         <div
-          v-for="post in blogs"
+          v-for="post in blogs.items"
           :key="post.id"
           class="blogos-card"
           @click="showOsBlogDetail(post.id)"
@@ -103,14 +98,14 @@ onMounted(() => {
       </div>
 
       <!-- 加载更多按钮 -->
-      <div class="blogos-load-more-container" v-if="hasMorePosts">
-        <button class="blogos-load-more-button" @click="loadMorePosts" :disabled="isLoadingMore">
-          {{ isLoadingMore ? 'Loading...' : 'Load More' }}
+      <div class="blogos-load-more-container" v-if="blogs.has_next">
+        <button class="blogos-load-more-button" @click="loadMorePosts" :disabled="blogs.loading">
+          {{ blogs.loading ? 'Loading...' : 'Load More' }}
         </button>
       </div>
 
       <!-- 无结果提示 -->
-      <div class="blogos-no-results" v-if="blogs.length === 0">
+      <div class="blogos-no-results" v-if="blogs.total === 0">
         <h3>No posts found</h3>
         <p>Try adjusting your search or filters.</p>
       </div>

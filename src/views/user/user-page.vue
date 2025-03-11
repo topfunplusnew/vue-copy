@@ -10,7 +10,7 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
-import commonHeader from '@/layout/common-header.vue';
+// import commonHeader from '@/layout/common-header.vue';
 
 const store = useUserStore();
 const router = useRouter();
@@ -19,7 +19,7 @@ const router = useRouter();
 
 onMounted(() => {
   store.getUserInfo();
-  store.getUserBlogList();
+  store.getUserBlogList(true);
 });
 
 // 添加登出处理函数
@@ -35,12 +35,11 @@ const user = computed(() => store.user);
 
 // const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
-const loading = ref(false);
-const noMorePosts = ref(false);
+
 const postsContainer = ref<HTMLElement | null>(null);
 
 // 用户博客数据
-const userPosts = computed(() => store.userPosts);
+const userPosts = computed(() => store.blogs);
 
 // 博客详情相关的状态和方法
 const selectedBlog = computed(() => store.selectedPost);
@@ -218,8 +217,7 @@ const toggleEditMode = () => {
 };
 
 // 删除博客
-const deleteBlog = async (blogId: number, event: Event) => {
-  event.stopPropagation(); // 阻止事件冒泡，避免触发博客详情
+const deleteBlog = async (blogId: number) => {
   try {
     await ElMessageBox.confirm(
       'Are you sure you want to delete this blog post?',
@@ -417,7 +415,7 @@ const toggleMenu = () => {
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
           <div
-            v-for="post in userPosts"
+            v-for="post in userPosts.items"
             :key="post.id"
             class="blog-post"
             :class="{
@@ -433,7 +431,7 @@ const toggleMenu = () => {
                 circle
                 size="small"
                 class="delete-btn"
-                @click="(e) => deleteBlog(post.id, e)"
+                @click.prevent.stop="(e) => deleteBlog(post.id)"
               >
                 <i class="el-icon-delete"></i>
               </el-button>
@@ -466,8 +464,8 @@ const toggleMenu = () => {
           </div>
         </div>
         <!-- 底部加载提示 -->
-        <div v-if="loading" class="loading">Loading more posts...</div>
-        <div v-if="noMorePosts" class="no-more">No more posts</div>
+        <div v-if="userPosts.loading" class="loading">Loading more posts...</div>
+        <div v-if="!userPosts.has_next" class="no-more">No more posts</div>
       </section>
     </section>
 

@@ -1,20 +1,19 @@
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { userLogin, userProfile, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
-import type { IBlogPost, IBlogEdit } from '@/types/blog';
+import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
+import { INIT_PAGINATION } from '@/types/service';
 import { auth } from '@/services/http';
 
 export const useUserStore = defineStore('user', () => {
   // 状态
   const user = ref<IUser>();
-  const userPosts = ref<IBlogPost[]>([]);
-  const selectedPost = ref<IBlogPost>();
+  const blogs = ref<IBlogPage>(INIT_PAGINATION);
+  const selectedPost = ref<IBlog>();
   const followings = ref<IUser[]>([]);
   const followers = ref<IUser[]>([]);
 
-  // 计算属性
-  const totalLikes = computed(() => userPosts.value.reduce((sum, post) => sum + post.likes, 0));
 
 
   /**
@@ -45,7 +44,7 @@ export const useUserStore = defineStore('user', () => {
   function logout() {
     return userLogout().then(() =>{
       user.value = undefined;
-      userPosts.value = [];
+      blogs.value.items = [];
     });
   }
 
@@ -85,9 +84,25 @@ export const useUserStore = defineStore('user', () => {
    * 获取用户blog列表
    * @returns
    */
-  function getUserBlogList() {
-    return getMyBlogList().then((res) => {
-      userPosts.value = res.data.blogs;
+  function getUserBlogList(refresh:boolean = false) {
+    return new Promise((resovle, reject) =>{
+      if(refresh) {
+        blogs.value.args.page = 1;
+      } else {
+        if(blogs.value.has_next) {
+          blogs.value.args.page = (blogs.value.args.page||1) + 1;
+        }else {
+          return reject({});
+        }
+      }
+      blogs.value.loading = true;
+      getMyBlogList(blogs.value.args).then((res) => {
+        const data = res.data;
+        if(!refresh && blogs.value?.items.length)
+          data.items = [...(blogs.value?.items || []), ...data.items];
+        blogs.value = data;
+        resovle(res);
+      }).catch(e => reject(e)).finally(()=> blogs.value.loading = false);
     });
   }
   /**
@@ -166,7 +181,7 @@ export const useUserStore = defineStore('user', () => {
   function getFollowings(id?:number) {
     if(!id) id = user.value?.id as number;
     return userFollowings(id).then(({data}) =>{
-      followings.value = data.list as IUser[]
+      followings.value = data.items as IUser[]
     });
   }
   /**
@@ -177,7 +192,7 @@ export const useUserStore = defineStore('user', () => {
   function getFollowers(id?:number) {
     if(!id) id = user.value?.id as number;
     return userFollowers(id).then(({data}) =>{
-      followers.value = data.list as IUser[]
+      followers.value = data.items as IUser[]
     });
   }
 
@@ -186,12 +201,10 @@ export const useUserStore = defineStore('user', () => {
   return {
     // 状态
     user,
-    userPosts,
+    blogs,
     selectedPost,
     followings,
     followers,
-    // 计算属性
-    totalLikes,
     // Actions
     login,
     isLogin,

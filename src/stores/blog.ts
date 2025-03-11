@@ -2,15 +2,16 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters,
   comment2Comment, myblogedit, blogPost, Postimage, comments, getOsBlogList } from '@/services/api';
-import type { IBlogPost, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
+import type { IBlogPage, IBlog, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
+import { INIT_PAGINATION } from '@/types/service';
 import type { UploadFile } from 'element-plus';
 
 export const useBlogStore = defineStore('blog', () => {
-  const blogs = ref<IBlogPost[]>([]); // blog数组
+  const blogs = ref<IBlogPage>(INIT_PAGINATION); // blog列表数据
   const condition = ref<IBlogReq>({}); // 查询blog列表的条件
   const socialFilters = ref<ISocialFilter[]>([]); // 社会过滤器
-  const blog = ref<IBlogPost>(); // 单独blog
-  const blogos = ref<IBlogPost[]>([]); // 官方博客列表
+  const blog = ref<IBlog>(); // 单独blog
+  const blogos = ref<IBlogPage>(INIT_PAGINATION); // 官方博客列表
 
   const createData = ref<IBlogPostCreate>({
     title: '',
@@ -58,38 +59,28 @@ export const useBlogStore = defineStore('blog', () => {
    * 获取blog列表
    * @returns
    */
-  function getBlogList() {
-    return getAllBlogList(condition.value)
-      .then(({ data }) => {
-        blogs.value = data.blogs;
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }
-
-  /**
-   * 加载更多博客（用于无限滚动）
-   * @param page 页码
-   * @returns Promise
-   */
-  function loadMoreBlogs(page: number) {
-    // 添加页码到查询条件
-    const queryParams = { ...condition.value, page };
-
-    return getAllBlogList(queryParams)
-      .then(({ data }) => {
-        // 将新加载的博客追加到现有列表，而不是替换
-        if (data.blogs && data.blogs.length > 0) {
-          blogs.value = [...blogs.value, ...data.blogs];
+  function getBlogList(refresh:boolean = false) {
+    return new Promise((resovle, reject) =>{
+      if(refresh) {
+        blogs.value.args.page = 1;
+      } else {
+        if(blogs.value.has_next) {
+          blogs.value.args.page = (blogs.value.args.page||1) + 1;
+        }else {
+          return reject({});
         }
-        return data.blogs || [];
-      })
-      .catch((e) => {
-        console.error('Failed to load more blogs:', e);
-        return [];
-      });
+      }
+      blogs.value.loading = true;
+      getAllBlogList(blogs.value.args).then((res) => {
+        const data = res.data;
+        if(!refresh && blogs.value?.items.length)
+          data.items = [...(blogs.value?.items || []), ...data.items];
+        blogs.value = data;
+        resovle(res);
+      }).catch(e => reject(e)).finally(()=> blogs.value.loading = false);
+    });
   }
+
   /**
    * 根据id获取blog
    * @param id
@@ -108,15 +99,32 @@ export const useBlogStore = defineStore('blog', () => {
    * 获取官方博客列表
    * @returns
    */
-  function getBlogosList() {
-    return getOsBlogList()
-    .then(({data}) => {
-      blogos.value = data.blogs;
+  function getBlogosList(refresh:boolean = false) {
+    return new Promise((resovle, reject) =>{
+      if(refresh) {
+        blogos.value.args.page = 1;
+      } else {
+        if(blogos.value.has_next) {
+          blogos.value.args.page = (blogos.value.args.page||1) + 1;
+        }else {
+          return reject({});
+        }
+      }
+      blogos.value.loading = true;
+      getOsBlogList(blogos.value.args).then((res) => {
+        const data = res.data;
+        if(!refresh && blogos.value?.items.length)
+          data.items = [...(blogos.value?.items || []), ...data.items];
+        blogos.value = data;
+        resovle(res);
+      }).catch(e => reject(e)).finally(() => blogos.value.loading = false);
     });
+
+
   }
 
   function clearBlog() {
-    blog.value = <IBlogPost>{};
+    blog.value = <IBlog>{};
   }
 
   function editmyblog() {
@@ -144,7 +152,7 @@ export const useBlogStore = defineStore('blog', () => {
     blogs, condition, blog, createData, socialFilters,blogos,
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
-    commenttoBlog, commenttoComment, editmyblog, loadMoreBlogs, getComments,
+    commenttoBlog, commenttoComment, editmyblog, getComments,
     getBlogosList
   };
 });

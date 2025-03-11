@@ -1,8 +1,8 @@
 import type { ICommon } from './base';
-import type { IRequest } from './service';
+import type { IPagination, IRequest } from './service';
 import type { IUser } from './user';
 
-export interface IBlogPost extends ICommon {
+export interface IBlog extends ICommon {
   id: number;
   image: string[];
   user: IUser;
@@ -15,10 +15,14 @@ export interface IBlogPost extends ICommon {
   tags: string[];
   isNFT: boolean;
 }
+export interface IBlogPage extends IPagination {
+  args: IBlogReq;
+  items: IBlog[];
+}
 
 export interface IBlogReq extends IRequest {
   keyword?: string; // 关键字
-  tag?: string; // 标签
+  'social_filter[]'?: number[]; // 标签
 }
 
 export interface IBlogPostCreate {

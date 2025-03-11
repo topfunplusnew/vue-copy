@@ -1,7 +1,3 @@
-export interface IApiUrls {
-  // apiurl枚举
-  [porpName: string]: string;
-}
 /**
  * 请求
  */
@@ -16,25 +12,16 @@ export interface IResponse<T = unknown> {
   describe?: string; // 描述
   records?: T; // 数据
 }
-export interface IPagination {
-  // 分页
-  endRow: number;
-  hasNextPage: false;
-  hasPreviousPage: false;
-  isFirstPage: true;
-  isLastPage: true;
-  navigateFirstPage: number;
-  navigateLastPage: number;
-  navigatePages: number;
-  navigatepageNums: number[];
-  nextPage: number;
-  pageNum: number;
-  pageSize: number;
-  pages: number;
-  prePage: number;
-  size: number;
-  startRow: number;
+export interface IPagination<T = unknown> {
+  items: T[];
+  args: IRequest;
+  loading: boolean;
   total: number;
+  page: number;
+  per_page: number;
+  pages: number;
+  has_next: boolean;
+  has_prev: boolean;
 }
 export interface ITokenConfig {
   name: string;
@@ -50,7 +37,22 @@ export interface IAdaptConfig {
   response?: IResponseConfig; // api返回信息
 }
 export const INIT_PAGE_NUM = 1; // 初始页面
-export const INIT_PAGE_SIZE = 10; // 分页
+export const INIT_PAGE_SIZE = 20; // 分页
+
+export const INIT_PAGINATION = {
+  items: [],
+  args: {
+    page: 1,
+    per_page: 20
+  },
+  loading: false,
+  total: 0,
+  page: 1,
+  per_page: 20,
+  pages: 0,
+  has_next: false,
+  has_prev: false
+}
 
 export enum API_STATUS { // api数据状态
   NORMAL, // 正常

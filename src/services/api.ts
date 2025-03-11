@@ -73,7 +73,7 @@ export const getBlogPost = (id: string) => http.get('/blog', {params:{id}}); // 
 
 export const getMyBlogList = (req:IBlogReq = {}) => http.get('/my_blogs', {params:req}); // blog列表，可以搜索分页
 export const getAllBlogList = (req:IBlogReq = {}) => http.get('/blogs', {params:req}); // 我的blog，blog列表一样的搜索和分页
-export const getOsBlogList = (req:IRequest = {}) => http.get('/blogs/official', {params:req}); // 官方blog，可以分页
+export const getOsBlogList = (req:IBlogReq = {}) => http.get('/blogs/official', {params:req}); // 官方blog，可以分页
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});
@@ -88,8 +88,8 @@ export const homeviewweather = (city: string) => http.get('/weather', {params:{c
 export const userFollow = (id:number) => http.post('/user/follow', {id});
 export const userUnfollow = (id:number) => http.delete('/user/follow', {params:{id}});
 export const userIsFollowing = (id:number) => http.get('user/follow', {params:{id}});
-export const userFollowings = (id:number) => http.get(`/user/followings/${id}`);
-export const userFollowers = (id:number) => http.get(`/user/followers/${id}`);
+export const userFollowings = (id:number, req:IRequest = {}) => http.get(`/user/followings/${id}`, {params:req});
+export const userFollowers = (id:number, req:IRequest = {}) => http.get(`/user/followers/${id}`, {params:req});
 
 
 /**

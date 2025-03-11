@@ -37,7 +37,7 @@ const noMorePosts = ref(false);
 const postsContainer = ref<HTMLElement | null>(null);
 
 // 用户博客数据
-const userPosts = computed(() => store.userPosts);
+const userPosts = computed(() => store.blogs);
 
 // 博客详情相关的状态和方法
 const selectedBlog = computed(() => store.selectedPost);
@@ -392,7 +392,7 @@ function toggleFollowUser(follower:IUser) {
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
         <div class="blog-posts">
           <div
-            v-for="post in userPosts"
+            v-for="post in userPosts.items"
             :key="post.id"
             class="blog-post"
             :class="{

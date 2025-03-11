@@ -2,7 +2,6 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 
@@ -18,46 +17,12 @@ const router = useRouter();
 const store = useUserStore();
 
 
-const showBlogDetail = async (id: number) => {
-  // 重置图片索引
-  currentImageIndex.value = 0;
-
-  try {
-    // 添加参数指示后端返回所有回复，不分页
-    await store.getBlogByID(id);
-    dialogBlog.value = true;
-
-    // 重置评论区状态
-    expandedReplies.value = [];
-    expandedComments.value = []; // 重置已展开的评论列表
-    replyContent.value = '';
-    replyTarget.value = null;
-
-    // 在对话框打开后滚动到顶部
-    nextTick(() => {
-      const detailBox = document.querySelector('.blog-details-home');
-      if (detailBox) {
-        detailBox.scrollTop = 0;
-      }
-    });
-  } catch (error) {
-    console.error('无法加载博客详情:', error);
-    ElMessage.error('Failed to load blog details');
-  }
-};
 
 const loginForm = reactive({
   email: '',
   password: ''
 });
 
-const closeBlogDetail = () => {
-  dialogBlog.value = false;
-  // 恢复背景滚动
-  document.body.style.overflow = '';
-  // 清空评论输入
-  newComment.value = '';
-};
 
 const errorMessage = ref('');
 const isLoading = ref(false);
@@ -74,13 +39,13 @@ const handleLogin = async () => {
 
   try {
     await store.login(loginForm);
-    
+
     ElMessage({
       message: 'Login successful!',
       type: 'success',
       duration: 2000
     });
-    
+
     router.push({ name: 'home' });
   } catch (error: unknown) {
     console.error(error);
@@ -147,11 +112,11 @@ const handleSocialLogin = (provider: string) => {
           <span v-if="!isLoading">Sign In</span>
           <span v-else class="loading-spinner"></span>
         </button>
-        
+
         <div class="or-divider">
           <span>or continue with</span>
         </div>
-        
+
         <div class="social-login">
           <button type="button" class="social-button" @click="handleSocialLogin('Google')">
             <img src="@/assets/google-logo.svg" alt="Google" />
@@ -166,7 +131,7 @@ const handleSocialLogin = (provider: string) => {
             WeChat
           </button>
         </div>
-        
+
         <div class="signup-link">
           Don't have an account? <router-link :to="{ name: 'signup' }">Sign up</router-link>
         </div>
