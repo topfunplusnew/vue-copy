@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginView from '@/views/user/Login-view.vue';
-import SignupView from '@/views/user/Signup-view.vue';
-import PostView from '@/views/trip/Post-view.vue'; // 引入 Post-view 页面
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,7 +11,13 @@ const router = createRouter({
     {
       path: '/post-view', // 路由路径
       name: 'PostView',
-      component: PostView, // 对应的组件
+      component: () => import('@/views/trip/Post-view.vue'),
+    },
+    {
+      path: '/edit/:id', // 路由路径
+      name: 'editBlog',
+      component: () => import('@/views/trip/Post-view.vue'),
+      props: true
     },
     {
       path: '/about',
@@ -34,12 +37,12 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: LoginView,
+      component: () => import('@/views/user/Login-view.vue'),
     },
     {
       path: '/signup',
       name: 'signup',
-      component: SignupView,
+      component: () => import('@/views/user/Signup-view.vue'),
     },
     {
       path: '/forgetpassword',

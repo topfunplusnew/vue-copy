@@ -9,6 +9,15 @@ import { useBlogStore } from '@/stores/blog';
 import commonHeader from '@/layout/common-header.vue';
 import { getImageUrl } from '@/utils';
 
+
+
+const props = defineProps({
+  id: {
+    type: Number,
+  },
+});
+console.log(props.id);
+
 const store = useBlogStore();
 
 const socialFilters = computed(() => store.socialFilters); // 社会过滤器
