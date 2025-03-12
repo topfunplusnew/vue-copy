@@ -2,7 +2,7 @@
   <div class="wallet-item">
     <div v-if="status == WALLET_STATUS.CONNECTED" class="wallet-item-address" v-text="address"></div>
     <div v-else-if="status == WALLET_STATUS.NO_PROVIDER" class="wallet-item-address"><a href="https://metamask.io/download/">install MetaMask</a></div>
-    <button v-else @click="onConnect">CONNECT WALLET</button>
+    <button v-else @click="onConnect">WALLET</button>
   </div>
 </template>
 

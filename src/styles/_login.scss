@@ -7,7 +7,7 @@
   justify-content: flex-start;
   padding: 20px 15px 40px;
   width: 100%;
-  max-width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   box-sizing: border-box;
 }
@@ -17,7 +17,7 @@
   padding: 30px 20px;
   margin-bottom: 20px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
 }
 
 .header-title-login{
@@ -43,7 +43,7 @@
 /* 登录页面容器 */
 .login-container {
   width: 100%;
-  max-width: 450px;
+  max-width: 550px;
   margin: 0 auto;
   padding: clamp(20px, 5vw, 40px);
   background-color: rgba(255, 255, 255, 0.1);
@@ -434,5 +434,37 @@
   
   .or-divider span {
     padding: 0 8px;
+  }
+}
+
+/* 大屏幕样式 */
+@media (min-width: 1200px) {
+  .login-page-container {
+    max-width: 1500px;
+  }
+  
+  .login-container {
+    max-width: 700px;
+    padding: 50px;
+  }
+  
+  .login-hero {
+    max-width: 1000px;
+  }
+}
+
+/* 超宽屏幕样式 */
+@media (min-width: 1800px) {
+  .login-page-container {
+    max-width: 1800px;
+  }
+  
+  .login-container {
+    max-width: 800px;
+    padding: 60px;
+  }
+  
+  .login-hero {
+    max-width: 1200px;
   }
 }

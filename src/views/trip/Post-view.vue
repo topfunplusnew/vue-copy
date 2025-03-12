@@ -8,8 +8,7 @@ import { Auth } from '@/services/auth';
 import { useBlogStore } from '@/stores/blog';
 import commonHeader from '@/layout/common-header.vue';
 import { getImageUrl } from '@/utils';
-
-
+import { destinations } from '@/utils/destinations';
 
 const props = defineProps({
   id: {
@@ -19,6 +18,7 @@ const props = defineProps({
 console.log(props.id);
 
 const store = useBlogStore();
+
 
 const socialFilters = computed(() => store.socialFilters); // 社会过滤器
 const createData = computed(() => store.createData); // 创建数据
@@ -34,7 +34,17 @@ const router = useRouter();
 const showPreview = ref(false);
 const auth = new Auth();
 
+const selectedDestination = ref('');
+const userDestination = ref('');
 
+
+const handleDestinationSelect = async (value: string) => {
+  selectedDestination.value = value;
+  const dest = destinations.find((item) => item.value === value);
+  if (dest) {
+    userDestination.value = dest.label;
+  } 
+};
 
 // 添加选中偏好的响应式数据
 
@@ -247,18 +257,16 @@ onMounted(async () => {
 
 <template>
   <div class="background-layer"></div>
-
   <!-- 保留公共头部 -->
-
   <div class="home">
   <common-header />
-  <el-container class="post-view-container">
+  
   <el-main class="post-content">
     <!-- 内容卡片 -->
     <el-card class="post-card">
       <template #header>
         <div class="post-card-header">
-          <h2 class="post-title">Share your happiness!</h2>
+          <div class="post-title">Post Your Blog</div>
           <el-button
             type="primary"
             @click="handlePreviewClick"
@@ -273,7 +281,9 @@ onMounted(async () => {
       <!-- 博客创建表单 -->
       <el-form :model="createData" label-position="top">
         <!-- 标题输入 -->
-        <el-form-item label="Title">
+        <el-form-item 
+          label="Title" 
+          style="--el-form-label-font-size: 1.4rem; --el-text-color-regular: white;">
           <el-input
             v-model="createData.title"
             type="textarea"
@@ -312,85 +322,50 @@ onMounted(async () => {
         </el-form-item>
 
         <!-- 图片上传 -->
-        <el-form-item label="Photos (up to 9)">
-          <el-upload
-            class="post-upload"
-            :show-file-list="false"
-            :on-change="handleImageUpload"
-            :auto-upload="false"
-            multiple
-            accept="image/*"
-            list-type="picture-card"
-          >
-            <el-icon><Plus /></el-icon>
-            <div class="upload-text">Select Images</div>
+        <div class="image-upload-post">
+          <div class="upload-text-post">Photos</div>
+          <el-upload class="upload-container" :show-file-list="false" :on-change="handleImageUpload" :auto-upload="false" :multiple="true" accept="image/*">
+            <template #trigger>
+              <el-button type="primary">
+                <el-icon><Plus /></el-icon>
+                Select Images
+              </el-button>
+            </template>
           </el-upload>
+          <span class="tags-hint" v-if="!images.length">Upload up to 9 images</span>
 
-          <!-- 图片预览 -->
-          <div class="image-gallery" v-if="createData.image.length">
-            <el-image
-              v-for="(image, index) in createData.image"
-              :key="index"
-              :src="getImageUrl(image)"
-              :preview-src-list="createData.image.map(img => getImageUrl(img))"
-              fit="cover"
-              class="preview-image"
-            >
-              <template #error>
-                <div class="image-slot">
-                  <el-icon><Picture /></el-icon>
-                </div>
-              </template>
-              <template #placeholder>
-                <div class="image-slot">
-                  <el-icon><Loading /></el-icon>
-                </div>
-              </template>
-              <div class="image-actions">
-                <el-button
-                  type="danger"
-                  circle
-                  size="small"
-                  icon="Delete"
-                  @click.stop="removeImage(index)"
-                ></el-button>
-              </div>
-            </el-image>
+          <!-- 图片预览部分 -->
+          <div class="image-preview-container" v-if="images.length">
+            <div v-for="(image, index) in images" :key="index" class="image-preview">
+              <img :src="image.src" :alt="`Preview ${index + 1}`" />
+              <button class="remove-image" @click="removeImage(index)">×</button>
+            </div>
           </div>
-        </el-form-item>
-
+        </div>
+        
         <!-- 标签输入 -->
-        <el-form-item label="Tags (up to 5)">
-          <div class="tags-input-area">
-            <div class="tags-list">
-              <el-tag
-                v-for="(tag, index) in tags"
-                :key="index"
-                closable
-                @close="removeTag(index)"
-                class="post-tag"
-              >
-                {{ tag }}
-              </el-tag>
-            </div>
-            <div class="tag-input">
-              <el-input
-                v-model="tagInput"
-                placeholder="Add tag"
-                @keydown="handleTagInput"
-                maxlength="15"
-                class="tag-input-field"
-              >
-                <template #append>
-                  <el-button @click="addTag" :disabled="tags.length >= 5 || !tagInput.trim()">
-                    Add
-                  </el-button>
-                </template>
-              </el-input>
-              <div class="tag-count" v-if="tags.length > 0">{{ tags.length }}/5 tags</div>
+        <div class="tags-section-post">
+          <!-- 左侧：标题和输入框 -->
+          <div class="tags-left">
+            <div class="tags-title-post">Tags</div>
+            <div class="tag-input-container-post">
+              <textarea v-model="tagInput" class="tag-editor-post" placeholder="Type tag and press Enter" @keydown="handleTagInput" maxlength="15"></textarea>
+              <span class="tag-limit-hint">Press Enter to add (max 5 tags)</span>
             </div>
           </div>
-        </el-form-item>
+          
+          <!-- 右侧：标签显示 -->
+          <div class="tags-right">
+            <div class="tags-container-post">
+              <div v-if="tags.length === 0" class="no-tags-hint">No tags added yet</div>
+              <div v-for="(tag, index) in tags" :key="index" class="tag-post">
+                {{ tag }}
+                <span class="tag-remove" @click="removeTag(index)" title="Remove tag">×</span>
+              </div>
+              <span v-if="tags.length > 0" class="tag-count-post">{{ tags.length }}/5</span>
+            </div>
+          </div>
+        </div>
 
         <!-- 评论权限 -->
         <el-form-item label="Who can reply?">
@@ -425,7 +400,7 @@ onMounted(async () => {
       </el-form>
     </el-card>
   </el-main>
-</el-container>
+
 
 <!-- 预览组件 -->
 <PostPreview
@@ -439,3 +414,5 @@ onMounted(async () => {
 />
 </div>
 </template>
+
+

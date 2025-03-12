@@ -581,7 +581,8 @@ const expandReplies = async (commentId: number|undefined) => {
           <!-- Destination -->
           <div class="field destination-field">
             <div class="field-label">Destination</div>
-            <el-select v-model="selectedDestination" placeholder="Select destination"
+            <el-select v-model="selectedDestination" 
+            placeholder="Select destination"
             class="select" filterable @change="handleDestinationSelect">
               <el-option v-for="(destination, index) in destinations" :key="index"
               :label="destination.label" :value="destination.value" />
@@ -693,7 +694,8 @@ const expandReplies = async (commentId: number|undefined) => {
               <div class="post-footer-home">
                 <!-- 作者信息 -->
                 <div class="author-info-home">
-                  <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar-home" />
+                  <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" 
+                  alt="Avatar" class="post-avatar-home" />
                   <span class="author-name-home">{{ post.user?.name }}</span>
                 </div>
 

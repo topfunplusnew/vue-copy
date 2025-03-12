@@ -668,11 +668,11 @@
             
             button {
               padding: 6px 10px;
-              border-radius: 8px;
+          border-radius: 8px;
               background: rgba(255, 255, 255, 0.2);
               color: #fff;
               border: none;
-              cursor: pointer;
+          cursor: pointer;
               transition: background 0.3s ease;
               font-size: 1.35rem;
               margin-left: 0.6rem;
@@ -694,16 +694,15 @@
             flex: 0 0 auto;
             padding: 14px 32px;
             font-size: 1.5rem;
-            background: linear-gradient(135deg, #ff7e5f, #feb47b);
+            background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
             backdrop-filter: blur(10px);
             border: none;
             color: white;
             border-radius: 12px;
             transition: all 0.3s ease;
-            font-weight: bold;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(255, 126, 95, 0.4);
-            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
             
             @media (max-width: 768px) {
               padding: 10px 24px;
@@ -714,16 +713,16 @@
               padding: 8px 16px;
               font-size: 1rem;
             }
-            
-            &:hover {
-              background: linear-gradient(135deg, #feb47b, #ff7e5f);
-              transform: scale(1.1);
-              box-shadow: 0 6px 20px rgba(255, 126, 95, 0.6);
+    
+          &:hover {
+              background: linear-gradient(45deg, rgba(86, 180, 233, 0.9), rgba(233, 86, 108, 0.9));
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             }
             
-            &:focus {
-              outline: none;
-              box-shadow: 0 0 0 4px rgba(255, 126, 95, 0.3);
+            &:active {
+              transform: translateY(0);
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
           }
         }
@@ -745,7 +744,7 @@
         .social-posts-panel {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
-          gap: 1rem;
+        gap: 1rem;
           padding-bottom: 1rem;
           max-height: none;
           min-height: calc(100vh - 100px);
@@ -794,11 +793,11 @@
             
             .load-more-btn-home {
             background: rgba(255, 255, 255, 0.2);
-              border: none;
+            border: none;
               color: white;
               padding: 10px 20px;
               border-radius: 4px;
-              cursor: pointer;
+            cursor: pointer;
               font-size: 1.5rem ;
               transition: all 0.3s ease;
               
@@ -867,7 +866,7 @@
             }
 
             .post-image-home {
-              width: 100%;
+          width: 100%;
               height: 200px;
               object-fit: cover;
               flex-shrink: 0;
@@ -879,7 +878,7 @@
               padding: 8px 10px;
               display: flex;
               flex-direction: column;
-              overflow: hidden;
+            overflow: hidden;
               position: relative;
 
               .post-title-home {
