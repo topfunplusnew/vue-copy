@@ -543,7 +543,7 @@ const expandReplies = async (commentId: number|undefined) => {
         class="welcome-text"
       />
       <blur-text
-        text="To Explore, To Share, To Earn [Beta For internal iPoloGO members only.]"
+        text="To Explore, To Share, To Earn"
         :delay="180"
         animateBy="words"
         direction="bottom"

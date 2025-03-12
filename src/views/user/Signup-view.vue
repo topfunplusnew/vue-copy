@@ -5,7 +5,7 @@ import Captcha from '@/components/captcha-item.vue';
 import { userSignup } from '@/services/api';
 import { useRouter } from 'vue-router';
 import { ElInput } from 'element-plus';
-
+import commonHeader from '@/layout/common-header.vue';
 const msg = 'Start Your Journey in iPoloGO';
 const router = useRouter();
 
@@ -103,24 +103,12 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="signup-page">
-    <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
-          <router-link :to="{ name: 'home' }"><el-button class="nav-button">HOME</el-button></router-link>
-          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
-          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
-          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
-          <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">LOGIN</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
-        </div>
-      </div>
-    </header>
-
+  <div class="background-layer"></div>
+  <div class="home">
+    <commonHeader />
     <div class="signup-hero">
-      <h2 class="header-title-signup">{{ msg }}</h2>
-      <p class="signup-subtitle">Join our community and start exploring the world</p>
+      <div class="header-title-signup">{{ msg }}</div>
+      <div class="signup-subtitle">Join our community and start exploring the world</div>
     </div>
 
     <div class="signup-container" :class="{ 'success': signupSuccess }">
@@ -131,17 +119,19 @@ const handleSubmit = async () => {
       </div>
 
       <form @submit.prevent="handleSubmit" v-else>
-        <h3 class="form-title-signup">Create Your Account</h3>
+        <div class="form-title-signup">Create Your Account</div>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <div class="form-group-signup">
           <label for="username">Username</label>
-          <input type="text" id="username" v-model="editForm.name" placeholder="How should we call you?" />
+          <input type="text" id="username" v-model="editForm.name" 
+          placeholder="How should we call you?" />
         </div>
 
         <div class="form-group-signup">
           <label for="email">Email</label>
-          <input type="email" id="email" v-model="editForm.email" placeholder="example@domain.com" required />
+          <input type="email" id="email" v-model="editForm.email" 
+          placeholder="example@domain.com" required />
         </div>
 
         <div class="form-group-signup">
