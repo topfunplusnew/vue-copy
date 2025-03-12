@@ -1,12 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import HomeView from '@/views/home-view.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
+      name: 'main',
+      component: HomeView,
+    },
+    {
+      path: '/home/:id?',
       name: 'home',
-      component: () => import('@/views/home-view.vue'),
+      component: () => import('@/views/blog/list-view.vue'),
+      props: true
     },
     {
       path: '/post-view', // 路由路径
