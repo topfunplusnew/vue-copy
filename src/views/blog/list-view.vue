@@ -670,7 +670,7 @@ const expandReplies = async (commentId: number|undefined) => {
               :class="{ 'nft-post-home': post.isNFT }"
               v-for="post in allPosts?.items"
                 :key="post.id"
-              @click="showBlogDetail(post.id)"
+              @click="showBlogDetail(Number(post.id))"
             >
               <router-link :to="{
                 name:'home',

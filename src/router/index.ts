@@ -16,14 +16,9 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/post-view', // 路由路径
+      path: '/post-view/:id?', // 路由路径
       name: 'PostView',
-      component: () => import('@/views/trip/Post-view.vue'),
-    },
-    {
-      path: '/edit/:id', // 路由路径
-      name: 'editBlog',
-      component: () => import('@/views/trip/Post-view.vue'),
+      component: () => import('@/views/blog/post-view.vue'),
       props: true
     },
     {
