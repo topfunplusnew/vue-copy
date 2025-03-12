@@ -1,20 +1,16 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, reactive } from 'vue';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
 import { useChatStore } from '@/stores/chat';
 import commonHeader from '@/layout/common-header.vue';
 import MarkdownIt from 'markdown-it';
 const md = new MarkdownIt();
 
-
 const store = useChatStore();
 const message = computed(()=> store.message);
 const messages = computed(() => store.messages);
 const conversations = computed(() => store.conversations);
-
-
-
 
 function loadHistory(id:number|undefined) {
   if(id) store.getChatsByConversationID(id).catch(e=>console.log(e));
@@ -22,12 +18,11 @@ function loadHistory(id:number|undefined) {
 
 const userChatInput = ref('');
 const loading = ref(false);
-
-
-
+const showHistory = ref(false);
+const showTripOptions = ref(false);
+const editablePrompt = ref('');
 
 function handleUserInput(event: Event | KeyboardEvent) {
-
   if ((event as KeyboardEvent).shiftKey) return; // 如果按住 shift，允许换行
 
   if (userChatInput.value.trim()) {
@@ -45,7 +40,9 @@ const finishConversation = () => {
   store.clear()
 };
 
-
+function toggleTripOptions() {
+  showTripOptions.value = !showTripOptions.value;
+}
 
 const tripSelections = reactive({
   Transportation: [] as string[],
@@ -136,10 +133,7 @@ watch(() => tripSelections.Budget.Hotel, (val) => { updateBudgetProportions("Hot
 watch(() => tripSelections.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
 watch(() => tripSelections.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
 
-
-
 // Date Element Plus 组件
-
 
 const dateShortcuts = [
   {
@@ -197,7 +191,6 @@ const dateShortcuts = [
   }
 ];
 
-
 const calculateDuration = () => {
   if (tripSelections.Duration.length === 2) {
     const start = new Date(tripSelections.Duration[0]);
@@ -218,47 +211,85 @@ watch(() => tripSelections.Duration, (newDates) => {
   }
 }, { deep: true });
 
-// 以下 tripPrompt 作为备用生成逻辑
+// 根据用户选择生成旅行提示文本
 const tripPrompt = computed(() => {
   const parts: string[] = [];
+  
+  // 旅行时间部分
   if (tripSelections.Duration.length === 2) {
-    const startDate = new Date(tripSelections.Duration[0]).toLocaleDateString();
-    const endDate = new Date(tripSelections.Duration[1]).toLocaleDateString();
-    parts.push(`I plan to travel from ${startDate} to ${endDate} (${tripSelections.DurationDays} days).`);
+    const startDate = tripSelections.Duration[0].toLocaleDateString();
+    const endDate = tripSelections.Duration[1].toLocaleDateString();
+    parts.push(`Plan a ${tripSelections.DurationDays}-day trip from ${startDate} to ${endDate}.`);
   }
-  if (tripSelections.Transportation.length) {
-    const trans = tripSelections.Transportation.join(", ");
-    const tClass = tripSelections.TransportationClass ? ` (${tripSelections.TransportationClass})` : "";
-    parts.push(`My chosen transportation is ${trans}${tClass}.`);
+  
+  // 交通方式部分
+  if (tripSelections.Transportation.length > 0) {
+    const transportModes = tripSelections.Transportation.join(", ");
+    parts.push(`Travel by ${transportModes}${tripSelections.TransportationClass ? ` (${tripSelections.TransportationClass})` : ''}.`);
   }
-  if (tripSelections.Hotel.length) {
-    parts.push(`I prefer to stay at ${tripSelections.Hotel.join(", ")}.`);
+  
+  // 酒店偏好部分
+  if (tripSelections.Hotel.length > 0) {
+    parts.push(`Stay in ${tripSelections.Hotel.join(", ")}.`);
   }
-  if (tripSelections.Budget.Currency || tripSelections.Budget.Total) {
-    const currency = tripSelections.Budget.Currency || "";
-    const total = tripSelections.Budget.Total || "";
-    parts.push(`My total budget is ${currency} ${total} with proportions: Transportation ${tripSelections.Budget.Transportation}%, Hotel ${tripSelections.Budget.Hotel}%, Tickets ${tripSelections.Budget.Tickets}%, Activities ${tripSelections.Budget.Activities}%.`);
+  
+  // 门票部分
+  if (tripSelections.Tickets.length > 0) {
+    parts.push(`Include tickets for ${tripSelections.Tickets.join(", ")}.`);
   }
-  if (tripSelections.Tickets.length) {
-    parts.push(`I plan to purchase ${tripSelections.Tickets.join(", ")}.`);
+  
+  // 活动部分
+  if (tripSelections.Activities.length > 0) {
+    parts.push(`Activities should include ${tripSelections.Activities.join(", ")}.`);
   }
-  if (tripSelections.Activities.length) {
-    parts.push(`I intend to participate in ${tripSelections.Activities.join(", ")}.`);
+  
+  // 预算部分
+  if (tripSelections.Budget.Total > 0) {
+    const currency = allCurrencies[tripSelections.Budget.Currency]?.code || 'USD';
+    parts.push(`Total budget: ${tripSelections.Budget.Total} ${currency}.`);
+    
+    // 预算分配
+    const budgetDetails = [];
+    if (tripSelections.Budget.Transportation > 0) {
+      budgetDetails.push(`${tripSelections.Budget.Transportation}% for transportation`);
+    }
+    if (tripSelections.Budget.Hotel > 0) {
+      budgetDetails.push(`${tripSelections.Budget.Hotel}% for accommodation`);
+    }
+    if (tripSelections.Budget.Tickets > 0) {
+      budgetDetails.push(`${tripSelections.Budget.Tickets}% for tickets`);
+    }
+    if (tripSelections.Budget.Activities > 0) {
+      budgetDetails.push(`${tripSelections.Budget.Activities}% for activities`);
+    }
+    
+    if (budgetDetails.length > 0) {
+      parts.push(`Budget allocation: ${budgetDetails.join(", ")}.`);
+    }
   }
-  return parts.join(" ");
+  
+  return parts.length > 0 ? parts.join(" ") : "请选择旅行选项生成提示。";
 });
 
-// const insertTripPrompt = () => {
-//   if (tripPrompt.value) {
-//     userChatInput.value = tripPrompt.value;
-//   }
-// };
+// 监视tripPrompt变化，自动更新可编辑内容
+watch(tripPrompt, (newValue) => {
+  editablePrompt.value = newValue;
+});
 
-const insertTripPrompt = async () => {
-  if (tripPrompt.value && !loading.value) {
-    store.chat(tripPrompt.value);
+// 将生成的旅行提示插入到聊天输入框
+function insertTripPrompt() {
+  if (editablePrompt.value) {
+    userChatInput.value = editablePrompt.value;
+    toggleTripOptions(); // 关闭选项弹窗
+    // 可选：自动聚焦到聊天输入框
+    setTimeout(() => {
+      const inputElement = document.querySelector('.chat-input textarea');
+      if (inputElement) {
+        (inputElement as HTMLTextAreaElement).focus();
+      }
+    }, 100);
   }
-};
+}
 
 const selectedMapType = ref('World Map');
 const userLocation = ref('Current Location');
@@ -266,9 +297,18 @@ const selectedDestination = ref('Destination');
 
 const historyVisible = ref(true);
 const toggleHistory = () => {
-  historyVisible.value = !historyVisible.value;
+  showHistory.value = !showHistory.value;
 };
 
+function onMainAreaClick(event: MouseEvent) {
+  if (showHistory.value && !(event.target as Element).closest('.history-btn')) {
+    showHistory.value = false;
+  }
+  if (showTripOptions.value && !(event.target as Element).closest('.trip-options-btn') && 
+      !(event.target as Element).closest('.trip-options-modal-content')) {
+    showTripOptions.value = false;
+  }
+}
 
 onMounted(() => {
   store.getConversions();
@@ -282,32 +322,29 @@ onMounted(() => {
     <!-- Header -->
     <common-header />
 
-
     <!-- 外层内容容器 -->
     <div class="content-wrapper">
-      <!-- History 抽屉 (固定定位) -->
-      <transition name="slide-left">
-        <div class="history-drawer" v-if="historyVisible">
-          <h3>History</h3>
-          <ul>
-            <li
-              v-for="(conversation, idx) in conversations"
-              :key="idx"
-              @click="loadHistory(conversation.id)"
-              class="history-item"
-            >
-              {{ conversation.title }}
-            </li>
-          </ul>
-          <el-button type="text" @click="toggleHistory">Close</el-button>
-        </div>
-      </transition>
-
       <!-- 主体布局：聊天面板 + 右侧信息面板 -->
       <div class="main-content">
         <!-- 中间：Chat 模块 -->
         <div class="center-panel">
-          <h3>Chat with iPoloGO</h3>
+          <div class="chat-header">
+            <div class="header-title">
+              <h2>Chat with iPoloGO</h2>
+            </div>
+            <div class="header-actions">
+              <el-button class="action-btn primary-btn" @click.stop="toggleHistory">
+                <i class="el-icon-document" style="margin-right: 6px"></i> History
+              </el-button>
+              <el-button class="action-btn primary-btn trip-options-btn" @click.stop="toggleTripOptions">
+                <i class="el-icon-magic-stick" style="margin-right: 6px"></i> Generate Token
+              </el-button>
+              <el-button class="action-btn warning-btn" @click="finishConversation">
+                <i class="el-icon-close" style="margin-right: 6px"></i>
+                Finish Conversation
+              </el-button>
+            </div>
+          </div>
           <div class="chat-box">
             <div
               v-for="(msg, index) in messages"
@@ -331,36 +368,86 @@ onMounted(() => {
               clearable
               @keydown.enter.prevent="handleUserInput"
             />
-            <button class="warning" @click="finishConversation">
-              Finish Conversation
-            </button>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-        <!-- 右侧：Trip Options 与 Map 模块 -->
-        <div class="right-panel">
-          <!-- Trip Options -->
-          <div class="options-panel">
-            <h3>Trip Options</h3>
-
-            <!-- Date 模块 -->
-            <div class="trip-option date-option">
-              <label>Date:</label>
+  <!-- 历史记录模态窗口背景遮罩 -->
+  <div class="modal-overlay" v-if="showHistory" @click="toggleHistory"></div>
+  
+  <!-- 历史记录模态窗口 -->
+  <transition name="slide-up">
+    <div class="history-modal" v-if="showHistory">
+      <div class="history-modal-content">
+        <div class="history-modal-header">
+          <h3>Conversation History</h3>
+          <button class="close-btn" @click="toggleHistory">&times;</button>
+        </div>
+        
+        <div class="history-modal-body">
+          <div v-if="conversations.length === 0" class="empty-history">
+            <i class="el-icon-chat-dot-square"></i>
+            <p>No previous conversations found</p>
+            <p class="empty-hint">Start a new chat to create history</p>
+          </div>
+          
+          <ul class="history-list" v-else>
+            <li
+              v-for="(conversation, idx) in conversations"
+              :key="idx"
+              @click="loadHistory(conversation.id); toggleHistory();"
+              class="history-item"
+            >
+              <div class="history-item-content">
+                <span class="history-title">{{ conversation.title || 'Untitled Conversation' }}</span>
+                <span class="history-date">{{ conversation.created_at }}</span>
+              </div>
+              <i class="el-icon-right"></i>
+            </li>
+          </ul>
+        </div>
+        
+        <div class="history-modal-footer">
+          <el-button @click="toggleHistory" class="action-btn cancel-btn">Close</el-button>
+        </div>
+      </div>
+    </div>
+  </transition>
+  
+  <!-- 旅行选项弹窗背景遮罩 -->
+  <div class="modal-overlay" v-if="showTripOptions" @click="toggleTripOptions"></div>
+  
+  <!-- 旅行选项弹窗 -->
+  <transition name="slide-up">
+    <div class="trip-options-modal" v-if="showTripOptions">
+      <div class="trip-options-modal-content">
+        <div class="trip-options-modal-header">
+          <h3>Generate Travel Token</h3>
+          <button class="close-btn" @click="toggleTripOptions">&times;</button>
+        </div>
+        
+        <div class="trip-options-modal-body">
+          <div class="trip-options-scrollable">
+            <!-- Duration 模块 -->
+            <div class="trip-option">
+              <label>
+                <i class="el-icon-date" style="margin-right:5px"></i>
+                Trip Duration:
+              </label>
               <div class="date-picker-container">
                 <el-date-picker
                   v-model="tripSelections.Duration"
-                  type="datetimerange"
+                  type="daterange"
+                  start-placeholder="Start Date"
+                  end-placeholder="End Date"
                   :shortcuts="dateShortcuts"
-                  range-separator="To"
-                  start-placeholder="Start date"
-                  end-placeholder="End date"
-                  format="YYYY-MM-DD"
-                  value-format="YYYY-MM-DD"
-                  @change="calculateDuration"
+                  class="futuristic-date-picker"
                 />
-                <!-- <div class="duration-display" v-if="tripSelections.DurationDays > 0">
-                  Duration: {{ tripSelections.DurationDays }} days
-                </div> -->
+                <div v-if="tripSelections.DurationDays > 0" class="duration-display">
+                  {{ tripSelections.DurationDays }} days
+                </div>
               </div>
             </div>
 
@@ -583,38 +670,28 @@ onMounted(() => {
               </el-select>
             </div>
           </div>
-
-          <div class="trip-prompt">
-            <p>{{ tripPrompt }}</p>
-            <!-- Insert按钮：风格加大，统一处理 -->
-            <el-button class="insert-btn" @click="insertTripPrompt">
-              Insert Prompt into Chat
-            </el-button>
+          
+          <!-- 旅行提示生成结果 -->
+          <div class="trip-prompt-result">
+            <h4>Generated Token</h4>
+            <el-input
+              v-model="editablePrompt"
+              type="textarea"
+              :rows="4"
+              placeholder="Your travel prompt will appear here"
+              resize="none"
+              class="editable-prompt"
+            ></el-input>
           </div>
-
-          <!-- Map 模块：Map 和三种地图下拉放在同一行 -->
-          <div class="map-panel">
-            <div class="map-header-row">
-              <!-- 标题/标签 与下拉 在一行 -->
-              <label class="map-label">Map:</label>
-              <el-select
-                v-model="selectedMapType"
-                placeholder="Select a map type"
-                class="map-select"
-              >
-                <el-option label="World Map" value="World Map" />
-                <el-option label="City Navigation" value="City Navigation" />
-                <el-option label="City Traffic" value="City Traffic" />
-              </el-select>
-            </div>
-            <div class="map-display">
-              <p>Displaying: {{ selectedMapType }}</p>
-              <p>From: {{ userLocation }} To: {{ selectedDestination }}</p>
-            </div>
-          </div>
+        </div>
+        
+        <div class="trip-options-modal-footer">
+          <el-button @click="toggleTripOptions" class="action-btn cancel-btn">Cancel</el-button>
+          <el-button @click="insertTripPrompt" class="action-btn primary-btn" :disabled="!tripPrompt">
+            Insert into Chat
+          </el-button>
         </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
-

@@ -1,6 +1,114 @@
 @import './mixins';
 @import './variables';
 
+/* 聊天头部样式 */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #444;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-title h2 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* 统一按钮尺寸 */
+.action-btn {
+  min-width: 150px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: white;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(5px);
+}
+
+/* History按钮 */
+.primary-btn:nth-child(1) {
+  background: linear-gradient(45deg, rgba(86, 180, 233, 0.85), rgba(41, 128, 200, 0.85));
+  border-bottom: 3px solid rgba(115, 210, 255, 0.6);
+}
+
+.primary-btn:nth-child(1):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(86, 180, 233, 0.4);
+  background: linear-gradient(45deg, rgba(106, 200, 253, 0.9), rgba(61, 148, 220, 0.9));
+}
+
+/* Generate Token按钮 */
+.primary-btn:nth-child(2) {
+  background: linear-gradient(45deg, rgba(142, 68, 173, 0.85), rgba(233, 86, 108, 0.85));
+  border-bottom: 3px solid rgba(255, 116, 138, 0.6);
+}
+
+.primary-btn:nth-child(2):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(233, 86, 108, 0.4);
+  background: linear-gradient(45deg, rgba(162, 88, 193, 0.9), rgba(253, 106, 128, 0.9));
+}
+
+/* Finish Conversation按钮 */
+.warning-btn {
+  background: linear-gradient(45deg, rgba(255, 153, 51, 0.85), rgba(255, 94, 91, 0.85));
+  border-bottom: 3px solid rgba(255, 183, 91, 0.6);
+}
+
+.warning-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 94, 91, 0.4);
+  background: linear-gradient(45deg, rgba(255, 173, 71, 0.9), rgba(255, 114, 111, 0.9));
+}
+
+/* 动态光效 */
+.action-btn::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%);
+  transform: rotate(30deg);
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+
+.action-btn:hover::after {
+  opacity: 1;
+  animation: shineEffect 2s infinite;
+}
+
+@keyframes shineEffect {
+  0% {
+    transform: rotate(30deg) translateX(-100%);
+  }
+  100% {
+    transform: rotate(30deg) translateX(100%);
+  }
+}
+
 /* 外层内容布局 */
 .content-wrapper {
   flex: 1;
@@ -8,36 +116,6 @@
   position: relative; /* 让 history-drawer 可以在内部 fixed */
 }
 
-/* 左侧历史记录抽屉（固定定位） */
-.history-drawer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 300px;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  padding: 20px;
-  overflow-y: auto;
-  z-index: 1000;
-}
-.slide-left-enter-active,
-.slide-left-leave-active {
-  transition: transform 0.3s ease;
-}
-.slide-left-enter-from,
-.slide-left-leave-to {
-  transform: translateX(-100%);
-}
-.history-item {
-  cursor: pointer;
-  padding: 4px 8px;
-  border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
-  font-size: 1.6rem;
-}
-.history-item:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
 
 /* 主体：聊天面板 + 右侧面板 并排 */
 .main-content {
@@ -50,7 +128,7 @@
 
 /* 中间聊天面板 */
 .center-panel {
-  width: 60vw;
+  width: 90vw;
   display: flex;
   flex-direction: column;
   background: rgba(255, 255, 255, 0.1);
@@ -68,94 +146,77 @@
 .chat-box {
   flex: 1;
   overflow-y: auto;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.15);
   margin-bottom: 1rem;
-  padding: 10px;
+  padding: 20px;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 /* 消息气泡 */
 .chat-message {
-  padding: 8px;
+  padding: 12px 16px;
   border-radius: 8px;
   max-width: 70%;
-  
+  font-size: clamp(16px, 2vw, 22px);
+  line-height: 1.5;
+  transition: font-size 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+
 .chat-message.user {
-  font-size: large;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-  background: rgba(0,210,255,0.2);
+  background: linear-gradient(135deg, rgba(86, 180, 233, 0.25), rgba(86, 180, 233, 0.35));
   align-self: flex-end;
   text-align: left;
-  font-size: 22px;
+  border-bottom-right-radius: 2px;
 }
+
 .chat-message.ai {
-  font-size: large;
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-  background: rgba(255,255,255,0.2);
+  background: linear-gradient(135deg, rgba(233, 86, 108, 0.25), rgba(233, 86, 108, 0.35));
   align-self: flex-start;
   text-align: left;
-  font-size: 22px;
+  border-bottom-left-radius: 2px;
 }
 
 .chat-input {
-  position: relative;
-  width: 100%;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input-box {
   position: relative;
-  /* 伪元素实现动态渐变边框效果 */
-  &::after {
-    content: "";
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #fdbb2d, #b21f1f, #1a2a6c);
-    z-index: -1;
-    filter: blur(8px);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    border-radius: 12px;
-  }
-  &:hover::after {
-    opacity: 1;
-  }
 }
 
 .chat-input-box ::v-deep .el-textarea__inner {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  border: 2px solid transparent;
-  border-radius: 12px;
-  padding: 1.2rem;
-  // font-size: 2.5rem;
-  font-family: 'Roboto', sans-serif;
-  color: #030921;
-  transition: border 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.chat-input-box {
-  font-size: 20px;
-  font-family: 'Courier New', Courier, monospace;
+  background: rgba(30, 30, 40, 0.7);
+  border: 1px solid rgba(86, 180, 233, 0.3);
+  color: white;
+  border-radius: 8px;
+  resize: none;
+  font-size: clamp(18px, 2.2vw, 22px);
+  padding: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
 }
 
 .chat-input-box ::v-deep .el-textarea__inner:focus {
-  border: 2px solid #1a2a6c;
-  box-shadow: 0 0 15px rgba(26, 42, 108, 0.5);
-  outline: none;
+  border-color: rgba(86, 180, 233, 0.8);
+  box-shadow: 0 0 12px rgba(86, 180, 233, 0.4);
 }
 
 .chat-input-box ::v-deep .el-textarea__inner::placeholder {
-  color: rgba(26, 42, 108, 0.7);
-  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 400;
+  font-size: clamp(17px, 2vw, 20px);
+  letter-spacing: 0.5px;
 }
 
 /* 完成对话按钮 */
@@ -208,162 +269,464 @@
   overflow-y: auto; /* 若内容过多，则面板内部可滚动 */
 }
 
-/* Trip Options 区 */
-.options-panel {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 10px;
-
-  h3{
-    font-size: 3rem;
-    font-weight: bold;
-    color: #fff;
-    margin: 20px;
+  .chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid #444;
   }
-}
+  
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  /* 通用按钮样式 */
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: relative;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .primary-btn {
+    background: linear-gradient(135deg, rgba(86, 180, 233, 0.9), rgba(99, 102, 241, 0.9));
+    color: white;
+  }
+  
+  .primary-btn:hover {
+    background: linear-gradient(135deg, rgba(86, 180, 233, 1), rgba(99, 102, 241, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(86, 180, 233, 0.5);
+  }
+  
+  .warning-btn {
+    background: linear-gradient(135deg, rgba(233, 86, 108, 0.9), rgba(220, 38, 38, 0.9));
+    color: white;
+  }
+  
+  .warning-btn:hover {
+    background: linear-gradient(135deg, rgba(233, 86, 108, 1), rgba(220, 38, 38, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(233, 86, 108, 0.5);
+  }
+  
+  .cancel-btn {
+    background: linear-gradient(45deg, rgba(100, 100, 100, 0.85), rgba(70, 70, 70, 0.85));
+    border-bottom: 3px solid rgba(130, 130, 130, 0.5);
+  }
+  
+  .cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 100, 100, 0.35);
+    background: linear-gradient(45deg, rgba(120, 120, 120, 0.9), rgba(90, 90, 90, 0.9));
+  }
+  
+  /* 模态窗口通用样式 */
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(10, 10, 20, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 999;
+  }
+  
+  .close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+  }
+  
+  .close-btn:hover {
+    opacity: 1;
+  }
+  
+  /* 历史记录模态窗口样式 */
+  .history-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 600px;
+    z-index: 1000;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(86, 180, 233, 0.3);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(86, 180, 233, 0.15);
+  }
+  
+  .history-modal-content {
+    background: linear-gradient(165deg, #1a1b2e, #121212);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+  }
+  
+  .history-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(90deg, rgba(86, 180, 233, 0.15), rgba(233, 86, 108, 0.15));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .history-modal-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  .history-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+    max-height: 50vh;
+  }
+  
+  .history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.06));
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+  }
+  
+  .history-item:hover {
+    background: linear-gradient(90deg, rgba(86, 180, 233, 0.1), rgba(233, 86, 108, 0.1));
+    border-left: 3px solid rgba(86, 180, 233, 0.8);
+    transform: translateX(3px);
+  }
+  
+  .history-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .history-title {
+    font-weight: 500;
+  }
+  
+  .history-date {
+    font-size: 0.8rem;
+    color: #aaa;
+  }
+  
+  .history-modal-footer {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .empty-history {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+    color: #888;
+    text-align: center;
+  }
+  
+  .empty-history i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+  }
+  
+  .empty-hint {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    color: #666;
+  }
+  
+  /* 旅行选项弹窗样式 */
+  .trip-options-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 700px;
+    z-index: 1000;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(86, 180, 233, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(86, 180, 233, 0.2);
+  }
+  
+  .trip-options-modal-content {
+    background: linear-gradient(165deg, #1a1b2e, #121212);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+  }
+  
+  .trip-options-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(90deg, rgba(86, 180, 233, 0.2), rgba(233, 86, 108, 0.2));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .trip-options-modal-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  
+  .trip-options-modal-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    max-height: calc(85vh - 120px);
+  }
+  
+  .trip-options-scrollable {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  
+  .trip-prompt-result {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+  }
+  
+  .trip-prompt-result h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: clamp(16px, 2vw, 20px);
+  }
+  
+  .prompt-text {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 6px;
+    font-size: clamp(14px, 1.8vw, 18px);
+    line-height: 1.5;
+    color: #eee;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  
+  /* 可编辑的提示文本区域 */
+  .editable-prompt {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    font-size: clamp(16px, 1.9vw, 20px);
+    line-height: 1.5;
+    transition: font-size 0.3s ease;
+  }
+  
+  .editable-prompt ::v-deep .el-textarea__inner {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+    height: auto;
+    min-height: 120px;
+    resize: vertical;
+    padding: 15px;
+    font-size: inherit;
+    line-height: inherit;
+    letter-spacing: 0.5px;
+  }
+  
+  .editable-prompt ::v-deep .el-textarea__inner:focus {
+    border-color: rgba(86, 180, 233, 0.8);
+    box-shadow: 0 0 12px rgba(86, 180, 233, 0.4);
+  }
+  
+  .editable-prompt ::v-deep .el-textarea__inner::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .trip-options-modal-footer {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  /* 取消按钮样式 */
+  .cancel-btn {
+    background: linear-gradient(45deg, rgba(100, 100, 100, 0.85), rgba(70, 70, 70, 0.85));
+    border-bottom: 3px solid rgba(130, 130, 130, 0.5);
+  }
+  
+  .cancel-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 100, 100, 0.35);
+    background: linear-gradient(45deg, rgba(120, 120, 120, 0.9), rgba(90, 90, 90, 0.9));
+  }
+  
+  /* 插入按钮 - 使用一致的风格 */
+  .trip-options-modal-footer .primary-btn {
+    background: linear-gradient(45deg, rgba(142, 68, 173, 0.85), rgba(233, 86, 108, 0.85));
+    border-bottom: 3px solid rgba(255, 116, 138, 0.6);
+  }
+  
+  .trip-options-modal-footer .primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(233, 86, 108, 0.4);
+    background: linear-gradient(45deg, rgba(162, 88, 193, 0.9), rgba(253, 106, 128, 0.9));
+  }
+  
+  /* 动画效果 */
+  .slide-up-enter-active,
+  .slide-up-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .slide-up-enter-from,
+  .slide-up-leave-to {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 50px));
+  }
+  
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .trip-options-modal,
+    .history-modal {
+      width: 95%;
+    }
+    
+    .chat-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .header-title {
+      width: 100%;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    
+    .header-title h2 {
+      font-size: 1.8rem;
+      width: 100%;
+      text-align: center;
+    }
+    
+    .header-actions {
+      width: 100%;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      min-width: 120px;
+    }
+  }
+
+  /* 手机屏幕特别优化 */
+  @media (max-width: 480px) {
+    .header-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .action-btn {
+      width: 100%;
+    }
+    
+    .header-title h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+/* trip-option 样式 */
 .trip-option {
-  margin:5px;
+  margin-bottom: 20px;
 }
+
 .trip-option label {
-  display: inline-block;
-  width: 350px;
-  font-weight: bold;
-  font-size: 1.8rem;
-  color: #fff;
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(14px, 1.6vw, 16px);
 }
+
 .date-picker-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
-.date-separator {
-  font-weight: bold;
-}
-.trans-container {
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 8px;
+
+.duration-display {
+  padding: 4px 10px;
   border-radius: 4px;
-  margin-top: 5px;
-}
-.budget-container {
-  margin-top: 10px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.15);
-  border-radius: 8px;
-}
-.budget-row {
-  display: flex;
-  align-items: center;
-  gap: 50px;
-  margin-bottom: 8px;
-}
-.budget-row span {
-  font-size: 1.5rem;
+  background: rgba(86, 180, 233, 0.3);
+  color: white;
+  font-size: clamp(13px, 1.5vw, 16px);
 }
 
-/* 自定义未来感下拉菜单 */
-.futuristic-select .el-input__inner {
-  background: rgba(0, 0, 0, 0.3);
-  border: none;
-  color: #0ff;
-  font-weight: bold;
-  border-radius: 4px;
-}
-
-/* Prompt 及 Map 样式修改示例 */
-
-/* Prompt 及 Map 的统一排版 */
-
-/* trip-prompt 容器 */
-.trip-prompt {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-  margin:0;
-  word-break: break-all;
-  width: 95%;
-
-  /* 让用户可自行垂直拉伸这个区域 */
-  resize: both;
-  overflow: auto;
-
-  p {
-    margin: 0 0 1rem 0;
-    font-size: 1.6rem;
-    
-  }
-}
-
-/* Insert按钮风格与其它地方统一，并加大一点 */
-.trip-prompt .insert-btn {
-  font-size: 1.6rem;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
-  backdrop-filter: blur(10px);
-  color: #fefefe;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-}
-.trip-prompt .insert-btn:hover {
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
-  transform: scale(1.03);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* map-panel 同样可拉伸 */
-.map-panel {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 1rem;
+/* 自定义下拉选择器样式 */
+.futuristic-select {
   width: 100%;
+}
 
-  /* 让用户可自行垂直拉伸地图模块 */
-  resize: both;
-  overflow: auto;
+.futuristic-date-picker {
+  width: 100%;
+}
 
-  /* “Map”标题与下拉菜单同行摆放 */
-  .map-header-row {
-    display: flex;
-    align-items: center; /* 垂直居中 */
-    gap: 8px;
-    margin-bottom: 1rem;
-
-    .map-label {
-      font-size: 2rem;
-      font-weight: bold;
-      color: #fff; /* 根据页面背景风格设置 */
-    }
-    .map-select .el-input__inner {
-      background: rgba(0, 0, 0, 0.2);
-      color: #0ff;
-      font-weight: bold;
-      border-radius: 4px;
-      border: none;
-    }
+/* 响应式增强 */
+@media (max-width: 768px) {
+  .center-panel {
+    width: 100%;
   }
-  /* 地图显示区 */
-  .map-display {
-    background: rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    border-radius: 8px;
-    text-align: center;
+
+  .trip-options-modal,
+  .history-modal {
+    width: 95%;
+  }
+  
+  .header-controls {
+    flex-wrap: wrap;
+    gap: 10px;
   }
 }
 
-
-/* 如果你的 chat-box, trip-option 也需要用户可调大小，可以在相应容器加上 */
-.chat-box {
-  /* ... 原有样式 ... */
-  resize: vertical;
-  overflow: auto;
-}
-
-.options-panel {
-  /* 整个 Trip Options 区一起缩放 */
-  resize: both;
-  overflow: auto;
-}
 

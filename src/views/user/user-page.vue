@@ -323,6 +323,7 @@ const toggleMenu = () => {
 </script>
 
 <template>
+  
   <div class="user-page">
     <!-- 顶部导航栏 -->
     <header class="header">
