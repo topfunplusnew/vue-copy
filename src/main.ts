@@ -8,6 +8,7 @@ import App from './App.vue';
 import router from './router';
 import '@/styles/main.scss';
 import './styles/element-overrides.scss';
+import './styles/element-plus-overrides.scss';
 
 const app = createApp(App);
 

@@ -209,40 +209,7 @@
   }
 }
 
-/* 图片上传与预览区域 */
-.image-gallery {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 16px;
-  width: 100%;
-  
-  .preview-image {
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    width: 120px;
-    height: 120px;
-    transition: all 0.2s ease;
-    
-    &:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-      
-      .image-actions {
-        opacity: 1;
-      }
-    }
-    
-    .image-actions {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      opacity: 0;
-      transition: opacity 0.2s ease;
-    }
-  }
-}
+
 
 /* 上传组件样式 */
 .post-upload {
@@ -439,15 +406,7 @@
     min-width: 130px !important;
   }
   
-  .image-gallery {
-    gap: 8px;
-    
-    .preview-image {
-      width: calc(33.333% - 6px);
-      height: calc(33.333vw - 40px);
-      max-height: 110px;
-    }
-  }
+  
   
   .post-upload :deep(.el-upload--picture-card) {
     width: calc(33.333% - 6px);
@@ -759,3 +718,184 @@
   }
 }
 
+/* 标签输入与显示 */
+.tag-input-wrapper {
+  margin-bottom: 16px;
+  
+  .tag-hint {
+    display: block;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 4px;
+  }
+}
+
+.tags-display {
+  min-height: 50px;
+  
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    
+    .post-tag {
+      background: rgba(64, 158, 255, 0.1);
+      border-color: rgba(64, 158, 255, 0.2);
+      color: white;
+      padding: 0 10px;
+      height: 32px;
+      line-height: 30px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        transform: translateY(-2px);
+      }
+      
+      .el-tag__close {
+        color: rgba(255, 255, 255, 0.8);
+        background-color: transparent;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.2);
+          color: #ff4757;
+        }
+      }
+    }
+    
+    .tag-counter {
+      margin-left: auto;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+  }
+  
+  .el-empty {
+    padding: 0;
+    
+    .el-empty__description p {
+      color: rgba(255, 255, 255, 0.6);
+      font-style: italic;
+    }
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .tags-list .post-tag {
+    font-size: 0.9rem;
+    height: 28px;
+    line-height: 26px;
+  }
+}
+
+/* 图片展示区域 */
+.images-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  position: relative;
+  
+  .image-item {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .preview-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .delete-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: white;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(220, 53, 69, 0.8);
+        transform: scale(1.1);
+      }
+    }
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      
+      .image-overlay {
+        opacity: 1;
+      }
+    }
+  }
+  
+  .images-counter {
+    position: absolute;
+    top: -25px;
+    right: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .images-gallery {
+    gap: 12px;
+    
+    .image-item {
+      width: 80px;
+      height: 80px;
+      
+      .delete-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .images-gallery {
+    gap: 8px;
+    
+    .image-item {
+      width: 70px;
+      height: 70px;
+    }
+  }
+}

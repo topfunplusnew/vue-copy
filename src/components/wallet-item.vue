@@ -1,8 +1,8 @@
 <template>
   <div class="wallet-item">
-    <div v-if="status == WALLET_STATUS.CONNECTED" class="wallet-item-address" v-text="address"></div>
-    <div v-else-if="status == WALLET_STATUS.NO_PROVIDER" class="wallet-item-address"><a href="https://metamask.io/download/">install MetaMask</a></div>
-    <button v-else @click="onConnect">WALLET</button>
+    <el-button class="nav-button" v-if="status == WALLET_STATUS.CONNECTED">{{ address }}</el-button>
+    <el-button class="nav-button" v-else-if="status == WALLET_STATUS.NO_PROVIDER"><a href="https://metamask.io/download/">install MetaMask</a></el-button>
+    <el-button class="nav-button" v-else @click="onConnect">WALLET</el-button>
   </div>
 </template>
 
@@ -13,7 +13,7 @@ import { useWalletStore, WALLET_STATUS } from '@/stores/wallet';
 const store = useWalletStore();
 
 const status = computed(() => store.status);
-const address = computed(() => store.address);
+const address = computed(() => maskText(store.address));
 
 const WALLET_EVENT = {
   CONNECTED: 'connected',
@@ -27,6 +27,9 @@ const emit = defineEmits<{
   (e: 'no_provider'): void;
 }>();
 
+function maskText(text: string): string {
+  return text.slice(0, 4) + "****" + text.slice(-3);
+}
 function onConnect() {
   store.connect();
   emit(WALLET_EVENT.CONNECTED, address.value);

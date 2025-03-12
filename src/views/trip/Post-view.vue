@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import PostPreview from '@/views/trip/PostPreview.vue';
-import { Plus } from '@element-plus/icons-vue';
+import { Plus, Delete } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox, type UploadFile } from 'element-plus';
 import { Auth } from '@/services/auth';
 import { useBlogStore } from '@/stores/blog';
@@ -34,16 +34,27 @@ const router = useRouter();
 const showPreview = ref(false);
 const auth = new Auth();
 
-const selectedDestination = ref('');
+const selectedDestinations = ref<string[]>([]);
 const userDestination = ref('');
 
+// 处理目的地选择变更
+const handleDestinationsChange = (values: string[]) => {
+  createData.value.destinations = values;
+};
 
-const handleDestinationSelect = async (value: string) => {
-  selectedDestination.value = value;
-  const dest = destinations.find((item) => item.value === value);
-  if (dest) {
-    userDestination.value = dest.label;
-  } 
+// 获取目的地标签
+const getDestinationLabel = (value: string): string => {
+  const dest = destinations.find(item => item.value === value);
+  return dest ? dest.label : value;
+};
+
+// 移除已选目的地
+const removeDestination = (value: string) => {
+  const index = selectedDestinations.value.indexOf(value);
+  if (index !== -1) {
+    selectedDestinations.value.splice(index, 1);
+    handleDestinationsChange(selectedDestinations.value);
+  }
 };
 
 // 添加选中偏好的响应式数据
@@ -125,13 +136,40 @@ const handleImageUpload = async (file: UploadFile) => {
     });
     return;
   }
+  
+  // 先创建本地预览
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (e.target?.result) {
+      // 添加到本地图片数组以供预览
+      images.value.push({
+        url: '', // 将在上传成功后更新
+        src: e.target.result as string
+      });
+    }
+  };
+  reader.readAsDataURL(file.raw!);
+  
+  // 然后上传到服务器
   store.userPostimage(file).then(() =>{
+    // 上传成功后更新最后添加的图片的URL
+    const lastIndex = images.value.length - 1;
+    if (lastIndex >= 0) {
+      // 这里应该使用服务器返回的URL，我们假设store.userPostimage会返回URL
+      // images.value[lastIndex].url = 返回的URL;
+    }
     ElMessage({
       message: 'Image uploaded successfully',
       type: 'success',
       duration: 2000,
     });
   }).catch(error =>{
+    // 上传失败，移除预览
+    const lastIndex = images.value.length - 1;
+    if (lastIndex >= 0) {
+      images.value.splice(lastIndex, 1);
+    }
+    
     if (error.response?.status === 401) {
       ElMessage({
         message: 'Please login first',
@@ -322,50 +360,87 @@ onMounted(async () => {
         </el-form-item>
 
         <!-- 图片上传 -->
-        <div class="image-upload-post">
-          <div class="upload-text-post">Photos</div>
-          <el-upload class="upload-container" :show-file-list="false" :on-change="handleImageUpload" :auto-upload="false" :multiple="true" accept="image/*">
-            <template #trigger>
-              <el-button type="primary">
+        <el-form-item label="Photos">
+          <div class="upload-section">
+            <el-upload 
+              class="image-uploader" 
+              :show-file-list="false" 
+              :on-change="handleImageUpload" 
+              :auto-upload="false" 
+              :multiple="true" 
+              accept="image/*"
+            >
+              <el-button type="primary" size="large">
                 <el-icon><Plus /></el-icon>
                 Select Images
               </el-button>
-            </template>
-          </el-upload>
-          <span class="tags-hint" v-if="!images.length">Upload up to 9 images</span>
-
-          <!-- 图片预览部分 -->
-          <div class="image-preview-container" v-if="images.length">
-            <div v-for="(image, index) in images" :key="index" class="image-preview">
-              <img :src="image.src" :alt="`Preview ${index + 1}`" />
-              <button class="remove-image" @click="removeImage(index)">×</button>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 标签输入 -->
-        <div class="tags-section-post">
-          <!-- 左侧：标题和输入框 -->
-          <div class="tags-left">
-            <div class="tags-title-post">Tags</div>
-            <div class="tag-input-container-post">
-              <textarea v-model="tagInput" class="tag-editor-post" placeholder="Type tag and press Enter" @keydown="handleTagInput" maxlength="15"></textarea>
-              <span class="tag-limit-hint">Press Enter to add (max 5 tags)</span>
-            </div>
+            </el-upload>
+            <span class="upload-hint" v-if="!images.length">Upload up to 9 images,
+             double click to delete</span>
           </div>
           
-          <!-- 右侧：标签显示 -->
-          <div class="tags-right">
-            <div class="tags-container-post">
-              <div v-if="tags.length === 0" class="no-tags-hint">No tags added yet</div>
-              <div v-for="(tag, index) in tags" :key="index" class="tag-post">
-                {{ tag }}
-                <span class="tag-remove" @click="removeTag(index)" title="Remove tag">×</span>
+          <!-- 图片展示区域 -->
+          <div class="images-gallery" v-if="images.length">
+            <div v-for="(image, index) in images" :key="index" class="image-item">
+              <img :src="image.src" :alt="`Image ${index + 1}`" />
+              <div class="image-overlay">
+                <button class="delete-btn" @click.stop="removeImage(index)" title="Remove image">
+                  <el-icon><Delete /></el-icon>
+                </button>
               </div>
-              <span v-if="tags.length > 0" class="tag-count-post">{{ tags.length }}/5</span>
+            </div>
+            <div class="images-counter">{{ images.length }}/9 images</div>
+          </div>
+        </el-form-item>
+        
+        <!-- 标签输入 -->
+        <el-form-item label="Tags">
+          <!-- 标签输入区域 -->
+          <div class="tag-input-wrapper">
+            <el-input
+              type="textarea"
+              v-model="tagInput"
+              :autosize="{ minRows: 1, maxRows: 1 }"
+              placeholder="Type tag and press Enter"
+              @keydown="handleTagInput"
+              maxlength="15"
+            ></el-input>
+          </div>
+          
+          <!-- 标签显示区域 -->
+          <div class="tags-display">
+            <el-empty v-if="tags.length === 0" description="No tags added yet" 
+            :image-size="40" />
+            <div v-else class="tags-list">
+              <el-tag
+                v-for="(tag, index) in tags"
+                :key="index"
+                closable
+                @close="removeTag(index)"
+                effect="plain"
+                class="post-tag"
+              >
+                {{ tag }}
+              </el-tag>
+              <span class="tag-counter">{{ tags.length }}/5</span>
             </div>
           </div>
-        </div>
+        </el-form-item>
+
+        <!-- 选择目的地 -->
+        <el-form-item label="Destination">
+          <el-select 
+            v-model="selectedDestinations" 
+            multiple
+            collapse-tags
+            collapse-tags-tooltip
+            placeholder="Select destinations" 
+            @change="handleDestinationsChange"
+            style="max-width: 500px; width: 100%;">
+            <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label" :value="dest.value" />
+          </el-select>
+          
+        </el-form-item>
 
         <!-- 评论权限 -->
         <el-form-item label="Who can reply?">
@@ -407,9 +482,10 @@ onMounted(async () => {
   v-if="showPreview"
   :title="createData.title"
   :content="createData.content"
-  :images="createData.image"
+  :images="images.map(img => img.url || img.src)"
   :tags="tags"
   :preferences="createData.social_filters"
+  :destinations="selectedDestinations"
   @close="closePreview"
 />
 </div>

@@ -1,0 +1,32 @@
+/* Element Plus 组件样式覆盖 */
+
+/* 下拉菜单样式覆盖 */
+.el-select-dropdown {
+  background-color: #fff !important;
+  border: 1px solid rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175) !important;
+  
+  .el-select-dropdown__item {
+    color: #333 !important;
+    
+    &:hover, &.hover {
+      background-color: rgba(64, 158, 255, 0.1) !important;
+    }
+    
+    &.selected {
+      color: var(--el-color-primary) !important;
+      font-weight: bold;
+    }
+  }
+}
+
+/* 多选下拉菜单 */
+.el-select-dropdown.is-multiple .el-select-dropdown__item.selected {
+  background-color: rgba(64, 158, 255, 0.1) !important;
+}
+
+/* 空状态样式 */
+.el-select-dropdown__empty {
+  color: #666 !important;
+  padding: 10px 0;
+} 
