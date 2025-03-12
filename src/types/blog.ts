@@ -3,7 +3,6 @@ import type { IPagination, IRequest } from './service';
 import type { IUser } from './user';
 
 export interface IBlog extends ICommon {
-  id: number;
   image: string[];
   user: IUser;
   title: string;
@@ -11,6 +10,7 @@ export interface IBlog extends ICommon {
   likes: number;
   comments_count: number;
   comments: IBlogComment[];
+  location: string[];
   coins: number;
   tags: string[];
   isNFT: boolean;
@@ -26,10 +26,12 @@ export interface IBlogReq extends IRequest {
 }
 
 export interface IBlogPostCreate {
+  id?: number;
   title: string;
   content: string;
   image: string[];
   tags: string[];
+  location: string[];
   social_filters: number[];
   comment_permission: number;
   isNFT?: boolean;
@@ -60,4 +62,15 @@ export interface IBlogEdit {
   tags?: string[];
   preferences?: string[];
   isNFT?: boolean;
+}
+
+export const INIT_BLOG_POST = {
+  title: '',
+  content: '',
+  image: [],
+  tags: [],
+  location: [],
+  social_filters: [],
+  comment_permission: 0,
+  isNFT: false
 }

@@ -46,7 +46,8 @@ const selectedBlog = computed(() => store.selectedPost);
 
 const isFollowing = ref(false);
 
-const showBlogDetail = (id: number) => {
+const showBlogDetail = (id?: number) => {
+  if(!id) return;
   store.getUserBlogByID(id).then(() => {
     if(selectedBlog.value?.user.id) store.isFollowing(selectedBlog.value?.user.id).then(({data}) =>{
       isFollowing.value = data as boolean;
@@ -54,6 +55,14 @@ const showBlogDetail = (id: number) => {
     document.body.style.overflow = 'hidden';
   });
 };
+
+function gotoEidtPage(id?:number) {
+  if(!id) return;
+  router.push({
+    name:'PostView',
+    params: {id}
+  })
+}
 
 const closeBlogDetail = () => {
   store.clearSelectedPost();
@@ -217,7 +226,8 @@ const toggleEditMode = () => {
 };
 
 // 删除博客
-const deleteBlog = async (blogId: number) => {
+const deleteBlog = async (blogId?: number) => {
+  if(!blogId) return;
   try {
     await ElMessageBox.confirm(
       'Are you sure you want to delete this blog post?',
@@ -422,7 +432,7 @@ const toggleMenu = () => {
               'nft-post': post.isNFT,
               'edit-mode': isEditMode
             }"
-            @click="isEditMode ? null : showBlogDetail(post.id)"
+            @click="isEditMode ? gotoEidtPage(post.id) : showBlogDetail(post.id)"
           >
             <!-- 编辑模式下显示的删除按钮 -->
             <div v-if="isEditMode" class="edit-controls">

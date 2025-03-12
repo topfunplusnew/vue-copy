@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters,
   comment2Comment, myblogedit, blogPost, Postimage, comments, getOsBlogList } from '@/services/api';
 import type { IBlogPage, IBlog, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
+import { INIT_BLOG_POST } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
 import type { UploadFile } from 'element-plus';
 
@@ -13,15 +14,7 @@ export const useBlogStore = defineStore('blog', () => {
   const blog = ref<IBlog>(); // 单独blog
   const blogos = ref<IBlogPage>(INIT_PAGINATION); // 官方博客列表
 
-  const createData = ref<IBlogPostCreate>({
-    title: '',
-    content: '',
-    image: [],
-    tags: [],
-    social_filters: [],
-    comment_permission: 0,
-    isNFT: false,
-  });
+  const createData = ref<IBlogPostCreate>(INIT_BLOG_POST);
 
   const commentPermission = [{id: 0, name: 'Everyone'}, {id: 10, name: 'Followers'}, {id: 11, name: 'Only me'}];
   /**
@@ -40,6 +33,20 @@ export const useBlogStore = defineStore('blog', () => {
   function userPostblog() {
     return blogPost(createData.value);
   }
+  function postReset(id?:number) {
+    createData.value = INIT_BLOG_POST;
+    if(id) {
+      getBlogPost(id.toString()).then(({data}) => {
+        data.social_filters = data.social_filters.map((item:ISocialFilter) => item.id)
+        createData.value = data;
+      });
+    }
+  }
+  /**
+   * 上传文件
+   * @param file
+   * @returns
+   */
   function userPostimage(file: UploadFile) {
     const formData = new FormData();
     if(file.raw) formData.append('files', file.raw);
@@ -151,7 +158,7 @@ export const useBlogStore = defineStore('blog', () => {
   return {
     blogs, condition, blog, createData, socialFilters,blogos,
     commentPermission,
-    getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,
+    getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,postReset,
     commenttoBlog, commenttoComment, editmyblog, getComments,
     getBlogosList
   };

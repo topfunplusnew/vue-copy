@@ -87,9 +87,9 @@
       <!-- 右侧内容区域 -->
       <div class="detail-right">
         <!-- 偏好标签区域 -->
-        <div class="tags-section" v-if="preferences.length">
-          <span v-for="pref in preferences" :key="pref" class="tag">
-            {{ pref }}
+        <div class="tags-section" v-if="list.length">
+          <span v-for="(item, index) in list" :key="index" class="tag">
+            {{ item.name }} {{ item.icon }}
           </span>
         </div>
 
@@ -110,8 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { getImageUrl } from '@/utils';
+import type { ISocialFilter } from '@/types/blog';
 
 const currentImageIndex = ref(0);
 
@@ -121,11 +122,23 @@ const props = defineProps<{
   images: string[]
   tags: string[]
   preferences: number[]
+  socialFilters: ISocialFilter[]
+  location:string[]
 }>();
 
 const emit = defineEmits<{
   close: []
 }>();
+
+
+const list = computed(() =>{
+  const arr:ISocialFilter[] = [];
+  for(const item of props.socialFilters) {
+    if(props.preferences.includes(item.id)) arr.push(item);
+  }
+  return arr;
+});
+
 
 const commentText = ref(''); // 添加评论文本
 
