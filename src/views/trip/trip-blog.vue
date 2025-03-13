@@ -15,7 +15,8 @@ const dialogVisible = ref(false); // 控制弹窗显示
 const blogs = computed(() => store.blogos);
 
 
-const showOsBlogDetail = async (id: number) => {
+const showOsBlogDetail = async (id?: number) => {
+  if(!id) return;
   store.getBlogByID(id).then(() =>{
     dialogVisible.value = true;
   }).catch(e => {

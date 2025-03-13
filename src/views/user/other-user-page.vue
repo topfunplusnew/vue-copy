@@ -5,7 +5,7 @@ import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
-import { PostAvatar } from '@/services/api';
+import { uploadAvatar as PostAvatar } from '@/services/api';
 import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
@@ -42,7 +42,8 @@ const userPosts = computed(() => store.blogs);
 // 博客详情相关的状态和方法
 const selectedBlog = computed(() => store.selectedPost);
 
-const showBlogDetail = (id: number) => {
+const showBlogDetail = (id?: number) => {
+  if(!id)return;
   store.getUserBlogByID(id).then(() => {
     document.body.style.overflow = 'hidden';
   });
@@ -132,7 +133,7 @@ function handleEditAvatarUpload(event: Event) {
   if (file) {
     const formData = new FormData();
     formData.append('file', file);
-    PostAvatar({ image: formData })
+    PostAvatar(formData)
       .then((res) => {
         editForm.avatar = res.data.avatar;
         console.log(res);
@@ -210,8 +211,8 @@ const toggleEditMode = () => {
 };
 
 // 删除博客
-const deleteBlog = async (blogId: number, event: Event) => {
-  event.stopPropagation(); // 阻止事件冒泡，避免触发博客详情
+const deleteBlog = async (blogId?: number) => {
+  if(!blogId) return;
   try {
     await ElMessageBox.confirm(
       'Are you sure you want to delete this blog post?',
@@ -408,7 +409,7 @@ function toggleFollowUser(follower:IUser) {
                 circle
                 size="small"
                 class="delete-btn"
-                @click="(e) => deleteBlog(post.id, e)"
+                @click.prevent.stop="deleteBlog(post.id)"
               >
                 <i class="el-icon-delete"></i>
               </el-button>

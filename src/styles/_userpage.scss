@@ -1118,7 +1118,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 100;
 
   .edit-profile-container {
     background: rgba(255, 255, 255, 0.6);
@@ -1220,78 +1220,28 @@
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
 }
 
-/* 裁剪弹窗样式 */
-.cropper-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-
-  .cropper-container {
-    background: rgba(255, 255, 255, 0.6);
-    padding: 20px;
-    border-radius: 16px;
-    width: 500px;
-    height: 450px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
-    .vue-cropper {
-      height: 400px;
-      background: white !important;
-      
-      .cropper-view-box {
-        outline: none !important;
-      }
-      
-      .cropper-face {
-        background-color: transparent !important;
-        border: none;
-      }
-      
-      .cropper-modal {
-        background: none !important;
-        opacity: 0;
-      }
-
-      .cropper-drag-box {
-        background: none;
-      }
-
-      .cropper-canvas {
-        background: none;
-      }
-    }
-
-    .cropper-buttons {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-
-      .el-button {
-        background: rgba(255, 255, 255, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        color: #333;
-        font-size: 18px;
-        padding: 8px 20px;
-        border-radius: 6px;
-        transition: all 0.3s ease;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.5);
-          transform: translateY(-1px);
-        }
-      }
+.crop-dialog {
+  .avatar-cut {
+    width: rpx(500);
+    height: rpx(500);
+    margin: 0 auto;
+  }
+  .el-button {
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #333;
+    font-size: 18px;
+    padding: 8px 20px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+  
+    &:hover {
+      background: rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
     }
   }
 }
+
 
 /* 社交弹窗样式 */
 .social-modal-overlay {

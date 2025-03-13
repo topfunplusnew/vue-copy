@@ -1,6 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, accountActivate, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
+import { userLogin, userProfile, accountActivate, userModify, userLogout, uploadAvatar,
+  getMyBlogList, getBlogPost, myblogdelete, userSignup,
+   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
@@ -131,8 +133,9 @@ export const useUserStore = defineStore('user', () => {
    * @returns
    */
   function delUserBlogByID(id:number) {
-    return myblogdelete(id).then(() =>{
+    return myblogdelete(id).then(res =>{
       selectedPost.value = undefined;
+      return res;
     })
   }
 
@@ -202,6 +205,12 @@ export const useUserStore = defineStore('user', () => {
     });
   }
 
+  function uploadImage(image:Blob){
+    const data = new FormData()
+    data.append('file', image, "cropped.png");
+    return uploadAvatar(data);
+  }
+
 
 
   return {
@@ -218,6 +227,7 @@ export const useUserStore = defineStore('user', () => {
     activate,
     getUserInfo,
     editUserInfo,
+    uploadImage,
     follow,
     unfollow,
     isFollowing,
