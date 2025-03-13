@@ -6,7 +6,6 @@ import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
-import type { ISocialFilter } from '@/types/blog';
 
 // 引入定位和天气
 import { destinations } from '@/utils/destinations';
@@ -267,13 +266,6 @@ const toggleFilterMenu = () => {
 
 const searchQuery = ref('');
 
-const list = computed(() =>{
-  const arr:ISocialFilter[] = [];
-  for(const item of props.socialFilters) {
-    if(props.preferences.includes(item.id)) arr.push(item);
-  }
-  return arr;
-});
 
 
 function handleSearch() {

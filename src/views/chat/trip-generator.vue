@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, reactive } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
 import { useChatStore } from '@/stores/chat';
 import commonHeader from '@/layout/common-header.vue';
@@ -17,7 +17,6 @@ function loadHistory(id:number|undefined) {
 }
 
 const userChatInput = ref('');
-const loading = ref(false);
 const showHistory = ref(false);
 const showTripOptions = ref(false);
 const editablePrompt = ref('');
@@ -214,40 +213,40 @@ watch(() => tripSelections.Duration, (newDates) => {
 // 根据用户选择生成旅行提示文本
 const tripPrompt = computed(() => {
   const parts: string[] = [];
-  
+
   // 旅行时间部分
   if (tripSelections.Duration.length === 2) {
     const startDate = tripSelections.Duration[0].toLocaleDateString();
     const endDate = tripSelections.Duration[1].toLocaleDateString();
     parts.push(`Plan a ${tripSelections.DurationDays}-day trip from ${startDate} to ${endDate}.`);
   }
-  
+
   // 交通方式部分
   if (tripSelections.Transportation.length > 0) {
     const transportModes = tripSelections.Transportation.join(", ");
     parts.push(`Travel by ${transportModes}${tripSelections.TransportationClass ? ` (${tripSelections.TransportationClass})` : ''}.`);
   }
-  
+
   // 酒店偏好部分
   if (tripSelections.Hotel.length > 0) {
     parts.push(`Stay in ${tripSelections.Hotel.join(", ")}.`);
   }
-  
+
   // 门票部分
   if (tripSelections.Tickets.length > 0) {
     parts.push(`Include tickets for ${tripSelections.Tickets.join(", ")}.`);
   }
-  
+
   // 活动部分
   if (tripSelections.Activities.length > 0) {
     parts.push(`Activities should include ${tripSelections.Activities.join(", ")}.`);
   }
-  
+
   // 预算部分
   if (tripSelections.Budget.Total > 0) {
-    const currency = allCurrencies[tripSelections.Budget.Currency]?.code || 'USD';
+    const currency = allCurrencies[tripSelections.Budget.Currency]?.name || 'USD';
     parts.push(`Total budget: ${tripSelections.Budget.Total} ${currency}.`);
-    
+
     // 预算分配
     const budgetDetails = [];
     if (tripSelections.Budget.Transportation > 0) {
@@ -262,12 +261,12 @@ const tripPrompt = computed(() => {
     if (tripSelections.Budget.Activities > 0) {
       budgetDetails.push(`${tripSelections.Budget.Activities}% for activities`);
     }
-    
+
     if (budgetDetails.length > 0) {
       parts.push(`Budget allocation: ${budgetDetails.join(", ")}.`);
     }
   }
-  
+
   return parts.length > 0 ? parts.join(" ") : "请选择旅行选项生成提示。";
 });
 
@@ -291,24 +290,11 @@ function insertTripPrompt() {
   }
 }
 
-const selectedMapType = ref('World Map');
-const userLocation = ref('Current Location');
-const selectedDestination = ref('Destination');
 
-const historyVisible = ref(true);
 const toggleHistory = () => {
   showHistory.value = !showHistory.value;
 };
 
-function onMainAreaClick(event: MouseEvent) {
-  if (showHistory.value && !(event.target as Element).closest('.history-btn')) {
-    showHistory.value = false;
-  }
-  if (showTripOptions.value && !(event.target as Element).closest('.trip-options-btn') && 
-      !(event.target as Element).closest('.trip-options-modal-content')) {
-    showTripOptions.value = false;
-  }
-}
 
 onMounted(() => {
   store.getConversions();
@@ -376,7 +362,7 @@ onMounted(() => {
 
   <!-- 历史记录模态窗口背景遮罩 -->
   <div class="modal-overlay" v-if="showHistory" @click="toggleHistory"></div>
-  
+
   <!-- 历史记录模态窗口 -->
   <transition name="slide-up">
     <div class="history-modal" v-if="showHistory">
@@ -385,14 +371,14 @@ onMounted(() => {
           <h3>Conversation History</h3>
           <button class="close-btn" @click="toggleHistory">&times;</button>
         </div>
-        
+
         <div class="history-modal-body">
           <div v-if="conversations.length === 0" class="empty-history">
             <i class="el-icon-chat-dot-square"></i>
             <p>No previous conversations found</p>
             <p class="empty-hint">Start a new chat to create history</p>
           </div>
-          
+
           <ul class="history-list" v-else>
             <li
               v-for="(conversation, idx) in conversations"
@@ -408,17 +394,17 @@ onMounted(() => {
             </li>
           </ul>
         </div>
-        
+
         <div class="history-modal-footer">
           <el-button @click="toggleHistory" class="action-btn cancel-btn">Close</el-button>
         </div>
       </div>
     </div>
   </transition>
-  
+
   <!-- 旅行选项弹窗背景遮罩 -->
   <div class="modal-overlay" v-if="showTripOptions" @click="toggleTripOptions"></div>
-  
+
   <!-- 旅行选项弹窗 -->
   <transition name="slide-up">
     <div class="trip-options-modal" v-if="showTripOptions">
@@ -427,7 +413,7 @@ onMounted(() => {
           <h3>Generate Travel Token</h3>
           <button class="close-btn" @click="toggleTripOptions">&times;</button>
         </div>
-        
+
         <div class="trip-options-modal-body">
           <div class="trip-options-scrollable">
             <!-- Duration 模块 -->
@@ -670,7 +656,7 @@ onMounted(() => {
               </el-select>
             </div>
           </div>
-          
+
           <!-- 旅行提示生成结果 -->
           <div class="trip-prompt-result">
             <h4>Generated Token</h4>
@@ -684,7 +670,7 @@ onMounted(() => {
             ></el-input>
           </div>
         </div>
-        
+
         <div class="trip-options-modal-footer">
           <el-button @click="toggleTripOptions" class="action-btn cancel-btn">Cancel</el-button>
           <el-button @click="insertTripPrompt" class="action-btn primary-btn" :disabled="!tripPrompt">

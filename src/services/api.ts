@@ -63,7 +63,7 @@ export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.
   }
 });
 
-export const PostAvatar = (data: IBlogPostimage) => http.post('/file/avatar', data.image, {
+export const uploadAvatar = (data: FormData) => http.post('/file/avatar', data, {
   headers: {
     'Content-Type': 'multipart/form-data'
   }

@@ -5,7 +5,6 @@ import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
 import { useRouter } from 'vue-router';
-import { PostAvatar } from '@/services/api';
 import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
@@ -36,7 +35,11 @@ function handleLogout() {
 // const user = reactive(userInfo);
 const user = computed(() => store.user);
 
-
+const uploadfile = ref<HTMLElement | null>(null);
+function onUpload() {
+  showCropper.value = true;
+  if(uploadfile.value) uploadfile.value.click();
+}
 
 // const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
@@ -87,38 +90,33 @@ function handleScroll() {
 const showCropper = ref(false);
 const cropperRef = ref();
 const cropOption = {
-  img: '', // 裁剪图片的地址
   autoCrop: true, // 是否默认生成截图框
   fixedBox: true, // 固定截图框大小
   outputType: 'png', // 裁剪生成图片的格式
   centerBox: true, // 截图框是否被限制在图片里面
   infoTrue: true, // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
   full: false, // 是否输出原图比例的截图
-  canMoveBox: false, // 截图框能否拖动
+  canMoveBox: true, // 截图框能否拖动
   original: false, // 上传图片按照原始比例渲染
   canScale: true, // 图片是否允许滚轮缩放
   fixed: true, // 是否开启截图框宽高固定比例
   fixedNumber: [1, 1], // 截图框的宽高比例
 };
+const cropImage = ref('');
 
 
 // 修改裁剪完成函数，直接更新头像
 function cropSuccess() {
-  cropperRef.value.getCropData((data: string) => {
-    if (showEditProfile.value) {
-      editForm.avatar = data;
-    } else {
-      if(user.value) user.value.avatar = data; // 直接更新用户头像
-    }
+  cropperRef.value.getCropBlob((image: Blob) => {
+
+    // const file = new File([image], 'file', {type: image.type});
+    store.uploadImage(image).then(({data}) => {
+      editForm.avatar = data.avatar;
+    })
     showCropper.value = false;
   });
 }
 
-// 修改显示头像的计算属性
-const displayAvatar = computed(() => {
-  if (user.value?.avatar) return `/images/${user.value?.avatar}`;
-  return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0icmdiYSgxMjgsIDEyOCwgMTI4LCAwLjUpIi8+PC9zdmc+';
-});
 
 // 添加编辑个人信息相关状态
 const showEditProfile = ref(false);
@@ -150,17 +148,13 @@ function cancelProfileEdit() {
 function handleEditAvatarUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
-  if (file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    PostAvatar({ image: formData })
-      .then((res) => {
-        editForm.avatar = res.data.avatar;
-        console.log(res);
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+  if(file) {
+    console.log(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      cropImage.value = e.target?.result as string;
+    }
+    reader.readAsDataURL(file);
   }
 }
 
@@ -246,7 +240,7 @@ const deleteBlog = async (blogId?: number) => {
 
     await store.delUserBlogByID(blogId);
     ElMessage.success('Blog deleted successfully');
-    store.getUserBlogList(); // 刷新博客列表
+    store.getUserBlogList(true); // 刷新博客列表
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error('Failed to delete blog');
@@ -366,7 +360,7 @@ const toggleMenu = () => {
             <wallet-item />
           </div>
         </div>
-        
+
         <div class="nav-edit">
           <el-button
             class="edit-mode-btn"
@@ -390,7 +384,7 @@ const toggleMenu = () => {
         <div class="user-info">
           <div class="avatar-section">
             <div class="avatar-container">
-              <img :src="displayAvatar" alt="User Avatar" class="avatar" />
+              <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
               <!-- <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" /> -->
               <div class="avatar-upload-icon">
                 <i class="el-icon-camera"></i>
@@ -450,14 +444,14 @@ const toggleMenu = () => {
               <el-button
                 type="danger"
                 class="delete-blog-btn"
-                @click.prevent.stop="(e) => deleteBlog(post.id)"
+                @click.prevent.stop="deleteBlog(post.id)"
               >
                 Delete
               </el-button>
               <el-button
                 type="primary"
                 class="edit-blog-btn"
-                @click.prevent.stop="() => gotoEidtPage(post.id)"
+                @click.prevent.stop="gotoEidtPage(post.id)"
               >
                 Edit
               </el-button>
@@ -496,29 +490,37 @@ const toggleMenu = () => {
     </section>
 
     <!-- 裁剪弹窗 -->
-    <div class="cropper-modal" v-if="showCropper">
+    <div v-if="false" class="cropper-modal">
       <div class="cropper-container">
-        <VueCropper
-          ref="cropperRef"
-          :img="cropOption.img"
-          :autoCrop="cropOption.autoCrop"
-          :fixedBox="cropOption.fixedBox"
-          :centerBox="cropOption.centerBox"
-          :infoTrue="cropOption.infoTrue"
-          :full="cropOption.full"
-          :canMoveBox="cropOption.canMoveBox"
-          :original="cropOption.original"
-          :canScale="cropOption.canScale"
-          :fixed="cropOption.fixed"
-          :fixedNumber="cropOption.fixedNumber"
-          :outputType="cropOption.outputType"
-        />
         <div class="cropper-buttons">
           <el-button @click="cropSuccess">Confirm</el-button>
           <el-button @click="cancelCrop">Cancel</el-button>
         </div>
       </div>
     </div>
+    <el-dialog
+      v-model="showCropper"
+      class="crop-dialog"
+      title="Edit Avatar"
+      :close-on-click-modal="true"
+      :show-close="true"
+      destroy-on-close
+    >
+      <div class="avatar-cut">
+        <vue-cropper
+          ref="cropperRef"
+          :img="cropImage"
+          v-bind="cropOption"
+        />
+
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="cropSuccess">Confirm</el-button>
+          <el-button @click="cancelCrop">Cancel</el-button>
+        </div>
+      </template>
+    </el-dialog>
 
     <!-- 编辑个人信息弹窗 -->
     <div class="edit-profile-modal" v-if="showEditProfile">
@@ -533,11 +535,11 @@ const toggleMenu = () => {
         @mouseleave="stopDrag"
       >
         <h2>Edit Profile</h2>
-        <div class="edit-avatar-section">
+        <input ref="uploadfile" style="display: none;" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
+        <div class="edit-avatar-section avatar-container">
           <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
-          <input type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
           <div class="avatar-upload-icon">
-            <i class="el-icon-camera"></i>
+            <i class="el-icon-camera" @click.prevent.stop="onUpload">edit</i>
           </div>
         </div>
         <div class="edit-form">
@@ -675,7 +677,7 @@ const toggleMenu = () => {
           <h2 class="blog-title">{{ selectedBlog.title }}</h2>
           <!-- 偏好标签区域 -->
           <div class="tags-section-pref-userpage" v-if="selectedBlog?.social_filters">
-            <span v-for="(item, index) in selectedBlog?.social_filters" 
+            <span v-for="(item, index) in selectedBlog?.social_filters"
             :key="index" class="tag-pref-userpage">
               {{ item.name }} {{ item.icon }}
             </span>
