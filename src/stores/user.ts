@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { userLogin, userProfile, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
+import { userLogin, userProfile, accountActivate, userModify, userLogout, getMyBlogList, getBlogPost, myblogdelete, userSignup, myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
@@ -59,13 +59,18 @@ export const useUserStore = defineStore('user', () => {
     });
   }
 
+  function activate(token:string) {
+    return accountActivate(token);
+  }
+
   /**
    * 用户信息
    * @returns promise
    */
   function getUserInfo() {
-    return userProfile().then(({ data }) => {
-      user.value = data;
+    return userProfile().then((res) => {
+      user.value = res.data;
+      return res;
     });
   }
 
@@ -75,8 +80,9 @@ export const useUserStore = defineStore('user', () => {
    * @returns promise
    */
   function editUserInfo(req: IUserEdit) {
-    return userModify(req).then(({ data }) => {
-      user.value = data;
+    return userModify(req).then((res) => {
+      user.value = res.data;
+      return res
     });
   }
 
@@ -209,6 +215,7 @@ export const useUserStore = defineStore('user', () => {
     login,
     isLogin,
     logout,
+    activate,
     getUserInfo,
     editUserInfo,
     follow,

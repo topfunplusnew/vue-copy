@@ -19,7 +19,11 @@ const router = useRouter();
 // const userProfile = computed(() => store.user); // user改成这种用法
 
 onMounted(() => {
-  store.getUserInfo();
+  store.getUserInfo().then(({data})=>{
+    console.log(data);
+    editForm.name = data.name;
+    editForm.avatar = data.avatar;
+  });
   store.getUserBlogList(true);
 });
 
@@ -334,7 +338,7 @@ const toggleMenu = () => {
 </script>
 
 <template>
-  
+
   <div class="user-page">
     <!-- 顶部导航栏 -->
     <header class="header-userpage">
@@ -530,7 +534,7 @@ const toggleMenu = () => {
       >
         <h2>Edit Profile</h2>
         <div class="edit-avatar-section">
-          <img :src="editForm.avatar" alt="Edit Avatar" class="edit-avatar" />
+          <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
           <input type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
           <div class="avatar-upload-icon">
             <i class="el-icon-camera"></i>
