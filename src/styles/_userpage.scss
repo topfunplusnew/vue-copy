@@ -84,7 +84,6 @@
   }
 }
 
-
 /* 主体内容：左侧 + 分割线 + 右侧 */
 .main-content {
   flex: 1;
@@ -149,7 +148,7 @@
   
   /* 在窄屏幕上调整宽度 */
   @media (max-width: 992px) {
-    width: 90%;
+    width: 98%;
     max-width: 600px;
   }
 
@@ -489,14 +488,50 @@
 /* 帖子网格 */
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 20px;
+  padding: 15px;
+  width: 100%;
+  box-sizing: border-box;
+  
+  /* 响应式调整 */
+  @media (max-width: 1200px) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 15px;
+  }
+  
+  @media (max-width: 768px) {
+    /* 平板屏幕显示两列 */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+  
+  @media (max-width: 576px) {
+    /* 手机屏幕显示一列，但确保宽度合适 */
+    grid-template-columns: 1fr;
+    gap: 10px;
+    padding: 10px;
+  }
 }
 .post-card {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 5px;
   overflow: hidden;
   transition: transform 0.3s, box-shadow 0.3s;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  
+  /* 小屏幕优化 */
+  @media (max-width: 576px) {
+    width: 95%;
+    min-width: 280px; /* 确保最小宽度 */
+  }
 }
 .post-card:hover {
   transform: translateY(-3px);
@@ -1844,6 +1879,8 @@
     top: 100%;
     left: 0;
     width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
     background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(8px);
     flex-direction: column;
@@ -1852,6 +1889,7 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    z-index: 100;
   }
   
   .left-nav-userpage.active-userpage {
@@ -1863,6 +1901,8 @@
   .nav-button-userpage {
     width: 100%;
     text-align: center;
+    margin-bottom: 8px;
+    padding: 10px 0;
   }
 }
 
@@ -1870,6 +1910,14 @@
 @media (max-width: 576px) {
   .nav-container-userpage {
     padding: 0 10px;
+  }
+  
+  .left-nav-userpage {
+    padding: 15px 10px;
+  }
+  
+  .nav-button-userpage {
+    font-size: 14px;
   }
   
   .hamburger-menu-userpage {
@@ -1880,6 +1928,15 @@
   .edit-mode-btn {
     font-size: 14px;
     padding: 6px 12px;
+  }
+}
+
+/* 卡片内容区优化 */
+.post-content {
+  padding: 12px 15px;
+  
+  @media (max-width: 576px) {
+    padding: 10px 12px;
   }
 }
 
