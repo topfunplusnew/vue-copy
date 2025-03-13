@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue';
+import { ref, reactive, onMounted, computed, nextTick } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
@@ -257,6 +257,36 @@ const deleteBlog = async (blogId?: number) => {
 // 编辑博客
 
 // 评论功能
+const newComment = ref('');
+
+const submitComment = async () => {
+  if (!newComment.value.trim()) return;
+  if (!selectedBlog.value?.id) return;
+
+  // 用户已登录不用检查登录状态
+  store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
+    console.log(res);
+  }).catch(e=>{
+    console.log(e);
+  }).finally(()=>{
+    // 清空输入
+    newComment.value = '';
+    if(selectedBlog.value?.id) store.getBlogByID(selectedBlog.value?.id);
+
+    // 滚动到新评论
+    nextTick(() => {
+      scrollToComments();
+    });
+  });
+
+  // 模拟添加评论
+  ElMessage({
+    message: 'Comment submitted successfully!',
+    type: 'success'
+  });
+
+  newComment.value = '';
+}
 
 function scrollToComments() {
   const commentsSection = document.querySelector('.comments-container') as HTMLElement;
@@ -293,10 +323,6 @@ function closeSocialModal() {
   document.body.style.overflow = ''; // 恢复背景滚动
 }
 
-// 加载关注列表
-
-// 加载粉丝列表
-
 // 取消关注用户
 function unfollowUser(following:IUser) {
   ElMessageBox.confirm(
@@ -314,7 +340,6 @@ function unfollowUser(following:IUser) {
   });
 }
 
-
 // 切换关注状态
 function toggleFollowUser(follower:IUser) {
   store.isFollowing(follower.id||0).then(({data}) =>{
@@ -326,7 +351,6 @@ function toggleFollowUser(follower:IUser) {
     }
   });
 }
-
 
 // 添加导航菜单状态管理
 const menuActive = ref(false);
@@ -658,6 +682,24 @@ const toggleMenu = () => {
             <span class="coins" v-if="selectedBlog.isNFT">₿ {{ selectedBlog.coins }}</span>
           </div>
         </div>
+
+        <!-- 简化的评论输入框 -->
+        <div class="quick-comment-input">
+            <input
+              type="text"
+              v-model="newComment"
+              placeholder="Add a comment..."
+              @keyup.enter="submitComment"
+              class="comment-input-home"
+            />
+            <button
+              class="submit-quick-comment"
+              @click="submitComment"
+              :disabled="!newComment.trim()"
+            >
+              <span>💬</span>
+            </button>
+          </div>
       </div>
 
       <!-- 右侧内容区域 -->

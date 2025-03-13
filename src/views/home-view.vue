@@ -22,8 +22,6 @@ function gotoHome() {
   })
 }
 
-
-
 onMounted(() => {
   // 确保页面始终会显示 - 安全机制
   tid = setTimeout(() => {
@@ -35,8 +33,6 @@ onMounted(() => {
   }, 5000);
 
 });
-
-
 
 </script>
 

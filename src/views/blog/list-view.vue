@@ -6,7 +6,6 @@ import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
-import type { ISocialFilter } from '@/types/blog';
 
 // 引入定位和天气
 import { destinations } from '@/utils/destinations';
@@ -267,14 +266,6 @@ const toggleFilterMenu = () => {
 
 const searchQuery = ref('');
 
-const list = computed(() =>{
-  const arr:ISocialFilter[] = [];
-  for(const item of props.socialFilters) {
-    if(props.preferences.includes(item.id)) arr.push(item);
-  }
-  return arr;
-});
-
 
 function handleSearch() {
   allPosts.value.args.keyword =  searchQuery.value;
@@ -528,6 +519,69 @@ const expandReplies = async (commentId: number|undefined) => {
   if (commentId) store.getComments(commentId);
   // 标记该评论已展开
   // expandedComments.value.push(commentId);
+};
+
+// 添加评论长按删除相关变量
+// 评论长按删除功能
+const longPressTimeout = ref(null);
+const longPressDuration = 800; // 长按时间阈值，单位为毫秒
+const activeComment = ref(null);
+
+// 长按开始处理函数
+const handleTouchStart = (commentId) => {
+  // 检查是否是当前用户的评论
+  const comment = selectedBlog.value?.comments?.find(c => c.id === commentId);
+  const currentUser = userStore.user;
+  
+  // 如果不是当前用户的评论，不允许删除
+  if (!comment || !currentUser || comment.user.id !== currentUser.id) {
+    return;
+  }
+  
+  longPressTimeout.value = setTimeout(() => {
+    activeComment.value = commentId;
+  }, longPressDuration);
+};
+
+// 长按结束处理函数
+const handleTouchEnd = () => {
+  if (longPressTimeout.value) {
+    clearTimeout(longPressTimeout.value);
+    longPressTimeout.value = null;
+  }
+};
+
+// 移动时取消长按
+const handleTouchMove = () => {
+  if (longPressTimeout.value) {
+    clearTimeout(longPressTimeout.value);
+    longPressTimeout.value = null;
+  }
+};
+
+// 确认删除评论
+const confirmDeleteComment = async (commentId) => {
+  try {
+    // 调用删除评论API
+    await store.deleteComment(commentId);
+    
+    // 刷新博客数据以更新评论列表
+    if(selectedBlog.value?.id) {
+      await store.getBlogByID(selectedBlog.value.id);
+    }
+    
+    ElMessage.success('Comment deleted successfully');
+  } catch (error) {
+    console.error('Failed to delete comment:', error);
+    ElMessage.error('Failed to delete comment');
+  } finally {
+    activeComment.value = null;
+  }
+};
+
+// 取消删除操作
+const cancelDeleteComment = () => {
+  activeComment.value = null;
 };
 
 </script>
@@ -855,7 +909,14 @@ const expandReplies = async (commentId: number|undefined) => {
           </div>
           <div class="comments-list-home">
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item-home">
-              <div class="comment-row-home">
+              <div class="comment-row-home"
+                   :class="{'long-press-active': activeComment === comment.id}"
+                   @touchstart.prevent="handleTouchStart(comment.id)"
+                   @touchend.prevent="handleTouchEnd"
+                   @touchmove.prevent="handleTouchMove"
+                   @mousedown="handleTouchStart(comment.id)"
+                   @mouseup="handleTouchEnd"
+                   @mouseleave="handleTouchEnd">
                 <img
                   :src="getImageUrl(comment.user.avatar)"
                   alt="Commenter Avatar"
@@ -870,6 +931,20 @@ const expandReplies = async (commentId: number|undefined) => {
                   <el-tooltip content="Reply to this comment" placement="top">
                     <span class="reply-icon" @click="toggleReplyInput(comment.id)">↩️</span>
                   </el-tooltip>
+                </div>
+
+                <!-- 删除指示器 -->
+                <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
+                  <i class="el-icon-delete"></i>
+                </div>
+                
+                <!-- 删除确认浮层 -->
+                <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}">
+                  <div class="delete-message">Delete this comment?</div>
+                  <div class="delete-actions">
+                    <button class="delete-btn-rp" @click="confirmDeleteComment(comment.id)">Delete</button>
+                    <button class="cancel-btn-rp" @click="cancelDeleteComment">Cancel</button>
+                  </div>
                 </div>
               </div>
 

@@ -1987,45 +1987,171 @@
   }
 }
 
-/* 博客卡片标题和内容悬停修复 */
+/* 彻底移除所有博客帖子下划线效果 */
 .home {
-  /* 移除所有文本元素的下划线效果 */
-  a, a:hover, a:focus, a:active,
+  /* 全局移除下划线 */
+  a, a:hover, a:focus, a:active, a:visited {
+    text-decoration: none !important;
+  }
+
+  /* 博客卡片和内容 */
   .blog-card-home,
   .blog-title-card,
   .blog-content-card,
-  .post-card, 
+  .blog-excerpt,
+  .blog-title,
   .post-title,
-  .post-content {
+  .post-content,
+  .post-card-home,
+  .blog-card-content,
+  .social-post {
     text-decoration: none !important;
   }
-  
-  /* 特别处理博客卡片悬停状态 */
-  .blog-card-home:hover .blog-title-card,
-  .blog-card-home:hover .blog-content-card,
-  .post-card:hover .post-title,
-  .post-card:hover .post-content {
+
+  /* 所有链接和互动元素 */
+  [role="button"],
+  [role="link"],
+  button, 
+  .el-button {
     text-decoration: none !important;
   }
-  
-  /* 确保链接行为正确 */
-  a {
-    color: inherit;
+
+  /* 悬停状态特别处理 */
+  .blog-card-home:hover,
+  .blog-card-home:hover *,
+  .social-post:hover,
+  .social-post:hover *,
+  .post-card-home:hover,
+  .post-card-home:hover * {
+    text-decoration: none !important;
   }
-  
-  a:hover {
-    color: inherit;
+
+  /* 最强烈的覆盖 - 所有元素通配符 */
+  * {
+    &:hover, &:focus, &:active {
+      text-decoration: none !important;
+    }
   }
 }
 
-/* 确保特定博客元素没有下划线 */
-.blog-title-card,
-.blog-content-card {
-  text-decoration: none !important;
+/* 添加评论长按删除相关样式 */
+/* 评论长按删除功能 */
+.comment-row-home {
+  position: relative;
+  /* 添加长按过渡效果 */
+  transition: background-color 0.2s ease;
+  
+  /* 长按时的视觉反馈 */
+  &.long-press-active {
+    background-color: rgba(255, 59, 59, 0.1);
+    border-left: 3px solid #ff3b3b;
+  }
+  
+  /* 删除确认浮层 */
+  .delete-confirm-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+    border-radius: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .delete-message {
+      color: #fff;
+      margin-right: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .delete-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      
+      .delete-btn-rp {
+        background-color: #ff3b3b;
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        
+        &:hover {
+          background-color: #ff1f1f;
+        }
+      }
+      
+      .cancel-btn-rp {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+  }
+  
+  /* 删除操作指示器 */
+  .delete-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 59, 59, 0.2);
+    color: #ff3b3b;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    
+    &.visible {
+      opacity: 1;
+    }
+  }
 }
 
-/* 悬停状态特别处理 */
-.blog-title-card:hover,
-.blog-content-card:hover {
-  text-decoration: none !important;
+/* 长按指示动画 */
+@keyframes pressIndicator {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
 }
