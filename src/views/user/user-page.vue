@@ -10,6 +10,7 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
+import '@/styles/_userpage.scss';
 // import commonHeader from '@/layout/common-header.vue';
 
 const store = useUserStore();
@@ -336,28 +337,33 @@ const toggleMenu = () => {
   
   <div class="user-page">
     <!-- 顶部导航栏 -->
-    <header class="header">
-      <div class="nav-container" :class="{ 'menu-active': menuActive }">
-        <!-- 汉堡菜单按钮 -->
-        <button class="hamburger-menu" @click="toggleMenu">
-          <span v-if="menuActive">✕</span>
-          <span v-else>☰</span>
-        </button>
+    <header class="header-userpage">
+      <div class="nav-container-userpage" :class="{ 'menu-active-userpage': menuActive }">
+        <div class="nav-left">
+          <!-- 汉堡菜单按钮 -->
+          <button class="hamburger-menu-userpage" @click="toggleMenu">
+            <span v-if="menuActive">✕</span>
+            <span v-else>☰</span>
+          </button>
 
-        <div class="left-nav" :class="{ 'active': menuActive }">
-          <router-link :to="{ name: 'home' }">
-            <el-button class="nav-button">HOME</el-button>
-          </router-link>
-          <router-link :to="{ name: 'about' }">
-            <el-button class="nav-button">ABOUT</el-button>
-          </router-link>
-          <router-link :to="{ name: 'blog' }">
-            <el-button class="nav-button">BLOG</el-button>
-          </router-link>
-          <router-link :to="{ name: 'contact' }">
-            <el-button class="nav-button">CONTACT</el-button>
-          </router-link>
-          <wallet-item />
+          <div class="left-nav-userpage" :class="{ 'active-userpage': menuActive }">
+            <router-link :to="{ name: 'home' }">
+              <el-button class="nav-button-userpage">HOME</el-button>
+            </router-link>
+            <router-link :to="{ name: 'about' }">
+              <el-button class="nav-button-userpage">ABOUT</el-button>
+            </router-link>
+            <router-link :to="{ name: 'blog' }">
+              <el-button class="nav-button-userpage">BLOG</el-button>
+            </router-link>
+            <router-link :to="{ name: 'contact' }">
+              <el-button class="nav-button-userpage">CONTACT</el-button>
+            </router-link>
+            <wallet-item />
+          </div>
+        </div>
+        
+        <div class="nav-edit">
           <el-button
             class="edit-mode-btn"
             :type="isEditMode ? 'primary' : 'default'"
@@ -433,18 +439,23 @@ const toggleMenu = () => {
               'nft-post': post.isNFT,
               'edit-mode': isEditMode
             }"
-            @click="isEditMode ? gotoEidtPage(post.id) : showBlogDetail(post.id)"
+            @click="isEditMode ? null : showBlogDetail(post.id)"
           >
-            <!-- 编辑模式下显示的删除按钮 -->
-            <div v-if="isEditMode" class="edit-controls">
+            <!-- 编辑模式下的操作按钮 -->
+            <div v-if="isEditMode" class="blog-action-buttons">
               <el-button
                 type="danger"
-                circle
-                size="small"
-                class="delete-btn"
+                class="delete-blog-btn"
                 @click.prevent.stop="(e) => deleteBlog(post.id)"
               >
-                <i class="el-icon-delete"></i>
+                Delete
+              </el-button>
+              <el-button
+                type="primary"
+                class="edit-blog-btn"
+                @click.prevent.stop="() => gotoEidtPage(post.id)"
+              >
+                Edit
               </el-button>
             </div>
 
