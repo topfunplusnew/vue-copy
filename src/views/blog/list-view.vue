@@ -522,13 +522,9 @@ const expandReplies = async (commentId: number|undefined) => {
   // expandedComments.value.push(commentId);
 };
 
-
-
 </script>
 
 <template>
-
-
   <div class="background-layer" :class="{ 'visible': !isLoading }"></div>
   <div class="home" :class="{ 'content-visible': !isLoading }">
     <common-header />
@@ -662,7 +658,7 @@ const expandReplies = async (commentId: number|undefined) => {
         <hr class="horizontal-divider" />
 
         <!-- 博客展示区域 -->
-          <div class="social-scroll">
+        <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel"
           style="overflow-y: auto; max-height: none;">
             <div
@@ -676,8 +672,6 @@ const expandReplies = async (commentId: number|undefined) => {
                 name:'home',
                 params: {id: post.id}
               }">
-
-
                 <!-- 博客图片 -->
                 <img
                   v-if="post.image && post.image.length > 0"
@@ -701,10 +695,10 @@ const expandReplies = async (commentId: number|undefined) => {
                   </div>
 
                   <!-- 统计信息 -->
-                    <div class="post-stats">
-                      <span class="likes">❤️ {{ post.likes }}</span>
-                    <span class="comments">💬 {{ post.comments_count }}</span>
-                      <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
+                    <div class="post-stats-home">
+                      <span class="likes-home">❤️ {{ post.likes }}</span>
+                      <span class="comments-home">💬 {{ post.comments_count }}</span>
+                      <span class="coins-home" v-if="post.isNFT">₿ {{ post.coins }}</span>
                   </div>
                 </div>
               </router-link>
@@ -774,7 +768,7 @@ const expandReplies = async (commentId: number|undefined) => {
           <div class="stats-info-home">
             <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
             <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
-            <span class="coins-home" v-if="selectedBlog?.isNFT">💰 {{ selectedBlog?.coins }}</span>
+            <span class="coins-home" v-if="selectedBlog?.isNFT">₿ {{ selectedBlog?.coins }}</span>
           </div>
 
           <!-- 简化的评论输入框 -->

@@ -431,7 +431,8 @@ onMounted(() => {
                   :shortcuts="dateShortcuts"
                   class="futuristic-date-picker"
                 />
-                <div v-if="tripSelections.DurationDays > 0" class="duration-display">
+                <div v-if="tripSelections.DurationDays > 0" 
+                  class="duration-display">
                   {{ tripSelections.DurationDays }} days
                 </div>
               </div>

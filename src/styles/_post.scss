@@ -465,8 +465,6 @@
       }
     }
   }
-  
-
 }
 
 @media (max-width: 480px) {
@@ -504,15 +502,6 @@
     min-width: 120px !important;
   }
   
-  .image-gallery {
-    gap: 6px;
-    
-    .preview-image {
-      width: calc(50% - 3px);
-      height: calc(50vw - 30px);
-    }
-  }
-  
   .post-upload :deep(.el-upload--picture-card) {
     width: calc(50% - 3px);
     height: calc(50vw - 30px);
@@ -537,35 +526,6 @@
     flex-direction: row;
     justify-content: flex-start !important;
   }
-  
-  /* 手机图片上传样式 */
-  .image-upload {
-    padding: 12px;
-    margin: 16px 0;
-    
-    .upload-text {
-      font-size: 1rem;
-    }
-    
-    .upload-container .el-button {
-      width: 100%;
-      padding: 10px !important;
-    }
-    
-    .image-preview-container {
-      gap: 8px;
-      
-      .image-preview {
-        width: calc(50% - 4px);
-        
-        &:hover {
-          transform: scale(1.02) translateY(-2px);
-        }
-      }
-    }
-  }
-  
-  
 }
 
 /* 激活标签的特殊效果 */
@@ -786,5 +746,224 @@
     font-size: 0.9rem;
     height: 28px;
     line-height: 26px;
+  }
+}
+
+/* 图片上传和预览相关样式 */
+.upload-section {
+  margin-bottom: 20px;
+  
+  .upload-hint {
+    color: #999;
+    font-size: 14px;
+    margin-left: 10px;
+  }
+}
+
+/* 图片展示区域 - 重新设计 */
+.images-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+  position: relative;
+  
+  /* 网格式布局，自适应大小 */
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  
+  /* 平板尺寸优化 */
+  @media (max-width: 992px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  /* 移动端优化 */
+  @media (max-width: 576px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .image-item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    &:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      
+      .image-overlay {
+        opacity: 1;
+      }
+    }
+    
+    .image-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      
+      .delete-btn {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        color: #f56c6c;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: white;
+          transform: scale(1.1);
+        }
+      }
+    }
+  }
+  
+  .images-counter {
+    position: absolute;
+    bottom: -30px;
+    right: 0;
+    color: #999;
+    font-size: 14px;
+  }
+}
+
+/* 图片预览模式 - 轻量级模式 */
+.image-preview-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0; 
+  bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  .preview-image-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    
+    img {
+      max-width: 100%;
+      max-height: 90vh;
+      object-fit: contain;
+    }
+    
+    .preview-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      color: white;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    .preview-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      cursor: pointer;
+      border: none;
+      
+      &.prev {
+        left: -60px;
+      }
+      
+      &.next {
+        right: -60px;
+      }
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+      }
+    }
+  }
+}
+
+/* 移动端响应式样式 */
+@media (max-width: 576px) {
+  .el-form-item__label {
+    min-width: 120px !important;
+  }
+  
+  .images-gallery {
+    gap: 6px;
+    
+    .image-item {
+      border-radius: 6px;
+    }
+    
+    .image-overlay .delete-btn {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .images-counter {
+      bottom: -25px;
+      font-size: 12px;
+    }
+  }
+  
+  .post-upload :deep(.el-upload--picture-card) {
+    width: 90px !important;
+    height: 90px !important;
+  }
+  
+  /* :deep() for Vue 3 specific styles */
+  .post-form :deep(.el-form-item__label-wrap) {
+    justify-content: flex-start !important;
+  }
+  
+  /* 手机端预览模式优化 */
+  .image-preview-modal {
+    .preview-image-container {
+      .preview-nav {
+        width: 36px;
+        height: 36px;
+        
+        &.prev {
+          left: -45px;
+        }
+        
+        &.next {
+          right: -45px;
+        }
+      }
+    }
   }
 }

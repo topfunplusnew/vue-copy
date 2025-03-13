@@ -1,6 +1,6 @@
 <template>
   <div class="background-layer"></div>
-  <div class="blog-detail-overlay" @click.self="emit('close')">
+  <div class="blog-detail-overlay-postp" @click.self="emit('close')">
     <div class="blog-detail-container">
       <!-- 关闭按钮 -->
       <button class="close-button" @click="emit('close')">×</button>
@@ -10,22 +10,6 @@
 
       <!-- 左侧内容区域 -->
       <div class="detail-left">
-        <!-- 顶部信息栏 -->
-        <div class="detail-header">
-          <div class="header-content">
-            <h2 class="blog-title">{{ title }}</h2>
-            <div class="post-stats">
-              <span class="stat-item">
-                <span class="stat-icon">❤️</span>
-                <span>0</span>
-              </span>
-              <span class="stat-item">
-                <span class="stat-icon">💬</span>
-                <span>0</span>
-              </span>
-            </div>
-          </div>
-        </div>
 
         <!-- 图片区域 -->
         <div class="image-section" v-if="images.length">
@@ -68,16 +52,16 @@
 
       <!-- 右侧内容区域 -->
       <div class="detail-right">
-        <!-- 偏好标签区域 -->
-        <div class="tags-section-pref" v-if="list.length">
-          <span v-for="(item, index) in list" :key="index" class="tag">
-            {{ item.name }} {{ item.icon }}
-          </span>
+        <div class="blog-title-section">
+          <p class="blog-title">{{ title }}</p>
         </div>
 
-        <!-- 博客内容 -->
-        <div class="content-section">
-          <p class="blog-content">{{ content }}</p>
+        <!-- 偏好标签区域 -->
+        <div class="tags-section" v-if="list.length">
+          <span v-for="(item, index) in list" :key="index" 
+          class="tag-pref">
+            {{ item.name }} {{ item.icon }}
+          </span>
         </div>
 
         <!-- 标签区域 -->
@@ -85,6 +69,11 @@
           <span v-for="tag in tags" :key="tag" class="tag">
             {{ tag }}
           </span>
+        </div>
+
+        <!-- 博客内容 -->
+        <div class="content-section">
+          <p class="blog-content">{{ content }}</p>
         </div>
       </div>
     </div>
@@ -120,9 +109,6 @@ const list = computed(() =>{
   }
   return arr;
 });
-
-
-const commentText = ref(''); // 添加评论文本
 
 // 添加图片导航方法
 const prevImage = () => {

@@ -325,16 +325,19 @@ onMounted(async () => {
                 Select Images
               </el-button>
             </el-upload>
-            <span class="upload-hint" v-if="!createData.image.length">Upload up to 9 images,
+            <span class="upload-hint" 
+            v-if="!createData.image.length">Upload up to 9 images,
              double click to delete</span>
           </div>
 
           <!-- 图片展示区域 -->
           <div class="images-gallery" v-if="createData.image.length">
-            <div v-for="(image, index) in createData.image" :key="index" class="image-item">
+            <div v-for="(image, index) in createData.image" 
+            :key="index" class="image-item">
               <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
               <div class="image-overlay">
-                <button class="delete-btn" @click.stop="removeImage(index)" title="Remove image">
+                <button class="delete-btn" 
+                @click.stop="removeImage(index)" title="Remove image">
                   <el-icon><Delete /></el-icon>
                 </button>
               </div>
