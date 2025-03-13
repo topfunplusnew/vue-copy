@@ -1,7 +1,7 @@
 <template>
   <div class="wallet-item">
     <el-button class="nav-button" v-if="status == WALLET_STATUS.CONNECTED">{{ address }}</el-button>
-    <el-button class="nav-button" v-else-if="status == WALLET_STATUS.NO_PROVIDER"><a href="https://metamask.io/download/">install MetaMask</a></el-button>
+    <el-button class="nav-button" v-else-if="status == WALLET_STATUS.NO_PROVIDER"><a href="https://metamask.io/download/">WALLET</a></el-button>
     <el-button class="nav-button" v-else @click="onConnect">WALLET</el-button>
   </div>
 </template>

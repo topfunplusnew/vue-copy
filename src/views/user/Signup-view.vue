@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import walletItem from '@/components/wallet-item.vue';
 import Captcha from '@/components/captcha-item.vue';
 import { userSignup } from '@/services/api';
 import { useRouter } from 'vue-router';
@@ -10,7 +9,7 @@ const msg = 'Start Your Journey in iPoloGO';
 const router = useRouter();
 
 const errorMessage = ref('');
-const isVerified = ref(false);
+const isVerified = ref(true);
 const isLoading = ref(false);
 const signupSuccess = ref(false);
 
@@ -124,13 +123,13 @@ const handleSubmit = async () => {
 
         <div class="form-group-signup">
           <label for="username">Username</label>
-          <input type="text" id="username" v-model="editForm.name" 
+          <input type="text" id="username" v-model="editForm.name"
           placeholder="How should we call you?" />
         </div>
 
         <div class="form-group-signup">
           <label for="email">Email</label>
-          <input type="email" id="email" v-model="editForm.email" 
+          <input type="email" id="email" v-model="editForm.email"
           placeholder="example@domain.com" required />
         </div>
 
@@ -176,7 +175,7 @@ const handleSubmit = async () => {
           />
         </div>
 
-        <div class="captcha-container">
+        <div v-if="false" class="captcha-container">
           <div class="captcha-item">
             <label for="captcha" class="captcha-label">Verify your identity</label>
             <Captcha @success="isVerified = true" id="captcha" />
