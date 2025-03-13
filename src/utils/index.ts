@@ -1,4 +1,5 @@
-export function getImageUrl(imagePath: string) {
+export function getImageUrl(imagePath?: string) {
+  if(!imagePath) return '';
   // 如果是完整的 URL，直接返回
   if (imagePath.startsWith('http') || imagePath.startsWith('data:')) {
     return imagePath;

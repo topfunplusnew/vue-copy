@@ -35,6 +35,7 @@ export const userLogout = () =>
     resole(true);
   });
 
+export const accountActivate = (token:string) => http.put('/user/active', {token});
 // export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
 
 /**

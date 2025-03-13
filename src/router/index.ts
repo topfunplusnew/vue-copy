@@ -47,6 +47,15 @@ const router = createRouter({
       component: () => import('@/views/user/Signup-view.vue'),
     },
     {
+      path: '/active',
+      name: 'active',
+      component: () => import('@/views/user/account-active.vue'),
+      props(to) {
+        const token = to.query.token;
+        return {token}
+      },
+    },
+    {
       path: '/forgetpassword',
       name: 'forgetpassword',
       component: () => import('@/views/user/forget-password.vue'),
