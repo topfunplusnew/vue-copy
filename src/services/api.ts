@@ -78,6 +78,7 @@ export const getOsBlogList = (req:IBlogReq = {}) => http.get('/blogs/official', 
 
 export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
 export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});
+export const commentDel = (id: number) => http.delete('/comment', {params:{id}}); // 删除评论
 export const comments = (commentId: number) => http.get(`/comments/${commentId}`);
 
 export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});
