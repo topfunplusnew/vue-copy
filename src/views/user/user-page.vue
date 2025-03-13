@@ -10,6 +10,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
 import '@/styles/_userpage.scss';
+import type { IBlogComment } from '@/types/blog';
 // import commonHeader from '@/layout/common-header.vue';
 
 const store = useUserStore();
@@ -252,23 +253,22 @@ const deleteBlog = async (blogId?: number) => {
 const newComment = ref('');
 
 // 评论长按删除功能
-const longPressTimeout = ref(null);
+const longPressTimeout = ref();
 const longPressDuration = 800; // 长按时间阈值，单位为毫秒
-const activeComment = ref(null);
+const activeComment = ref();
 
 // 长按开始处理函数
-const handleTouchStart = (commentId) => {
+const handleTouchStart = (comment:IBlogComment) => {
   // 检查是否是当前用户的评论
-  const comment = selectedBlog.value?.comments?.find(c => c.id === commentId);
   const currentUser = user.value;
-  
+
   // 如果不是当前用户的评论，不允许删除
   if (!comment || !currentUser || comment.user.id !== currentUser.id) {
     return;
   }
-  
+
   longPressTimeout.value = setTimeout(() => {
-    activeComment.value = commentId;
+    activeComment.value = comment.id;
   }, longPressDuration);
 };
 
@@ -289,16 +289,17 @@ const handleTouchMove = () => {
 };
 
 // 确认删除评论
-const confirmDeleteComment = async (commentId) => {
+const confirmDeleteComment = async (commentId?:number) => {
+  if(!commentId) return;
   try {
     // 调用删除评论API
     await store.userDeleteComment(commentId);
-    
+
     // 刷新博客数据以更新评论列表
     if(selectedBlog.value?.id) {
       await store.getUserBlogByID(selectedBlog.value.id);
     }
-    
+
     ElMessage.success('Comment deleted successfully');
   } catch (error) {
     console.error('Failed to delete comment:', error);
@@ -326,7 +327,7 @@ const submitComment = async () => {
   }).finally(()=>{
     // 清空输入
     newComment.value = '';
-    if(selectedBlog.value?.id) store.getBlogByID(selectedBlog.value?.id);
+    if(selectedBlog.value?.id) store.getUserBlogByID(selectedBlog.value?.id);
 
     // 滚动到新评论
     nextTick(() => {
@@ -810,10 +811,10 @@ const toggleMenu = () => {
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
               <div class="comment-row-home"
                    :class="{'long-press-active': activeComment === comment.id}"
-                   @touchstart.prevent="handleTouchStart(comment.id)"
+                   @touchstart.prevent="handleTouchStart(comment)"
                    @touchend.prevent="handleTouchEnd"
                    @touchmove.prevent="handleTouchMove"
-                   @mousedown="handleTouchStart(comment.id)"
+                   @mousedown="handleTouchStart(comment)"
                    @mouseup="handleTouchEnd"
                    @mouseleave="handleTouchEnd">
                 <img
@@ -823,12 +824,12 @@ const toggleMenu = () => {
                 />
                 <span class="comment-username">{{ comment.user.name }}</span>
                 <p class="comment-text">{{ comment.content }}</p>
-                
+
                 <!-- 删除指示器 -->
                 <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
                   <i class="el-icon-delete"></i>
                 </div>
-                
+
                 <!-- 删除确认浮层 -->
                 <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}">
                   <div class="delete-message">Delete this comment?</div>

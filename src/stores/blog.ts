@@ -1,8 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getAllBlogList, getBlogPost, comment2Blog, blogSocialFilters,
-  comment2Comment, myblogedit, blogPost, Postimage, comments, getOsBlogList,
-  commentDel} from '@/services/api';
+import { getAllBlogList, getBlogPost, blogSocialFilters,
+  myblogedit, blogPost, Postimage, comments, getOsBlogList,
+  } from '@/services/api';
 import type { IBlogPage, IBlog, IBlogReq, IBlogPostCreate, ISocialFilter } from '@/types/blog';
 import { INIT_BLOG_POST } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
@@ -139,21 +139,13 @@ export const useBlogStore = defineStore('blog', () => {
     return myblogedit(createData.value);
   }
 
-  function commenttoBlog(blogId: number, comment: string) {
-    return comment2Blog(blogId, comment);
-  }
-  function commenttoComment(commentId: number, comment: string) {
-    return comment2Comment(commentId, comment);
-  }
-  function userDeleteComment(id:number) {
-    return commentDel(id);
-  }
+
   function getComments(commentId: number) {
     return comments(commentId).then(({data}) => {
       if (blog.value) {
         for(const comment of blog.value.comments) {
           if(comment.id === commentId) {
-            comment.replies = data.list;
+            comment.replies = data.items;
           }
         }
       }
@@ -163,7 +155,7 @@ export const useBlogStore = defineStore('blog', () => {
     blogs, condition, blog, createData, socialFilters,blogos,
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,postReset,
-    commenttoBlog, commenttoComment, editmyblog, getComments, userDeleteComment,
+    editmyblog, getComments,
     getBlogosList
   };
 });

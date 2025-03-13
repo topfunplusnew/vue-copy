@@ -13,6 +13,7 @@ import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
 import { getImageUrl } from '@/utils';
+import type { IBlogComment } from '@/types/blog';
 
 const props = defineProps({
   id: {
@@ -390,7 +391,7 @@ const submitComment = async () => {
     })
   }
 
-  store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
+  userStore.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
     console.log(res);
   }).catch(e=>{
     console.log(e);
@@ -494,7 +495,7 @@ const submitReply = async () => {
   try {
 
 
-    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
+    if(replyTarget.value?.id) await userStore.commenttoComment(replyTarget.value.id, replyContent.value);
     ElMessage.success('Reply added successfully');
     if(selectedBlog.value?.id)store.getBlogByID(selectedBlog.value?.id);
     replyTarget.value = null;
@@ -523,23 +524,23 @@ const expandReplies = async (commentId: number|undefined) => {
 
 // 添加评论长按删除相关变量
 // 评论长按删除功能
-const longPressTimeout = ref(null);
+const longPressTimeout = ref();
 const longPressDuration = 800; // 长按时间阈值，单位为毫秒
-const activeComment = ref(null);
+const activeComment = ref();
 
 // 长按开始处理函数
-const handleTouchStart = (commentId) => {
+const handleTouchStart = (comment:IBlogComment) => {
+  console.log(comment);
   // 检查是否是当前用户的评论
-  const comment = selectedBlog.value?.comments?.find(c => c.id === commentId);
   const currentUser = userStore.user;
-  
+
   // 如果不是当前用户的评论，不允许删除
   if (!comment || !currentUser || comment.user.id !== currentUser.id) {
     return;
   }
-  
+
   longPressTimeout.value = setTimeout(() => {
-    activeComment.value = commentId;
+    activeComment.value = comment.id;
   }, longPressDuration);
 };
 
@@ -560,28 +561,29 @@ const handleTouchMove = () => {
 };
 
 // 确认删除评论
-const confirmDeleteComment = async (commentId) => {
+const confirmDeleteComment = async (commentId?:number) => {
+  if(!commentId) return;
   try {
     // 调用删除评论API
-    await store.deleteComment(commentId);
-    
+    await userStore.userDeleteComment(commentId);
+
     // 刷新博客数据以更新评论列表
     if(selectedBlog.value?.id) {
       await store.getBlogByID(selectedBlog.value.id);
     }
-    
+
     ElMessage.success('Comment deleted successfully');
   } catch (error) {
     console.error('Failed to delete comment:', error);
     ElMessage.error('Failed to delete comment');
   } finally {
-    activeComment.value = null;
+    activeComment.value = undefined;
   }
 };
 
 // 取消删除操作
 const cancelDeleteComment = () => {
-  activeComment.value = null;
+  activeComment.value = undefined;
 };
 
 </script>
@@ -911,10 +913,10 @@ const cancelDeleteComment = () => {
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item-home">
               <div class="comment-row-home"
                    :class="{'long-press-active': activeComment === comment.id}"
-                   @touchstart.prevent="handleTouchStart(comment.id)"
+                   @touchstart.prevent="handleTouchStart(comment)"
                    @touchend.prevent="handleTouchEnd"
                    @touchmove.prevent="handleTouchMove"
-                   @mousedown="handleTouchStart(comment.id)"
+                   @mousedown="handleTouchStart(comment)"
                    @mouseup="handleTouchEnd"
                    @mouseleave="handleTouchEnd">
                 <img
@@ -937,7 +939,7 @@ const cancelDeleteComment = () => {
                 <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
                   <i class="el-icon-delete"></i>
                 </div>
-                
+
                 <!-- 删除确认浮层 -->
                 <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}">
                   <div class="delete-message">Delete this comment?</div>
@@ -955,7 +957,15 @@ const cancelDeleteComment = () => {
               >
                 <div v-for="reply in comment.replies" :key="reply.id"
                 class="reply-item-home">
-                  <div class="reply-row-home">
+                  <div class="reply-row-home"
+                  :class="{'long-press-active': activeComment === reply.id}"
+                   @touchstart.prevent="handleTouchStart(reply)"
+                   @touchend.prevent="handleTouchEnd"
+                   @touchmove.prevent="handleTouchMove"
+                   @mousedown="handleTouchStart(reply)"
+                   @mouseup="handleTouchEnd"
+                   @mouseleave="handleTouchEnd">
+                  >
                     <img
                       :src="getImageUrl(reply.user.avatar)"
                       alt="Replier Avatar"

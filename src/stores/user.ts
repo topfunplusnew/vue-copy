@@ -2,7 +2,8 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { userLogin, userProfile, accountActivate, userModify, userLogout, uploadAvatar,
   getMyBlogList, getBlogPost, myblogdelete, userSignup,
-   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
+  comment2Blog,comment2Comment,commentDel,
+  myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
@@ -158,6 +159,16 @@ export const useUserStore = defineStore('user', () => {
     selectedPost.value = undefined;
   }
 
+  function commenttoBlog(blogId: number, comment: string) {
+    return comment2Blog(blogId, comment);
+  }
+  function commenttoComment(commentId: number, comment: string) {
+    return comment2Comment(commentId, comment);
+  }
+  function userDeleteComment(id:number) {
+    return commentDel(id);
+  }
+
   /**
    * 关注用户
    * @param id 用户id
@@ -237,6 +248,9 @@ export const useUserStore = defineStore('user', () => {
     getUserBlogByID,
     delUserBlogByID,
     editUserBlog,
+    commenttoBlog,
+    commenttoComment,
+    userDeleteComment,
     clearSelectedPost,
     signup
   };
