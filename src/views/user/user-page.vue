@@ -402,10 +402,10 @@ const toggleMenu = () => {
               <span class="number">{{ user?.likes }}</span>
               <span class="label">Likes</span>
             </div>
-            <div class="stat">
+            <!-- <div class="stat">
               <span class="number">{{ user?.coins }}</span>
               <span class="label">Coins</span>
-            </div>
+            </div> -->
           </div>
           <!-- Following / Followers -->
           <div class="follow-stats-row">
@@ -463,13 +463,13 @@ const toggleMenu = () => {
             <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Blog Image" class="post-image" />
 
             <!-- 博客内容 -->
-            <div class="post-content">
-              <h2 class="post-title">{{ post.title }}</h2>
-              <p class="post-text">{{ post.content }}</p>
+            <div class="post-content-userpage">
+              <h2 class="post-title-userpage">{{ post.title }}</h2>
+              <p class="post-text-userpage">{{ post.content }}</p>
             </div>
 
             <!-- 博客底部信息 -->
-            <div class="post-footer">
+            <div class="post-footer-userpage">
               <!-- 作者信息 -->
               <div class="author-info">
                 <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
