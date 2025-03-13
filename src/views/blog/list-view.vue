@@ -6,6 +6,7 @@ import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
+import type { ISocialFilter } from '@/types/blog';
 
 // 引入定位和天气
 import { destinations } from '@/utils/destinations';
@@ -266,6 +267,13 @@ const toggleFilterMenu = () => {
 
 const searchQuery = ref('');
 
+const list = computed(() =>{
+  const arr:ISocialFilter[] = [];
+  for(const item of props.socialFilters) {
+    if(props.preferences.includes(item.id)) arr.push(item);
+  }
+  return arr;
+});
 
 
 function handleSearch() {
@@ -436,8 +444,6 @@ function handleImageError(event: Event) {
 }
 
 
-
-
 // 评论相关的状态
 // const activeCommentId = ref<number | null>(null);
 const replyContent = ref('');
@@ -523,6 +529,8 @@ const expandReplies = async (commentId: number|undefined) => {
   // 标记该评论已展开
   // expandedComments.value.push(commentId);
 };
+
+
 
 </script>
 
@@ -704,7 +712,7 @@ const expandReplies = async (commentId: number|undefined) => {
                     <div class="post-stats">
                       <span class="likes">❤️ {{ post.likes }}</span>
                     <span class="comments">💬 {{ post.comments_count }}</span>
-                      <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
+                      <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
                   </div>
                 </div>
               </router-link>
@@ -822,6 +830,12 @@ const expandReplies = async (commentId: number|undefined) => {
             </div>
           </div>
           <h2 class="blog-title-home">{{ selectedBlog?.title }}</h2>
+          <!-- 分类 -->
+        <div class="tags-section-pref" v-if="selectedBlog?.social_filters">
+          <span v-for="(item, index) in selectedBlog?.social_filters" :key="index" class="tag-pref">
+            {{ item.name }} {{ item.icon }}
+          </span>
+        </div>
         </div>
 
         <!-- 标签区域 -->

@@ -673,6 +673,13 @@ const toggleMenu = () => {
             <span class="author-name">{{ selectedBlog?.user?.name }}</span>
           </div>
           <h2 class="blog-title">{{ selectedBlog.title }}</h2>
+          <!-- 偏好标签区域 -->
+          <div class="tags-section-pref-userpage" v-if="selectedBlog?.social_filters">
+            <span v-for="(item, index) in selectedBlog?.social_filters" 
+            :key="index" class="tag-pref-userpage">
+              {{ item.name }} {{ item.icon }}
+            </span>
+          </div>
         </div>
 
         <!-- 标签区域 -->

@@ -1447,6 +1447,23 @@
     margin-bottom: 1rem;
   }
 
+  /* 偏好标签区域 */
+  .tags-section-pref {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0 20px 0;
+
+    .tag-pref { 
+      background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+      color: #555;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+  
   /* 标签部分 */
   .tags-section-home {
     display: flex;
@@ -1455,6 +1472,7 @@
     margin: 15px 0 20px 0;
     justify-content: left; /* 标签左对齐 */
     padding-right: 30px; /* 为标签区域添加右侧内边距 */
+    margin-bottom: 10px;
     
     .tag-home {
       background: #f0f0f0;

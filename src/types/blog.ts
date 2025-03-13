@@ -14,6 +14,7 @@ export interface IBlog extends ICommon {
   coins: number;
   tags: string[];
   isNFT: boolean;
+  social_filters: ISocialFilter[];
 }
 export interface IBlogPage extends IPagination {
   args: IBlogReq;

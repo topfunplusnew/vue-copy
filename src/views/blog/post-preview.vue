@@ -64,30 +64,12 @@
             </div>
           </div>
         </div>
-
-        <!-- 添加评论区域 -->
-        <div class="comments-container">
-          <div class="comments-header">
-            <h3>Comments</h3>
-            <span class="comment-count">0</span>
-          </div>
-          <!-- 添加评论输入框 -->
-          <div class="comment-input-container">
-            <el-input
-              v-model="commentText"
-              type="textarea"
-              :rows="2"
-              placeholder="Add a comment..."
-              class="comment-input"
-            />
-          </div>
-        </div>
       </div>
 
       <!-- 右侧内容区域 -->
       <div class="detail-right">
         <!-- 偏好标签区域 -->
-        <div class="tags-section" v-if="list.length">
+        <div class="tags-section-pref" v-if="list.length">
           <span v-for="(item, index) in list" :key="index" class="tag">
             {{ item.name }} {{ item.icon }}
           </span>
