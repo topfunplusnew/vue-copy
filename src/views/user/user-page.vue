@@ -484,7 +484,7 @@ const toggleMenu = () => {
               <div class="post-stats">
                 <span class="likes">❤️ {{ post.likes }}</span>
                 <span class="comments">💬 {{ post.comments_count }}</span>
-                <span class="coins" v-if="post.isNFT">💰 {{ post.coins }}</span>
+                <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
               </div>
             </div>
           </div>
@@ -655,7 +655,7 @@ const toggleMenu = () => {
           <div class="stats-info">
             <span class="likes">❤️ {{ selectedBlog.likes }}</span>
             <span class="comments" @click="scrollToComments">💬 {{ selectedBlog.comments_count }}</span>
-            <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
+            <span class="coins" v-if="selectedBlog.isNFT">₿ {{ selectedBlog.coins }}</span>
           </div>
         </div>
       </div>
