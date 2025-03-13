@@ -530,13 +530,9 @@ const expandReplies = async (commentId: number|undefined) => {
   // expandedComments.value.push(commentId);
 };
 
-
-
 </script>
 
 <template>
-
-
   <div class="background-layer" :class="{ 'visible': !isLoading }"></div>
   <div class="home" :class="{ 'content-visible': !isLoading }">
     <common-header />
