@@ -20,6 +20,30 @@
   }
 }
 
+/* 修复下拉菜单和菜单类组件 */
+.el-dropdown-menu,
+.el-menu {
+  background-color: #fff !important;
+  
+  .el-dropdown-menu__item,
+  .el-menu-item {
+    color: #333 !important;
+    
+    &:hover, &:focus {
+      background-color: rgba(64, 158, 255, 0.1) !important;
+      color: var(--el-color-primary) !important;
+    }
+  }
+}
+
+/* 下拉菜单项样式修复 */
+.el-dropdown-menu__item {
+  line-height: 36px !important;
+  font-size: 14px !important;
+  color: #303133 !important;
+  padding: 0 20px !important;
+}
+
 /* 多选下拉菜单 */
 .el-select-dropdown.is-multiple .el-select-dropdown__item.selected {
   background-color: rgba(64, 158, 255, 0.1) !important;
@@ -85,7 +109,29 @@
 }
 
 .el-picker-panel__footer .el-button--primary {
-  color: #fff !important;
+  color: #000000 !important;
   background-color: var(--el-color-primary) !important;
   border-color: var(--el-color-primary) !important;
+}
+
+/* 修复输入框下拉菜单 */
+.el-input-group__append .el-select .el-input .el-input__inner {
+  color: #606266 !important;
+}
+
+/* 修复级联选择器 */
+.el-cascader-menu {
+  background: #fff !important;
+  
+  .el-cascader-menu__item {
+    color: #333 !important;
+    
+    &:hover, &:focus {
+      background-color: rgba(64, 158, 255, 0.1) !important;
+    }
+    
+    &.is-active {
+      color: var(--el-color-primary) !important;
+    }
+  }
 } 
