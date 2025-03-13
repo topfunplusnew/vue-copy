@@ -1890,3 +1890,142 @@
   }
 }
 
+/* 评论长按删除功能样式 */
+.comment-row-home {
+  position: relative;
+  /* 添加长按过渡效果 */
+  transition: background-color 0.2s ease;
+  
+  /* 长按时的视觉反馈 */
+  &.long-press-active {
+    background-color: rgba(255, 59, 59, 0.1);
+    border-left: 3px solid #ff3b3b;
+  }
+  
+  /* 删除确认浮层 */
+  .delete-confirm-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(2px);
+    border-radius: 8px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    
+    &.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .delete-message {
+      color: #fff;
+      margin-right: 10px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    
+    .delete-actions {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+      
+      .delete-btn-rp {
+        background-color: #ff3b3b;
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        
+        &:hover {
+          background-color: #ff1f1f;
+        }
+      }
+      
+      .cancel-btn-rp {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        padding: 4px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        font-size: 0.85rem;
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+  }
+  
+  /* 删除操作指示器 */
+  .delete-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: rgba(255, 59, 59, 0.2);
+    color: #ff3b3b;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    
+    &.visible {
+      opacity: 1;
+    }
+  }
+}
+
+/* 长按指示动画 */
+@keyframes pressIndicator {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+}
+
+/* 防止博客内容和评论出现下划线 */
+.user-page {
+  a, a:hover, a:focus, a:active, a:visited {
+    text-decoration: none !important;
+  }
+  
+  .blog-content, 
+  .blog-title,
+  .comment-text,
+  .comment-username {
+    text-decoration: none !important;
+    
+    &:hover {
+      text-decoration: none !important;
+    }
+  }
+}
+
