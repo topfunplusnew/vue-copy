@@ -69,34 +69,19 @@ const faqs = ref([
   {
     question: 'How to design my personal itinerary?',
     answer:
-      'You can design your personal itinerary by using iPoloGO. Simply input your preferences, destinations, and interests, and the platform will help you create a personalized travel plan.',
+    'iPoloGO offers intuitive tools to help you easily create your itinerary. Simply select your destination, travel dates, flights, hotels, and other preferences. iPoloGO will automatically generate a personalized travel plan tailored specifically for you.'
   },
   {
     question: 'What is NFT in iPoloGO?',
     answer:
-      'To connect your Web3 wallet, click on the "Connect Wallet" button on the platform. Select your wallet provider, follow the prompts, and your wallet will be securely connected to iPoloGO.',
+    'In iPoloGO, an NFT (Non-Fungible Token) is a unique digital collectible representing memorable travel experiences, personalized itineraries, special achievements, or exclusive rewards. These NFTs can be collected, shared, or traded within the iPoloGO community, allowing you to preserve your travel memories and engage more deeply with other travelers.'
   },
   {
     question: 'How do I make my own NFT in iPoloGO? ',
-    answer: 'To share your itinerary in iPoloGO, go to the "Share" section within your plan and choose how you would like to share your trip (via social media or directly with other users).',
-  },
-  {
-    question: 'What can I do with an NFT?',
-    answer:
-      'By sharing your itinerary, you can earn iPoloCoins based on the number of people who view or interact with your plan. You can also gain access to exclusive rewards and features by sharing travel tips and experiences.',
-  },
-  {
-    question: 'How is the weight of obtaining iPoloCoin calculated?',
-    answer:
-      'The weight for obtaining iPoloCoin is calculated based on several factors, including the popularity of your shared itinerary, the level of interaction it receives, and the value of the knowledge shared with other users.',
-  },
+    answer: 
+    'Every time you connect your wallet and publish a travel blog on iPoloGO, you have the option to turn it into an NFT. Simply select the "Make Your NFT" option when posting your blog. Your blog content will be stored securely on the blockchain, and you will receive a unique NFT representing your travel experience.'
+  }
 ]);
-
-// 前往个人主页
-
-// 处理下拉菜单命令
-
-// 添加导航菜单状态管理
 
 // 切换菜单显示
 </script>
@@ -110,9 +95,12 @@ const faqs = ref([
     <div class="ipologo-intro">
       <h1>Welcome to iPoloGO</h1>
       <p>
-        iPoloGO is a Decentralized Autonomous Organization (DAO) tourism platform, powered by large language models and Web3 technology. With iPoloGO, you can personalize your travel experiences and earn rewards by sharing your journey. Whether you're exploring breathtaking scenery, engaging in educational, business, or healthcare experiences, or diving into local cuisine and culture, everything becomes easier with just a few inputs. We will help you plan every aspect of your trip.
-
-        Our community makes it simple to learn from others' travel plans and shared knowledge. You can also contribute your insights, earning rewards while enriching the experiences of fellow travelers.
+        iPoloGO is a Decentralized Autonomous Organization (DAO) tourism platform, powered by large language models and Web3 technology. 
+        With iPoloGO, you can personalize your travel experiences and earn rewards by sharing your journey. 
+        Whether you're exploring breathtaking scenery, engaging in educational, business, or healthcare experiences, or diving into local cuisine and culture, everything becomes easier with just a few inputs. 
+        We will help you plan every aspect of your trip.
+        Our community makes it simple to learn from others' travel plans and shared knowledge. 
+        You can also contribute your insights, earning rewards while enriching the experiences of fellow travelers.
       </p>
     </div>
 
