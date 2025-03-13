@@ -575,19 +575,19 @@
       animation: shine 3s infinite;
     }
 
-    &::after {
-      content: 'NFT';
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(255, 215, 0, 0.2);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 1.4rem;
-      color: gold;
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(255, 215, 0, 0.3);
-    }
+    // &::after {
+    //   content: 'NFT';
+    //   position: absolute;
+    //   top: 10px;
+    //   right: 10px;
+    //   background: rgba(255, 215, 0, 0.2);
+    //   padding: 4px 8px;
+    //   border-radius: 4px;
+    //   font-size: 1.4rem;
+    //   color: gold;
+    //   backdrop-filter: blur(4px);
+    //   border: 1px solid rgba(255, 215, 0, 0.3);
+    // }
 
     .coins {
       color: gold;

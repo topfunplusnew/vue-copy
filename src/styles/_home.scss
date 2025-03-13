@@ -743,7 +743,7 @@
         .social-posts-panel {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
-        gap: 1rem;
+          gap: 1rem;
           padding-bottom: 1rem;
           max-height: none;
           min-height: calc(100vh - 100px);
@@ -987,20 +987,20 @@
                 animation: shine 3s infinite;
               }
 
-              /* NFT 标记 */
-              &::after {
-                content: 'NFT';
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                background: rgba(255, 215, 0, 0.2);
-                padding: 4px 8px;
-                border-radius: 4px;
-                font-size: 1.5rem;
-                  color: gold;
-                backdrop-filter: blur(4px);
-                border: 1px solid rgba(255, 215, 0, 0.3);
-              }
+              // /* NFT 标记 */
+              // &::after {
+              //   content: 'NFT';
+              //   position: absolute;
+              //   top: 10px;
+              //   right: 10px;
+              //   background: rgba(255, 215, 0, 0.2);
+              //   padding: 4px 8px;
+              //   border-radius: 4px;
+              //   font-size: 1.5rem;
+              //     color: gold;
+              //   backdrop-filter: blur(4px);
+              //   border: 1px solid rgba(255, 215, 0, 0.3);
+              // }
             }
           }
         }
