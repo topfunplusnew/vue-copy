@@ -1986,3 +1986,46 @@
     transform: translateY(2px);
   }
 }
+
+/* 博客卡片标题和内容悬停修复 */
+.home {
+  /* 移除所有文本元素的下划线效果 */
+  a, a:hover, a:focus, a:active,
+  .blog-card-home,
+  .blog-title-card,
+  .blog-content-card,
+  .post-card, 
+  .post-title,
+  .post-content {
+    text-decoration: none !important;
+  }
+  
+  /* 特别处理博客卡片悬停状态 */
+  .blog-card-home:hover .blog-title-card,
+  .blog-card-home:hover .blog-content-card,
+  .post-card:hover .post-title,
+  .post-card:hover .post-content {
+    text-decoration: none !important;
+  }
+  
+  /* 确保链接行为正确 */
+  a {
+    color: inherit;
+  }
+  
+  a:hover {
+    color: inherit;
+  }
+}
+
+/* 确保特定博客元素没有下划线 */
+.blog-title-card,
+.blog-content-card {
+  text-decoration: none !important;
+}
+
+/* 悬停状态特别处理 */
+.blog-title-card:hover,
+.blog-content-card:hover {
+  text-decoration: none !important;
+}
