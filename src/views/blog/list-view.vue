@@ -976,15 +976,15 @@ const cancelDeleteComment = () => {
                         <span class="reply-username-home">{{ reply.user.name }}</span>
                         <span class="replying-to">replying to</span>
                         <span class="target-name-show">@{{ comment.user.name }}</span>
-                      <div class="reply-content-wrapper">
-                        <p class="reply-text-home"
-                          @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
-                        <!-- 回复到回复的图标 -->
-                        <el-tooltip content="Reply to this reply" placement="top">
-                          <span class="reply-icon-reply-to-reply"
-                          @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
-                        </el-tooltip>
-                      </div>
+                        <div class="reply-content-wrapper">
+                          <p class="reply-text-home"
+                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
+                          <!-- 回复到回复的图标 -->
+                          <el-tooltip content="Reply to this reply" placement="top">
+                            <span class="reply-icon-reply-to-reply"
+                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
+                          </el-tooltip>
+                        </div>
                       </div>
                     </div>
                   </div>

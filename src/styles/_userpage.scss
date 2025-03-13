@@ -1040,6 +1040,7 @@
                 color: #555;
                 margin: 3px 0 0;
                 line-height: 1.4;
+                word-break: break-all;
               }
             }
           }
@@ -1891,7 +1892,7 @@
 }
 
 /* 评论长按删除功能样式 */
-.comment-row-home {
+.comment-row {
   position: relative;
   /* 添加长按过渡效果 */
   transition: background-color 0.2s ease;

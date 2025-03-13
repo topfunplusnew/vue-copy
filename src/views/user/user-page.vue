@@ -754,7 +754,7 @@ const toggleMenu = () => {
               v-model="newComment"
               placeholder="Add a comment..."
               @keyup.enter="submitComment"
-              class="comment-input-home"
+              class="comment-input"
             />
             <button
               class="submit-quick-comment"
@@ -809,7 +809,7 @@ const toggleMenu = () => {
           </div>
           <div class="comments-list">
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
-              <div class="comment-row-home"
+              <div class="comment-row"
                    :class="{'long-press-active': activeComment === comment.id}"
                    @touchstart.prevent="handleTouchStart(comment)"
                    @touchend.prevent="handleTouchEnd"
