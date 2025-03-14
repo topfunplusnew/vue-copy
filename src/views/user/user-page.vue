@@ -20,7 +20,6 @@ const router = useRouter();
 
 onMounted(() => {
   store.getUserInfo().then(({data})=>{
-    console.log(data);
     editForm.name = data.name;
     editForm.avatar = data.avatar;
   });
@@ -344,6 +343,85 @@ const submitComment = async () => {
   newComment.value = '';
 }
 
+
+
+// 评论相关的状态
+// const activeCommentId = ref<number | null>(null);
+const replyContent = ref('');
+const isSubmittingReply = ref(false);
+// 展开回复相关的状态
+
+// 添加回复目标状态
+const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
+
+// 切换回复输入框显示状态
+const toggleReplyInput = (id: number|undefined, type: string = 'comment', parentId?: number) => {
+  if (!id) return;
+  // 如果当前已经是在回复这个评论/回复，则关闭回复框
+  if (replyTarget.value &&
+      replyTarget.value.id === id &&
+      replyTarget.value.type === type) {
+    replyTarget.value = null;
+    replyContent.value = '';
+  } else {
+    // 否则打开回复框
+    if (type === 'reply' && !parentId) {
+      console.error('回复需要提供父评论ID');
+      return;
+    }
+
+    replyTarget.value = {
+      id,
+      type,
+      parentId
+    };
+
+    // 添加延迟滚动到回复框，确保DOM已更新
+    nextTick(() => {
+      // 滚动到回复框
+      const replyInputContainer = document.querySelector('.reply-input-container-home');
+      if (replyInputContainer) {
+        replyInputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+
+    replyContent.value = '';
+  }
+};
+
+// 取消回复
+const cancelReply = () => {
+  replyTarget.value = null;
+  replyContent.value = '';
+};
+// 展开查看所有回复
+const expandReplies = async (commentId: number|undefined) => {
+  // 如果需要调用API加载更多回复，可以在这里添加
+  // await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
+  if (commentId) store.getComments(commentId);
+  // 标记该评论已展开
+  // expandedComments.value.push(commentId);
+};
+// 提交回复
+const submitReply = async () => {
+  if (!replyContent.value.trim()) return;
+
+  isSubmittingReply.value = true;
+  try {
+
+
+    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
+    ElMessage.success('Reply added successfully');
+    if(selectedBlog.value?.id)store.getUserBlogByID(selectedBlog.value?.id);
+    replyTarget.value = null;
+    replyContent.value = '';
+  } catch (error) {
+    console.error('Failed to add reply:', error);
+    ElMessage.error('Failed to add reply. Please try again.');
+  } finally {
+    isSubmittingReply.value = false;
+  }
+};
 function scrollToComments() {
   const commentsSection = document.querySelector('.comments-container') as HTMLElement;
   const detailRight = document.querySelector('.detail-right');
@@ -811,9 +889,9 @@ const toggleMenu = () => {
             <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
               <div class="comment-row"
                    :class="{'long-press-active': activeComment === comment.id}"
-                   @touchstart.prevent="handleTouchStart(comment)"
-                   @touchend.prevent="handleTouchEnd"
-                   @touchmove.prevent="handleTouchMove"
+                   @touchstart.stop="handleTouchStart(comment)"
+                   @touchend.stop="handleTouchEnd"
+                   @touchmove.stop="handleTouchMove"
                    @mousedown="handleTouchStart(comment)"
                    @mouseup="handleTouchEnd"
                    @mouseleave="handleTouchEnd">
@@ -831,14 +909,103 @@ const toggleMenu = () => {
                 </div>
 
                 <!-- 删除确认浮层 -->
-                <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}">
+                <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}" @click="console.log(123)">
                   <div class="delete-message">Delete this comment?</div>
                   <div class="delete-actions">
-                    <button class="delete-btn-rp" @click="confirmDeleteComment(comment.id)">Delete</button>
-                    <button class="cancel-btn-rp" @click="cancelDeleteComment">Cancel</button>
+                    <button class="delete-btn-rp" @click.stop="confirmDeleteComment(comment.id)">Delete</button>
+                    <button class="cancel-btn-rp" @click.stop="cancelDeleteComment">Cancel</button>
                   </div>
                 </div>
               </div>
+
+              <!-- 显示评论的回复 -->
+              <div
+                v-if="comment.replies && comment.replies.length > 0"
+                class="comment-replies-home"
+              >
+                <div v-for="reply in comment.replies" :key="reply.id"
+                class="reply-item">
+                  <div class="reply-row"
+                    :class="{'long-press-active': activeComment === reply.id}"
+                    @touchstart.prevent="handleTouchStart(reply)"
+                    @touchend.prevent="handleTouchEnd"
+                    @touchmove.prevent="handleTouchMove"
+                    @mousedown="handleTouchStart(reply)"
+                    @mouseup="handleTouchEnd"
+                    @mouseleave="handleTouchEnd"
+                  >
+                    <img
+                      :src="getImageUrl(reply.user.avatar)"
+                      alt="Replier Avatar"
+                      class="reply-avatar"
+                    />
+                    <div class="reply-info">
+                      <div class="reply-header">
+                        <span class="reply-username-home">{{ reply.user.name }}</span>
+                        <span class="replying-to">replying to</span>
+                        <span class="target-name-show">@{{ comment.user.name }}</span>
+                        <div class="reply-content-wrapper">
+                          <p class="reply-text-home"
+                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
+                          <!-- 回复到回复的图标 -->
+                          <el-tooltip content="Reply to this reply" placement="top">
+                            <span class="reply-icon-reply-to-reply"
+                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
+                          </el-tooltip>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 添加查看更多回复按钮 -->
+                </div>
+                <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
+                    class="view-more-replies" @click="expandReplies(comment.id)">
+                  <span class="view-more-text-r2r">
+                  View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
+              </span>
+                  <span class="view-more-icon-r2r">↓</span>
+                </div>
+              </div>
+
+              <!-- 回复输入框 -->
+              <div class="reply-input-container-home" v-if="replyTarget &&
+                ((replyTarget.type === 'comment' && replyTarget.id === comment.id) ||
+                (replyTarget.type === 'reply' && replyTarget.parentId === comment.id))">
+                <div class="replying-to-label">
+                  <span>Replying to</span>
+                  <span class="target-name">@{{
+                    replyTarget.type === 'comment'
+                      ? comment.user.name
+                      : comment.replies.find(r => r.id === replyTarget?.id)?.user.name
+                  }}</span>
+                </div>
+                <el-input
+                  v-model="replyContent"
+                  type="textarea"
+                  :rows="1"
+                  resize="none"
+                  placeholder="Reply to this comment..."
+                  maxlength="200"
+                  show-word-limit
+                  class="reply-textarea-home"
+                ></el-input>
+                <div class="reply-actions-home">
+                  <el-button
+                    size="small"
+                    @click="cancelReply"
+                    class="cancel-reply-btn-home"
+                  >Cancel</el-button>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    @click="submitReply"
+                    :loading="isSubmittingReply"
+                    :disabled="!replyContent.trim()"
+                    class="submit-reply-btn-home"
+                  >Reply</el-button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

@@ -2,7 +2,7 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { userLogin, userProfile, accountActivate, userModify, userLogout, uploadAvatar,
   getMyBlogList, getBlogPost, myblogdelete, userSignup,
-  comment2Blog,comment2Comment,commentDel,
+  comment2Blog,comment2Comment,commentDel,comments,
   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
@@ -168,7 +168,17 @@ export const useUserStore = defineStore('user', () => {
   function userDeleteComment(id:number) {
     return commentDel(id);
   }
-
+  function getComments(commentId: number) {
+    return comments(commentId).then(({data}) => {
+      if (selectedPost.value) {
+        for(const comment of selectedPost.value.comments) {
+          if(comment.id === commentId) {
+            comment.replies = data.items;
+          }
+        }
+      }
+    });
+  }
   /**
    * 关注用户
    * @param id 用户id
@@ -251,6 +261,7 @@ export const useUserStore = defineStore('user', () => {
     commenttoBlog,
     commenttoComment,
     userDeleteComment,
+    getComments,
     clearSelectedPost,
     signup
   };
