@@ -503,6 +503,14 @@
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid rgba(86, 180, 233, 0.2);
+    .trip-options-modal-body {
+      .el-textarea__inner {
+        color: #fff !important;
+      }
+      .el-input__inner {
+        color: #fff !important;
+      }  
+    }
   }
   
   .trip-options-modal-content {
