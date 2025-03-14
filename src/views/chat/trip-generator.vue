@@ -300,13 +300,12 @@ const toggleHistory = () => {
 };
 
 
-onMounted(() => {
+onMounted(async() => {
   const query = router.currentRoute.value.query;
   if(query && query.prompt && query.prompt.length > 0) {
-    store.chat(query.prompt as string).finally(() => {
-      store.getConversasions()
-    })
+    await store.chat(query.prompt as string);
   }
+  store.getConversasions()
   // const {prompt, location, destination} = router.currentRoute.value.query;
 
 });
