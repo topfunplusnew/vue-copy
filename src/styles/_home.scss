@@ -2185,3 +2185,89 @@
     opacity: 0.7;
   }
 }
+
+/* 评论和回复部分样式调整 */
+.comments-section {
+  .comment-item {
+    /* 评论项样式已有 */
+  }
+  
+  /* 回复容器和每个回复项 */
+  .replies-container {
+    padding-left: 50px; /* 增加缩进 */
+    
+    .reply-item {
+      margin-top: 8px;
+      
+      .reply-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        
+        /* 回复头像 */
+        img {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        
+        /* 回复内容容器 */
+        .reply-content {
+          flex: 1;
+          min-width: 0; /* 防止内容溢出 */
+          
+          /* 回复用户名和内容 */
+          .reply-username {
+            font-weight: bold;
+            margin-right: 8px;
+            display: inline;
+          }
+          
+          .reply-text {
+            display: inline;
+            margin: 0;
+            word-break: break-word;
+          }
+          
+          /* 回复图标 */
+          .reply-icon-reply-to-reply {
+            margin-left: 6px;
+            cursor: pointer;
+            font-size: 12px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* 移动设备优化 */
+@media (max-width: 768px) {
+  .comments-section {
+    .replies-container {
+      padding-left: 30px; /* 减少移动设备上的缩进 */
+      
+      .reply-item {
+        .reply-row {
+          gap: 8px; /* 减少间距 */
+          
+          img {
+            width: 24px; /* 减小头像尺寸 */
+            height: 24px;
+          }
+          
+          .reply-content {
+            .reply-username, .reply-text {
+              font-size: 13px; /* 减小字体大小 */
+            }
+            
+            .reply-icon-reply-to-reply {
+              font-size: 11px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
