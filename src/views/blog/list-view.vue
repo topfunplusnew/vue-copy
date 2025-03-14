@@ -125,10 +125,6 @@ const togglePreference = (optionName: string) => {
   updateUserInput();
 };
 
-const handleEnter = (event: Event | KeyboardEvent) => {
-  event.preventDefault();
-  router.push({ name: 'conversation', query: { prompt: userInput.value } });
-};
 
 const submitItinerary = () => {
   router.push({
@@ -673,8 +669,8 @@ const cancelDeleteComment = () => {
         <div class="input-container">
           <el-input v-model="userInput" placeholder="Edit your trip prompt..."
           class="itinerary-input" type="textarea" :rows="4"
-          @keydown.enter="handleEnter" />
-          <button class="togenerator" @click="submitItinerary">Start Now</button>
+          @keydown.enter.stop.prevent="submitItinerary" />
+          <button class="togenerator" @click.prevent.stop="submitItinerary">Start Now</button>
         </div>
       </div>
 

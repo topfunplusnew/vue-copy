@@ -45,7 +45,8 @@ export const useChatStore = defineStore('prompt', () => {
         role: 'ai',
         content: text
       });
-      message.value = ''
+      message.value = '';
+      return res;
     });
   }
   /**
@@ -58,9 +59,10 @@ export const useChatStore = defineStore('prompt', () => {
    * 话题列表
    * @returns
    */
-  function getConversions() {
-    return chatConversations().then(({data}) =>{
-      conversations.value = data.history;
+  function getConversasions() {
+    return chatConversations().then(res =>{
+      conversations.value = res.data.history;
+      return res;
     });
   }
   /**
@@ -80,7 +82,7 @@ export const useChatStore = defineStore('prompt', () => {
     messages,
     conversations,
     clear,
-    getConversions,
+    getConversasions,
     getChatsByConversationID,
     chat
   }

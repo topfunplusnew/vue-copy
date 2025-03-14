@@ -3,6 +3,8 @@ import { ref, computed, watch, onMounted, reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
 import { useChatStore } from '@/stores/chat';
+import { useRouter } from 'vue-router';
+
 import commonHeader from '@/layout/common-header.vue';
 import MarkdownIt from 'markdown-it';
 const md = new MarkdownIt();
@@ -11,6 +13,8 @@ const store = useChatStore();
 const message = computed(()=> store.message);
 const messages = computed(() => store.messages);
 const conversations = computed(() => store.conversations);
+
+const router = useRouter();
 
 function loadHistory(id:number|undefined) {
   if(id) store.getChatsByConversationID(id).catch(e=>console.log(e));
@@ -297,7 +301,14 @@ const toggleHistory = () => {
 
 
 onMounted(() => {
-  store.getConversions();
+  const query = router.currentRoute.value.query;
+  if(query && query.prompt && query.prompt.length > 0) {
+    store.chat(query.prompt as string).finally(() => {
+      store.getConversasions()
+    })
+  }
+  // const {prompt, location, destination} = router.currentRoute.value.query;
+
 });
 
 </script>
@@ -431,7 +442,7 @@ onMounted(() => {
                   :shortcuts="dateShortcuts"
                   class="futuristic-date-picker"
                 />
-                <div v-if="tripSelections.DurationDays > 0" 
+                <div v-if="tripSelections.DurationDays > 0"
                   class="duration-display">
                   {{ tripSelections.DurationDays }} days
                 </div>
