@@ -10,6 +10,8 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
 import '@/styles/_userpage.scss';
+import type { IBlogComment } from '@/types/blog';
+
 // import commonHeader from '@/layout/common-header.vue';
 
 const store = useUserStore();
@@ -264,7 +266,7 @@ const submitComment = async () => {
   }).finally(()=>{
     // 清空输入
     newComment.value = '';
-    if(selectedBlog.value?.id) store.getBlogByID(selectedBlog.value?.id);
+    if(selectedBlog.value?.id) store.getUserBlogByID(selectedBlog.value?.id);
 
     // 滚动到新评论
     nextTick(() => {
@@ -284,6 +286,69 @@ const submitComment = async () => {
 
 
 // 评论相关的状态
+
+// 评论长按删除功能
+const longPressTimeout = ref();
+const longPressDuration = 800; // 长按时间阈值，单位为毫秒
+const activeComment = ref();
+
+// 长按开始处理函数
+const handleTouchStart = (comment:IBlogComment) => {
+  console.log(comment);
+  // 检查是否是当前用户的评论
+  const currentUser = store.user;
+
+  // 如果不是当前用户的评论，不允许删除
+  if (!comment || !currentUser || comment.user.id !== currentUser.id) {
+    return;
+  }
+
+  longPressTimeout.value = setTimeout(() => {
+    activeComment.value = comment.id;
+  }, longPressDuration);
+};
+
+// 长按结束处理函数
+const handleTouchEnd = () => {
+  if (longPressTimeout.value) {
+    clearTimeout(longPressTimeout.value);
+    longPressTimeout.value = null;
+  }
+};
+
+// 移动时取消长按
+const handleTouchMove = () => {
+  if (longPressTimeout.value) {
+    clearTimeout(longPressTimeout.value);
+    longPressTimeout.value = null;
+  }
+};
+
+// 确认删除评论
+const confirmDeleteComment = async (commentId?:number) => {
+  if(!commentId) return;
+  try {
+    // 调用删除评论API
+    await store.userDeleteComment(commentId);
+
+    // 刷新博客数据以更新评论列表
+    if(selectedBlog.value?.id) {
+      await store.getUserBlogByID(selectedBlog.value.id);
+    }
+
+    ElMessage.success('Comment deleted successfully');
+  } catch (error) {
+    console.error('Failed to delete comment:', error);
+    ElMessage.error('Failed to delete comment');
+  } finally {
+    activeComment.value = undefined;
+  }
+};
+
+// 取消删除操作
+const cancelDeleteComment = () => {
+  activeComment.value = undefined;
+};
 // const activeCommentId = ref<number | null>(null);
 const replyContent = ref('');
 const isSubmittingReply = ref(false);
