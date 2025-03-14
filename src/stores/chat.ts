@@ -6,7 +6,10 @@ import type { IChatReq, IConversation, IMessage } from '@/types/chat';
 export const useChatStore = defineStore('prompt', () => {
 
   const message = ref('');
-  const messages = ref<IMessage[]>([]);
+  const messages = ref<IMessage[]>([{
+    role: 'ai',
+    content: 'You can ask me travel-related questions or simply use "Generate Token" to help you create a travel plan.'
+  }]);
   const conversations = ref<IConversation[]>([]);
 
 
@@ -72,7 +75,14 @@ export const useChatStore = defineStore('prompt', () => {
    */
   function getChatsByConversationID(id:number) {
     return chatRestore(id).then(({data}) => {
-      messages.value = data.history;
+      const history = data.history;
+      if (history && history.length > 0) {
+        history.push({
+          role: 'ai',
+          content: 'You can ask me travel-related questions or simply use "Generate Token" to help you create a travel plan.'
+        })
+      }
+      messages.value = history;
       conversation_id = id;
     })
   }
