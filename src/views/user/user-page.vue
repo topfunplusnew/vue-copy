@@ -761,16 +761,16 @@ const toggleMenu = () => {
             <span class="comments" @click="scrollToComments">💬 {{ selectedBlog.comments_count }}</span>
             <span class="coins" v-if="selectedBlog.isNFT">₿ {{ selectedBlog.coins }}</span>
           </div>
-        </div>
+        
 
-        <!-- 简化的评论输入框 -->
-        <div class="quick-comment-input">
+          <!-- 简化的评论输入框 -->
+          <div class="quick-comment-input">
             <input
               type="text"
               v-model="newComment"
               placeholder="Add a comment..."
               @keyup.enter="submitComment"
-              class="comment-input-home"
+              class="comment-input"
             />
             <button
               class="submit-quick-comment"
@@ -780,6 +780,7 @@ const toggleMenu = () => {
               <span>💬</span>
             </button>
           </div>
+        </div>
       </div>
 
       <!-- 右侧内容区域 -->
