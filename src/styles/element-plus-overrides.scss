@@ -69,7 +69,7 @@
     }
     
     td.current:not(.disabled) {
-      color: #fff !important;
+      color: #000000 !important;
       background-color: var(--el-color-primary) !important;
     }
     
@@ -79,7 +79,7 @@
     }
     
     td.disabled {
-      color: #c0c4cc !important;
+      color: #000000 !important;
     }
   }
   
@@ -95,43 +95,3 @@
     color: #606266 !important;
   }
 }
-
-/* 修复日期选择器弹出层 */
-.el-picker-panel[role="dialog"] {
-  background: #fff !important;
-  border: 1px solid #e4e7ed !important;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1) !important;
-}
-
-/* 确保日期选择器内的按钮文本颜色正确 */
-.el-picker-panel__footer .el-button {
-  color: #606266 !important;
-}
-
-.el-picker-panel__footer .el-button--primary {
-  color: #000000 !important;
-  background-color: var(--el-color-primary) !important;
-  border-color: var(--el-color-primary) !important;
-}
-
-/* 修复输入框下拉菜单 */
-.el-input-group__append .el-select .el-input .el-input__inner {
-  color: #606266 !important;
-}
-
-/* 修复级联选择器 */
-.el-cascader-menu {
-  background: #fff !important;
-  
-  .el-cascader-menu__item {
-    color: #333 !important;
-    
-    &:hover, &:focus {
-      background-color: rgba(64, 158, 255, 0.1) !important;
-    }
-    
-    &.is-active {
-      color: var(--el-color-primary) !important;
-    }
-  }
-} 

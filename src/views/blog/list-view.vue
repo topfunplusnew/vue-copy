@@ -659,7 +659,7 @@ const cancelDeleteComment = () => {
           <span v-for="option in socialFilters" :key="option.name"
             class="preference-option"
             :class="{ selected: selectedOptions.includes(option.name) }"
-          @click="togglePreference(option.name)">
+            @click="togglePreference(option.name)">
             <span class="option-icon">{{ option.icon }}</span>
             <span class="option-name">{{ option.name }}</span>
           </span>
@@ -667,10 +667,12 @@ const cancelDeleteComment = () => {
 
         <!-- 用户行程输入框 -->
         <div class="input-container">
-          <el-input v-model="userInput" placeholder="Edit your trip prompt..."
+          <el-input v-model="userInput" 
+          placeholder="Edit your trip prompt..."
           class="itinerary-input" type="textarea" :rows="4"
           @keydown.enter.stop.prevent="submitItinerary" />
-          <button class="togenerator" @click.prevent.stop="submitItinerary">Start Now</button>
+          <button class="togenerator" 
+          @click.prevent.stop="submitItinerary">Start Now</button>
         </div>
       </div>
 
@@ -929,8 +931,10 @@ const cancelDeleteComment = () => {
                   @click="toggleReplyInput(comment.id)">{{ comment.content }}</p>
 
                   <!-- 回复图标 -->
-                  <el-tooltip content="Reply to this comment" placement="top">
-                    <span class="reply-icon" @click="toggleReplyInput(comment.id)">↩️</span>
+                  <el-tooltip content="Reply to this comment" 
+                  placement="top">
+                    <span class="reply-icon" 
+                    @click="toggleReplyInput(comment.id)">↩️</span>
                   </el-tooltip>
                 </div>
 
@@ -973,7 +977,7 @@ const cancelDeleteComment = () => {
                     <div class="reply-info">
                       <div class="reply-header">
                         <span class="reply-username-home">{{ reply.user.name }}</span>
-                        <span class="replying-to">replying to</span>
+                        <!-- <span class="replying-to"></span> -->
                         <span class="target-name-show">@{{ comment.user.name }}</span>
                         <div class="reply-content-wrapper">
                           <p class="reply-text-home"

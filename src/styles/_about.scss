@@ -496,10 +496,10 @@
 .stats-container-about {
   display: flex;
   justify-content: space-between;
-  gap: 0.7rem;
+  gap: 1.5rem;
   margin: 4rem auto;
   max-width: 1200px;
-  padding: 2rem 2.5rem;
+  padding: 2rem;
   background: linear-gradient(135deg, rgba(50, 50, 50, 0.5), rgba(30, 30, 30, 0.7));
   backdrop-filter: blur(15px);
   border-radius: 16px;
@@ -507,31 +507,23 @@
   overflow-x: auto; /* 允许在小屏幕上水平滚动 */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-  box-sizing: border-box;
-  width: 90%;
   
   @media (max-width: 992px) {
+    gap: 1.2rem;
     margin: 3rem auto;
-    padding: 1.5rem 2rem;
-    width: 98%;
+    padding: 1.8rem;
   }
   
   @media (max-width: 768px) {
+    gap: 1rem;
     margin: 2.5rem auto;
-    padding: 1.2rem 1.8rem;
-    width: 98%;
+    padding: 1.5rem;
   }
   
   @media (max-width: 576px) {
+    gap: 0.8rem;
     margin: 2rem auto;
-    padding: 1rem 1.5rem;
-    width: 98%;
-  }
-  
-  @media (max-width: 480px) {
-    margin: 1.5rem auto;
-    padding: 0.8rem 1.2rem;
-    width: 96%;
+    padding: 1.2rem;
   }
   
   /* 自定义滚动条样式 */
@@ -563,26 +555,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
   
   @media (max-width: 992px) {
-    min-width: 160px;
+    min-width: 180px;
     padding: 1.5rem;
   }
   
   @media (max-width: 768px) {
-    min-width: 110px;
+    min-width: 120px;
     padding: 1.2rem;
   }
   
   @media (max-width: 576px) {
-    min-width: 90px;
+    min-width: 100px;
     padding: 1rem;
-  }
-  
-  @media (max-width: 480px) {
-    min-width: 80px;
-    padding: 0.8rem 0.5rem;
   }
   
   &:hover {
@@ -630,7 +616,6 @@
   transition: all 0.4s ease;
   z-index: 1;
   text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  word-break: break-word;
   
   @media (max-width: 992px) {
     font-size: 2.2rem;
@@ -641,7 +626,7 @@
   }
   
   @media (max-width: 480px) {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
   }
   
   &::after {
@@ -705,8 +690,7 @@
   }
   
   .stats-container-about {
-    max-width: 98%;
-    width: 98%;
+    max-width: 95%;
   }
 }
 

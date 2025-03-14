@@ -330,13 +330,18 @@ onMounted(() => {
               <h2>Chat with iPoloGO</h2>
             </div>
             <div class="header-actions">
-              <el-button class="action-btn primary-btn" @click.stop="toggleHistory">
-                <i class="el-icon-document" style="margin-right: 6px"></i> History
+              <el-button class="action-btn primary-btn" 
+              @click.stop="toggleHistory">
+                <i class="el-icon-document" 
+                style="margin-right: 6px"></i> History
               </el-button>
-              <el-button class="action-btn primary-btn trip-options-btn" @click.stop="toggleTripOptions">
-                <i class="el-icon-magic-stick" style="margin-right: 6px"></i> Generate Token
+              <el-button class="action-btn primary-btn trip-options-btn" 
+              @click.stop="toggleTripOptions">
+                <i class="el-icon-magic-stick" 
+                style="margin-right: 6px"></i> Generate Token
               </el-button>
-              <el-button class="action-btn warning-btn" @click="finishConversation">
+              <el-button class="action-btn warning-btn" 
+              @click="finishConversation">
                 <i class="el-icon-close" style="margin-right: 6px"></i>
                 Finish Conversation
               </el-button>
@@ -442,10 +447,10 @@ onMounted(() => {
                   :shortcuts="dateShortcuts"
                   class="futuristic-date-picker"
                 />
-                <div v-if="tripSelections.DurationDays > 0"
+                <!-- <div v-if="tripSelections.DurationDays > 0"
                   class="duration-display">
                   {{ tripSelections.DurationDays }} days
-                </div>
+                </div> -->
               </div>
             </div>
 
