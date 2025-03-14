@@ -700,7 +700,8 @@ const cancelDeleteComment = () => {
             </button>
 
             <!-- 横排筛选选项 -->
-            <div class="social-filter-panel-horizontal" :class="{ 'expanded': isFilterMenuOpen }">
+            <div class="social-filter-panel-horizontal" 
+            :class="{ 'expanded': isFilterMenuOpen }">
               <button
                 v-for="item in socialFilters"
                 :key="item.id"
@@ -762,13 +763,15 @@ const cancelDeleteComment = () => {
                     <div class="post-stats-home">
                       <span class="likes-home">❤️ {{ post.likes }}</span>
                       <span class="comments-home">💬 {{ post.comments_count }}</span>
-                      <span class="coins-home" v-if="post.isNFT">₿ {{ post.coins }}</span>
+                      <span class="coins-home" 
+                      v-if="post.isNFT">₿ {{ post.coins }}</span>
                   </div>
                 </div>
               </router-link>
             </div>
             <div ref="bottomTrigger" class="bottom-load-container">
-              <div v-if="allPosts.loading" class="loading-indicator">Loading more posts...</div>
+              <div v-if="allPosts.loading" 
+              class="loading-indicator">Loading more posts...</div>
               <button
                 v-else-if="allPosts?.has_next"
                 class="load-more-btn-home"
