@@ -58,7 +58,16 @@
 /* 日期选择器文本颜色修复 */
 .el-picker-panel {
   color: #606266 !important;
-  
+
+  .el-picker-panel__body {
+    display: flex;
+    flex-direction: column;
+  }
+  .el-picker-panel__sidebar {
+    .el-picker-panel__shortcut {
+      color: #000;
+    }
+  }
   .el-date-table {
     th, td {
       color: #606266 !important;
