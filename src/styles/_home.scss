@@ -75,25 +75,25 @@
   }
 
   @media (max-width: 768px) {
-  .welcome-section {
-    .welcome-text {
-      font-size: calc(1.6rem + 2vw); /* 根据视口宽度动态调整字体大小 */
-    }
-    
-    .welcome-text2 {
-      font-size: calc(0.9rem + 1.5vw);
+    .welcome-section {
+      .welcome-text {
+        font-size: calc(2.5rem + 2vw); /* 增加基础字体大小 */
+      }
+      
+      .welcome-text2 {
+        font-size: calc(1.2rem + 1.5vw);
+      }
     }
   }
-}
 
   @media (max-width: 480px) {
     .welcome-section {
       .welcome-text {
-        font-size: calc(1rem + 2vw);
+        font-size: calc(2.2rem + 2vw); /* 即使在小屏幕上也保持更大的字体 */
       }
       
       .welcome-text2 {
-        font-size: calc(0.8rem + 1.5vw);
+        font-size: calc(1.1rem + 1.5vw);
       }
     }
   }
