@@ -1,4 +1,4 @@
-@import './variables';
+@use './variables' as var;
 
 @mixin font-base {
   line-height: normal;
@@ -120,19 +120,19 @@
 
 @mixin screen-pc {
   // pc尺寸宽屏
-  @media screen and (min-width: $width-pc) {
+  @media screen and (min-width: var.$width-pc) {
     @content;
   }
 }
 @mixin screen-pad {
   // 平板尺寸
-  @media screen and (min-width: $width-pad) and (max-width: $width-pc) {
+  @media screen and (min-width: var.$width-pad) and (max-width: var.$width-pc) {
     @content;
   }
 }
 @mixin screen-mobile {
   // 手机尺寸
-  @media screen and (max-width: $width-pad) {
+  @media screen and (max-width: var.$width-pad) {
     @content;
   }
 }

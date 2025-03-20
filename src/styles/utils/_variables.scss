@@ -1,8 +1,6 @@
 // 常用变量
 
-$font-family-default:
-  HelveticaNeue Regular,
-  sans-serif; // 字体
+$font-family-default: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 $font-family-code:
   SFMono-Regular,
   Menlo,
@@ -27,9 +25,13 @@ $font-line-height-default: 1.5; // 默认字高
 
 $bg-color-default: #fff; // 默认背景色
 
-$width-pc: 1200px; // 电脑尺寸
-$width-pad: 900px; // 平板尺寸
-$width-mobile: 750px; // 手机尺寸
+$width-pc: 1200px; // 电脑尺寸范围
+$width-pad: 900px; // 平板尺寸范围
+$width-mobile: 750px; // 手机尺寸范围
+
+$page-font-size-pc: 16px; // 电脑默认文字尺寸
+$page-width-pad: 900px; // 平板基准尺寸
+$page-width-mobile: 750px; // 手机基准尺寸
 
 $font-light: $font-family-default;
 $font-regular: $font-family-default;

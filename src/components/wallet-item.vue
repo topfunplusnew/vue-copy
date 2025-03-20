@@ -1,8 +1,8 @@
 <template>
   <div class="wallet-item">
-    <el-button class="nav-button" v-if="status == WALLET_STATUS.CONNECTED">{{ address }}</el-button>
-    <el-button class="nav-button" v-else-if="status == WALLET_STATUS.NO_PROVIDER"><a href="https://metamask.io/download/">WALLET</a></el-button>
-    <el-button class="nav-button" v-else @click="onConnect">WALLET</el-button>
+    <div v-if="status == WALLET_STATUS.CONNECTED">{{ address }}</div>
+    <div v-else-if="status == WALLET_STATUS.NO_PROVIDER"><a href="https://metamask.io/download/">WALLET</a></div>
+    <div v-else @click="onConnect">WALLET</div>
   </div>
 </template>
 
@@ -46,23 +46,6 @@ onMounted(() => {
 
 <style lang="scss">
 .wallet-item {
-  button {
-    background-color: rgba(255, 255, 255, 0.4);
-    transform: scale(1.1);
-    color: #000;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background-color: #e6b800;
-    }
-  }
-  &-address {
-    display: inline-block;
-  }
+  cursor: pointer;
 }
 </style>

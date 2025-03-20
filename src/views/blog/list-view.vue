@@ -6,6 +6,7 @@ import { usecomponentsStore } from '@/stores/components';
 import { ElMessageBox, ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
+import blogItem from './blog-item.vue';
 
 // 引入定位和天气
 import { destinations } from '@/utils/destinations';
@@ -668,11 +669,11 @@ const cancelDeleteComment = () => {
 
         <!-- 用户行程输入框 -->
         <div class="input-container">
-          <el-input v-model="userInput" 
+          <el-input v-model="userInput"
           placeholder="Edit your trip prompt..."
           class="itinerary-input" type="textarea" :rows="4"
           @keydown.enter.stop.prevent="submitItinerary" />
-          <button class="togenerator" 
+          <button class="togenerator"
           @click.prevent.stop="submitItinerary">Start Now</button>
         </div>
       </div>
@@ -725,49 +726,7 @@ const cancelDeleteComment = () => {
         <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel"
           style="overflow-y: auto; max-height: none;">
-            <div
-              class="social-post-home"
-              :class="{ 'nft-post-home': post.isNFT }"
-              v-for="post in allPosts?.items"
-                :key="post.id"
-              @click="showBlogDetail(Number(post.id))"
-            >
-              <router-link :to="{
-                name:'home',
-                params: {id: post.id}
-              }">
-                <!-- 博客图片 -->
-                <img
-                  v-if="post.image && post.image.length > 0"
-                  :src="getImageUrl(post.image[0])"
-                  alt="Post Image"
-                  class="post-image-home"
-                />
-
-                <!-- 博客内容 -->
-                <div class="post-content-home">
-                  <h2 class="post-title-home">{{ post.title }}</h2>
-                  <p class="post-text-home">{{ post.content }}</p>
-                </div>
-
-                <!-- 博客底部信息 -->
-                <div class="post-footer-home">
-                  <!-- 作者信息 -->
-                  <div class="author-info-home">
-                    <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar-home" />
-                    <span class="author-name-home">{{ post.user?.name }}</span>
-                  </div>
-
-                  <!-- 统计信息 -->
-                    <div class="post-stats-home">
-                      <span class="likes-home">❤️ {{ post.likes }}</span>
-                      <span class="comments-home">💬 {{ post.comments_count }}</span>
-                      <span class="coins-home"
-                      v-if="post.isNFT">₿ {{ post.coins }}</span>
-                  </div>
-                </div>
-              </router-link>
-            </div>
+            <blog-item v-for="(item, index) in allPosts?.items" :key="index" :post="item"></blog-item>
             <div ref="bottomTrigger" class="bottom-load-container">
               <div v-if="allPosts.loading"
               class="loading-indicator">Loading more posts...</div>
@@ -932,9 +891,9 @@ const cancelDeleteComment = () => {
                   @click="toggleReplyInput(comment.id)">{{ comment.content }}</p>
 
                   <!-- 回复图标 -->
-                  <el-tooltip content="Reply to this comment" 
+                  <el-tooltip content="Reply to this comment"
                   placement="top">
-                    <span class="reply-icon" 
+                    <span class="reply-icon"
                     @click="toggleReplyInput(comment.id)">↩️</span>
                   </el-tooltip>
                 </div>

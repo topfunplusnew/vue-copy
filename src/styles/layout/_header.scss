@@ -1,0 +1,127 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+header.layout {
+  .header-container {
+    &.menu-active {
+      display: flex;
+    }
+    display: flex;
+    justify-content: space-between;
+    gap: rpx(20);
+    align-items: center;
+    width: 100%;
+    max-width: rpx(1000);
+    margin: 0 auto;
+    padding: rpx(6);
+    position: relative;
+    .hamburger-menu {
+      align-items: center;
+      justify-content: center;
+      font-size: rpx(18);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      color: white;
+      width: rpx(40);
+      height: rpx(40);
+      cursor: pointer;
+      z-index: 1001;
+      margin-right: rpx(12);
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    nav {
+      display: flex;
+      gap: rpx(20);
+      align-items: center;
+      .nav-btn {
+        display: inline-flex;
+        line-height: 1;
+        font-size: rpx(15);
+        text-decoration: none;
+        background: #fff3;
+        color: #fff;
+        padding: rpx(8) rpx(16);
+        border-radius: rpx(6);
+        font-weight: 500;
+        transition: all .3s ease;
+        transform: translateY(0);
+        &:hover {
+          background: #ffffff4d;
+          transform: translateY(-2px);
+        }
+      }
+
+  
+    }
+    
+  }
+  @include screen-pc {
+    .header-container {
+      justify-content: center;
+      .hamburger-menu {
+        display: none;
+      }
+      nav.pop-nav {
+        position: static;
+        flex-direction: row;
+      }
+    }
+  }
+  @include screen-pad {
+    .header-container {
+      justify-content: center;
+      .hamburger-menu {
+        display: none;
+      }
+      nav.pop-nav {
+        position: static;
+        flex-direction: row;
+      }
+    }    
+  }
+  @include screen-mobile {
+    .header-container {
+      justify-content: space-between;
+      .hamburger-menu {
+        display: flex;
+      }
+      nav.pop-nav {
+        position: absolute;
+        background: #1e1e1ef2;
+        flex-direction: column;
+        display: none;
+      }
+      &.menu-active {
+        nav.pop-nav {
+          display: flex;
+          top: 100%;
+          left: 0;
+          right: 0;
+          backdrop-filter: blur(10px);
+          padding: rpx(16);
+          z-index: 1000;
+          box-shadow: 0 rpx(8) rpx(16) #0003;
+          border-radius: 0 0 rpx(8) rpx(8);
+          animation: fadeInDown .3s ease;
+        }  
+      }
+    }
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
