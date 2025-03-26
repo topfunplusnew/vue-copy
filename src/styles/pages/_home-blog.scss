@@ -1,0 +1,371 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+@use './blog-item' as blog; // 博客模块
+
+
+@mixin wrapper{
+  /* 社交帖子模块 */
+  .social-feed {
+    margin-top: rpx(20);
+    
+    margin-bottom: rpx(20);
+    padding: rpx(15) rpx(10);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: rpx(16);
+    box-shadow: 0 rpx(4) rpx(6) rgba(0, 0, 0, 0.1);
+    min-height: 50vh;
+
+    @include screen-pc {
+      width: 99%;
+    }
+    @include screen-pad {
+      width: 98%;
+    }
+    @include screen-mobile {
+      width: 98%;
+    }
+
+
+    .social-header {
+      flex-shrink: 0;
+      padding-bottom: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: rpx(8);
+
+      .social-header-text {
+        font-size: rpx(30);
+        font-weight: bold;
+        margin: 1px 0 rpx(5) 0;
+
+
+        @include screen-pc {
+          font-size: rpx(30);
+        }
+        @include screen-pad {
+          font-size: calc(rpx(12) + 2vw);
+        }
+        @include screen-mobile {
+          font-size: calc(rpx(10) + 2vw);
+        }
+  
+      }
+
+      .social-header-controls {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        gap: rpx(10);
+        position: relative;
+        flex-wrap: wrap;
+        
+        @include screen-pad {
+          justify-content: flex-start;
+        }
+        
+        .search-input-home {
+          flex: 1;
+          padding: rpx(8) rpx(12) rpx(12) rpx(40); /* 增加左边距为图标留空间 */
+          font-size: rpx(15);
+          border-radius: rpx(8);
+          background: rgba(255, 255, 255, 0.15);
+          border: none;
+          color: #fff;
+          outline: none;
+          transition: all 0.3s ease;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: rpx(12) center;
+          background-size: rpx(18);
+          
+          @include screen-pad {
+            max-width: calc(100% - 190px); /* 为Post按钮和汉堡菜单预留空间 */
+            background-size: rpx(16); /* 小屏幕上稍微缩小图标 */
+            padding-left: rpx(36); /* 小屏幕上减少左边距 */
+          }
+
+        &::placeholder {
+          color: rgba(255, 255, 255, 0.7);
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        &:focus {
+          background: rgba(255, 255, 255, 0.3);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: rpx(12) center;
+            background-size: rpx(18);
+          box-shadow: 0 0 rpx(15) rgba(255, 255, 255, 0.1);
+        }
+      }
+
+        /* 筛选菜单切换按钮 */
+        .filter-menu-toggle {
+          background: rgba(255, 255, 255, 0.2);
+          border: none;
+          border-radius: rpx(8);
+          padding: rpx(8);
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          margin-left: rpx(8);
+          
+          @include screen-pc {
+            display: none;
+            width: rpx(40);
+            height: rpx(40);
+          }
+          @include screen-pad {
+            display: flex;
+            width: rpx(36);
+            height: rpx(36);
+          }
+          @include screen-mobile {
+            display: flex;
+            width: rpx(32);
+            height: rpx(32);
+            padding: rpx(6);
+          }
+          
+          .filter-icon-bar {
+            background-color: white;
+            border-radius: rpx(2);
+            transition: all 0.3s ease;
+            
+
+            @include screen-pc {
+              width: rpx(24);
+              height: rpx(3);
+            }
+            @include screen-pad {
+              width: rpx(20);
+              height: rpx(3);
+            }
+            @include screen-mobile {
+              width: rpx(18);
+              height: rpx(2);
+              margin: 1px 0;
+            }
+
+          }
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.3);
+          }
+        }
+        
+        .social-filter-panel-horizontal {
+          display: flex;
+          justify-content: center;
+          gap: rpx(8);
+          flex-wrap: wrap;
+          padding-top: rpx(10);
+          
+          @include screen-pad {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(28, 31, 55, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 0 0 12px 12px;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 rpx(8) rpx(16) rgba(0, 0, 0, 0.2);
+            border-top: 0;
+            justify-content: flex-start;
+            
+            
+            &.expanded {
+              max-height: rpx(30);
+              padding: rpx(12);
+              border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+          }
+          
+          button {
+            padding: rpx(6) rpx(10);
+            border-radius: rpx(8);
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: rpx(15);
+            margin-left: rpx(6);
+            font-weight: bold;
+            margin-bottom: rpx(8);
+            
+            &.active, &:hover {
+              background: rgba(255, 255, 255, 0.5);
+            }
+
+            .filter-icon {
+              margin-right: rpx(4);
+            }
+          }
+        }
+        
+        .custom-post-button {
+          flex: 0 0 auto;
+          font-size: rpx(15);
+          background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
+          backdrop-filter: blur(10px);
+          border: none;
+          color: white;
+          border-radius: rpx(12);
+          transition: all 0.3s ease;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          box-shadow: 0 rpx(2) rpx(6) rgba(0, 0, 0, 0.1);
+          
+          @include screen-pc {
+            padding: rpx(14) rpx(32);
+          }
+          @include screen-pad {
+            padding: rpx(10) rpx(24);
+          }
+          @include screen-mobile {
+            padding: rpx(8) rpx(16);
+          }
+  
+        &:hover {
+            background: linear-gradient(45deg, rgba(86, 180, 233, 0.9), rgba(233, 86, 108, 0.9));
+            transform: translateY(-2px);
+            box-shadow: 0 rpx(4) rpx(12) rgba(0, 0, 0, 0.15);
+          }
+          
+          &:active {
+            transform: translateY(0);
+            box-shadow: 0 rpx(2) rpx(2) rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
+    }
+
+    /* 横向分隔线 */
+    .horizontal-divider {
+      flex-shrink: 0;
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.5);
+      margin: rpx(3) 0;
+    }
+
+    /* 帖子展示区域 */
+    .social-scroll {
+      overflow: visible;
+      padding: rpx(5);
+
+      .social-posts-panel {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: rpx(10);
+        padding-bottom: rpx(10);
+        max-height: none;
+        min-height: calc(100vh - rpx(100));
+        overflow-y: auto;
+        position: relative;
+        
+        /* 响应式布局 - 随屏幕宽度减少每行博客数 */
+        @media (max-width: 1600px) {
+          grid-template-columns: repeat(4, 1fr);
+        }
+        
+        @media (max-width: 1300px) {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        
+        @media (max-width: 992px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        
+        @media (max-width: 576px) {
+          grid-template-columns: 1fr;
+        }
+        
+        /* 确保底部触发器可见且能够被检测到 */
+        #bottomTrigger, [ref="bottomTrigger"] {
+          grid-column: 1 / -1; /* 横跨所有列 */
+          height: rpx(150); /* 增加高度使其更容易被检测到 */
+          width: 100%;
+          display: block;
+          visibility: visible;
+          margin-top: rpx(20);
+          position: relative;
+          /* 添加调试边框以便于看到触发区域 */
+          /* border: 1px dashed rgba(255, 255, 255, 0.3); */
+          /* 确保底部触发器总是可见，不会被博客卡片挡住 */
+          z-index: 2;
+        }
+        
+        /* 添加更明显的底部加载指示器 */
+        .bottom-load-container {
+          grid-column: 1 / -1;
+          width: 100%;
+          text-align: center;
+          padding: rpx(30) 0;
+          margin-top: 10px;
+          
+          .load-more-btn-home {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: rpx(10) rpx(20);
+            border-radius: rpx(4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.3);
+            }
+
+            @include screen-pc {
+              font-size: rpx(15);
+            }
+            @include screen-pad {
+              font-size: rpx(12);
+            }
+            @include screen-mobile {
+              font-size: rpx(10);
+            }
+
+          }
+        }
+        
+        /* 添加加载指示器样式 */
+        .loading-indicator {
+          grid-column: 1 / -1; /* 横跨所有列 */
+          text-align: center;
+          padding: rpx(20) 0;
+          color: rgba(255, 255, 255, 0.7);
+          font-size: rpx(16);
+          
+          &::after {
+            content: '';
+            display: inline-block;
+            width: rpx(20);
+            height: rpx(20);
+            margin-left: rpx(10);
+            border: rpx(2) solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s linear infinite;
+          }
+        }
+        
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        
+        @include blog.list-item
+      }
+    }
+  } 
+}

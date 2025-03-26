@@ -39,7 +39,7 @@ function onClick() {
       <!-- 作者信息 -->
       <div class="blog-user-info">
         <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="user-avatar" />
-        <span class="user-avatar">{{ post.user?.name }}</span>
+        <span class="user-name">{{ post.user?.name }}</span>
       </div>
 
       <!-- 统计信息 -->
