@@ -1,0 +1,271 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+
+@mixin wrapper{
+  .combined-card {
+    margin-top: rpx(40); 
+    width: 95%;
+    max-width: rpx(1400);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: rpx(6);
+    padding: rpx(11);
+    margin-bottom: rpx(20);
+    box-shadow: 0 rpx(4) rpx(6) rgba(0, 0, 0, 0.1);
+
+    .plan-it-text {
+      font-weight: bold;
+      margin-bottom: rpx(10);
+      color: white;
+      text-shadow: 0 rpx(2) rpx(4) rgba(0, 0, 0, 0.2);
+    }
+
+    .location-destination-row {
+      display: flex;
+      gap: rpx(20);
+      margin-bottom: rpx(10);
+      margin-top: rpx(15);
+    
+      .field {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: rpx(5);
+        max-height: rpx(100);
+    
+        .field-label {
+          font-weight: bold;
+          margin-bottom: rpx(2);
+        }
+
+        /* 选择器宽度设置 */
+        .el-select {
+          width: 90%;
+          margin: auto;
+        }
+      
+        /* El-select的样式定制 */
+        :deep(.el-input__wrapper) {
+          background: rgba(255, 255, 255, 0.2);
+          box-shadow: none;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          
+          &:hover, &.is-focus {
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+          }
+        }
+        
+        :deep(.el-input__inner) {
+          color: white;
+          
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+          }
+        }
+
+    
+        .ld-info {
+          margin-top: rpx(2);
+          display: flex;
+          align-items: center;
+        
+          .location-info {
+            display: flex;
+            flex-direction: row;
+            flex: 1;
+          }
+        
+          .weather-info {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.9);
+      
+            .weather-icon {
+              display: inline-block;
+              width: rpx(24);
+              height: rpx(24);
+              margin-right: rpx(5);
+              background-size: contain;
+              background-repeat: no-repeat;
+              background-position: center;
+            }
+                
+            .weather-data {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              font-weight: 400;
+              letter-spacing: rpx(5);
+            }
+          }
+        }
+
+
+      }
+    }
+
+    /* 旅游偏好横排 */
+    .preference-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: rpx(20);
+      margin-top: rpx(20);
+
+      .preference-option {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: rpx(8);
+        cursor: pointer;
+        transition: background 0.3s, transform 0.3s;
+        display: flex;
+        flex-direction: row;
+        gap: rpx(5);
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+      .preference-option:hover {
+        background: rgba(255, 255, 255, 0.5);
+        transform: scale(1.05);
+      }
+      .preference-option.selected {
+        background: #fff;
+        color: #1a2a6c;
+        font-weight: bold;
+      }
+      .option-name {
+        font-weight: bold;
+      }
+
+    }
+
+
+    @include screen-pc {
+      width: 95%;
+      .plan-header {
+        .plan-it-text {
+          font-size: rpx(40); /* 根据视口宽度动态调整字体大小 */
+        }
+      }
+      .location-destination-row {
+        .field-label {
+          font-size: rpx(22); /* 根据视口宽度动态调整字体大小 */
+        }
+        
+        .el-select {
+          width: 85%;
+        }
+  
+        :deep(.el-input__inner) {
+          font-size: rpx(12);
+        }
+        .ld-info {
+          .weather-info {
+            font-size: rpx(15);
+          }
+        }
+      }
+      .preference-options {
+        gap: rpx(10);  /* 中屏幕减小间距 */
+        .preference-option {
+          width: rpx(140);  /* 固定宽度 */
+          height: rpx(30); /* 固定高度 */
+          padding: rpx(5) 0;
+          .option-icon {
+            font-size: rpx(20);
+          }
+          .option-name {
+            font-size: rpx(16);
+          }
+        }  
+      }
+    }
+    @include screen-pad {
+      width: 90%;
+      .plan-header {
+        .plan-it-text {
+          font-size: calc(rpx(12) + 2vw); /* 根据视口宽度动态调整字体大小 */
+        }
+      }
+      .location-destination-row {
+        .field-label {
+          font-size: rpx(15); /* 根据视口宽度动态调整字体大小 */
+        }
+        
+        .el-select {
+          width: 85%;
+        }
+  
+        :deep(.el-input__inner) {
+          font-size: rpx(10);
+        }
+        .ld-info {
+          .weather-info {
+            font-size: rpx(13);
+          }
+        }  
+      }
+      .preference-options {
+        gap: rpx(8);  /* 中屏幕减小间距 */
+        .preference-option {
+          width: rpx(130);
+          height: rpx(20);
+          padding: rpx(4) 0;
+          .option-icon {
+            font-size: rpx(18);
+          }
+          .option-name {
+            font-size: rpx(14);
+          }
+        }  
+      }
+    }
+    @include screen-mobile {
+      width: 80%;
+      .plan-header {
+        .plan-it-text {
+          font-size: calc(rpx(10) + 2vw); /* 根据视口宽度动态调整字体大小 */
+        }
+      }
+      .location-destination-row {
+        .field-label {
+          font-size: rpx(12);
+        }
+        
+        .el-select {
+          width: 85%;
+        }
+  
+        :deep(.el-input__inner) {
+          font-size: rpx(9);
+        }
+        .ld-info {
+          .weather-info {
+            font-size: rpx(10);
+          }
+        }  
+      }
+      .preference-options {
+        gap: rpx(5);  /* 中屏幕减小间距 */
+        .preference-option {
+          width: rpx(100);
+          height: rpx(20);
+          padding: rpx(4) 0;
+          .option-icon {
+            font-size: rpx(12);
+          }
+          .option-name {
+            font-size: rpx(10);
+          }
+        }
+      }
+
+    }
+
+
+
+  }
+}

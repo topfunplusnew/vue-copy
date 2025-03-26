@@ -1,0 +1,45 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+
+@mixin wrapper{
+  .welcome-section {
+    text-align: center;
+    .welcome-text {
+      font-weight: bold;
+      margin-bottom: rpx(10);
+      color: white;
+      text-shadow: 0 rpx(2) rpx(4) rgba(0, 0, 0, 0.2);
+    }
+    .welcome-text2 {
+      font-weight: bold;
+      margin-bottom: rpx(2);
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 rpx(2) rpx(4) rgba(0, 0, 0, 0.1);
+    }
+    @include screen-pc {
+      .welcome-text {
+        font-size: rpx(80);
+      }
+      .welcome-text2 {
+        font-size: rpx(30);
+      }
+    }
+    @include screen-pad {
+      .welcome-text {
+        font-size: calc(rpx(25) + 2vw);
+      }
+      .welcome-text2 {
+        font-size: calc(rpx(15) + 1.5vw);
+      }
+    }
+    @include screen-mobile {
+      .welcome-text {
+        font-size: calc(rpx(22) + 2vw);
+      }
+      .welcome-text2 {
+        font-size: calc(rpx(11) + 1.5vw);
+      }
+    }
+  }
+}

@@ -13,7 +13,7 @@ header.layout {
     width: 100%;
     max-width: rpx(1000);
     margin: 0 auto;
-    padding: rpx(6);
+    padding: rpx(5);
     position: relative;
     .hamburger-menu {
       align-items: center;
@@ -37,7 +37,7 @@ header.layout {
 
     nav {
       display: flex;
-      gap: rpx(20);
+      gap: rpx(15);
       align-items: center;
       .nav-btn {
         display: inline-flex;
@@ -48,6 +48,7 @@ header.layout {
         color: #fff;
         padding: rpx(8) rpx(16);
         border-radius: rpx(6);
+        margin: 0 rpx(5);
         font-weight: 500;
         transition: all .3s ease;
         transform: translateY(0);
