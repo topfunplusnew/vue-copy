@@ -13,80 +13,12 @@ $font-family-mono: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', '
   monospace;
 
 $font-color-default: #0a1625; // 默认颜色
-$font-color-list: #3c4448; // 列表颜色
-$font-color-link: #069; // 链接颜色
-$font-color-link-hover: #0a58ca; // 链接划过颜色
-$font-color-code: #d63384; // 代码颜色
-$font-color-caption: #6c757d; // 标题颜色
-
-$font-weight-default: 400; // 默认字号
-
-$font-line-height-default: 1.5; // 默认字高
-
-$bg-color-default: #fff; // 默认背景色
 
 $width-pc: 1000px; // 电脑尺寸范围
-$width-pad: 768px; // 平板尺寸范围
+$width-pad: 768px; // 平板尺寸范围,实际上小于pad就是mobile，并没有用mobile参数
 $width-mobile: 480px; // 手机尺寸范围
 
+$page-size-pc: 16; // 电脑默认文字尺寸
 $page-font-size-pc: 16px; // 电脑默认文字尺寸
-$page-width-pad: 900px; // 平板基准尺寸
-$page-width-mobile: 750px; // 手机基准尺寸
-
-$font-light: $font-family-default;
-$font-regular: $font-family-default;
-$font-medium: $font-family-default;
-$font-bold: $font-family-default;
-$font-heavy: $font-family-default;
-
-$h1-font-size: 32px;
-$h2-font-size: 22px;
-$h3-font-size: 21px;
-$h4-font-size: 14px;
-$p-font-size: 14px;
-$a-font-size: 14px;
-$time-font-size: 14px;
-$sub-font-size: 14px;
-$button-font-size: 14px;
-
-$h1-font-color: #000;
-$h2-font-color: #000;
-$h3-font-color: #000;
-$h4-font-color: #60646f;
-$p-font-color: #000;
-$a-font-color: #396efe;
-$time-font-color: #999;
-$sub-font-color: #000;
-$button-font-color: #fff;
-
-$font-weight-light: 200;
-$font-weight-regular: 400;
-$font-weight-medium: 500;
-$font-weight-bold: 700;
-$font-weight-heavy: 900;
-
-// color regular
-$color-prime: #0075ff;
-$color-alter: #5fe1e0;
-$color-hover: #6bafff;
-$color-button: #63b1fb;
-$color-border: #63b1fb;
-$color-select: #f3f5fb;
-$color-disabled: #444673;
-$color-track: #bec3c9;
-$color-background: #e9f4fe;
-$color-bar: #e5e7ea;
-$color-grid: #fafbfd;
-
-// 颜色变量
-$primary-bg: rgba(255, 255, 255, 0.15);
-$blur-effect: blur(10px);
-$text-primary: #000;
-$text-secondary: #666;
-
-// 间距变量
-$spacing-base: 8px;
-$spacing-large: 24px;
-
-// 边框圆角
-$border-radius: 20px;
+$page-width-pad: 900; // 平板基准尺寸
+$page-width-mobile: 750; // 手机基准尺寸

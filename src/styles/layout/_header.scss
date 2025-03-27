@@ -68,6 +68,11 @@ header.layout {
       .hamburger-menu {
         display: none;
       }
+      nav {
+        .nav-btn {
+          font-size: rpx(18);
+        }
+      }
       nav.pop-nav {
         position: static;
         flex-direction: row;
@@ -80,6 +85,11 @@ header.layout {
       .hamburger-menu {
         display: none;
       }
+      nav {
+        .nav-btn {
+          font-size: rpx(16);
+        }
+      }
       nav.pop-nav {
         position: static;
         flex-direction: row;
@@ -91,6 +101,11 @@ header.layout {
       justify-content: space-between;
       .hamburger-menu {
         display: flex;
+      }
+      nav {
+        .nav-btn {
+          font-size: rpx(32);
+        }
       }
       nav.pop-nav {
         position: absolute;

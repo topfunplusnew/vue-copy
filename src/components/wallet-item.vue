@@ -28,7 +28,7 @@ const emit = defineEmits<{
 }>();
 
 function maskText(text: string): string {
-  return text.slice(0, 4) + "****" + text.slice(-3);
+  return text.slice(0, 3) + "****" + text.slice(-1);
 }
 function onConnect() {
   store.connect();

@@ -1,14 +1,14 @@
 @use 'sass:math';
-
+@use './variables' as var;
 /**
  *  获取根rem
  *  @param  width 设计宽度
  */
 @function getRootRem($width) {
-  @return math.div(16, $width) * 100vw;
+  @return math.div(var.$page-size-pc, $width) * 100vw;
   // @return math.div(1, math.div($width, 1000)) * 1vw;
 }
 
 @function rpx($value) {
-  @return math.div($value, 16) * 1rem;
+  @return math.div($value, var.$page-size-pc) * 1rem;
 }
