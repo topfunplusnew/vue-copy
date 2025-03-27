@@ -189,7 +189,31 @@
               border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
           }
-          
+          @include screen-mobile {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(28, 31, 55, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 0 0 12px 12px;
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 rpx(8) rpx(16) rgba(0, 0, 0, 0.2);
+            border-top: 0;
+            justify-content: flex-start;
+            
+            
+            &.expanded {
+              max-height: rpx(30);
+              padding: rpx(12);
+              border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+          }
+  
           button {
             padding: rpx(6) rpx(10);
             border-radius: rpx(8);
