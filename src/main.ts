@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import ElementPlus from 'element-plus'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
+import GoogleSignInPlugin from "vue3-google-signin"
 
 import App from './App.vue';
 import router from './router';
@@ -13,6 +14,7 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(ElementPlus);
+app.use(GoogleSignInPlugin, {clientId: import.meta.env.IPG_GOOGLE_CLIENT_ID});
 
 // 注册所有图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

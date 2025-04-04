@@ -38,6 +38,12 @@ export const userLogout = () =>
 export const accountActivate = (token:string) => http.put('/user/active', {token});
 // export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
 
+export const googleAuthorize = (token:string) => http.post('/oauth/google', {token}).then(res=>{
+  const data = res.data as IPairToken;
+  auth.set(data.access_token);
+  return res;
+});
+
 /**
  * 注册
  * @param data 注册信息

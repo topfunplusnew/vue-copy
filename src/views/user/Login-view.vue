@@ -2,9 +2,13 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
-import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
+import {
+  GoogleSignInButton,
+  type CredentialResponse,
+} from "vue3-google-signin";
+
 
 interface ApiError {
   response?: {
@@ -27,6 +31,16 @@ const errorMessage = ref('');
 const isLoading = ref(false);
 const rememberMe = ref(false);
 
+function handleLoginSuccess(response: CredentialResponse){
+  const { credential } = response;
+  console.log("Access Token", credential);
+  if(credential) store.oauth(credential, 'google');
+};
+
+function handleLoginError() {
+  console.error("Google Login failed");
+};
+
 const handleLogin = async () => {
   if (!loginForm.email || !loginForm.password) {
     errorMessage.value = 'Please enter both email and password.';
@@ -38,13 +52,13 @@ const handleLogin = async () => {
 
   try {
     await store.login(loginForm);
-    
+
     ElMessage({
       message: 'Login successful!',
       type: 'success',
       duration: 2000
     });
-    
+
     router.push({ name: 'home' });
   } catch (error: unknown) {
     console.error(error);
@@ -85,10 +99,10 @@ const handleSocialLogin = (provider: string) => {
 
           <div class="form-group-login login-input-group">
             <label for="email">Email</label>
-            <input type="email" 
-            id="email" 
-            v-model="loginForm.email" 
-            placeholder="Your email address" 
+            <input type="email"
+            id="email"
+            v-model="loginForm.email"
+            placeholder="Your email address"
             required />
           </div>
 
@@ -116,16 +130,16 @@ const handleSocialLogin = (provider: string) => {
             <span v-if="!isLoading">Sign In</span>
             <span v-else class="loading-spinner"></span>
           </button>
-          
+
           <div class="or-divider">
             <span>or continue with</span>
           </div>
-          
+
           <div class="social-login">
-            <button type="button" class="social-button" @click="handleSocialLogin('Google')">
-              <img src="@/assets/google-logo.svg" alt="Google" />
-              Google
-            </button>
+            <google-sign-in-button
+              @success="handleLoginSuccess"
+              @error="handleLoginError"
+            ></google-sign-in-button>
             <button type="button" class="social-button" @click="handleSocialLogin('Apple')">
               <img src="@/assets/apple-logo.svg" alt="Apple" />
               Apple
@@ -135,7 +149,7 @@ const handleSocialLogin = (provider: string) => {
               WeChat
             </button>
           </div>
-          
+
           <div class="signup-link">
             Don't have an account? <router-link :to="{ name: 'signup' }">Sign up</router-link>
           </div>

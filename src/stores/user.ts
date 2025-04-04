@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import { userLogin, userProfile, accountActivate, userModify, userLogout, uploadAvatar,
-  getMyBlogList, getBlogPost, myblogdelete, userSignup,
+  getMyBlogList, getBlogPost, myblogdelete, userSignup, googleAuthorize,
   comment2Blog,comment2Comment,commentDel,comments,
   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
@@ -39,6 +39,13 @@ export const useUserStore = defineStore('user', () => {
   }
   function isLogin() {
     return auth.get() && user.value;
+  }
+  function oauth(token:string, platform:string='google') {
+    if(platform=='google'){
+      return googleAuthorize(token)
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -247,6 +254,7 @@ export const useUserStore = defineStore('user', () => {
     logout,
     activate,
     getUserInfo,
+    oauth,
     editUserInfo,
     uploadImage,
     follow,
