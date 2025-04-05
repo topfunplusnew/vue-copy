@@ -18,29 +18,27 @@
       </nav>
       <nav>
         <wallet-item class="nav-btn" />
-        <template v-if="userStore.user" >
-          <router-link :to="{ name: 'userpage' }" class="user-profile-nav">
-            <div class="header-avatar-container">
-              <img
-                :src="getImageUrl(userStore.user.avatar || '')"
-                alt="User Avatar"
-                class="home-new-user-avatar"
-              />
-              <span class="home-new-username">{{ userStore.user.name }}</span>
-            </div>
-          </router-link>
-          <el-dropdown trigger="click" class="nav-btn nav-dropdown" @command="handleCommand">
-            <span class="el-dropdown-link">
-              <el-icon><user /></el-icon>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                <el-dropdown-item command="logout">Logout</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-        </template>
+        <div v-if="userStore.user" class="nav-btn user-profile-btn">
+          <div class="user-profile-nav">
+            <div class="data-flow"></div>
+            <img
+              :src="getImageUrl(userStore.user.avatar || '')"
+              alt="User Avatar"
+            />
+            <span class="home-new-username">{{ userStore.user.name }}</span>
+            <el-dropdown trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <el-icon><user /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
+                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
+        </div>
         <template v-else>
           <router-link :to="{ name: 'login' }" class="nav-btn">LOGIN</router-link>
           <router-link :to="{ name: 'signup' }" class="nav-btn">SIGN UP</router-link>
