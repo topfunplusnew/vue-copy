@@ -7,7 +7,8 @@ import GoogleSignInPlugin from "vue3-google-signin"
 import App from './App.vue';
 import router from './router';
 import '@/styles/main.scss';
-
+import 'element-plus/theme-chalk/el-message.css';
+import 'element-plus/theme-chalk/el-message-box.css';
 
 const app = createApp(App);
 
