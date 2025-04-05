@@ -18,26 +18,26 @@
       </nav>
       <nav>
         <wallet-item class="nav-btn" />
-        <router-link v-if="userStore.user" :to="{ name: 'userpage' }" class="nav-btn">
+        <router-link v-if="userStore.user" :to="{ name: 'userpage' }" class="nav-btn user-profile-btn">
           <div class="user-profile-nav">
+            <div class="data-flow"></div>
             <img
               :src="getImageUrl(userStore.user.avatar || '')"
               alt="User Avatar"
-              class="home-new-user-avatar"
             />
             <span class="home-new-username">{{ userStore.user.name }}</span>
+            <el-dropdown trigger="click" @command="handleCommand">
+              <span class="el-dropdown-link">
+                <i class="el-icon-arrow-down"></i>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="profile">My Profile</el-dropdown-item>
+                  <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
           </div>
-          <el-dropdown trigger="click" @command="handleCommand">
-            <span class="el-dropdown-link">
-              <i class="el-icon-arrow-down"></i>
-            </span>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                <el-dropdown-item command="logout">Logout</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
         </router-link>
         <template v-else>
           <router-link :to="{ name: 'login' }" class="nav-btn">LOGIN</router-link>
@@ -62,8 +62,6 @@ import { getImageUrl } from '@/utils';
 
 const router = useRouter();
 const userStore = useUserStore();
-
-
 
 
 onMounted(() => {

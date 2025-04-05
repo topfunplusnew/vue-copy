@@ -86,7 +86,7 @@ function submitContact() {
 
 <template>
   <div class="background-layer"></div>
-  <div class="home">
+  <div class="contact">
     <!-- Header -->
     <common-header />
 

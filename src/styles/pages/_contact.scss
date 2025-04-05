@@ -1,0 +1,654 @@
+@use '../utils/mixins' as *;
+@use '../utils/utils' as *; // 工具类
+// @use './variables';
+
+.contact {
+   /* 联系页面标题区域 */
+  .contact-hero {
+    text-align: center;
+    padding: rpx(40) rpx(20);
+    margin-bottom: rpx(20);
+    position: relative;
+    
+    /* 科技感网格背景 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(90deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px);
+      background-size: rpx(20) rpx(20);
+      background-position: 0 0;
+      z-index: -1;
+      opacity: 0.6;
+    }
+  }
+  
+  .contact-title {
+    margin-top: rpx(30);
+    margin-bottom: rpx(30);
+    font-size: rpx(50);
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+    font-weight: 700;
+    background: linear-gradient(90deg, #1a3566, #3a5683);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 rpx(8) rpx(16) rgba(255, 255, 255, 0.15);
+    position: relative;
+    
+    /* 添加底部高亮线条 */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: rpx(-10);
+      left: 50%;
+      transform: translateX(-50%);
+      width: rpx(100);
+      height: rpx(3);
+      background: linear-gradient(90deg, rgba(65, 145, 255, 0.6), rgba(28, 58, 113, 0.8));
+      border-radius: rpx(3);
+    }
+  }
+  
+  .contact-subtitle {
+    font-size: rpx(30);
+    font-weight: 300;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+    background: linear-gradient(90deg, #223b70, #4e6b9e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 rpx(4) rpx(12) rgba(255, 255, 255, 0.1);
+    max-width: rpx(800);
+    margin: 0 auto;
+  }
+
+  .contact-container {
+    width: 100%;
+    max-width: rpx(1200);
+    margin: 0 auto rpx(50);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 rpx(15);
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  .contact-content {
+    display: flex;
+    width: 100%;
+    gap: rpx(30);
+    flex-wrap: wrap;
+  }
+  
+  /* 联系信息部分 */
+  .contact-info {
+    flex: 1;
+    min-width: rpx(280);
+    display: flex;
+    flex-direction: column;
+    gap: rpx(20);
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .info-card {
+    background: linear-gradient(135deg, rgba(30, 55, 95, 0.7), rgba(20, 30, 60, 0.8));
+    backdrop-filter: blur(10px);
+    border-radius: rpx(16);
+    box-shadow: 0 rpx(8) rpx(32) rgba(0, 40, 100, 0.2);
+    padding: rpx(30);
+    border: 1px solid rgba(65, 145, 255, 0.2);
+    transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    
+    /* 科技网格背景 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(90deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px);
+      background-size: rpx(15) rpx(15);
+      background-position: 0 0;
+      z-index: 0;
+      opacity: 0.5;
+    }
+    
+    /* 数据流动效果 */
+    &::after {
+      content: '';
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      width: 300%;
+      height: 300%;
+      background: linear-gradient(45deg, 
+        transparent, 
+        rgba(65, 145, 255, 0.03), 
+        transparent
+      );
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      z-index: 0;
+      transform: rotate(45deg);
+      animation: dataStream 8s linear infinite;
+    }
+    
+    &:hover {
+      transform: translateY(rpx(-5));
+      box-shadow: 0 rpx(12) rpx(40) rgba(0, 60, 150, 0.25);
+      border-color: rgba(65, 145, 255, 0.4);
+      
+      &::after {
+        opacity: 1;
+      }
+    }
+    
+    h2 {
+      font-size: rpx(22);
+      color: white;
+      margin-bottom: rpx(15);
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+      
+      /* 添加小图标背景 */
+      &::before {
+        content: '';
+        position: absolute;
+        left: rpx(-10);
+        top: 50%;
+        transform: translateY(-50%);
+        width: rpx(4);
+        height: rpx(20);
+        background: rgba(65, 145, 255, 0.8);
+        border-radius: rpx(2);
+      }
+    }
+    
+    p {
+      font-size: rpx(16);
+      color: rgba(210, 225, 255, 0.9);
+      margin-bottom: rpx(10);
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
+    }
+  }
+  
+  .official-email {
+    .email-display {
+      font-size: rpx(18);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      color: rgba(210, 225, 255, 0.9);
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s ease;
+      
+      &::before {
+        content: '✉️';
+        font-size: rpx(20);
+        margin-right: rpx(10);
+        filter: drop-shadow(0 rpx(2) rpx(4) rgba(0, 0, 0, 0.2));
+      }
+      
+      &:hover {
+        cursor: pointer;
+        color: white;
+        transform: translateY(-2px);
+        text-shadow: 0 0 rpx(8) rgba(65, 145, 255, 0.6);
+      }
+    }
+  }
+  
+  .social-links {
+    display: flex;
+    gap: rpx(15);
+    margin-top: rpx(15);
+    position: relative;
+    z-index: 1;
+    
+    .social-link {
+      width: rpx(45);
+      height: rpx(45);
+      border-radius: 50%;
+      background: rgba(65, 145, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: rpx(18);
+      transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
+      border: 1px solid rgba(65, 145, 255, 0.2);
+      box-shadow: 0 0 rpx(10) rgba(0, 40, 100, 0.1);
+      position: relative;
+      overflow: hidden;
+      
+      /* 脉冲效果 */
+      &::after {
+        content: '';
+        position: absolute;
+        top: rpx(-2);
+        left: rpx(-2);
+        right: rpx(-2);
+        bottom: rpx(-2);
+        border-radius: 50%;
+        background: transparent;
+        border: 1px solid rgba(65, 145, 255, 0.6);
+        opacity: 0;
+        animation: pulseSocial 2s infinite;
+      }
+      
+      &:hover {
+        background: rgba(85, 165, 255, 0.4);
+        transform: translateY(rpx(-3)) scale(1.1);
+        border-color: rgba(65, 145, 255, 0.6);
+        box-shadow: 0 rpx(5) rpx(15) rgba(0, 60, 150, 0.3);
+      }
+    }
+  }
+  
+  /* 联系表单部分 */
+  .contact-form-section {
+    flex: 2;
+    min-width: rpx(280);
+    max-height: auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .contact-form-contact {
+    background: linear-gradient(135deg, rgba(30, 55, 95, 0.75), rgba(20, 35, 65, 0.85));
+    backdrop-filter: blur(10px);
+    border-radius: rpx(16);
+    box-shadow: 0 rpx(8) rpx(32) rgba(0, 40, 100, 0.2);
+    padding: rpx(40);
+    border: 1px solid rgba(65, 145, 255, 0.2);
+    height: 100%;
+    transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    
+    /* 科技网格背景 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(90deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px);
+      background-size: rpx(20) rpx(20);
+      z-index: 0;
+      opacity: 0.4;
+    }
+    
+    /* 顶部渐变条 */
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: rpx(5);
+      background: linear-gradient(90deg, #3a65a0, #1c3a71);
+      z-index: 1;
+    }
+    
+    &:hover {
+      box-shadow: 0 rpx(15) rpx(45) rgba(0, 60, 150, 0.25);
+      border-color: rgba(65, 145, 255, 0.4);
+    }
+    
+    &.submitted {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: rpx(400);
+    }
+  }
+  
+  .form-title-contact {
+    font-size: rpx(24);
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+    font-weight: bold;
+    color: white;
+    margin-bottom: rpx(30);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    
+    /* 添加底部高亮线条 */
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: rpx(-10);
+      left: 50%;
+      transform: translateX(-50%);
+      width: rpx(60);
+      height: rpx(2);
+      background: linear-gradient(90deg, rgba(65, 145, 255, 0.6), rgba(28, 58, 113, 0.8));
+      border-radius: rpx(1);
+    }
+  }
+  
+  .form-field-contact {
+    margin-bottom: rpx(25);
+    position: relative;
+    z-index: 1;
+    
+    label {
+      text-align: left;
+      display: block;
+      margin-bottom: rpx(10);
+      font-size: rpx(16);
+      font-family: 'Roboto', sans-serif;
+      color: rgba(210, 225, 255, 0.9);
+      font-weight: 500;
+      position: relative;
+      
+      /* 添加小图标 */
+      &::before {
+        content: '✧';
+        font-size: rpx(12);
+        margin-right: rpx(5);
+        color: rgba(65, 145, 255, 0.8);
+      }
+    }
+  }
+  
+  .submit-button-contact {
+    width: 100%;
+    padding: rpx(15) rpx(30);
+    background: linear-gradient(45deg, #1d3b6f, #2a5298);
+    color: white;
+    border: none;
+    border-radius: rpx(8);
+    font-size: rpx(18);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-top: rpx(10);
+    border: 1px solid rgba(65, 145, 255, 0.3);
+    box-shadow: 0 rpx(4) rpx(15) rgba(0, 40, 100, 0.15);
+    z-index: 1;
+    
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    
+    &:hover:not(:disabled) {
+      transform: translateY(rpx(-2));
+      box-shadow: 0 rpx(8) rpx(25) rgba(0, 60, 150, 0.3);
+      background: linear-gradient(45deg, #264a85, #3362b7);
+      border-color: rgba(65, 145, 255, 0.5);
+    }
+    
+    /* 闪光效果 */
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transition: all 0.8s ease;
+      z-index: -1;
+    }
+    
+    &:hover:not(:disabled):before {
+      left: 100%;
+    }
+  }
+  
+  .loading-spinner-contact {
+    display: inline-block;
+    width: rpx(20);
+    height: rpx(20);
+    border: 3px solid rgba(65, 145, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: rgba(210, 225, 255, 0.9);
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .success-message-contact {
+    text-align: center;
+    padding: rpx(30);
+    position: relative;
+    z-index: 1;
+    
+    i {
+      font-size: rpx(50);
+      color: #64b5ff;
+      margin-bottom: rpx(20);
+      filter: drop-shadow(0 0 rpx(8) rgba(65, 145, 255, 0.5));
+    }
+    
+    h3 {
+      font-size: rpx(24);
+      color: white;
+      margin-bottom: rpx(10);
+    }
+    
+    p {
+      font-size: rpx(16);
+      color: rgba(210, 225, 255, 0.9);
+    }
+  }
+  
+  /* 使用混合指令进行响应式设计 */
+  @include screen-pc {
+    .contact-title {
+      font-size: rpx(50);
+    }
+    
+    .contact-subtitle {
+      font-size: rpx(30);
+    }
+    
+    .info-card h2 {
+      font-size: rpx(22);
+    }
+    
+    .info-card p {
+      font-size: rpx(16);
+    }
+    
+    .official-email .email-display {
+      font-size: rpx(18);
+    }
+    
+    .form-title-contact {
+      font-size: rpx(24);
+    }
+    
+    .form-field-contact label {
+      font-size: rpx(16);
+    }
+    
+    .submit-button-contact {
+      font-size: rpx(18);
+      padding: rpx(15) rpx(30);
+    }
+  }
+  
+  @include screen-pad {
+    .contact-content {
+      gap: rpx(20);
+    }
+    
+    .contact-title {
+      font-size: rpx(42);
+    }
+    
+    .contact-subtitle {
+      font-size: rpx(25);
+    }
+    
+    .info-card {
+      padding: rpx(25);
+    }
+    
+    .info-card h2 {
+      font-size: rpx(20);
+    }
+    
+    .info-card p {
+      font-size: rpx(15);
+    }
+    
+    .contact-form-contact {
+      padding: rpx(25);
+    }
+    
+    .form-title-contact {
+      font-size: rpx(22);
+    }
+    
+    .form-field-contact label {
+      font-size: rpx(15);
+    }
+    
+    .submit-button-contact {
+      font-size: rpx(16);
+      padding: rpx(12) rpx(25);
+    }
+  }
+  
+  @include screen-mobile {
+    .contact-hero {
+      padding: rpx(30) rpx(10);
+    }
+    
+    .contact-content {
+      flex-direction: column;
+      gap: rpx(15);
+    }
+    
+    .contact-title {
+      font-size: rpx(32);
+      margin-top: rpx(20);
+      margin-bottom: rpx(20);
+    }
+    
+    .contact-subtitle {
+      font-size: rpx(20);
+    }
+    
+    .contact-container {
+      padding: 0 rpx(10);
+    }
+    
+    .contact-info, 
+    .contact-form-section {
+      width: 100%;
+      min-width: 100%;
+    }
+    
+    .info-card {
+      padding: rpx(20);
+      
+      h2 {
+        font-size: rpx(18);
+      }
+      
+      p {
+        font-size: rpx(14);
+      }
+    }
+    
+    .contact-form-contact {
+      padding: rpx(20);
+      border-radius: rpx(12);
+    }
+    
+    .form-title-contact {
+      font-size: rpx(18);
+    }
+    
+    .form-field-contact {
+      margin-bottom: rpx(15);
+      
+      label {
+        font-size: rpx(14);
+      }
+      
+      input, textarea {
+        padding: rpx(10);
+      }
+    }
+    
+    .social-links {
+      justify-content: center;
+      
+      .social-link {
+        width: rpx(40);
+        height: rpx(40);
+      }
+    }
+    
+    .official-email .email-display {
+      font-size: rpx(15);
+    }
+    
+    .submit-button-contact {
+      font-size: rpx(16);
+      padding: rpx(10) rpx(20);
+    }
+  }
+}
+
+/* 数据流动动画 */
+@keyframes dataStream {
+  0% { transform: translate(-50%, -50%) rotate(45deg); }
+  100% { transform: translate(50%, 50%) rotate(45deg); }
+}
+
+/* 社交图标脉冲动画 */
+@keyframes pulseSocial {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}

@@ -15,12 +15,13 @@ header.layout {
     margin: 0 auto;
     padding: rpx(5);
     position: relative;
+    
     .hamburger-menu {
       align-items: center;
       justify-content: center;
       font-size: rpx(18);
-      background: rgba(255, 255, 255, 0.15);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(35, 58, 95, 0.7);
+      border: 1px solid rgba(35, 58, 95, 0.3);
       border-radius: 4px;
       color: white;
       width: rpx(40);
@@ -31,7 +32,7 @@ header.layout {
       transition: all 0.3s ease;
       
       &:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(40, 65, 110, 0.85);
       }
     }
 
@@ -39,12 +40,24 @@ header.layout {
       display: flex;
       gap: rpx(15);
       align-items: center;
+      
+      /* 特殊处理包含用户资料的导航按钮 */
+      .nav-btn.user-profile-btn {
+        background: transparent;
+        padding: 0;
+        
+        &:hover {
+          background: transparent;
+          transform: none;
+        }
+      }
+      
       .nav-btn {
         display: inline-flex;
         line-height: 1;
         font-size: rpx(15);
         text-decoration: none;
-        background: #fff3;
+        background: rgba(35, 58, 95, 0.7);
         color: #fff;
         padding: rpx(8) rpx(16);
         border-radius: rpx(6);
@@ -53,14 +66,164 @@ header.layout {
         transition: all .3s ease;
         transform: translateY(0);
         &:hover {
-          background: #ffffff4d;
+          background: rgba(40, 65, 110, 0.85);
           transform: translateY(-2px);
         }
       }
-
-  
+      .user-profile-nav {
+        display: flex;
+        align-items: center;
+        gap: rpx(10);
+        background: transparent;
+        padding: rpx(4) rpx(5);
+        border-radius: rpx(20);
+        transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+        
+        /* 科技感容器样式 */
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(30, 55, 95, 0.8), rgba(20, 30, 60, 0.9));
+          border-radius: rpx(20);
+          z-index: -1;
+          transition: all 0.3s ease;
+          box-shadow: 0 rpx(2) rpx(10) rgba(0, 110, 255, 0.15);
+        }
+        
+        /* 技术网格背景 */
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image: 
+            linear-gradient(90deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px),
+            linear-gradient(0deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px);
+          background-size: rpx(10) rpx(10);
+          background-position: 0 0;
+          z-index: -1;
+          opacity: 0.5;
+        }
+        
+        /* 悬停效果 */
+        &:hover {
+          transform: translateY(rpx(-2));
+          
+          &::before {
+            background: linear-gradient(135deg, rgba(40, 70, 120, 0.85), rgba(30, 45, 80, 0.95));
+            box-shadow: 0 rpx(4) rpx(15) rgba(0, 120, 255, 0.25);
+          }
+          
+          img {
+            border-color: rgba(65, 145, 255, 0.9);
+            box-shadow: 0 0 rpx(8) rgba(0, 120, 255, 0.4);
+          }
+          
+          .home-new-username {
+            color: rgba(210, 235, 255, 1);
+          }
+          
+          /* 激活数据流动效果 */
+          .data-flow {
+            opacity: 0.8;
+          }
+        }
+        
+        /* 数据流动图案 - 激活时显示 */
+        .data-flow {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(45deg, 
+            transparent, 
+            rgba(65, 145, 255, 0.05), 
+            transparent
+          );
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          z-index: -1;
+          transform: translateX(-100%);
+          animation: dataFlow 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        
+        img {
+          width: rpx(28); 
+          height: rpx(28);
+          border-radius: 50%;
+          border: rpx(1.5) solid rgba(65, 145, 255, 0.6);
+          transition: all 0.3s ease;
+          box-shadow: 0 0 rpx(5) rgba(0, 100, 255, 0.2);
+          object-fit: cover;
+        }
+        
+        .home-new-username {
+          color: #fff;
+          font-weight: 500;
+          font-size: rpx(16);
+          letter-spacing: 0.5px;
+          margin: 0 rpx(5);
+          transition: color 0.3s ease;
+          text-shadow: 0 0 rpx(10) rgba(65, 145, 255, 0.3);
+          max-width: rpx(80);
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        
+        /* 下拉菜单图标 */
+        .el-dropdown-link {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: rpx(24);
+          height: rpx(24);
+          border-radius: 50%;
+          background: rgba(65, 145, 255, 0.6);
+          transition: all 0.3s ease;
+          margin-left: rpx(4);
+          border: 1px solid rgba(180, 220, 255, 0.7);
+          box-shadow: 0 0 rpx(5) rgba(65, 145, 255, 0.4);
+          position: relative;
+          
+          &:hover {
+            background: rgba(85, 165, 255, 0.8);
+            transform: rotate(180deg);
+            border-color: rgba(200, 230, 255, 0.9);
+            box-shadow: 0 0 rpx(10) rgba(65, 145, 255, 0.6);
+          }
+          
+          i {
+            color: white;
+            font-size: rpx(14);
+          }
+          
+          &::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid rgba(65, 145, 255, 0.6);
+            opacity: 0;
+            animation: pulseDropdown 2s infinite;
+          }
+        }
+      }
     }
-    
+     
   }
   @include screen-pc {
     .header-container {
@@ -139,5 +302,27 @@ header.layout {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* 数据流动动画 */
+@keyframes dataFlow {
+  0% { transform: translateX(-100%) rotate(0deg); }
+  50% { transform: translateX(100%) rotate(0deg); }
+  100% { transform: translateX(-100%) rotate(0deg); }
+}
+
+/* 下拉按钮脉冲动画 */
+@keyframes pulseDropdown {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
   }
 }
