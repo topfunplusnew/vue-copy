@@ -9,7 +9,6 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
-import '@/styles/_userpage.scss';
 import type { IBlogComment } from '@/types/blog';
 
 // import commonHeader from '@/layout/common-header.vue';
@@ -826,7 +825,7 @@ const toggleMenu = () => {
             <span class="comments" @click="scrollToComments">💬 {{ selectedBlog.comments_count }}</span>
             <span class="coins" v-if="selectedBlog.isNFT">₿ {{ selectedBlog.coins }}</span>
           </div>
-        
+
 
           <!-- 简化的评论输入框 -->
           <div class="quick-comment-input">

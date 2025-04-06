@@ -58,7 +58,7 @@
 
         <!-- 偏好标签区域 -->
         <div class="tags-section" v-if="list.length">
-          <span v-for="(item, index) in list" :key="index" 
+          <span v-for="(item, index) in list" :key="index"
           class="tag-pref">
             {{ item.name }} {{ item.icon }}
           </span>
@@ -131,6 +131,3 @@ const nextImage = () => {
 // 添加图标映射函数
 </script>
 
-<style lang="scss">
-@import '@/styles/_postpreview.scss';
-</style>

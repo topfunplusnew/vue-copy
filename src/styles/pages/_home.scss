@@ -23,7 +23,10 @@
     
     @include trip.wrapper;
     @include blog.wrapper;
+
+    
   }
+  @include blog.detail;
   @include blog.popup;
 
 }
