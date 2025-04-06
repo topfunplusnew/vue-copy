@@ -84,7 +84,7 @@ const handleSocialLogin = (provider: string) => {
 
 <template>
   <div class="background-layer"></div>
-  <div class="home">
+  <div class="login layout-main">
     <commonHeader />
     <div class="login-page-container">
       <div class="login-hero">
@@ -99,7 +99,7 @@ const handleSocialLogin = (provider: string) => {
 
           <div class="form-group-login login-input-group">
             <label for="email">Email</label>
-            <input type="email"
+            <el-input type="email"
             id="email"
             v-model="loginForm.email"
             placeholder="Your email address"
@@ -123,7 +123,8 @@ const handleSocialLogin = (provider: string) => {
               <input type="checkbox" id="remember" v-model="rememberMe" />
               <label for="remember">Remember me</label>
             </div>
-            <router-link :to="{ name: 'forgetpassword' }" class="forgot-password">Forgot password?</router-link>
+            <router-link :to="{ name: 'forgetpassword' }" 
+            class="forgot-password">Forgot password ?</router-link>
           </div>
 
           <button type="submit" class="login-button" :disabled="isLoading">
@@ -140,18 +141,21 @@ const handleSocialLogin = (provider: string) => {
               @success="handleLoginSuccess"
               @error="handleLoginError"
             ></google-sign-in-button>
-            <button type="button" class="social-button" @click="handleSocialLogin('Apple')">
+            <button type="button" class="social-button" 
+            @click="handleSocialLogin('Apple')">
               <img src="@/assets/apple-logo.svg" alt="Apple" />
               Apple
             </button>
-            <button type="button" class="social-button" @click="handleSocialLogin('WeChat')">
+            <button type="button" class="social-button" 
+            @click="handleSocialLogin('WeChat')">
               <img src="@/assets/wechat-logo.svg" alt="WeChat" />
               WeChat
             </button>
           </div>
 
           <div class="signup-link">
-            Don't have an account? <router-link :to="{ name: 'signup' }">Sign up</router-link>
+            Don't have an account? <router-link :to="{ name: 'signup' }">
+              Sign up</router-link>
           </div>
         </form>
       </div>
