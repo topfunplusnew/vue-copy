@@ -103,7 +103,7 @@ const handleSubmit = async () => {
 
 <template>
   <div class="background-layer"></div>
-  <div class="home">
+  <div class="signup layout-main">
     <commonHeader />
     <div class="signup-hero">
       <div class="header-title-signup">{{ msg }}</div>
@@ -123,13 +123,13 @@ const handleSubmit = async () => {
 
         <div class="form-group-signup">
           <label for="username">Username</label>
-          <input type="text" id="username" v-model="editForm.name"
+          <el-input type="text" id="username" v-model="editForm.name"
           placeholder="How should we call you?" />
         </div>
 
         <div class="form-group-signup">
           <label for="email">Email</label>
-          <input type="email" id="email" v-model="editForm.email"
+          <el-input type="email" id="email" v-model="editForm.email"
           placeholder="example@domain.com" required />
         </div>
 
