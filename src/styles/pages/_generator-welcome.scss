@@ -1,0 +1,36 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+@mixin wrapper{
+    .content-wrapper{
+        .center-panel{
+            .chat-header{
+                .header-title{
+                    font-weight: bold;
+                    margin-bottom: rpx(10);
+                    color: #1a3566; /* 深蓝色，适合浅色背景 */
+                    text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.5); /* 轻微的白色阴影增强立体感 */
+                }
+                @include screen-pc {
+                    .header-title {
+                      font-size: rpx(50);
+                    }
+                  }
+                  @include screen-pad {
+                    .header-title {
+                      font-size: calc(rpx(25) + 2vw);
+                    }
+                  }
+                  @include screen-mobile {
+                    .header-title {
+                      font-size: calc(rpx(25) + 2vw);
+                    }
+                    .welcome-text2 {
+                      font-size: calc(rpx(15) + 1.5vw);
+                    }
+                  }
+            }
+        }
+        
+    }
+}

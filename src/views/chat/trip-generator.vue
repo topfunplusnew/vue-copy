@@ -314,7 +314,7 @@ onMounted(async() => {
 
 <template>
   <div class="background-layer"></div>
-  <div class="home">
+  <div class="generator layout-main">
     <!-- Header -->
     <common-header />
 
