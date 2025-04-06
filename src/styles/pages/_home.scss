@@ -24,4 +24,6 @@
     @include trip.wrapper;
     @include blog.wrapper;
   }
+  @include blog.popup;
+
 }
