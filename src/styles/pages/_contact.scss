@@ -3,7 +3,12 @@
 // @use './variables';
 
 .contact {
+/* 确保不干扰header */
+  padding-top: rpx(20);
+  position: relative;
+  z-index: 1;
    /* 联系页面标题区域 */
+   
   .contact-hero {
     text-align: center;
     padding: rpx(40) rpx(20);

@@ -1,0 +1,479 @@
+/* 登录页面整体样式 */
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+.signup{
+    padding-top: rpx(20);
+    width: 100%; /* Ensure the main wrapper takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    display: flex; /* Use flex to help center content vertically if needed */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    min-height: calc(100vh - #{rpx(20)}); // Adjust based on header/footer height if necessary
+
+    .signup-hero {
+        text-align: center;
+        padding: rpx(10) rpx(20);
+        margin-bottom: rpx(20);
+        position: relative;
+        width: 100%; // Ensure hero takes full width within its container
+        max-width: rpx(900); // Limit hero content width
+    
+        /* 科技感网格背景 */
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(90deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px);
+            background-size: rpx(20) rpx(20);
+            background-position: 0 0;
+            z-index: -1;
+            opacity: 0.6;
+        }
+        .header-title-signup {
+            text-align: center;
+            padding: rpx(40) rpx(20);
+            position: relative;
+            font-weight: bold;
+            margin-bottom: rpx(10);
+            color: #1a3566; /* 深蓝色，适合浅色背景 */
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.5); /* 轻微的白色阴影增强立体感 */
+        }
+        .signup-subtitle {
+            font-weight: bold;
+            margin-bottom: rpx(2);
+            color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
+        }
+    }
+
+    @include screen-pc {
+        .header-title-signup {
+            font-size: rpx(50);
+        }
+        .signup-subtitle {
+            font-size: rpx(30);
+        }
+    }
+    @include screen-pad {
+        .header-title-signup {
+            font-size: calc(rpx(25) + 2vw);
+        }
+        .signup-subtitle {
+            font-size: calc(rpx(15) + 1.5vw);
+        }
+    }
+    @include screen-mobile {
+        .header-title-signup {
+            font-size: calc(rpx(25) + 2vw);
+        }
+        .signup-subtitle {
+            font-size: calc(rpx(16) + 1.5vw);
+        }
+    }
+}  
+
+/* 注册页面容器 */
+.signup-container {
+    width: 100%; /* Take full width available */
+    max-width: rpx(600); /* Slightly larger than login form for more fields */
+    margin-left: auto; /* Auto margins for horizontal centering */
+    margin-right: auto; /* Auto margins for horizontal centering */
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    backdrop-filter: blur(10px);
+    margin-bottom: clamp(rpx(30), 5vh, rpx(50));
+    transition: all 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: clamp(rpx(20), 5vw, rpx(40));
+    
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: rpx(5);
+        background: linear-gradient(90deg, #56b4e9, #e9566c); /* Same gradient as login */
+    }
+}
+
+/* 表单样式 */
+.form-title-signup {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    margin-top: 5px;
+    margin-bottom: clamp(15px, 3vh, 25px);
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #1a3566; /* 深蓝色，适合浅色背景 */
+}
+
+/* 添加专门的输入组样式 */
+.signup-input-group {
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: clamp(15px, 4vh, 25px);
+}
+
+.form-group-signup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-bottom: rpx(15); /* Slightly less margin than login for more fields */
+    
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: clamp(1.4rem, 3vw, 1.6rem);
+        font-weight: 500;
+        color: #1a3566; /* 深蓝色，适合浅色背景 */
+        width: 100%;
+        text-align: left;
+    }
+    
+    /* Element Plus 输入框样式覆盖 */
+    .el-input {
+        width: 100%;
+        box-sizing: border-box;
+        
+        .el-input__wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            box-shadow: none;
+            padding: 0;
+            
+            &.is-focus {
+                border-color: rgba(255, 255, 255, 0.5);
+                box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+            }
+        }
+        
+        .el-input__inner {
+            height: 45px;
+            color: #1a3566; /* 深蓝色，适合浅色背景 */
+            font-size: 1.6rem;
+            background: transparent;
+            padding: 0 15px;
+            
+            &::placeholder {
+                color: rgba(2, 1, 1, 0.292);
+            }
+        }
+        
+        .el-input__suffix {
+            color: rgba(255, 255, 255, 0.7);
+            
+            .el-icon {
+                font-size: 1.6rem;
+            }
+        }
+    }
+
+    /* Add specific styling for validation icons/messages */
+    .validation-icon {
+        margin-left: rpx(5);
+        font-size: rpx(16);
+        
+        &.valid {
+            color: #4caf50; /* Green for valid */
+        }
+        
+        &.invalid {
+            color: #f44336; /* Red for invalid */
+        }
+    }
+    
+    .validation-message {
+        font-size: rpx(12);
+        margin-top: rpx(5);
+        color: #f44336; /* Red for validation messages */
+    }
+}
+
+/* Password strength indicator */
+.password-strength {
+    width: 100%;
+    margin-top: rpx(5);
+    height: rpx(4);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: rpx(2);
+    overflow: hidden;
+    
+    .strength-bar {
+        height: 100%;
+        transition: width 0.3s ease, background-color 0.3s ease;
+        border-radius: rpx(2);
+        
+        &.weak {
+            width: 33.33%;
+            background-color: #f44336; /* Red */
+        }
+        
+        &.medium {
+            width: 66.66%;
+            background-color: #ff9800; /* Orange */
+        }
+        
+        &.strong {
+            width: 100%;
+            background-color: #4caf50; /* Green */
+        }
+    }
+}
+
+/* Terms and conditions checkbox */
+.terms-checkbox {
+    margin-top: rpx(10);
+    margin-bottom: rpx(20);
+    display: flex;
+    align-items: flex-start;
+    
+    :deep(.el-checkbox) {
+        display: flex;
+        align-items: flex-start;
+        
+        .el-checkbox__input {
+            margin-top: rpx(2);
+        }
+        
+        .el-checkbox__label {
+            font-size: clamp(1.2rem, 3vw, 1.4rem);
+            color: #1a3566;
+            white-space: normal;
+            line-height: 1.4;
+            
+            a {
+                color: #3e80fa;
+                text-decoration: none;
+                
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+/* 注册按钮 */
+.signup-button {
+    display: block;
+    width: 100%;
+    padding: clamp(12px, 3vw, 15px);
+    background: linear-gradient(90deg, #56b4e9, #e9566c);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: clamp(1.4rem, 3vw, 1.6rem);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: clamp(15px, 4vh, 25px);
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        color: #1a3566; /* 深蓝色，适合浅色背景 */
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+}
+
+/* 分隔线 */
+.or-divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: clamp(15px, 4vh, 25px) 0;
+    
+    &:before,
+    &:after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    span {
+        padding: 0 15px;
+        font-size: clamp(1.2rem, 3vw, 1.4rem);
+        color: #1a3566; /* 深蓝色，适合浅色背景 */
+    }
+}
+
+/* 社交登录按钮 */
+.social-signup {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: clamp(15px, 4vh, 25px);
+    flex-wrap: wrap;
+    
+    .social-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(8px, 2vw, 12px) clamp(10px, 3vw, 15px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #1a3566; /* 深蓝色，适合浅色背景 */
+        font-size: clamp(1.2rem, 3vw, 1.4rem);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        flex: 1;
+        min-width: 90px;
+        text-align: center;
+        
+        img {
+            width: clamp(16px, 4vw, 20px);
+            height: clamp(16px, 4vw, 20px);
+            margin-right: 8px;
+        }
+        
+        &:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    }
+}
+
+/* 登录链接 */
+.login-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+    color: #1a3566; /* 深蓝色，适合浅色背景 */
+    
+    a {
+        color: #1a3566; /* 深蓝色，适合浅色背景 */
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        
+        &:hover {
+            color: #3e80fa; /* 深蓝色，适合浅色背景 */
+            text-decoration: underline;
+        }
+    }
+}
+
+/* 错误消息 */
+.error-message {
+    background-color: rgba(255, 87, 87, 0.2);
+    color: #1a3566; /* 深蓝色，适合浅色背景 */
+    padding: clamp(10px, 2vw, 15px);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+    border-left: 4px solid #ff5757;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 不同屏幕尺寸的响应式设计 */
+/* 大屏幕样式 */
+@media (min-width: 1200px) {
+    .signup-page-container {
+        max-width: 1500px;
+    }
+    
+    .signup-container {
+        max-width: 800px;
+        padding: 50px;
+    }
+}
+
+/* 响应式设计 - 中等屏幕 */
+@include screen-pad {
+    .signup-page-container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    
+    .signup-hero {
+        padding: 20px 10px;
+    }
+    
+    .signup-container {
+        padding: 20px 15px;
+        max-width: 100%;
+        margin: 0 10px;
+    }
+    
+    /* For two-column layout on tablet */
+    .two-columns {
+        display: flex;
+        flex-wrap: wrap;
+        gap: rpx(15);
+        
+        .form-group-signup {
+            width: calc(50% - rpx(7.5));
+        }
+    }
+}
+
+/* 超小屏幕适配（iPhone SE等） */
+@include screen-mobile {
+    .signup-container {
+        padding: 15px 12px;
+        max-width: 100%;
+    }
+    
+    .social-signup {
+        gap: 8px;
+        
+        .social-button {
+            padding: 6px 10px;
+            font-size: 1.1rem;
+            
+            img {
+                width: 14px;
+                height: 14px;
+                margin-right: 5px;
+            }
+        }
+    }
+    
+    .signup-button {
+        padding: 10px;
+    }
+    
+    .or-divider span {
+        padding: 0 8px;
+    }
+    
+    /* Reset two-column layout for mobile */
+    .two-columns .form-group-signup {
+        width: 100%;
+    }
+}  

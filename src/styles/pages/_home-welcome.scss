@@ -35,10 +35,10 @@
     }
     @include screen-mobile {
       .welcome-text {
-        font-size: calc(rpx(22) + 2vw);
+        font-size: calc(rpx(25) + 2vw);
       }
       .welcome-text2 {
-        font-size: calc(rpx(11) + 1.5vw);
+        font-size: calc(rpx(15) + 1.5vw);
       }
     }
   }

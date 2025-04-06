@@ -2,6 +2,7 @@
 @use './home-welcome' as welcome;
 @use './home-trip' as trip;
 @use './home-blog' as blog;
+
 .home {
   padding-top: rpx(20);
   display: flex;
@@ -13,15 +14,15 @@
   
   @include welcome.wrapper; //welcome section
 
-
   .main {
     padding: rpx(5);
     display: flex;
     flex-direction: column;
     align-items: center;
+
+    
     @include trip.wrapper;
     @include blog.wrapper;
-
   }
   @include blog.popup;
 
