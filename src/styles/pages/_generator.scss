@@ -2,6 +2,7 @@
 @use '../utils/utils' as *; // 工具类
 @use './generator-welcome' as gwelcome;
 
+
 .generator {
   padding-top: rpx(20);
   display: flex;
@@ -10,4 +11,5 @@
   align-items: center;
 
   @include gwelcome.wrapper;
+//   @include gheader-action.wrapper;
 }

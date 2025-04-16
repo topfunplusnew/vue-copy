@@ -7,7 +7,6 @@
   /* 社交帖子模块 */
   .social-feed {
     margin-top: rpx(20);
-    
     margin-bottom: rpx(20);
     padding: rpx(15) rpx(10);
     background: rgba(255, 255, 255, 0.1);
@@ -37,6 +36,8 @@
 
       .social-header-text {
         font-size: rpx(30);
+        color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+        text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
         font-weight: bold;
         margin: 1px 0 rpx(5) 0;
 
@@ -71,9 +72,10 @@
           padding: rpx(8) rpx(12) rpx(12) rpx(40); /* 增加左边距为图标留空间 */
           font-size: rpx(15);
           border-radius: rpx(8);
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(0, 0, 0, 0.07);
           border: none;
-          color: #fff;
+          color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
           outline: none;
           transition: all 0.3s ease;
           background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
@@ -88,16 +90,17 @@
           }
 
         &::placeholder {
-          color: rgba(255, 255, 255, 0.7);
-            font-family: 'Courier New', Courier, monospace;
+          color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
+          font-family: 'Courier New', Courier, monospace;
         }
 
         &:focus {
           background: rgba(255, 255, 255, 0.3);
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: rpx(12) center;
-            background-size: rpx(18);
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba(255, 255, 255, 0.85)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: rpx(12) center;
+          background-size: rpx(18);
           box-shadow: 0 0 rpx(15) rgba(255, 255, 255, 0.1);
         }
       }
@@ -150,7 +153,6 @@
               height: rpx(2);
               margin: 1px 0;
             }
-
           }
           
           &:hover {
@@ -218,7 +220,8 @@
             padding: rpx(6) rpx(10);
             border-radius: rpx(8);
             background: rgba(255, 255, 255, 0.2);
-            color: #fff;
+            color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
             border: none;
             cursor: pointer;
             transition: background 0.3s ease;
@@ -359,7 +362,6 @@
             @include screen-mobile {
               font-size: rpx(10);
             }
-
           }
         }
         
@@ -607,14 +609,14 @@
           .submit-quick-comment {
             background: #3498db;
             color: white;
-          border: none;
+            border: none;
             border-radius: 50%;
             width: 32px;
             height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-          cursor: pointer;
+            cursor: pointer;
             transition: all 0.2s ease;
           }
           
@@ -723,7 +725,7 @@
                 }
                 
                 .follow-icon {
-      &::before {
+              &::before {
                     content: "✓";
                   }
                 }
@@ -748,7 +750,6 @@
 }
 
 @mixin detail {
-
   .post-content {
     position: relative;
     width: 100%;
@@ -951,7 +952,6 @@
       font-size: rpx(12);
     }
   }
-
 
 
   /* 上传组件样式 */

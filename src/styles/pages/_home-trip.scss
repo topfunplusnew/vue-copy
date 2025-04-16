@@ -5,8 +5,8 @@
 @mixin wrapper{
   .combined-card {
     margin-top: rpx(40); 
-    width: 95%;
-    max-width: rpx(1400);
+    width: auto;
+    // max-width: rpx(1400);
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
     border-radius: rpx(6);
@@ -17,8 +17,8 @@
     .plan-it-text {
       font-weight: bold;
       margin-bottom: rpx(10);
-      color: white;
-      text-shadow: 0 rpx(2) rpx(4) rgba(0, 0, 0, 0.2);
+      color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
     }
 
     .location-destination-row {
@@ -26,6 +26,9 @@
       gap: rpx(20);
       margin-bottom: rpx(10);
       margin-top: rpx(15);
+      color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
+
     
       .field {
         flex: 1;
@@ -33,6 +36,8 @@
         flex-direction: column;
         gap: rpx(5);
         max-height: rpx(100);
+        width: 100%; /* 确保field占满可用空间 */
+        max-width: 80%; /* 限制最大宽度为父容器的一半 */
     
         .field-label {
           font-weight: bold;
@@ -41,31 +46,9 @@
 
         /* 选择器宽度设置 */
         .el-select {
-          width: 90%;
-          margin: auto;
-        }
-      
-        /* El-select的样式定制 */
-        :deep(.el-input__wrapper) {
-          background: rgba(255, 255, 255, 0.2);
-          box-shadow: none;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          
-          &:hover, &.is-focus {
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
-          }
-        }
-        
-        :deep(.el-input__inner) {
-          color: white;
-          
-          &::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-          }
+          width: 100%; /* 相对于field容器的宽度 */
         }
 
-    
         .ld-info {
           margin-top: rpx(2);
           display: flex;
@@ -81,8 +64,9 @@
             display: flex;
             align-items: center;
             font-weight: bold;
-            color: rgba(255, 255, 255, 0.9);
-      
+            color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
+            
             .weather-icon {
               display: inline-block;
               width: rpx(24);
@@ -102,8 +86,6 @@
             }
           }
         }
-
-
       }
     }
 
@@ -114,6 +96,9 @@
       justify-content: center;
       margin-bottom: rpx(20);
       margin-top: rpx(20);
+      color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
+      gap: rpx(10);
 
       .preference-option {
         background: rgba(255, 255, 255, 0.3);
@@ -194,8 +179,7 @@
         .el-textarea__inner::placeholder {
           color: rgba(26, 42, 108, 0.7);
           font-style: italic;
-        }
-        
+        } 
       }
       
       .togenerator{
@@ -211,13 +195,12 @@
         cursor: pointer;
         transition: transform 0.3s ease, box-shadow 0.3s ease, background-position 0.8s ease;
         z-index: 2;
-        background-size: 200% auto;
+        // background-size: 200% auto;
         background-position: 0% center;
         margin-top: rpx(5);
         letter-spacing: 1px;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         box-shadow: 0 rpx(4) rpx(5) rgba(0, 0, 0, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.1);
       }
       
       .togenerator:hover {
@@ -277,13 +260,12 @@
       .input-container {
         width: 95%;
         .itinerary-input {
-          font-size: rpx(30);
+          font-size: rpx(20);
         }
         .togenerator {
           font-size: rpx(20);
         }
       }
-
     }
     @include screen-pad {
       width: 90%;
@@ -298,7 +280,7 @@
         }
         
         .el-select {
-          width: 85%;
+          width: auto;
         }
   
         :deep(.el-input__inner) {
@@ -313,7 +295,7 @@
       .preference-options {
         gap: rpx(8);  /* 中屏幕减小间距 */
         .preference-option {
-          width: rpx(130);
+          width: auto;
           height: rpx(20);
           padding: rpx(4) 0;
           .option-icon {
@@ -335,7 +317,7 @@
       }
     }
     @include screen-mobile {
-      width: 80%;
+      width: 98%;
       .plan-header {
         .plan-it-text {
           font-size: calc(rpx(10) + 2vw); /* 根据视口宽度动态调整字体大小 */
@@ -343,11 +325,11 @@
       }
       .location-destination-row {
         .field-label {
-          font-size: rpx(12);
+          font-size: rpx(20);
         }
         
         .el-select {
-          width: 85%;
+          width: 90%;
         }
   
         :deep(.el-input__inner) {
@@ -355,37 +337,34 @@
         }
         .ld-info {
           .weather-info {
-            font-size: rpx(10);
+            font-size: rpx(17);
           }
-        }  
+        }
       }
       .preference-options {
         gap: rpx(5);  /* 中屏幕减小间距 */
         .preference-option {
-          width: rpx(100);
+          width: auto;
           height: rpx(20);
-          padding: rpx(4) 0;
+          gap: rpx(5);
+          padding: rpx(4) rpx(8);
           .option-icon {
-            font-size: rpx(12);
+            font-size: rpx(20);
           }
           .option-name {
-            font-size: rpx(10);
+            font-size: rpx(15);
           }
         }
       }
       .input-container {
         width: 95%;
         .itinerary-input {
-          font-size: rpx(12);
+          font-size: rpx(20);
         }
         .togenerator {
-          font-size: rpx(10);
+          font-size: rpx(20);
         }
       }
-
     }
-
-
-
   }
 }
