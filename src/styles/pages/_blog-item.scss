@@ -41,7 +41,7 @@
       overflow: hidden;
       position: relative;
 
-      .post-title {
+      .post-item-title {
         font-size: rpx(17);
         font-weight: bold;
         color: #fff;
@@ -52,7 +52,7 @@
         margin-bottom: rpx(6);
       }
 
-      .post-content {
+      .post-item-content {
         font-size: rpx(16);
         color: rgba(255, 255, 255, 0.8);
         display: -webkit-box;

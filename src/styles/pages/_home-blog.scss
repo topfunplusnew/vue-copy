@@ -752,7 +752,7 @@
 @mixin detail {
   .post-content {
     position: relative;
-    width: 100%;
+    // width: 100%;
     max-width: 1200px;
     margin: rpx(30) auto rpx(20);
     padding: rpx(5) rpx(20) rpx(20);

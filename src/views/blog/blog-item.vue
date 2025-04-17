@@ -30,8 +30,8 @@ function onClick() {
 
     <!-- 博客内容 -->
     <section class="blog-text">
-      <h2 class="post-title">{{ post.title }}</h2>
-      <p class="post-content">{{ post.content }}</p>
+      <h2 class="post-item-title">{{ post.title }}</h2>
+      <p class="post-item-content">{{ post.content }}</p>
     </section>
 
     <!-- 博客底部信息 -->
