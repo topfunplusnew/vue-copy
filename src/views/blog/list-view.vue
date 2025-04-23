@@ -844,7 +844,7 @@ const cancelDeleteComment = () => {
           <!-- 分类 -->
         <div class="tags-section-pref" v-if="selectedBlog?.social_filters">
           <span v-for="(item, index) in selectedBlog?.social_filters" :key="index" class="tag-pref">
-            {{ item.name }} {{ item.icon }}
+            {{ item.icon }}{{ item.name }} 
           </span>
         </div>
         </div>

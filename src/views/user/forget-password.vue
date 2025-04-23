@@ -2,6 +2,7 @@
 import { ref, reactive } from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
+import commonHeader from '@/layout/common-header.vue';
 
 const msg = 'Reset Your Password';
 const errorMessage = ref('');
@@ -103,20 +104,9 @@ const sendConfirmationEmail = async () => {
 </script>
 
 <template>
-  <div class="forget-password-page">
-    <header class="header">
-      <div class="nav-container">
-        <div class="left-nav">
-          <router-link :to="{ name: 'home' }"><el-button class="nav-button">HOME</el-button></router-link>
-          <router-link :to="{ name: 'about' }"><el-button class="nav-button">ABOUT</el-button></router-link>
-          <router-link :to="{ name: 'blog' }"><el-button class="nav-button">BLOG</el-button></router-link>
-          <router-link :to="{ name: 'contact' }"><el-button class="nav-button">CONTACT</el-button></router-link>
-          <wallet-item />
-          <router-link :to="{ name: 'login' }"><el-button class="nav-button">LOGIN</el-button></router-link>
-          <router-link :to="{ name: 'signup' }"><el-button class="nav-button">SIGN UP</el-button></router-link>
-        </div>
-      </div>
-    </header>
+    <div class="background-layer"></div>
+  <div class="forget-password-page layout-main">
+    <common-header />
 
     <div class="forget-password-hero">
       <h2 class="header-title-forget">{{ msg }}</h2>
@@ -135,7 +125,7 @@ const sendConfirmationEmail = async () => {
 
         <div class="form-group-forget">
           <label for="username">Username</label>
-          <input
+          <el-input
             type="text"
             id="username"
             v-model="editForm.username"
@@ -146,7 +136,7 @@ const sendConfirmationEmail = async () => {
 
         <div class="form-group-forget">
           <label for="email">Email</label>
-          <input
+          <el-input
             type="email"
             id="email"
             v-model="editForm.email"
@@ -195,7 +185,7 @@ const sendConfirmationEmail = async () => {
         </div>
 
         <div class="form-group-forget">
-          <label for="password_confirm">Confirm Password</label>
+          <label for="password_confirm">Confirm Pwd</label>
           <el-input
             v-model="editForm.password_confirm"
             type="password"

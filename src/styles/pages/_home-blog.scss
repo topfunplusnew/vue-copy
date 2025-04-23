@@ -343,7 +343,8 @@
           .load-more-btn-home {
             background: rgba(255, 255, 255, 0.2);
             border: none;
-            color: white;
+            color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
             padding: rpx(10) rpx(20);
             border-radius: rpx(4);
             cursor: pointer;
@@ -510,8 +511,9 @@
               width: 40px;
               height: 40px;
               background: rgba(0, 0, 0, 0.3);
-              color: white;
-              border: none;
+              color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+              text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
+                    border: none;
               border-radius: 50%;
               font-size: 20px;
               cursor: pointer;
@@ -743,6 +745,14 @@
             text-align: center; /* 标题居中 */
             margin-top: 10px; /* 增加与作者信息的间距 */
           }
+
+          .tag-pref {
+            color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
+            font-size: rpx(14);
+            font-weight: 600;
+            margin-bottom: 10px;
+          } 
         }
       }
     }
@@ -776,7 +786,8 @@
         
         .post-title {
           font-size:rpx(30);
-          color: white;
+          color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
           margin: 0;
           font-weight: 700;
           text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -789,7 +800,8 @@
           padding: 14px 24px;
           background: transparent !important;
           border: 2px solid rgba(255, 255, 255, 0.7) !important;
-          color: white !important;
+          color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
           border-radius: 50px !important;
           position: relative;
           overflow: hidden;
@@ -870,7 +882,8 @@
     .filter-tag {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
+      color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
+      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
       cursor: pointer;
       padding: 6px 12px;
       font-size: rpx(18);

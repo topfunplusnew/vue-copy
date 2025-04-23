@@ -34,6 +34,7 @@
                 <el-dropdown-menu>
                   <el-dropdown-item command="profile">My Profile</el-dropdown-item>
                   <el-dropdown-item command="logout">Logout</el-dropdown-item>
+                  <el-dropdown-item command="message">Message</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>

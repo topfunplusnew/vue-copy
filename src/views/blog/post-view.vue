@@ -270,8 +270,7 @@ onMounted(async () => {
       <el-form :model="createData" label-position="top">
         <!-- 标题输入 -->
         <el-form-item
-          label="Title"
-          style="--el-form-label-font-size: 1.4rem; --el-text-color-regular: white;">
+          label="Title">
           <el-input
             v-model="createData.title"
             type="textarea"
