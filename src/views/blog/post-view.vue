@@ -247,202 +247,202 @@ onMounted(async () => {
   <div class="background-layer"></div>
   <!-- 保留公共头部 -->
   <div class="home">
-  <common-header />
+    <common-header />
 
-  <el-main class="post-content">
-    <!-- 内容卡片 -->
-    <el-card class="post-card">
-      <template #header>
-        <div class="post-card-header">
-          <div class="post-title">Post Your Blog</div>
-          <el-button
-            type="primary"
-            @click="handlePreviewClick"
-            :disabled="!canPreview"
-            class="preview-btn"
-          >
-            Preview
-          </el-button>
-        </div>
-      </template>
-
-      <!-- 博客创建表单 -->
-      <el-form :model="createData" label-position="top">
-        <!-- 标题输入 -->
-        <el-form-item
-          label="Title">
-          <el-input
-            v-model="createData.title"
-            type="textarea"
-            :autosize="{ minRows: 1, maxRows: 2 }"
-            placeholder="Enter a catchy title"
-            maxlength="50"
-            show-word-limit
-          ></el-input>
-        </el-form-item>
-
-        <!-- 社交筛选器 -->
-        <el-form-item label="Categories">
-          <div class="filter-tags">
-            <el-tag
-              v-for="option in socialFilters"
-              :key="option.id"
-              :class="{ 'active-tag': createData.social_filters.includes(option.id) }"
-              @click="togglePreference(option.id)"
-              effect="plain"
-              class="filter-tag"
+    <el-main class="post-content">
+      <!-- 内容卡片 -->
+      <el-card class="post-card">
+        <template #header>
+          <div class="post-card-header">
+            <div class="post-title">Post Your Blog</div>
+            <el-button
+              type="primary"
+              @click="handlePreviewClick"
+              :disabled="!canPreview"
+              class="preview-btn"
             >
-              <span class="filter-icon">{{ option.icon }}</span>
-              <span>{{ option.name }}</span>
-            </el-tag>
+              Preview
+            </el-button>
           </div>
-        </el-form-item>
+        </template>
 
-        <!-- 内容输入 -->
-        <el-form-item label="Content">
-          <el-input
-            v-model="createData.content"
-            type="textarea"
-            :autosize="{ minRows: 4, maxRows: 8 }"
-            placeholder="What's happening? Share your experience..."
-          ></el-input>
-        </el-form-item>
+        <!-- 博客创建表单 -->
+        <el-form :model="createData" label-position="top">
+          <!-- 标题输入 -->
+          <el-form-item
+            label="Title">
+            <el-input
+              v-model="createData.title"
+              type="textarea"
+              :autosize="{ minRows: 1, maxRows: 2 }"
+              placeholder="Enter a catchy title"
+              maxlength="50"
+              show-word-limit
+            ></el-input>
+          </el-form-item>
 
-        <!-- 图片上传 -->
-        <el-form-item label="Photos">
-          <div class="upload-section">
-            <el-upload
-              class="image-uploader"
-              :show-file-list="false"
-              :on-change="handleImageUpload"
-              :auto-upload="false"
-              :multiple="true"
-              accept="image/*"
-            >
-              <el-button type="primary" size="large">
-                <el-icon><Plus /></el-icon>
-                Select Images
-              </el-button>
-            </el-upload>
-            <span class="upload-hint" 
-            v-if="!createData.image.length">Upload up to 9 images,
-             double click to delete</span>
-          </div>
+          <!-- 社交筛选器 -->
+          <el-form-item label="Categories">
+            <div class="filter-tags">
+              <el-tag
+                v-for="option in socialFilters"
+                :key="option.id"
+                :class="{ 'active-tag': createData.social_filters.includes(option.id) }"
+                @click="togglePreference(option.id)"
+                effect="plain"
+                class="filter-tag"
+              >
+                <span class="filter-icon">{{ option.icon }}</span>
+                <span>{{ option.name }}</span>
+              </el-tag>
+            </div>
+          </el-form-item>
 
-          <!-- 图片展示区域 -->
-          <div class="images-gallery" v-if="createData.image.length">
-            <div v-for="(image, index) in createData.image" 
-            :key="index" class="image-item">
-              <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
-              <div class="image-overlay">
-                <button class="delete-btn" 
-                @click.stop="removeImage(index)" title="Remove image">
-                  <el-icon><Delete /></el-icon>
-                </button>
+          <!-- 内容输入 -->
+          <el-form-item label="Content">
+            <el-input
+              v-model="createData.content"
+              type="textarea"
+              :autosize="{ minRows: 4, maxRows: 8 }"
+              placeholder="What's happening? Share your experience..."
+            ></el-input>
+          </el-form-item>
+
+          <!-- 图片上传 -->
+          <el-form-item label="Photos">
+            <div class="upload-section">
+              <el-upload
+                class="image-uploader"
+                :show-file-list="false"
+                :on-change="handleImageUpload"
+                :auto-upload="false"
+                :multiple="true"
+                accept="image/*"
+              >
+                <el-button type="primary" size="large">
+                  <el-icon><Plus /></el-icon>
+                  Select Images
+                </el-button>
+              </el-upload>
+              <span class="upload-hint" 
+                v-if="!createData.image.length">Upload up to 9 images,
+                double click to delete</span>
+            </div>
+
+            <!-- 图片展示区域 -->
+            <div class="images-gallery" v-if="createData.image.length">
+              <div v-for="(image, index) in createData.image" 
+              :key="index" class="image-item">
+                <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
+                <div class="image-overlay">
+                  <button class="delete-btn" 
+                  @click.stop="removeImage(index)" title="Remove image">
+                    <el-icon><Delete /></el-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="images-counter">{{ createData.image.length }}/9 images</div>
+            </div>
+          </el-form-item>
+
+          <!-- 标签输入 -->
+          <el-form-item label="Tags">
+            <!-- 标签输入区域 -->
+            <div class="tag-input-wrapper">
+              <el-input
+                type="textarea"
+                v-model="tagInput"
+                :autosize="{ minRows: 1, maxRows: 1 }"
+                placeholder="Type tag and press Enter"
+                @keydown.prevent.stop.enter="handleTagInput"
+                maxlength="15"
+              ></el-input>
+            </div>
+
+            <!-- 标签显示区域 -->
+            <div class="tags-display">
+              <el-empty v-if="createData.tags.length === 0" description="No tags added yet"
+              :image-size="40" />
+              <div v-else class="tags-list">
+                <el-tag
+                  v-for="(tag, index) in createData.tags"
+                  :key="index"
+                  closable
+                  @close="removeTag(index)"
+                  effect="plain"
+                  class="post-tag"
+                >
+                  #{{ tag }}
+                </el-tag>
+                <span class="tag-counter">{{ createData.tags.length }}/5</span>
               </div>
             </div>
-            <div class="images-counter">{{ createData.image.length }}/9 images</div>
-          </div>
-        </el-form-item>
+          </el-form-item>
 
-        <!-- 标签输入 -->
-        <el-form-item label="Tags">
-          <!-- 标签输入区域 -->
-          <div class="tag-input-wrapper">
-            <el-input
-              type="textarea"
-              v-model="tagInput"
-              :autosize="{ minRows: 1, maxRows: 1 }"
-              placeholder="Type tag and press Enter"
-              @keydown.prevent.stop.enter="handleTagInput"
-              maxlength="15"
-            ></el-input>
-          </div>
+          <!-- 选择目的地 -->
+          <el-form-item label="Destination">
+            <el-select
+              v-model="createData.location"
+              multiple
+              filterable
+              placeholder="Select destinations"
+              @change="handleDestinationsChange"
+              style="max-width: 500px; width: 100%;">
+              <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label" 
+              :value="dest.value" />
+            </el-select>
 
-          <!-- 标签显示区域 -->
-          <div class="tags-display">
-            <el-empty v-if="createData.tags.length === 0" description="No tags added yet"
-            :image-size="40" />
-            <div v-else class="tags-list">
-              <el-tag
-                v-for="(tag, index) in createData.tags"
-                :key="index"
-                closable
-                @close="removeTag(index)"
-                effect="plain"
-                class="post-tag"
+          </el-form-item>
+
+          <!-- 评论权限 -->
+          <el-form-item label="Who can reply?">
+            <el-radio-group v-model="createData.comment_permission">
+              <el-radio
+                v-for="option in commentPermission"
+                :key="option.id"
+                :label="option.id"
               >
-                #{{ tag }}
-              </el-tag>
-              <span class="tag-counter">{{ createData.tags.length }}/5</span>
+                {{ option.name }} can reply
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+
+          <!-- NFT 选项 -->
+          <el-form-item>
+            <el-checkbox v-model="createData.isNFT">
+              <div class="nft-option">
+                <span class="nft-icon">🖼️</span>
+                Make your NFT
+              </div>
+            </el-checkbox>
+          </el-form-item>
+
+          <!-- 操作按钮 -->
+          <el-form-item>
+            <div class="action-buttons">
+              <el-button @click="saveDraft" plain>Save Draft</el-button>
+              <el-button v-if="id" @click="editTweet" type="primary">Edit</el-button>
+              <el-button v-else @click="postTweet" type="primary">Post</el-button>
             </div>
-          </div>
-        </el-form-item>
-
-        <!-- 选择目的地 -->
-        <el-form-item label="Destination">
-          <el-select
-            v-model="createData.location"
-            multiple
-            collapse-tags
-            collapse-tags-tooltip
-            placeholder="Select destinations"
-            @change="handleDestinationsChange"
-            style="max-width: 500px; width: 100%;">
-            <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label" :value="dest.value" />
-          </el-select>
-
-        </el-form-item>
-
-        <!-- 评论权限 -->
-        <el-form-item label="Who can reply?">
-          <el-radio-group v-model="createData.comment_permission">
-            <el-radio
-              v-for="option in commentPermission"
-              :key="option.id"
-              :label="option.id"
-            >
-              {{ option.name }} can reply
-            </el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <!-- NFT 选项 -->
-        <el-form-item>
-          <el-checkbox v-model="createData.isNFT">
-            <div class="nft-option">
-              <span class="nft-icon">🖼️</span>
-              Make your NFT
-            </div>
-          </el-checkbox>
-        </el-form-item>
-
-        <!-- 操作按钮 -->
-        <el-form-item>
-          <div class="action-buttons">
-            <el-button @click="saveDraft" plain>Save Draft</el-button>
-            <el-button v-if="id" @click="editTweet" type="primary">Edit</el-button>
-            <el-button v-else @click="postTweet" type="primary">Post</el-button>
-          </div>
-        </el-form-item>
-      </el-form>
-    </el-card>
-  </el-main>
+          </el-form-item>
+        </el-form>
+      </el-card>
+    </el-main>
 
 
-<!-- 预览组件 -->
-<post-preview
-  v-if="showPreview"
-  :title="createData.title"
-  :content="createData.content"
-  :images="createData.image"
-  :tags="createData.tags"
-  :preferences="createData.social_filters"
-  :socialFilters="socialFilters"
-  :location="createData.location"
-  @close="closePreview"
-/>
-</div>
+    <!-- 预览组件 -->
+    <post-preview
+      v-if="showPreview"
+      :title="createData.title"
+      :content="createData.content"
+      :images="createData.image"
+      :tags="createData.tags"
+      :preferences="createData.social_filters"
+      :socialFilters="socialFilters"
+      :location="createData.location"
+      @close="closePreview"
+    />
+  </div>
 </template>
 
 

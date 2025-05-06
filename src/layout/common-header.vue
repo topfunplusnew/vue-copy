@@ -35,6 +35,10 @@
                   <el-dropdown-item command="profile">My Profile</el-dropdown-item>
                   <el-dropdown-item command="logout">Logout</el-dropdown-item>
                   <el-dropdown-item command="message">Message</el-dropdown-item>
+                  <!-- <el-dropdown-item command="nft">My NFT</el-dropdown-item> -->
+                  <el-dropdown-item command="blog">Chat History</el-dropdown-item>
+                  <el-dropdown-item command="blog">Cart</el-dropdown-item>
+                  <el-dropdown-item command="blog">Orders</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>

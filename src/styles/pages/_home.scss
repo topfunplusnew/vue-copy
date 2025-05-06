@@ -2,7 +2,7 @@
 @use './home-welcome' as welcome;
 @use './home-trip' as trip;
 @use './home-blog' as blog;
-
+@use './post' as post; // 发布页
 .home {
   padding-top: rpx(20);
   display: flex;
@@ -26,7 +26,8 @@
 
     
   }
-  @include blog.detail;
-  @include blog.popup;
+  @include post.detail;
+  // @include blog.detail;
+  // @include blog.popup;
 
 }
