@@ -1,7 +1,9 @@
 @use '../utils/mixins' as *; // 混合宏
 @use '../utils/utils' as *; // 工具类
 @use './generator-welcome' as gwelcome;
-
+@use './generator-history' as ghistory;
+@use './generator-generatep' as ggeneratep;
+@use './generator-chatbox' as gchatbox;
 
 .generator {
   padding-top: rpx(20);
@@ -11,5 +13,9 @@
   align-items: center;
 
   @include gwelcome.wrapper;
+  @include gchatbox.wrapper;
 //   @include gheader-action.wrapper;
+  
 }
+@include ghistory.wrapper;
+@include ggeneratep.wrapper;

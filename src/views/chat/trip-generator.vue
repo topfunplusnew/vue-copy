@@ -34,7 +34,7 @@ function handleUserInput(event: Event | KeyboardEvent) {
       userChatInput.value = ''; // 清空输入框，恢复到 placeholder 状态
     }).catch(e=>{
       console.log(e);
-      if(e.status == 401) ElMessage.error('请登录');
+      if(e.status == 401) ElMessage.error('Please login');
     })
   }
 };
@@ -352,6 +352,7 @@ onMounted(async() => {
               </el-button>
             </div>
           </div>
+          
           <div class="chat-box">
             <div
               v-for="(msg, index) in messages"
@@ -449,7 +450,7 @@ onMounted(async() => {
                   type="daterange"
                   start-placeholder="Start Date"
                   end-placeholder="End Date"
-                  :shortcuts="dateShortcuts"
+                  
                   class="futuristic-date-picker"
                 />
                 <!-- <div v-if="tripSelections.DurationDays > 0"

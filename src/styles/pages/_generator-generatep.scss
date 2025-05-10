@@ -1,0 +1,169 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+
+@mixin wrapper{
+    /* 旅行选项弹窗样式 */
+  .trip-options-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 700px;
+    z-index: 1000;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 20px rgba(86, 180, 233, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(86, 180, 233, 0.2);
+    
+    /* 修复全局文本区域颜色样式 */
+    :deep(.el-textarea__inner) {
+      color: #3a5683 !important; 
+      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
+      background-color: rgba(255, 255, 255, 0.1);
+      
+      @include screen-mobile {
+        font-size: rpx(16);
+      }
+      
+      &::placeholder {
+        color: rgba(58, 86, 131, 0.6);
+      }
+    }
+    
+    :deep(.el-input__inner) {
+      color: #fff !important;
+    }
+
+    .trip-options-modal-content {
+        background: linear-gradient(165deg, #1a1b2e, #121212);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        max-height: 85vh;
+      }
+
+      .trip-options-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: linear-gradient(90deg, rgba(86, 180, 233, 0.2), rgba(233, 86, 108, 0.2));
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .trip-options-modal-header h3 {
+        margin: 0;
+        font-size: rpx(20);
+        font-weight: 500;
+    
+        @include screen-mobile {
+          font-size: rpx(30);
+        }
+      }
+
+      .trip-options-modal-body{
+        .trip-options-scrollable {
+            padding: rpx(15);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .trip-prompt-result {
+            padding: rpx(15);
+
+            .h4{
+                margin:0;
+                font-size: rpx(20);
+                text-shadow: 0 rpx(1) rpx(2) rgba(255, 255, 255, 0.3);
+    
+            @include screen-mobile {
+                font-size: rpx(18);
+                margin-bottom: rpx(8);
+            }
+        }
+            
+            /* 可编辑的提示文本区域 */
+            .editable-prompt {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 6px;
+                font-size: clamp(14px, 1.8vw, 18px);
+                line-height: 1.5;
+                transition: font-size 0.3s ease;
+                
+                @include screen-mobile {
+                    font-size: rpx(15);
+                }
+            
+            /* 确保文本区域内容样式覆盖默认样式 */
+            :deep(.el-textarea__inner) {
+                color: #3a5683 !important;
+                text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
+                font-family: "Courier New", monospace;
+                border-color: rgba(86, 180, 233, 0.3);
+                
+                &:focus {
+                    border-color: rgba(86, 180, 233, 0.6);
+                    box-shadow: 0 0 rpx(6) rgba(86, 180, 233, 0.2);
+                }
+                
+                @include screen-mobile {
+                    font-size: rpx(15);
+                    padding: rpx(15);
+                }
+            }
+        }
+      }
+    }
+
+    .trip-options-modal-footer {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.3);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+    .el-button{
+        color: #fff;
+    }
+
+    .cancel-btn {
+        background: linear-gradient(135deg, #777777, #555555);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+    .cancel-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #888888, #666666);
+    }
+    
+    /* 底部Modal按钮也保持一致 */
+    .primary-btn {
+        background: linear-gradient(135deg, #56b4e9, #e9566c);
+        box-shadow: 0 4px 15px rgba(86, 180, 233, 0.3);
+    }
+    
+    .primary-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(86, 180, 233, 0.5);
+        background: linear-gradient(135deg, #67c5fa, #fa677d);
+    }
+    
+    /* 动画效果 */
+    .slide-up-enter-active,
+    .slide-up-leave-active {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .slide-up-enter-from,
+    .slide-up-leave-to {
+        opacity: 0;
+        transform: translate(-50%, calc(-50% + 50px));
+    }
+    }
+  }  
+}
+
