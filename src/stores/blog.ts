@@ -95,12 +95,19 @@ export const useBlogStore = defineStore('blog', () => {
    * @returns
    */
   function getBlogByID(id: number) {
+    // console.log("getBlogByID called with id:", id); // 检查是否被多次调用
+    if (id <= 0) {  // 如果id小于等于0，返回错误
+      return Promise.reject(new Error('Invalid blog ID'));
+    }
     return getBlogPost(id.toString())
       .then(({ data }) => {
+        // console.log("API response:", data.id); // 检查是否多次返回数据
         blog.value = data;
+        return data;
       })
       .catch((e) => {
         console.log(e);
+        throw e;
       });
   }
     /**

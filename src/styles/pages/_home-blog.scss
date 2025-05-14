@@ -1,3 +1,12 @@
+// 全局颜色变量
+$primary-bg: #1e2128;
+$secondary-bg: #2a2d3a;
+$text-color: #f8f9fa;
+$secondary-text: #dee2e6;
+$accent-color: #64b3f4;
+$border-color: rgba(100, 179, 244, 0.2);
+
+
 @use '../utils/mixins' as *; // 混合宏
 @use '../utils/utils' as *; // 工具类
 @use './blog-item' as blog; // 博客模块
@@ -638,9 +647,11 @@
         flex: 4;
         background: white;
         padding: 30px 0 30px 30px;
-        overflow-y: overlay;
+        overflow-y: auto;
         position: relative;
         transition: height 0.3s ease;
+        max-height: 100%;
+        height: 100%;
         
         /* 在窄屏幕上调整高度 */
         @media (max-width: 768px) {
@@ -758,3 +769,1537 @@
   }
 }
 
+
+
+//弹框
+.home .blogos-header-title {
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  font-size: 5rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #64b3f4, #c2e59c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #fff;
+}
+
+/* 每个帖子卡片 */
+.blogos-post-item {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 1.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.blogos-post-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* 新的博客页面容器 */
+.blogos-page-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+/* 博客网格布局 */
+.blogos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.blogos-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05), 0 0 1px rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  isolation: isolate;
+  
+  &:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.1), 0 0 2px rgba(255, 255, 255, 0.3);
+    
+    .blog-card-image {
+      transform: scale(1.03);
+    }
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05), transparent, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+  }
+}
+
+.blogos-card-image {
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.blogos-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.3) 20%, rgba(0, 0, 0, 0.8));
+}
+
+.blogos-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.blogos-category-badge {
+  background: linear-gradient(135deg, rgba(150, 150, 150, 0.8), rgba(100, 100, 100, 0.7));
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 30px;
+  font-size: 1rem;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.blogos-card-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    z-index: -1;
+  }
+}
+
+.blogos-card-meta {
+  display: flex;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.2rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.03em;
+}
+
+.blogos-card-title {
+  font-size: 2rem;
+  color: white;
+  margin: 0.5rem 0 1rem;
+  line-height: 1.3;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  position: relative;
+  display: inline-block;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 2rem;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(200, 200, 200, 0.7), transparent);
+    transition: width 0.3s ease;
+  }
+  
+  .blogos-card:hover &::after {
+    width: 50%;
+  }
+}
+
+.blogos-card-excerpt {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+  flex: 1;
+  font-size: 1rem;
+}
+
+.blogos-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+}
+
+.blogos-author-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.blogos-author-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  
+  .blogos-card:hover & {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+  }
+}
+
+.blogos-author-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.blogos-stats {
+  display: flex;
+  gap: 1rem;
+}
+
+.blogos-stat-item {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* 加载更多按钮 */
+.blogos-load-more-container {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.blogos-load-more-button {
+  background: rgba(114, 137, 218, 0.2);
+  border: 1px solid rgba(114, 137, 218, 0.4);
+  color: white;
+  padding: 0.75rem 2rem;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    background: rgba(114, 137, 218, 0.4);
+    transform: translateY(-2px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+// 弹窗容器
+.blog-detail-dialog {
+  background-color: transparent !important;
+  background: linear-gradient(135deg, $primary-bg, $secondary-bg) !important;
+  backdrop-filter: blur(15px) !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  max-width: 80% !important;
+  width: 80% !important;
+  margin: 0 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  top: 10px;
+  padding: 0 !important; 
+  
+  .el-dialog__header {
+    // padding: 1.8rem 2rem !important;
+    // background: rgba(0, 0, 0, 0.2) !important;
+    border-bottom: 1px solid $border-color !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    display: none;
+    
+    &::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: -1px !important;
+      left: 0 !important;
+      width: 150px !important;
+      height: 1px !important;
+      background: linear-gradient(90deg, $accent-color, transparent) !important;
+    }
+  }
+  
+  .el-dialog__title {
+    color: $text-color !important;
+    font-weight: 600 !important;
+    font-size: 2rem !important;
+    line-height: 1.3 !important;
+    display: block !important;
+    max-width: 90% !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    letter-spacing: 0.5px !important;
+  }
+  
+  .el-dialog__headerbtn {
+    top: 1.5rem !important;
+    right: 1.5rem !important;
+    font-size: 1.5rem !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 50% !important;
+    background: rgba($accent-color, 0.15) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s ease !important;
+    
+    &:hover {
+      background: rgba($accent-color, 0.3) !important;
+      transform: rotate(90deg) !important;
+    }
+    
+    .el-dialog__close {
+      color: $text-color !important;
+    }
+  }
+  
+  .el-dialog__body {
+    padding: 0 !important;
+    color: #e9ecef !important;
+    // overflow-y: auto !important;  /*滚动条*/
+    max-height: 90vh !important;
+    scrollbar-color: rgba($accent-color, 0.5) transparent !important;
+    &::-webkit-scrollbar {
+      width: 6px !important;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba($accent-color, 0.5) !important;
+      border-radius: 10px !important;
+    }
+  }
+}
+
+// 对话框头部
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid $border-color;
+
+  .blog-title-home {
+    color: $text-color;
+    font-size: 1.8rem;
+    margin: 0;
+  }
+
+  .close-button-home {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: $text-color;
+    z-index: 10;
+  }
+}
+
+// 主内容区
+.blog-detail-content {
+  display: flex;
+  height: 100%;
+  height: calc(100vh - 60px);
+
+  // 左侧图片区
+  .detail-left-home {
+    flex: 1;
+    overflow: hidden;
+
+    .carousel-home {
+      height: 100%;
+      overflow: hidden;
+
+      .carousel-item-home {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .detail-image-home {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+  }
+
+  // 右侧内容区
+  .detail-right-home {
+    flex: 1;
+    overflow-y: auto;/*滚动条*/
+    padding: 1.5rem;
+    background: linear-gradient(180deg, #000000, $secondary-bg);
+
+    // 用户信息区
+    .user-header-home {
+      margin-bottom: 1.5rem;
+      position: relative;
+
+      .author-info-home {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .author-avatar-home {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .author-name-home {
+          color: $text-color;
+          font-size: 1.2rem;
+          font-weight: 600;
+        }
+
+        .follow-btn {
+          margin-left: auto;
+          background: rgba($accent-color, 0.2);
+          color: white;
+          border: 1px solid rgba($accent-color, 0.3);
+
+          &.following {
+            background: rgba($accent-color, 0.4);
+          }
+        }
+      }
+
+      // 分类标签区
+      .tags-section-pref {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-top: 20px;
+
+        .tag-pref {
+          background: rgba($accent-color, 0.2);
+          color: $text-color;
+          padding: 0.3rem 0.8rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    // 博客内容区
+    .content-section-home {
+      margin-bottom: 2rem;
+
+      .blog-content-home {
+        color: $secondary-text;
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+    }
+
+    // 统计信息区
+    .stats-bar-home {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+
+      .stats-info-home {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+
+        .likes-home, .comments-home, .coins-home {
+          color: #adb5bd;
+          font-size: 1rem;
+          cursor: pointer;
+        }
+      }
+
+      // 简化评论输入框
+      .quick-comment-input {
+        display: flex;
+        gap: 0.5rem;
+
+        .comment-input-home {
+          flex: 1;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba($accent-color, 0.3);
+          padding: 0.5rem;
+          border-radius: 6px;
+          color: $secondary-text;
+        }
+
+        .submit-quick-comment {
+          background: rgba($accent-color, 0.3);
+          border: 1px solid rgba($accent-color, 0.3);
+          color: white;
+          border-radius: 6px;
+          padding: 0 1rem;
+          cursor: pointer;
+
+          &:hover {
+            background: rgba($accent-color, 0.5);
+            transform: translateY(-2px);
+          }
+
+          &:active {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+
+    // 评论区
+    .comments-container-home {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 2rem;
+      // overflow-y: auto;  //给评论加上滑动
+      // max-height: 100vh;  //限制评论的高度
+      
+
+      .comments-header-home {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 0.5rem;
+
+        h3 {
+          margin: 0;
+          color: $text-color;
+        }
+
+        .comment-count-home {
+          color: #adb5bd;
+        }
+        i{
+          width: 20px;
+          height: 20px;
+        }
+      }
+
+      .comment-item-home {
+        margin-bottom: 1.5rem;
+
+        .comment-row-home {
+          display: flex;
+          gap: 0.8rem;
+          position: relative;
+          &.long-press-active {
+            background: rgba($accent-color, 0.1);
+          }
+
+          .comment-avatar-home {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+
+          .comment-username-home {
+            color: $text-color;
+            font-weight: 500;
+            margin: 0;
+            .comment-text-home {
+              color: $secondary-text;
+              line-height: 1.6;
+              margin: 0;
+            }
+          }
+
+          .comment-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 0.5rem; /* 控制用户名和评论内容之间的间距 */
+            .comment-user-home {
+              color: $text-color;
+              font-weight: 500;
+              margin-left: 10px;
+            }
+          
+
+            .reply-icon {
+              color: #6b6b6b;
+              cursor: pointer;
+              float: right;
+            }
+          }
+
+          // 删除功能样式
+          .delete-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10; /* 确保在最上层 */
+
+            &.visible {
+              opacity: 1;
+            }
+          }
+
+          .delete-confirm-overlay {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 10; /* 确保在最上层 */
+
+            &.visible {
+              opacity: 1;
+              pointer-events: auto;
+            }
+            &.active {
+              opacity: 1;
+              transform: translateY(0);
+            }
+            .delete-message {
+              margin-bottom: 10px;
+              color: #f8f9fa;
+            }
+            .delete-actions {
+              display: flex;
+              gap: 10px;
+              justify-content: flex-end;
+
+              button {
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 14px;
+                cursor: pointer;
+              }
+              .delete-btn-rp, .cancel-btn-rp {
+                padding: 6px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.2s;
+               
+              }
+              .delete-btn-rp {
+                background: #ff4d4f;
+                color: white;
+                border: none;
+
+                &:hover {
+                  background: #c0392b;
+                }
+              }
+
+              .cancel-btn-rp {
+                background: transparent;
+                color: #adadad;
+                border: 1px solid #434343;
+
+                &:hover {
+                  color: white;
+                  border-color: #595959;
+                }
+              }
+            }
+          }
+        }
+
+        // 评论回复区
+        .comment-replies-home {
+          margin-left: 2rem;
+          margin-top: 1rem;
+          .reply-item-home {
+            .reply-row-home {
+              display: flex;
+              gap: 0.8rem;
+              position: relative;
+              .reply-content-wrapper {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem; /* 控制用户名和回复内容之间的间距 */
+                .reply-text-home {
+                  color: $secondary-text;
+                  line-height: 1.6;
+                  margin: 0;
+                }
+                .target-name-show{
+                  font-size: 12px;
+                  color: #adabab;
+                }
+              }
+              .reply-avatar-home-view {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                object-fit: cover;
+                float: left;
+              }
+              .reply-icon-reply-to-reply{
+               color: #6b6b6b;
+               cursor: pointer;
+               float: right;
+              }
+            }
+          }
+          .reply-username-home{
+            font-weight: 500;
+            color: $text-color;
+            margin: 0;
+            font-size: 13px;
+          }
+          .target-name-show{
+            float: left;
+            margin-left: 5px;
+            
+          }
+          .view-more-replies {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            cursor: pointer;
+            color: $accent-color;
+
+            &:hover {
+              background: rgba($accent-color, 0.1);
+            }
+          }
+        }
+
+        // 回复输入框
+        .reply-input-container-home {
+          margin-top: 1rem;
+          background: rgba(0, 0, 0, 0.1);
+          padding: 1rem;
+          border-radius: 8px;
+
+          .replying-to-label {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+
+            .target-name {
+              color: $accent-color;
+            }
+          }
+
+          .reply-textarea-home {
+            margin: 0.5rem 0;
+            width: 100%;
+          }
+
+          .reply-actions-home {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+
+            .cancel-reply-btn-home {
+              background: none;
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              color: white;
+              padding: 0.25rem 0.5rem;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+
+            .submit-reply-btn-home {
+              background: $accent-color;
+              color: white;
+              border: none;
+              padding: 0.25rem 0.5rem;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+
+  .blog-detail-content {
+    flex-direction: column;
+    height: auto;
+
+    .detail-left-home, .detail-right-home {
+      width: 100%;
+      flex: none;
+      height: auto;
+    }
+
+    .detail-left-home {
+      height: 300px;
+    }
+  }
+
+  .blog-detail-dialog {
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+  
+  .el-dialog__title {
+    font-size: 1.5rem !important;
+  }
+  
+  .blogos-detail-header, 
+  .blogos-detail-content, 
+  .blogos-interactions, 
+  .blogos-comments-section {
+    padding: 1rem !important;
+  }
+  
+  .blogos-image-carousel .el-carousel {
+    height: 250px !important;
+  }
+  
+  .blogos-text-content {
+    padding: 1rem !important;
+  }
+  
+  .blogos-detail-content {
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+}
+
+// 博客详情内容容器
+.blogos-detail-container {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 2rem !important;
+  background: linear-gradient(180deg, #20232c, #2a2d3a) !important;
+}
+
+// 博客详情头部
+.blogos-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  position: relative !important;
+  
+  &::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 2rem !important;
+    right: 2rem !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.1), 
+      transparent) !important;
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+// 作者容器
+.blogos-author-container {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+.blogos-author-info {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.blogos-author-name {
+  font-size: 1.6rem !important;
+  font-weight: 600 !important;
+  color: #f8f9fa !important;
+  margin: 0 0 0.2rem 0 !important;
+
+  @media (max-width: 768px) {
+    font-size: 1.2rem !important;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 1rem !important;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1rem !important;
+  }
+}
+
+.blogos-publish-date {
+  font-size: 1.6rem !important;
+  color: #adb5bd !important;
+
+  @media (max-width: 768px) {
+    font-size: 1rem !important;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem !important;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.6rem !important;
+  }
+}
+
+// 分类容器
+.blogos-categories-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+}
+
+.blogos-detail-category {
+  background: linear-gradient(135deg, rgba(100, 179, 244, 0.3), rgba(100, 179, 244, 0.1)) !important;
+  color: #f8f9fa !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 20px !important;
+  font-size: 1.6rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  border: 1px solid rgba(100, 179, 244, 0.3) !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+    background: linear-gradient(135deg, rgba(100, 179, 244, 0.4), rgba(100, 179, 244, 0.2)) !important;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 1rem !important;
+  }
+
+  @media (max-width: 576px) {
+    font-size: 0.8rem !important;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.6rem !important;
+  }
+}
+
+// 图片区域样式
+.blogos-image-carousel, .blogos-featured-image {
+  width: 100% !important;
+  margin: 0.5rem 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.blogos-featured-image img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+  aspect-ratio: 16/9 !important;
+  display: block !important;
+  transition: transform 0.5s ease !important;
+}
+
+.carousel-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transition: transform 0.5s ease !important;
+  
+  &:hover {
+    transform: scale(1.02) !important;
+  }
+}
+
+// 博客内容区域
+.blogos-detail-content {
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  margin-left: 2rem !important;
+  margin-right: 2rem !important;
+  padding: 2rem !important;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.blogos-text-content {
+  font-size: 1.6rem !important;
+  line-height: 1.8 !important;
+  color: #dee2e6 !important;
+  white-space: pre-line !important;
+  letter-spacing: 0.03em !important;
+  text-align: justify !important;
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem !important;
+    line-height: 1.6 !important;
+  }
+}
+
+// 标签区域
+.blogos-tags-container {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.75rem !important;
+  margin-top: 1rem !important;
+  
+  h4 {
+    font-size: 1.2rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    color: #f8f9fa !important;
+    position: relative !important;
+    display: inline-block !important;
+    padding-bottom: 0.5rem !important;
+    
+    &::after {
+      content: '' !important;
+      position: absolute !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 40px !important;
+      height: 2px !important;
+      background: linear-gradient(90deg, rgba(100, 179, 244, 0.8), transparent) !important;
+    }
+  }
+}
+
+.blogos-tag-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0.75rem !important;
+}
+
+.blogos-tag {
+  background: linear-gradient(135deg, rgba(194, 229, 156, 0.3), rgba(194, 229, 156, 0.1)) !important;
+  color: #e9ecef !important;
+  padding: 0.4rem 1rem !important;
+  border-radius: 20px !important;
+  font-size: 0.9rem !important;
+  transition: all 0.25s ease !important;
+  display: inline-block !important;
+  border: 1px solid rgba(194, 229, 156, 0.3) !important;
+  
+  &:hover {
+    transform: translateY(-2px) !important;
+    background: linear-gradient(135deg, rgba(194, 229, 156, 0.4), rgba(194, 229, 156, 0.2)) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+// 交互区域
+.blogos-interactions {
+  padding: 1.5rem 2rem !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  position: relative !important;
+}
+
+.blogos-interaction-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.blogos-interaction-left,
+.blogos-interaction-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.interaction-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background: none;
+  border: none;
+  color: #dee2e6;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(100, 179, 244, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  &.active {
+    background: rgba(100, 179, 244, 0.2);
+    color: #64b3f4;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgba(100, 179, 244, 0.2);
+  }
+}
+
+.like-btn.active i {
+  animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+// 评论区域
+.blogos-comments-section {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+.blogos-comments-title {
+  font-size: 1.5rem !important;
+  font-weight: 600 !important;
+  margin: 0 !important;
+  color: #f8f9fa !important;
+  position: relative !important;
+  
+  &::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -8px !important;
+    left: 0 !important;
+    width: 50px !important;
+    height: 2px !important;
+    background: linear-gradient(90deg, rgba(194, 229, 156, 0.8), transparent) !important;
+  }
+}
+
+.blogos-comment-input-container {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  padding: 1.2rem !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+}
+
+.blogos-comment-user-avatar {
+  flex-shrink: 0 !important;
+  
+  img {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 2px solid rgba(100, 179, 244, 0.3) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2) !important;
+    
+    @media (max-width: 576px) {
+      width: 32px !important;
+      height: 32px !important;
+    }
+  }
+}
+
+.blogos-comment-input {
+  flex: 1;
+  
+  textarea {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(100, 179, 244, 0.2) !important;
+    border-radius: 8px !important;
+    color: #e9ecef !important;
+    resize: none !important;
+    
+    &:focus {
+      border-color: rgba(100, 179, 244, 0.6) !important;
+      box-shadow: 0 0 0 2px rgba(100, 179, 244, 0.2) !important;
+    }
+  }
+}
+
+.blogos-post-comment-btn {
+  margin-top: 10px !important;
+  background: linear-gradient(135deg, #64b3f4, #c2e59c) !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  border-radius: 20px !important;
+  transition: all 0.3s ease !important;
+  font-weight: 500 !important;
+  
+  &:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 5px 15px rgba(100, 179, 244, 0.3) !important;
+  }
+}
+
+.blogos-login-to-comment {
+  text-align: center !important;
+  padding: 1.5rem !important;
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  
+  p {
+    color: #adb5bd !important;
+    margin: 0 !important;
+  }
+  
+  a {
+    color: #64b3f4 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    
+    &:hover {
+      text-decoration: underline !important;
+    }
+  }
+}
+
+.blogos-comments-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+  margin-top: 1.5rem !important;
+  
+}
+
+.blogos-comment-item {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 1.2rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s ease !important;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.07) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.blogos-comment-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 0.8rem !important;
+}
+
+.blogos-comment-user {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.8rem !important;
+}
+
+.blogos-comment-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  border: 2px solid rgba(194, 229, 156, 0.3) !important;
+}
+
+.blogos-comment-username {
+  font-weight: 500 !important;
+  color: #f8f9fa !important;
+}
+
+.blogos-comment-date {
+  font-size: 0.85rem !important;
+  color: #adb5bd !important;
+}
+
+.blogos-comment-content {
+  color: #dee2e6 !important;
+  margin-bottom: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.blogos-comment-actions {
+  display: flex !important;
+  gap: 1rem !important;
+}
+
+.blogos-comment-action-btn {
+  background: none !important;
+  border: none !important;
+  color: #adb5bd !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.4rem 0.8rem !important;
+  border-radius: 16px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-size: 0.9rem !important;
+  
+  &:hover {
+    color: #dee2e6 !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+  
+  &.active {
+    color: #c2e59c !important;
+  }
+  
+  &.delete-btn {
+    color: #ff6b6b !important;
+    
+    &:hover {
+      background: rgba(255, 99, 99, 0.1) !important;
+    }
+  }
+}
+
+.no-comments {
+  text-align: center !important;
+  padding: 2rem !important;
+  color: #adb5bd !important;
+  font-style: italic !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 8px !important;
+  margin-top: 1rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* 微动画效果 */
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* 加载状态的动画 */
+.blogos-loading-blogs {
+  text-align: center;
+  padding: 2rem;
+  
+  .blogos-loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: rgba(150, 150, 150, 0.7);
+    animation: spin 1s ease-in-out infinite;
+  }
+  
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+}
+
+@media (max-width: 480px) {
+  .blog-detail-dialog {
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+  }
+  
+  .el-dialog__body {
+    max-height: calc(100vh - 60px) !important;
+  }
+  
+  .el-dialog__title {
+    font-size: 1.3rem !important;
+  }
+  
+  .blogos-image-carousel .el-carousel {
+    height: 200px !important;
+  }
+  
+  .blogos-tag {
+    font-size: 0.8rem !important;
+    padding: 0.3rem 0.8rem !important;
+  }
+  
+  .blogos-detail-content {
+    padding: 1rem !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+  }
+  
+  .blogos-comment-actions {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .blog-filter-bar {
+    flex-direction: row;
+    overflow-x: auto;
+    align-items: stretch;
+    padding-bottom: 10px; /* 为滚动条留出空间 */
+  }
+  
+  .blogos-search-container {
+    max-width: 200px;
+    min-width: 150px;
+  }
+  
+  .blogos-filter-options {
+    justify-content: space-between;
+  }
+  
+  .blogos-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .blogos-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .blogos-categories-container {
+    align-self: flex-start;
+  }
+  
+  .blogos-interaction-bar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .blogos-interaction-right {
+    justify-content: flex-start;
+  }
+  
+  .blogos-comment-header {
+    flex-wrap: wrap;
+  }
+  
+  .blogos-submit-comment-btn {
+    width: 100%;
+    float: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-options {
+    flex-direction: column;
+  }
+  
+  .blogos-filter-select {
+    width: 100%;
+  }
+  
+  .blogos-card-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .blogos-card-footer {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .nav-container {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .blogos-post-title {
+    font-size: 1.3rem;
+  }
+  .blogos-meta-line {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
