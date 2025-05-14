@@ -47,5 +47,9 @@ onMounted(() => {
 <style lang="scss">
 .wallet-item {
   cursor: pointer;
+  a{
+    text-decoration: none;
+    color: #fff;
+  }
 }
 </style>
