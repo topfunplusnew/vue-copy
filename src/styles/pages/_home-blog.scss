@@ -238,7 +238,10 @@ $border-color: rgba(100, 179, 244, 0.2);
             margin-bottom: rpx(8);
             
             &.active, &:hover {
-              background: rgba(255, 255, 255, 0.5);
+              background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
+              backdrop-filter: blur(10px);
+              color: rgb(2, 2, 2);
+              font-weight: bold;
             }
 
             .filter-icon {
