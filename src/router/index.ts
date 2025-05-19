@@ -61,7 +61,7 @@ const router = createRouter({
       component: () => import('@/views/user/forget-password.vue'),
     },
     {
-      path: '/userpage',
+      path: '/userpage/:id?',
       name: 'userpage',
       component: () => import('@/views/user/user-page.vue'),
     },

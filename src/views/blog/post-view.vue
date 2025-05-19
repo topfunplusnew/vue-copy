@@ -3,10 +3,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import postPreview from './post-preview.vue';
 import { Plus, Delete } from '@element-plus/icons-vue';
-import { ElMessage, ElMessageBox, type UploadFile } from 'element-plus';
+import { ElMessage, ElMessageBox, type UploadFile, type FormInstance } from 'element-plus';
 import { useBlogStore } from '@/stores/blog';
 import { useUserStore } from '@/stores/user';
-import commonHeader from '@/layout/common-header.vue';
+// import commonHeader from '@/layout/common-header.vue';
 import { getImageUrl } from '@/utils';
 import { destinations } from '@/utils/destinations';
 
@@ -14,7 +14,14 @@ const props = defineProps({
   id: {
     type: Number
   },
+  modelValue: {
+    type: Boolean,
+    default: false,
+  },
 });
+const emit = defineEmits(['update:modelValue']);
+
+
 
 const store = useBlogStore();
 const userStore = useUserStore();
@@ -27,13 +34,29 @@ const commentPermission = computed(() => store.commentPermission); // 评论权�
 const tagInput = ref('');
 const router = useRouter();
 const showPreview = ref(false);
+const formRef = ref<FormInstance>();
 
+const visible = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value),
+});
+// const closeDialog = () => {
+//   visible.value = false;
+// };
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm('Are you sure to close this dialog?')
+    .then(() => {
+      done();
+    })
+    .catch(() => {
+      // catch error
+    });
+};
 
 // 处理目的地选择变更
 const handleDestinationsChange = (values: string[]) => {
   createData.value.location = values;
 };
-
 
 // 添加切换偏好的方法
 const togglePreference = (id: number) => {
@@ -45,7 +68,6 @@ const togglePreference = (id: number) => {
   }
 };
 
-
 // 显示登录确认弹窗
 const showLoginConfirm = () => {
   return ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
@@ -55,36 +77,50 @@ const showLoginConfirm = () => {
   });
 };
 
+// 表单验证规则
+const rules = {
+  title: [
+    { required: true, message: 'Please enter a title for your post', trigger: 'blur' },
+    { max: 50, message: 'Title should not exceed 50 characters', trigger: 'blur' }
+  ],
+  content: [
+    { required: true, message: 'Please add some content to your post', trigger: 'blur' }
+  ],
+  image: [
+    {
+      validator: (rule: object, value: string[], callback: (error?: Error) => void) => {
+        if (createData.value.image.length === 0) {
+          callback(new Error('Please upload at least one image'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'change'
+    }
+  ],
+  social_filters: [
+    {
+      validator: (rule: object, value: number[], callback: (error?: Error) => void) => {
+        if (createData.value.social_filters.length === 0) {
+          callback(new Error('Please select at least one category'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'change'
+    }
+  ]
+};
+
 // 修改预览按钮点击处理
-const handlePreviewClick = () => {
-  if (!createData.value.title.trim()) {
-    ElMessageBox.alert('Please enter a title for your post', 'Title Required', {
-      confirmButtonText: 'OK',
-      type: 'warning',
-      center: true,
-    });
-    return;
+const handlePreviewClick = async () => {
+  try {
+    await formRef.value?.validate();
+    showPreview.value = true;
+  } catch (error) {
+    // 验证将直接显示错误信息
+    console.error('错误', error);
   }
-
-  if (!createData.value.content.trim()) {
-    ElMessageBox.alert('Please add some content to your post', 'Content Required', {
-      confirmButtonText: 'OK',
-      type: 'warning',
-      center: true,
-    });
-    return;
-  }
-
-  if (createData.value.image.length === 0) {
-    ElMessageBox.alert('Please upload at least one image', 'Image Required', {
-      confirmButtonText: 'OK',
-      type: 'warning',
-      center: true,
-    });
-    return;
-  }
-
-  showPreview.value = true;
 };
 
 // 修改图片上传处理
@@ -115,6 +151,7 @@ const handleImageUpload = async (file: UploadFile) => {
       type: 'success',
       duration: 2000,
     });
+    formRef.value?.validateField('image');
   }).catch(error =>{
     if (error.response?.status === 401) {
       ElMessage({
@@ -135,16 +172,15 @@ const handleImageUpload = async (file: UploadFile) => {
 
 const removeImage = (index: number) => {
   createData.value.image.splice(index, 1);
+  formRef.value?.validateField('image');
 };
 
 // 修改：标签处理函数
 const handleTagInput = () => {
-
   const value = tagInput.value.trim();
 
   // 如果输入为空则返回
   if (!value) return;
-
 
   // 检查标签长度（不包括#号）
   if (value.length > 15) {
@@ -175,67 +211,69 @@ const saveDraft = () => {
   console.log('Draft Saved:', createData.value.title);
 };
 
-// const selectReplyOption = (option: number) => {
-//   createData.value.comment_permission = option;
-// };
-
 // 修改发布博客处理
-function postTweet() {
-  if (!createData.value.title || !createData.value.content) {
-    ElMessage.warning('Please add title and content');
-    return;
-  }
-  ElMessageBox.confirm('Are you sure you want to publish this blog?', 'Confirm Publication', {
-    confirmButtonText: 'Publish',
-    cancelButtonText: 'Continue Editing',
-    type: 'info',
-  }).then(() =>{
-    store.userPostblog().then(() =>{
-      ElMessage.success('Blog posted successfully');
-      router.push({ name: 'userpage' });
-    }).catch(error =>{
-      if (error.response?.status === 401) {
-        ElMessage.error('Session expired, please login again');
-        router.push({ name: 'login' });
-      }
-      ElMessage.error('Failed to post blog');
+async function postTweet() {
+  try {
+    await formRef.value?.validate();
+
+    ElMessageBox.confirm('Are you sure you want to publish this blog?', 'Confirm Publication', {
+      confirmButtonText: 'Publish',
+      cancelButtonText: 'Continue Editing',
+      type: 'info',
+    }).then(() => {
+      store.userPostblog().then(() => {
+        ElMessage.success('Blog posted successfully');
+        router.push({ name: 'userpage' });
+      }).catch(error => {
+        if (error.response?.status === 401) {
+          ElMessage.error('Session expired, please login again');
+          router.push({ name: 'login' });
+        }
+        ElMessage.error('Failed to post blog');
+      });
     });
-  });
+  } catch (error) {
+    console.error('错误', error);
+  }
 };
 
-function editTweet() {
-  if (!createData.value.title || !createData.value.content) {
-    ElMessage.warning('Please add title and content');
-    return;
-  }
-  ElMessageBox.confirm('Are you sure you want to edit this blog?', 'Confirm Publication', {
-    confirmButtonText: 'Edit',
-    cancelButtonText: 'Continue Editing',
-    type: 'info',
-  }).then(() =>{
-    store.editmyblog().then(() =>{
-      ElMessage.success('Blog posted successfully');
-      router.push({ name: 'userpage' });
-    }).catch(error =>{
-      if (error.response?.status === 401) {
-        ElMessage.error('Session expired, please login again');
-        router.push({ name: 'login' });
-      }
-      ElMessage.error('Failed to post blog');
+async function editTweet() {
+  try {
+    await formRef.value?.validate();
+
+    ElMessageBox.confirm('Are you sure you want to edit this blog?', 'Confirm Publication', {
+      confirmButtonText: 'Edit',
+      cancelButtonText: 'Continue Editing',
+      type: 'info',
+    }).then(() => {
+      store.editmyblog().then(() => {
+        ElMessage.success('Blog posted successfully');
+        router.push({ name: 'userpage' });
+      }).catch(error => {
+        if (error.response?.status === 401) {
+          ElMessage.error('Session expired, please login again');
+          router.push({ name: 'login' });
+        }
+        ElMessage.error('Failed to post blog');
+      });
     });
-  });
+  } catch (error) {
+    console.error('错误', error);
+  }
 };
 
 // 添加计算属性来判断是否可以预览
 const canPreview = computed(() => {
-  return createData.value.title.trim() !== '' && createData.value.image.length > 0;
+  return createData.value.title.trim() !== '' &&
+         createData.value.content.trim() !== '' &&
+         createData.value.image.length > 0 &&
+         createData.value.social_filters.length > 0;
 });
 
 // 添加关闭预览的函数
 const closePreview = () => {
   showPreview.value = false;
 };
-
 
 onMounted(async () => {
   await store.getSocialFilter();
@@ -244,10 +282,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="background-layer"></div>
-  <!-- 保留公共头部 -->
-  <div class="home">
-    <common-header />
+  <el-dialog
+  v-model="visible"
+  title="Post Your Blog"
+  width="60%"
+  :fullscreen="false"
+  :before-close="handleClose"
+  class="post-view-dialog"
+  >
 
     <el-main class="post-content">
       <!-- 内容卡片 -->
@@ -267,10 +309,17 @@ onMounted(async () => {
         </template>
 
         <!-- 博客创建表单 -->
-        <el-form :model="createData" label-position="top">
+        <el-form
+          :model="createData"
+          label-position="top"
+          :rules="rules"
+          ref="formRef"
+        >
           <!-- 标题输入 -->
           <el-form-item
-            label="Title">
+            label="Title"
+            prop="title"
+          >
             <el-input
               v-model="createData.title"
               type="textarea"
@@ -282,7 +331,10 @@ onMounted(async () => {
           </el-form-item>
 
           <!-- 社交筛选器 -->
-          <el-form-item label="Categories">
+          <el-form-item
+            label="Categories"
+            prop="social_filters"
+          >
             <div class="filter-tags">
               <el-tag
                 v-for="option in socialFilters"
@@ -299,7 +351,10 @@ onMounted(async () => {
           </el-form-item>
 
           <!-- 内容输入 -->
-          <el-form-item label="Content">
+          <el-form-item
+            label="Content"
+            prop="content"
+          >
             <el-input
               v-model="createData.content"
               type="textarea"
@@ -309,7 +364,10 @@ onMounted(async () => {
           </el-form-item>
 
           <!-- 图片上传 -->
-          <el-form-item label="Photos">
+          <el-form-item
+            label="Photos"
+            prop="image"
+          >
             <div class="upload-section">
               <el-upload
                 class="image-uploader"
@@ -324,18 +382,18 @@ onMounted(async () => {
                   Select Images
                 </el-button>
               </el-upload>
-              <span class="upload-hint" 
+              <span class="upload-hint"
                 v-if="!createData.image.length">Upload up to 9 images,
                 double click to delete</span>
             </div>
 
             <!-- 图片展示区域 -->
             <div class="images-gallery" v-if="createData.image.length">
-              <div v-for="(image, index) in createData.image" 
+              <div v-for="(image, index) in createData.image"
               :key="index" class="image-item">
                 <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
                 <div class="image-overlay">
-                  <button class="delete-btn" 
+                  <button class="delete-btn"
                   @click.stop="removeImage(index)" title="Remove image">
                     <el-icon><Delete /></el-icon>
                   </button>
@@ -346,7 +404,7 @@ onMounted(async () => {
           </el-form-item>
 
           <!-- 标签输入 -->
-          <el-form-item label="Tags">
+          <el-form-item prop="tags" label="Tags">
             <!-- 标签输入区域 -->
             <div class="tag-input-wrapper">
               <el-input
@@ -388,10 +446,9 @@ onMounted(async () => {
               placeholder="Select destinations"
               @change="handleDestinationsChange"
               style="max-width: 500px; width: 100%;">
-              <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label" 
+              <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label"
               :value="dest.value" />
             </el-select>
-
           </el-form-item>
 
           <!-- 评论权限 -->
@@ -429,7 +486,6 @@ onMounted(async () => {
       </el-card>
     </el-main>
 
-
     <!-- 预览组件 -->
     <post-preview
       v-if="showPreview"
@@ -442,7 +498,13 @@ onMounted(async () => {
       :location="createData.location"
       @close="closePreview"
     />
-  </div>
-</template>
+    <!-- <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="closeDialog">Cancel</el-button>
+        <el-button type="primary" @click="postTweet">Post</el-button>
+      </span>
+    </template> -->
+  </el-dialog>
 
+</template>
 

@@ -11,12 +11,12 @@ import CommentSection from './blog-detail-comment.vue';
 const router = useRouter();
 const dialogWidth = ref('90%');
 const props = defineProps({
-  blogId: {
-    type: Number,
-    required: true
-  },
   visible: {
     type: Boolean,
+    required: true
+  },// 接收 v-model 传递的 visible
+  blogId: {
+    type: Number,
     required: true
   }
 });
@@ -27,7 +27,6 @@ const store = useBlogStore();
 const userStore = useUserStore();
 
 const selectedBlog = computed(() => store.blog);
-const currentImageIndex = ref(0);
 const newComment = ref('');
 
 // 评论相关的状态
@@ -35,6 +34,72 @@ const replyContent = ref('');
 const expandedReplies = ref<number[]>([]);
 const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
 const expandedComments = ref<number[]>([]);
+
+
+const isLiked = ref(false);
+const likesCount = ref(0);
+// 初始化点赞状态
+watch(() => selectedBlog.value, (newBlog) => {
+  if (newBlog?.id) {
+    likesCount.value = newBlog.likes || 0;
+    // 检查用户是否已经点赞
+    checkLikeStatus(newBlog.id);
+  }
+}, { immediate: true });
+
+// 检查点赞状态
+const checkLikeStatus = async (blogId: number) => {
+  if (!blogId || !userStore.isLogin()) {
+    isLiked.value = false;
+    return;
+  }
+
+  try {
+    const response = await store.checkUserLike(blogId);
+    isLiked.value = response.data.has_liked;
+  } catch (error) {
+    console.error('Failed to check like status:', error);
+    isLiked.value = false;
+  }
+};
+
+// 处理点赞
+const handleLike = async () => {
+  if (!selectedBlog.value?.id) return;
+
+  if (!userStore.isLogin()) {
+    ElMessageBox.confirm(
+      'You need to login to like this post. Would you like to login now?',
+      'Login Required',
+      {
+        confirmButtonText: 'Go to Login',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+    ).then(() => {
+      router.push({ name: 'login' });
+    });
+    return;
+  }
+
+  if (isLiked.value) {
+    ElMessage.info('You have already liked this post');
+    return;
+  }
+
+  try {
+    await store.likeBlog(selectedBlog.value.id);
+    isLiked.value = true;
+    likesCount.value += 1;
+    ElMessage.success('Liked successfully');
+  } catch (error) {
+    console.error('Failed to like blog:', error);
+    ElMessage.error('Failed to like blog');
+  }
+};
+
+
+
 
 // 关注状态
 const isFollowing = ref(false);
@@ -46,10 +111,11 @@ const isOwnPost = computed(() => {
   return String(userStore.user.id) === String(selectedBlog.value.user.id);
 });
 
-watch(() => props.visible, async (newVal) => {
-  if (newVal && props.blogId > 0) {
-    currentImageIndex.value = 0;
-    // await store.getBlogByID(props.blogId);  //加上请求会重复
+watch(() => props.blogId, async (newVal) => {
+  if (newVal > 0) {
+    console.log('通过获取博客ID:', newVal);
+    await store.getBlogByID(newVal);
+    console.log('博客已获取:', selectedBlog.value);
 
     // 重置评论区状态
     expandedReplies.value = [];
@@ -89,24 +155,13 @@ const checkFollowStatus = async (userId: number) => {
 };
 
 const closeDialog = () => {
-  emit('update:visible', false);
+  emit('update:visible', false);// 通知父组件隐藏对话框
   setTimeout(() => {
-    router.push('/Home');
+    router.go(-1);
     emit('close');
   }, 100);
 };
 
-const prevImage = () => {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
-  }
-};
-
-const nextImage = () => {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
-  }
-};
 //回复帖子
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
@@ -160,7 +215,16 @@ const handleImageError = (event: Event) => {
   target.src = '/path/to/fallback-image.jpg';
   target.classList.add('image-error');
 };
-
+// 编辑按钮
+const handleEditClick = () => {
+  if (!selectedBlog.value?.id) {
+    ElMessage.error('Blog ID is not available');
+    return;
+  }
+  // 跳转到编辑博客的页面
+  // router.push({ name: 'edit-blog', params: { id: selectedBlog.value.id } });
+  console.log('编辑博客', selectedBlog.value.id);
+};
 
 const handleFollowClick = async (id?: number) => {
   if (!id) return;
@@ -200,6 +264,7 @@ const handleFollowClick = async (id?: number) => {
           height="100%">
           <el-carousel-item v-for="(image, index) in selectedBlog.image" :key="index">
             <div class="carousel-item-home">
+              <div class="image-background" :style="{ backgroundImage: `url(${getImageUrl(image)})` }"></div>
               <img
                 :src="getImageUrl(image)"
                 alt="Blog Image"
@@ -208,16 +273,11 @@ const handleFollowClick = async (id?: number) => {
               />
             </div>
           </el-carousel-item>
-          <div class="carousel-nav">
-            <button class="nav-btn prev" @click="prevImage">←</button>
-            <button class="nav-btn next" @click="nextImage">→</button>
-          </div>
         </el-carousel>
       </div>
 
       <!-- 右侧内容区域 -->
       <div class="detail-right-home" ref="detailRight">
-        <!-- <button class="close-button-home" @click="closeDialog">×</button> -->
         <!-- 用户信息和标题 -->
         <div class="user-header-home">
           <div class="author-container">
@@ -238,6 +298,16 @@ const handleFollowClick = async (id?: number) => {
                 <span class="follow-icon">+</span>
                 <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
               </el-button>
+              <!-- 编辑按钮 -->
+              <el-button
+                v-else
+                class="edit-btn"
+                size="small"
+                @click="handleEditClick"
+              >
+                <span class="edit-icon">✏️</span>
+                <span class="edit-text">Edit</span>
+              </el-button>
             </div>
           </div>
           <!-- 分类 -->
@@ -250,14 +320,30 @@ const handleFollowClick = async (id?: number) => {
 
         <!-- 博客内容 -->
         <div class="content-section-home">
+          <p class="blog-content-title">{{ selectedBlog?.title }}</p>
           <p class="blog-content-home">{{ selectedBlog?.content }}</p>
         </div>
 
+
+
+        <!-- 评论部分 -->
+        <CommentSection
+          v-if="selectedBlog?.id && blogId > 0"
+          v-model="selectedBlog.comments"
+          :blogId="currentBlogId"
+          :visible="visible"
+        />
         <!-- 统计信息栏 -->
         <div class="stats-bar-home">
           <!-- 统计信息 -->
           <div class="stats-info-home">
-            <span class="likes-home">❤️ {{ selectedBlog?.likes }}</span>
+            <span
+              class="likes-home"
+              @click="handleLike"
+              :class="{ 'liked': isLiked }"
+            >
+              {{ isLiked ? '❤️' : '🤍' }} {{ likesCount }}
+            </span>
             <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
             <span class="coins-home" v-if="selectedBlog?.isNFT">₿ {{ selectedBlog?.coins }}</span>
           </div>
@@ -280,15 +366,6 @@ const handleFollowClick = async (id?: number) => {
             </button>
           </div>
         </div>
-
-        <!-- 评论部分 -->
-        <CommentSection
-          v-if="selectedBlog?.id && blogId > 0"
-          :blogId="currentBlogId"
-          :comments="selectedBlog.comments || []"
-          :visible="visible"
-          @update:comments="selectedBlog && (selectedBlog.comments = $event)"
-        />
       </div>
     </div>
   </el-dialog>

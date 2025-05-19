@@ -903,8 +903,13 @@ const toggleMenu = () => {
                   alt="Commenter Avatar"
                   class="comment-avatar"
                 />
-                <span class="comment-username">{{ comment.user.name }}</span>
-                <p class="comment-text">{{ comment.content }}</p>
+                <div class="comment-content-wrapper">
+                  <span class="comment-username">{{ comment.user.name }}</span>
+                  <p class="comment-text" @click.stop.prevent="toggleReplyInput(comment.id, 'comment')">
+                    {{ comment.content }}
+                  </p>
+                </div>
+
 
                 <!-- 删除指示器 -->
                 <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
@@ -943,21 +948,22 @@ const toggleMenu = () => {
                       class="reply-avatar"
                     />
                     <div class="reply-info">
-                      <div class="reply-header">
+                      <!-- 顶部显示用户名和 replying to -->
+                      <div class="reply-header-line">
                         <span class="reply-username-home">{{ reply.user.name }}</span>
-                        <span class="replying-to">replying to</span>
                         <span class="target-name-show">@{{ comment.user.name }}</span>
-                        <div class="reply-content-wrapper">
-                          <p class="reply-text-home"
-                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
-                          <!-- 回复到回复的图标 -->
-                          <el-tooltip content="Reply to this reply" placement="top">
-                            <span class="reply-icon-reply-to-reply"
-                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
-                          </el-tooltip>
-                        </div>
+                      </div>
+
+                      <!-- 回复内容单独一行 -->
+                      <div class="reply-content-wrapper">
+                        <p class="reply-text-home"
+                          @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">
+                          {{ reply.content }}
+                        </p>
+
                       </div>
                     </div>
+
                   </div>
                   <!-- 添加查看更多回复按钮 -->
                 </div>

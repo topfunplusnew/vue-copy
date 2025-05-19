@@ -551,13 +551,20 @@ $border-color: rgba(100, 179, 244, 0.2);
         
         /* 统计信息栏 */
         .stats-bar-home {
-          height: 60px;
-          background: #f8f8f8;
+          position: fixed; // 固定在底部
+          bottom: 0; // 紧贴底部
+          left: 74%;
+        
+          transform: translateX(-50%); // 居中
+          width: calc(50% - 30px); // 与右侧内容区域相同宽度，减去padding
+          background: white;
+          padding: 10px 15px;
+          box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+          z-index: 1000;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 0 20px;
-          border-top: 1px solid #eee;
+          border-top: 1px solid #eee; 
           
           /* 统计信息 */
           .stats-info-home {
@@ -710,6 +717,25 @@ $border-color: rgba(100, 179, 244, 0.2);
               font-size: 20px;
               font-weight: bold;
               color: #555;
+            }
+            .edit-btn {
+              padding: 5px 12px;
+              margin-left: 8px;
+              background: linear-gradient(135deg, #4776E6, #8E54E9);
+              border: none;
+              border-radius: 30px;
+              color: white;
+              font-size: rpx(16);
+              font-weight: 600;
+              transition: all 0.3s ease;
+              box-shadow: 0 4px 8px rgba(142, 84, 233, 0.3);
+              
+              
+              &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(142, 84, 233, 0.4);
+                background: linear-gradient(135deg, #3A66D1, #7642D5);
+              }
             }
             
             .follow-btn {
@@ -1052,6 +1078,7 @@ $border-color: rgba(100, 179, 244, 0.2);
   overflow: hidden !important;
   max-width: 80% !important;
   width: 80% !important;
+  height: 95% !important;
   margin: 0 auto !important;
   display: flex !important;
   flex-direction: column !important;
@@ -1112,10 +1139,10 @@ $border-color: rgba(100, 179, 244, 0.2);
       color: $text-color !important;
     }
   }
-  
+  //一级评论
   .el-dialog__body {
     padding: 0 !important;
-    color: #e9ecef !important;
+    color: $secondary-bg !important;
     // overflow-y: auto !important;  /*滚动条*/
     max-height: 90vh !important;
     scrollbar-color: rgba($accent-color, 0.5) transparent !important;
@@ -1165,8 +1192,8 @@ $border-color: rgba(100, 179, 244, 0.2);
 // 主内容区
 .blog-detail-content {
   display: flex;
-  height: 100%;
-  height: calc(100vh - rpx(60));
+  height: 100vh;
+  // height: calc(100vh - rpx(60));
 
   // 左侧图片区
   .detail-left-home {
@@ -1174,20 +1201,48 @@ $border-color: rgba(100, 179, 244, 0.2);
     overflow: hidden;
 
     .carousel-home {
+      width: 100%;
       height: 100%;
       overflow: hidden;
+      // 走马灯样式
+      .el-carousel__arrow {
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        &:hover{
+          background-color: rgba(0, 0, 0, 0.7) !important;
+        }
+      }
 
       .carousel-item-home {
+        position: relative;
+        width: 100%;
         height: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: hidden;
 
         .detail-image-home {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          // object-fit: fill;  //平铺不保证宽高比
+          // object-fit: cover;  //平铺保证宽高比
+          object-fit: contain; //缩放被替换的内容以保持其宽高比，同时适合元素的内容框。
+          position: relative;
+          z-index: 2;
+          box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
+      }
+      .image-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-size: cover;
+        background-position: center;
+        filter: blur(8px);
+        opacity: 0.8;
+        z-index: 1;
       }
     }
   }
@@ -1197,8 +1252,10 @@ $border-color: rgba(100, 179, 244, 0.2);
     flex: 1;
     overflow-y: auto;/*滚动条*/
     padding: 1.5rem;
-    background: linear-gradient(180deg, #000000, $secondary-bg);
-
+    background: linear-gradient(180deg, #ffffff, $text-color); //右侧背景颜色
+    height: calc(100vh - rpx(60));
+    // 编辑按钮
+   
     // 用户信息区
     .user-header-home {
       margin-bottom: 1.5rem;
@@ -1217,15 +1274,34 @@ $border-color: rgba(100, 179, 244, 0.2);
         }
 
         .author-name-home {
-          color: $text-color;
+          color: $secondary-bg;
           font-size: 1.2rem;
           font-weight: 600;
+        }
+        .edit-btn {
+          padding: 5px 12px;
+          margin-left: 8px;
+          background: linear-gradient(135deg, #4776E6, #8E54E9);
+          border: none;
+          border-radius: 30px;
+          color: white;
+          font-size: rpx(16);
+          font-weight: 600;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 8px rgba(142, 84, 233, 0.3);
+          float: right;
+          
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(142, 84, 233, 0.4);
+            background: linear-gradient(135deg, #3A66D1, #7642D5);
+          }
         }
 
         .follow-btn {
           margin-left: auto;
           background: rgba($accent-color, 0.2);
-          color: white;
+          color: $secondary-bg;
           border: 1px solid rgba($accent-color, 0.3);
 
           &.following {
@@ -1243,7 +1319,7 @@ $border-color: rgba(100, 179, 244, 0.2);
 
         .tag-pref {
           background: rgba($accent-color, 0.2);
-          color: $text-color;
+          color:$secondary-bg;
           padding: 0.3rem 0.8rem;
           border-radius: rpx(20);
           font-size: 0.9rem;
@@ -1254,63 +1330,122 @@ $border-color: rgba(100, 179, 244, 0.2);
     // 博客内容区
     .content-section-home {
       margin-bottom: 2rem;
-
+      //博客内容标题
+      .blog-content-title{
+        color: #111;
+        font-weight: 600;
+        font-size: 1.8rem;
+        margin: 0;
+      }
       .blog-content-home {
-        color: $secondary-text;
-        font-size: 1.1rem;
+        color: $secondary-bg;
+        font-size: 1rem;
         line-height: 1.6;
         margin: 0;
+        text-align: justify;
+        text-justify: inter-word;
+        text-justify: inter-word;       /* 优先调整单词间距 */
+        hyphens: auto;                  /* 允许单词换行时用连字符断开 */
+        word-spacing: -0.05em;          /* 微调单词间距（可选） */
       }
     }
 
     // 统计信息区
     .stats-bar-home {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: rpx(8);
-      padding: 1rem;
-      margin-bottom: 1.5rem;
+      position: fixed; // 固定在底部
+      bottom: 0; // 紧贴底部
+      left: 74%;
+     
+      transform: translateX(-50%); // 居中
+      width: calc(50% - 30px); // 与右侧内容区域相同宽度，减去padding
+      background: white;
+      padding: 10px 15px;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #eee; 
+      // z-index: 1;
+      @media (max-width: 768px) {
+        width: calc(100% - 30px); // 在小屏幕上占满宽度
+        left: 50%;
+        transform: translateX(-50%);
+      }
 
       .stats-info-home {
         display: flex;
-        gap: 1.5rem;
-        margin-bottom: 1rem;
-
-        .likes-home, .comments-home, .coins-home {
-          color: #adb5bd;
-          font-size: 1rem;
+        gap: rpx(15);
+        // margin-bottom: 1rem;
+        span {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 14px;
           cursor: pointer;
+          transition: all 0.2s;
+    
+          &:hover {
+            transform: translateY(-2px);
+          }
+        }
+
+        .likes-home {
+          color: #e74c3c; // 红色
+        }
+    
+        .comments-home {
+          color: #3498db; // 蓝色
+        }
+    
+        .coins-home {
+          color: #f39c12; // 金色
         }
       }
 
       // 简化评论输入框
       .quick-comment-input {
         display: flex;
-        gap: 0.5rem;
+        align-items: center;
+        gap: 10px;
+        width: 60%;
 
         .comment-input-home {
           flex: 1;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba($accent-color, 0.3);
-          padding: 0.5rem;
-          border-radius: rpx(6);
-          color: $secondary-text;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 20px;
+          font-size: 14px;
+          transition: all 0.3s;
+          outline: none;
+
+          &:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+          }
         }
 
         .submit-quick-comment {
-          background: rgba($accent-color, 0.3);
-          border: 1px solid rgba($accent-color, 0.3);
+          background: #3498db;
           color: white;
-          border-radius: rpx(6);
-          padding: 0 rpx(1);
+          border: none;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
+          transition: all 0.2s;
 
-          &:hover {
-            background: rgba($accent-color, 0.5);
-            transform: translateY(-2px);
+          &:hover:not(:disabled) {
+            background: #2980b9;
+            transform: scale(1.05);
           }
 
-          &:active {
-            transform: translateY(0);
+          &:disabled {
+            background: #ccc;
+            cursor: not-allowed;
           }
         }
       }
@@ -1336,11 +1471,11 @@ $border-color: rgba(100, 179, 244, 0.2);
 
         h3 {
           margin: 0;
-          color: $text-color;
+          color: $secondary-bg;
         }
 
         .comment-count-home {
-          color: #adb5bd;
+          color: #a5a5a5;
         }
         i{
           width: rpx(20);
@@ -1355,6 +1490,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           display: flex;
           gap: 0.8rem;
           position: relative;
+          width: 100;
           &.long-press-active {
             background: rgba($accent-color, 0.1);
           }
@@ -1367,28 +1503,40 @@ $border-color: rgba(100, 179, 244, 0.2);
           }
 
           .comment-username-home {
-            color: $text-color;
+            color:$secondary-bg; //用户名的颜色
             font-weight: 500;
-            margin: 0;
+            margin-top: rpx(5);
+            text-align: left;
+            
+            
             .comment-text-home {
               color: $secondary-text;
+              overflow-wrap: break-word;
               line-height: 1.6;
               margin: 0;
+              text-align: start;
+              word-wrap: break-word;        /* 强制长词换行 */
+              word-break: break-word;       /* 控制长单词/URL 换行 */
+              white-space: normal;          /* 允许换行 */
+              overflow-wrap: break-word;    /* 现代浏览器支持 */
+              display: block;               /* 确保它占据整行（可选，根据布局） */
             }
           }
 
           .comment-content-wrapper {
+            flex: 1; /* 允许它在剩余空间中展开 */
+            min-width: 0; /* 防止 overflow 导致不换行 */
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            gap: 0.5rem; /* 控制用户名和评论内容之间的间距 */
+            // gap: 0.5rem; /* 控制用户名和评论内容之间的间距 */
             .comment-user-home {
               color: $text-color;
               font-weight: 500;
               margin-left: rpx(10);
             }
           
-
+          //回复图标的颜色
             .reply-icon {
               color: #6b6b6b;
               cursor: pointer;
@@ -1485,21 +1633,32 @@ $border-color: rgba(100, 179, 244, 0.2);
           margin-top: 1rem;
           .reply-item-home {
             .reply-row-home {
+              margin-top: rpx(10);
               display: flex;
               gap: 0.8rem;
               position: relative;
               .reply-content-wrapper {
                 display: flex;
-                flex-direction: column;
+                // flex-direction: column; //垂直分布
                 gap: 0.5rem; /* 控制用户名和回复内容之间的间距 */
+                //评论内容
                 .reply-text-home {
-                  color: $secondary-text;
+                  color: $secondary-bg;
                   line-height: 1.6;
                   margin: 0;
+                  
+                  word-wrap: break-word;     /* 允许长单词或URL断行 */
+                  word-break: break-word;    /* 强制在必要时换行 */
+                  white-space: normal;       /* 允许多行显示 */
+                  overflow-wrap: break-word; /* 更现代的换行方式 */
                 }
+                //@回复谁
                 .target-name-show{
-                  font-size: rpx(12);
-                  color: #adabab;
+                  margin-top: rpx(6);
+                  margin-left: rpx(-5);
+                  font-size: rpx(10);
+                  color: #b1b1b1;
+                 
                 }
               }
               .reply-avatar-home-view {
@@ -1509,18 +1668,21 @@ $border-color: rgba(100, 179, 244, 0.2);
                 object-fit: cover;
                 float: left;
               }
+              //回复图标
               .reply-icon-reply-to-reply{
-               color: #6b6b6b;
+               color: #858585;
                cursor: pointer;
                float: right;
               }
             }
           }
+          //二级回复用户名
           .reply-username-home{
             font-weight: 500;
-            color: $text-color;
+            color: $secondary-bg;
             margin: 0;
-            font-size: rpx(13);
+            font-size: rpx(15);
+            // font-weight: lighter;  //比父级更细一层
           }
           .target-name-show{
             float: left;
@@ -1570,11 +1732,15 @@ $border-color: rgba(100, 179, 244, 0.2);
 
             .cancel-reply-btn-home {
               background: none;
-              border: 1px solid rgba(255, 255, 255, 0.2);
-              color: white;
+              border: 1px solid rgba(255, 255, 255);
+              color: rgb(255, 255, 255);
               padding: 0.25rem 0.5rem;
               border-radius: rpx(4);
               cursor: pointer;
+              &:hover{
+                background: rgba(255, 255, 255, 0.2);
+                color: #111;
+              }
             }
 
             .submit-reply-btn-home {

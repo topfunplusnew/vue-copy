@@ -1059,17 +1059,19 @@
               display: flex;
               align-items: flex-start;
               gap: 10px;
+              margin-top: rpx(10);
+              
               
               .comment-avatar {
-                width: 28px;
-                height: 28px;
+                width: 30px;
+                height: 30px;
                 border-radius: 50%;
                 object-fit: cover;
                 flex-shrink: 0;
               }
               
               .comment-username {
-                font-size: 14px;
+                font-size: 18px;
                 font-weight: 500;
                 color: #333;
                 min-width: 80px;
@@ -1078,7 +1080,8 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                margin-top: 3px;
+                margin-bottom: 10px;
+                
               }
               
               .comment-text {
@@ -1949,9 +1952,11 @@
     display: flex;
     align-items: flex-start;
     gap: 10px;
+    margin-top: rpx(10);
+    margin-left: rpx(20);
     .reply-avatar {
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
     }
 
     .reply-info {
@@ -1959,18 +1964,30 @@
       flex-direction: column;
       flex: 1;
       padding-top: 25px;
+      .reply-header-line{
+
+        .reply-username-home {
+          font-weight: 500;
+          font-size: 14px;
+          color: #333;
+          margin-right: 10px;
+          margin-top: 50px;
+        }
+        .target-name-show {
+          font-size: 10px;
+          color: #b7b8b9;
+          font-weight: 500;
+          margin-right: 0;
+          margin-top: 3px;
+        }
+      }
       
       .reply-header {
         display: flex;
         align-items: center;
         margin-bottom: 2px;
         
-        .reply-username-home {
-          font-weight: 500;
-          color: #333;
-          margin-right: 10px;
-          margin-top: -30px;
-        }
+        
         
         .replying-to {
           font-size: 11px;
@@ -1979,13 +1996,7 @@
           margin-top: -30px;
         }
         
-        .target-name-show {
-          font-size: 12px;
-          color: #4e6ef2;
-          font-weight: 500;
-          margin-right: 0;
-          margin-top: -30px;
-        }
+        
         
         .reply-content-wrapper{
           flex: 1;
