@@ -10,6 +10,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
 import type { IBlogComment } from '@/types/blog';
+import commonHeader from '@/layout/common-header.vue';
 
 // import commonHeader from '@/layout/common-header.vue';
 
@@ -76,7 +77,6 @@ const closeBlogDetail = () => {
   store.clearSelectedPost();
   document.body.style.overflow = '';
 };
-
 
 function handleScroll() {
   const container = postsContainer.value;
@@ -424,6 +424,7 @@ const submitReply = async () => {
     isSubmittingReply.value = false;
   }
 };
+
 function scrollToComments() {
   const commentsSection = document.querySelector('.comments-container') as HTMLElement;
   const detailRight = document.querySelector('.detail-right');
@@ -498,9 +499,23 @@ const toggleMenu = () => {
 </script>
 
 <template>
+<div class="background-layer"></div>
+<div class="about layout-main">
+  <commonHeader />
 
   <div class="user-page">
-    <!-- 顶部导航栏 -->
+    <!-- 编辑模式按钮，直接放在 user-page 容器下 -->
+    <div class="nav-edit">
+      <el-button
+        class="edit-mode-btn"
+        :type="isEditMode ? 'primary' : 'default'"
+        @click="toggleEditMode"
+      >
+        {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
+      </el-button>
+    </div>
+    
+    <!-- 顶部导航栏 - 移除了编辑按钮 -->
     <header class="header-userpage">
       <div class="nav-container-userpage" :class="{ 'menu-active-userpage': menuActive }">
         <div class="nav-left">
@@ -509,32 +524,6 @@ const toggleMenu = () => {
             <span v-if="menuActive">✕</span>
             <span v-else>☰</span>
           </button>
-
-          <div class="left-nav-userpage" :class="{ 'active-userpage': menuActive }">
-            <router-link :to="{ name: 'home' }">
-              <el-button class="nav-button-userpage">HOME</el-button>
-            </router-link>
-            <router-link :to="{ name: 'about' }">
-              <el-button class="nav-button-userpage">ABOUT</el-button>
-            </router-link>
-            <router-link :to="{ name: 'blog' }">
-              <el-button class="nav-button-userpage">BLOG</el-button>
-            </router-link>
-            <router-link :to="{ name: 'contact' }">
-              <el-button class="nav-button-userpage">CONTACT</el-button>
-            </router-link>
-            <wallet-item />
-          </div>
-        </div>
-
-        <div class="nav-edit">
-          <el-button
-            class="edit-mode-btn"
-            :type="isEditMode ? 'primary' : 'default'"
-            @click="toggleEditMode"
-          >
-            {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
-          </el-button>
         </div>
       </div>
     </header>
@@ -1015,6 +1004,7 @@ const toggleMenu = () => {
       </div>
     </div>
   </div>
+</div>
 </template>
 
 
