@@ -20,14 +20,14 @@ const props = defineProps({
     required: true
   }
 });
-const currentBlogId = ref(1); // 博客ID
+// const currentBlogId = ref(1); // 博客ID
 const emit = defineEmits(['update:visible', 'close']);
 
 const store = useBlogStore();
 const userStore = useUserStore();
 
 const selectedBlog = computed(() => store.blog);
-const currentImageIndex = ref(0);
+// const currentImageIndex = ref(0);
 const newComment = ref('');
 
 // 评论相关的状态
@@ -155,23 +155,20 @@ const checkFollowStatus = async (userId: number) => {
 
 const closeDialog = () => {
   emit('update:visible', false);// 通知父组件隐藏对话框
-  setTimeout(() => {
-    router.go(-1);
-    emit('close');
-  }, 100);
+  emit('close');
 };
 
-const prevImage = () => {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
-  }
-};
+// const prevImage = () => {
+//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+//     currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
+//   }
+// };
 
-const nextImage = () => {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
-  }
-};
+// const nextImage = () => {
+//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+//     currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
+//   }
+// };
 //回复帖子
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
@@ -260,10 +257,12 @@ const handleFollowClick = async (id?: number) => {
     :model-value="visible"
     :fullscreen="false"
     class="blog-detail-dialog"
-    @update:model-value="closeDialog"
+    @close="closeDialog"
     :style="{ '--el-dialog-width': dialogWidth }"
   >
     <div class="blog-detail-content">
+      <button class="close-button" @click="closeDialog">×</button>
+
       <!-- 左侧区域：图片 -->
       <div class="detail-left-home">
         <!-- 图片轮播 -->
@@ -282,10 +281,6 @@ const handleFollowClick = async (id?: number) => {
               />
             </div>
           </el-carousel-item>
-          <div class="carousel-nav">
-            <button class="nav-btn prev" @click="prevImage">←</button>
-            <button class="nav-btn next" @click="nextImage">→</button>
-          </div>
         </el-carousel>
       </div>
 
@@ -334,6 +329,12 @@ const handleFollowClick = async (id?: number) => {
         <!-- 博客内容 -->
         <div class="content-section-home">
           <p class="blog-content-title">{{ selectedBlog?.title }}</p>
+          <div class="tags-section">
+            <div class="nft-tag" v-if="selectedBlog?.isNFT">NFT</div>
+            <span class="tag" v-for="tag in selectedBlog?.tags" :key="tag">
+              {{ tag }}
+            </span>
+          </div>
           <p class="blog-content-home">{{ selectedBlog?.content }}</p>
         </div>
 
@@ -342,9 +343,6 @@ const handleFollowClick = async (id?: number) => {
         <!-- 评论部分 -->
         <CommentSection
           v-if="selectedBlog?.id && blogId > 0"
-          v-model="selectedBlog.comments"
-          :blogId="currentBlogId"
-          :visible="visible"
         />
         <!-- 统计信息栏 -->
         <div class="stats-bar-home">

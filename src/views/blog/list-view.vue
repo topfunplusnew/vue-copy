@@ -8,6 +8,7 @@ import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
 import blogItem from './blog-item.vue';
 import BlogDetailDialog from './blog-detail-dialog.vue';
+// import userPageDialog from '@/views/user/user-page-dialog.vue';
 // 引入定位和天气
 import { destinations } from '@/utils/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
@@ -24,7 +25,10 @@ const blogID = computed(() => props.id);
 const dialogBlog = ref(false);
 
 const closeBlogDetail = () => {
-  dialogBlog.value = false;
+  router.push({
+    name: 'home',
+    params: { id: ''}
+  });
 };
 
 watch(blogID, (val, old) => {
@@ -514,12 +518,14 @@ const expandedComments = ref<number[]>([]);
 
 
   <!-- 博客详情弹出层 -->
-  <blog-detail-dialog
-    v-model:visible="dialogBlog"
-    :blog-id="Number(blogID)"
-    @close="closeBlogDetail"
-  />
-  <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
+    <blog-detail-dialog
+      v-model:visible="dialogBlog"
+      :blog-id="Number(blogID)"
+      :is-following="isFollowing"
+      @close="closeBlogDetail"
+    />
+
+    <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
   </div>
 </template>
 

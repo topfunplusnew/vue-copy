@@ -7,63 +7,7 @@ import { getImageUrl } from '@/utils';
 import type { IBlogComment } from '@/types/blog';
 
 
-// 新增的相对时间计算函数
-function formatRelativeTime(dateStr?: string): string {
-  console.log(dateStr);
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return '';
 
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  if (diffInSeconds < 0) {
-    return '未来时间';
-  }
-
-  if (diffInSeconds < 60) {
-    return '刚刚';
-  }
-
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes}分钟前`;
-  }
-
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `${diffInHours}小时前`;
-  }
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) {
-    return `${diffInDays}天前`;
-  }
-
-  const diffInWeeks = Math.floor(diffInDays / 7);
-  if (diffInWeeks < 4) {
-    return `${diffInWeeks}周前`;
-  }
-
-  // 超过一个月显示简单日期
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd}`;
-}
-
-// 保留原来的formatDate函数用于title提示
-function formatDate(dateStr?: string): string {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return '';
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  const hh = String(date.getHours()).padStart(2, '0');
-  const mi = String(date.getMinutes()).padStart(2, '0');
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
-}
 
 // const store = useBlogStore();
 // const userStore = useUserStore();
@@ -286,20 +230,17 @@ const cancelDeleteComment = () => {
             class="comment-avatar-home"
           />
           <div class="comment-content-wrapper">
-          <span class="comment-username-home">{{ comment.user.name }}</span>
+            <span class="comment-username-home">{{ comment.user.name }}</span>
             <p class="comment-text-home" style="text-align: start;"
             @click="comment.id && toggleReplyInput(comment.id)">{{ comment.content }}</p>
 
             <!-- 回复图标 -->
             <div class="comment-actions">
-            <el-tooltip content="Reply to this comment" placement="top">
+            <!-- <el-tooltip content="Reply to this comment" placement="top">
               <span class="reply-icon"
               @click="comment.id && toggleReplyInput(comment.id)">↩️</span>
-            </el-tooltip>
-            <p class="comment-time-home" :title="formatDate(comment.created_at)">
-              发布于：{{ formatRelativeTime(comment.created_at) }}
+            </el-tooltip> -->
 
-            </p>
 
 
             </div>
@@ -339,14 +280,19 @@ const cancelDeleteComment = () => {
                 class="reply-avatar-home-view"
               />
               <div class="reply-content-wrapper">
-                <span class="reply-username-home">{{ reply.user.name }}</span>
-                <span class="target-name-show">@{{ comment.user.name }}</span>
-                <p class="reply-text-home" @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
+                <div class="reply-user-info">
+                  <span class="reply-username-home">{{ reply.user.name }}</span>
+                  <span class="target-name-show">@{{ comment.user.name }}</span>
+                </div>
+                <p class="reply-text-home"
+                  @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">
+                  {{ reply.content }}
+                </p>
                   <!-- 回复到回复的图标 -->
-                <el-tooltip content="Reply to this reply" placement="top">
+                <!-- <el-tooltip content="Reply to this reply" placement="top">
                   <span class="reply-icon-reply-to-reply"
                   @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
-                </el-tooltip>
+                </el-tooltip> -->
               </div>
             </div>
           </div>

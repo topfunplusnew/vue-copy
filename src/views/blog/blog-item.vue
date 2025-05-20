@@ -21,12 +21,22 @@ function onClick() {
     params: {id: post.id}
   }">
     <!-- 博客图片 -->
-    <img
+    <el-carousel
       v-if="post.image && post.image.length > 0"
-      :src="getImageUrl(post.image[0])"
-      alt="Post Image"
-      class="post-image"
-    />
+      height="200px"
+      indicator-position="outside"
+    >
+      <el-carousel-item
+        v-for="(img, index) in post.image"
+        :key="index"
+      >
+        <img
+          :src="getImageUrl(img)"
+          alt="Post Image"
+          class="post-image w-full h-full object-cover"
+        />
+      </el-carousel-item>
+    </el-carousel>
 
     <!-- 博客内容 -->
     <section class="blog-text">
