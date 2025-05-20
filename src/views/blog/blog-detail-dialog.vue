@@ -27,6 +27,7 @@ const store = useBlogStore();
 const userStore = useUserStore();
 
 const selectedBlog = computed(() => store.blog);
+const currentImageIndex = ref(0);
 const newComment = ref('');
 
 // 评论相关的状态
@@ -34,7 +35,6 @@ const replyContent = ref('');
 const expandedReplies = ref<number[]>([]);
 const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
 const expandedComments = ref<number[]>([]);
-
 
 const isLiked = ref(false);
 const likesCount = ref(0);
@@ -48,8 +48,8 @@ watch(() => selectedBlog.value, (newBlog) => {
 }, { immediate: true });
 
 // 检查点赞状态
-const checkLikeStatus = async (blogId: number) => {
-  if (!blogId || !userStore.isLogin()) {
+const checkLikeStatus = async (blogId: number | undefined) => {
+   if (!blogId || !userStore.isLogin()) {
     isLiked.value = false;
     return;
   }
@@ -97,7 +97,6 @@ const handleLike = async () => {
     ElMessage.error('Failed to like blog');
   }
 };
-
 
 
 
@@ -162,6 +161,17 @@ const closeDialog = () => {
   }, 100);
 };
 
+const prevImage = () => {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
+  }
+};
+
+const nextImage = () => {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
+  }
+};
 //回复帖子
 const submitComment = async () => {
   if (!newComment.value.trim()) return;
@@ -264,7 +274,6 @@ const handleFollowClick = async (id?: number) => {
           height="100%">
           <el-carousel-item v-for="(image, index) in selectedBlog.image" :key="index">
             <div class="carousel-item-home">
-              <div class="image-background" :style="{ backgroundImage: `url(${getImageUrl(image)})` }"></div>
               <img
                 :src="getImageUrl(image)"
                 alt="Blog Image"
@@ -273,6 +282,10 @@ const handleFollowClick = async (id?: number) => {
               />
             </div>
           </el-carousel-item>
+          <div class="carousel-nav">
+            <button class="nav-btn prev" @click="prevImage">←</button>
+            <button class="nav-btn next" @click="nextImage">→</button>
+          </div>
         </el-carousel>
       </div>
 

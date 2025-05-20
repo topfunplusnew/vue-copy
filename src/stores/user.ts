@@ -18,7 +18,6 @@ export const useUserStore = defineStore('user', () => {
   const followers = ref<IUser[]>([]);
 
 
-
   /**
    * 登录
    * @param req
@@ -186,6 +185,15 @@ export const useUserStore = defineStore('user', () => {
       }
     });
   }
+  function collapseComments(commentId: number) {
+    if (selectedPost.value) {
+      for (const comment of selectedPost.value.comments) {
+        if (comment.id === commentId && comment.replies.length > 2) {
+          comment.replies = comment.replies.slice(0, 2);
+        }
+      }
+    }
+  }
   /**
    * 关注用户
    * @param id 用户id
@@ -270,6 +278,7 @@ export const useUserStore = defineStore('user', () => {
     commenttoComment,
     userDeleteComment,
     getComments,
+    collapseComments,
     clearSelectedPost,
     signup
   };
