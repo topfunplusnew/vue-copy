@@ -17,6 +17,51 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       transition: all 0.3s ease;
   
+      /* 自定义关闭按钮样式 */
+      .custom-close-btn {
+        position: absolute;
+        top: rpx(15);
+        right: rpx(15);
+        width: rpx(32);
+        height: rpx(32);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.3s ease;
+        
+        .el-icon {
+          color: #3a5683;
+          font-size: rpx(20);
+          transition: all 0.3s ease;
+        }
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.4);
+          transform: rotate(90deg);
+          
+          .el-icon {
+            color: #e95670;
+          }
+        }
+        
+        @include screen-mobile {
+          top: rpx(15);
+          right: rpx(15);
+          width: rpx(40);
+          height: rpx(40);
+          background: rgba(58, 86, 131, 0.7);
+          
+          .el-icon {
+            font-size: rpx(24);
+            color: white;
+          }
+        }
+      }
+  
       /* 响应式容器调整 */
       @include screen-pc {
         padding: rpx(20) rpx(30) rpx(30);
@@ -30,10 +75,88 @@
       }
       
       @include screen-mobile {
-        padding: rpx(10) rpx(15) rpx(15);
-        max-width: 98%;
-        margin: rpx(15) auto;
+        padding: rpx(10) rpx(5) rpx(5);
+        max-width: 100%;
+        margin: rpx(5) auto;
         border-radius: rpx(12);
+        height: auto;
+      }
+      
+      /* Element Plus 对话框样式覆盖 - 修复移动端显示问题 */
+      &:deep(.el-dialog) {
+        margin: 0 auto;
+        width: 100%;
+        max-width: 98%;
+        max-height: 90vh;
+        overflow-y: auto;
+        
+        @include screen-mobile {
+          width: 100% !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          max-height: 100vh !important;
+          height: 100vh !important;
+          border-radius: 0 !important;
+          position: fixed !important;
+          left: 0 !important;
+          right: 0 !important;
+          top: 0 !important;
+          transform: none !important;
+          display: flex !important;
+          flex-direction: column !important;
+          overflow: hidden !important; // 防止整个对话框滚动
+          
+          /* 全屏模式下关闭按钮样式调整 */
+          & + .custom-close-btn {
+            top: rpx(15);
+            right: rpx(15);
+            width: rpx(48);
+            height: rpx(48);
+            background: rgba(58, 86, 131, 0.9);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            
+            .el-icon {
+              font-size: rpx(28);
+              color: white;
+            }
+            
+            &:active {
+              transform: scale(0.9);
+            }
+          }
+        }
+        
+        .el-dialog__header {
+          padding: rpx(12) rpx(12) rpx(8);
+          
+          @include screen-mobile {
+            padding: rpx(5) rpx(5) rpx(2);
+            min-height: 0;
+            display: none; // 隐藏头部
+          }
+        }
+        
+        .el-dialog__body {
+          padding: rpx(10) rpx(10) rpx(10);
+          
+          @include screen-mobile {
+            padding: rpx(5) rpx(5) rpx(5);
+            max-height: none;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+          }
+        }
+        
+        .el-dialog__footer {
+          padding: rpx(10) rpx(15) rpx(15);
+          
+          @include screen-mobile {
+            padding: rpx(8) rpx(12) rpx(12);
+            min-height: 0; // 最小高度为0
+          }
+        }
       }
   
       .post-card {
@@ -52,6 +175,10 @@
           @include screen-pad {
             flex-direction: column;
             align-items: flex-start;
+          }
+          
+          .spacer {
+            flex: 1;
           }
           
           .post-title {
@@ -339,7 +466,14 @@
       display: flex;
       flex-wrap: wrap;
       gap:rpx(3);
-      //margin-top: 8px;
+      
+      @include screen-mobile {
+        gap: 5px;
+        justify-content: flex-start;
+        width: 100%;
+        margin-top: 0;
+        margin-bottom: 5px;
+      }
       
       .filter-tag {
         background: rgba(255, 255, 255, 0.25);
@@ -364,9 +498,22 @@
         text-overflow: ellipsis;
         
         @include screen-mobile {
-          font-size: rpx(20);
-          padding: 5px 10px;
-          width: calc(50% - 8px);
+          font-size: rpx(14);
+          padding: 6px 8px;
+          width: 31%;
+          white-space: normal;
+          height: auto;
+          min-height: rpx(36);
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          border-radius: 6px;
+          margin-bottom: 4px;
+          
+          .filter-icon {
+            margin-right: rpx(4);
+            font-size: rpx(14);
+          }
         }
         
         &:hover {
@@ -391,23 +538,14 @@
           align-items: center;
           justify-content: center;
           transition: all 0.3s ease;
+          
+          @include screen-mobile {
+            margin-right: rpx(6);
+          }
         }
       }
     }
   
-    /* 过滤标签响应式布局 */
-    .filter-tags {
-      @include screen-mobile {
-        gap: 8px;
-        
-        .filter-tag {
-          font-size: rpx(20);
-          padding: 5px 10px;
-          width: calc(50% - 8px); /* 手机上每行2个 */
-        }
-      }
-    }
-
     /* 标签输入与显示 - 响应式增强 */
     .tags-display {
         margin-top: rpx(10);
@@ -612,22 +750,30 @@
     }
   
     /* 操作按钮 */
-    .action-buttons {
-      display: flex !important;
-      flex-direction: row !important;
-      flex-wrap: nowrap !important;
-      width: 100% !important;
-      justify-content: flex-start !important;
+    .post-view-dialog .action-buttons {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      width: 100%;
+      justify-content: flex-start;
       gap: 16px;
       margin-top: 20px;
+      
+      @include screen-mobile {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+        margin-bottom: 5px;
+        justify-content: space-between;
+      }
       
       .el-button[type="primary"] {
         background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
         border: none;
         font-weight: 700;
-        flex: 0 0 auto !important;
-        min-width: 0 !important;
-        min-width: 140px !important;
+        flex: 0 0 auto;
+        min-width: 140px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -640,6 +786,17 @@
         z-index: 1;
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         box-shadow: 0 4px 15px rgba(233, 86, 108, 0.3);
+        
+        @include screen-mobile {
+          width: 49%;
+          min-width: unset;
+          padding: 7px 10px;
+          font-size: rpx(16);
+          flex: 0 0 49%;
+          border-radius: 25px;
+          height: rpx(36);
+          line-height: rpx(20);
+        }
         
         &:hover {
           background: linear-gradient(45deg, rgba(86, 180, 233, 1), rgba(233, 86, 108, 1));
@@ -659,9 +816,8 @@
         background: rgba(255, 255, 255, 0.1);
         border: 2px solid rgba(255, 255, 255, 0.4);
         color: white;
-        flex: 0 0 auto !important;
-        min-width: 0 !important;
-        min-width: 140px !important;
+        flex: 0 0 auto;
+        min-width: 140px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -671,11 +827,24 @@
         border-radius: 12px;
         transition: all 0.3s ease;
         
+        @include screen-mobile {
+          width: 49%;
+          min-width: unset;
+          padding: 7px 10px;
+          font-size: rpx(16);
+          flex: 0 0 49%;
+          border-radius: 25px;
+          color: #3a5683;
+          height: rpx(36);
+          line-height: rpx(20);
+          border-width: 1px;
+        }
+        
         &:hover {
           background: rgba(255, 255, 255, 0.2);
           border-color: rgba(255, 255, 255, 0.6);
-          color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
-          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
+          color: #3a5683;
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
           transform: translateY(-2px);
           box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
         }
@@ -688,18 +857,143 @@
       }
     }
   
-    /* 操作按钮响应式布局 */
-    .action-buttons {
-      @include screen-pad {
-        gap: 12px;
-      }
-      
-      @include screen-mobile {
-        flex-direction: flex;
-        gap: 10px;
+    /* 输入框在手机端的样式优化 */
+    @include screen-mobile {
+      .post-view-dialog {
+        .el-textarea__inner,
+        .el-input__inner {
+          font-size: rpx(16);
+          padding: 8px;
+          width: 100%;
+        }
         
-        .el-button {
-          width: 100% ;
+        .el-form-item {
+          margin-bottom: 10px;
+          width: 100%;
+        }
+        
+        .el-form-item__label {
+          margin-bottom: 3px;
+          font-size: rpx(18);
+        }
+        
+        /* 优化选择器和多行文本框 */
+        .el-select {
+          width: 100%;
+        }
+        
+        .el-textarea {
+          width: 100%;
+          
+          .el-textarea__inner {
+            min-height: rpx(60);
+            max-height: rpx(120);
+            padding: 5px 8px;
+          }
+        }
+        
+        /* 确保图片上传区域占满宽度 */
+        .upload-section {
+          width: 100%;
+          margin-bottom: 8px;
+          
+          .el-button {
+            width: auto;
+            min-width: 110px;
+            font-size: rpx(16);
+            padding: 6px 12px;
+          }
+          
+          .upload-hint {
+            margin-bottom: rpx(5);
+            font-size: rpx(14);
+          }
+        }
+        
+        /* 调整图片网格布局 */
+        .images-gallery {
+          width: 100%;
+          grid-template-columns: repeat(3, 1fr);
+          gap: rpx(5);
+          margin-bottom: rpx(15);
+          
+          .image-item {
+            border-radius: rpx(6);
+          }
+          
+          .images-counter {
+            bottom: rpx(-20);
+            font-size: rpx(14);
+          }
+        }
+      }
+    }
+    
+    /* 优化移动端内容区域 */
+    .post-content {
+      @include screen-mobile {
+        padding: rpx(5) rpx(5);
+        width: 100%;
+        overflow-x: hidden;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  
+    /* 调整卡片内部元素大小，适应宽屏幕 */
+    .post-card {
+      @include screen-mobile {
+        width: 100%;
+        padding: rpx(5) rpx(2);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        border: none !important;
+        box-shadow: none !important;
+        
+        :deep(.el-card__header) {
+          padding: rpx(10) rpx(5);
+        }
+        
+        :deep(.el-card__body) {
+          padding: rpx(10) rpx(5);
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          overflow-y: auto;
+        }
+        
+        .post-card-header {
+          margin-bottom: 10px;
+          
+          .post-title {
+            font-size: rpx(20);
+          }
+          
+          .preview-btn {
+            padding: 8px 15px;
+            font-size: rpx(16);
+          }
+        }
+      }
+    }
+    
+    /* 表单样式优化 */
+    .post-content .el-form {
+      @include screen-mobile {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        
+        .el-form-item {
+          margin-bottom: 10px;
+        }
+        
+        .el-form-item:last-child {
+          margin-top: auto;
+          padding-bottom: rpx(5);
+          margin-bottom: 0;
         }
       }
     }
@@ -719,3 +1013,6 @@
       }
     }
 }
+
+// 确保调用 detail mixin，使样式生效
+@include detail;
