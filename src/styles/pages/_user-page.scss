@@ -733,11 +733,10 @@
   
   /* 主容器 */
   .blog-detail-container {
-    width: 94%;
-    height: 95vh;
+    width: 98%;
+    height: 98vh;
     display: flex;
     border-radius: 16px;
-    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     background: white;
     max-width: none;
@@ -745,9 +744,10 @@
     transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
     
     /* 在窄屏幕上调整为垂直布局 */
-    @media (max-width: 768px) {
+    @include screen-mobile {
       flex-direction: column;
-      height: 95vh;
+      height: 98vh;
+      
     }
 
     /* 关闭按钮 */
@@ -773,36 +773,24 @@
         background: rgba(0, 0, 0, 0.6);
         transform: rotate(90deg);
       }
-      @media (max-width: 768px) {
-        // margin: -15px -40px 0 0;
-      }
     }
     
     /* 左侧区域：图片和统计信息 */
     .detail-left {
       flex: 6;
       background: white;
-      position: relative;
       display: flex;
       flex-direction: column;
       transition: height 0.3s ease;
-      
-      
-      
+
       /* 图片显示区域 */
       .image-section {
         flex: 1;
-        position: relative;
-        overflow: hidden;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
         
         .image-slider {
           width: 100%;
           height: 100%;
-          position: relative;
-      
+
           .image-wrapper {
             width: 100%;
             height: 100%;
@@ -821,7 +809,7 @@
           }
       
           .nav-btn {
-            position: absolute;
+
             top: 50%;
             transform: translateY(-50%);
             width: 40px;
@@ -857,52 +845,20 @@
     .detail-right {
       flex: 4;
       background: white;
-      overflow-y: overlay;
       display: flex;
       flex-direction: column;
-      position: relative;
+
       transition: height 0.3s ease;
-
-      overflow-y: auto; /* 保证内容可滚动 */
       /* 在窄屏幕上调整高度 */
-      @media (max-width: 768px) {
-        height: 50%;
-        &::-webkit-scrollbar {
-          width: 6px; /* 减小滚动条宽度 */
-          background-color: transparent; /* 滚动条背景透明 */
-        }
-        
-        &::-webkit-scrollbar-thumb {
-          background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
-          border-radius: 4px; /* 滚动条滑块圆角 */
-        }
-        
-        &::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
-        }
-        
+      @include screen-mobile {
+        height: 80%;
       }
-      
-      /* 自定义滚动条样式 */
-      &::-webkit-scrollbar {
-        width: 6px; /* 减小滚动条宽度 */
-        background-color: transparent; /* 滚动条背景透明 */
-      }
-      
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
-        border-radius: 4px; /* 滚动条滑块圆角 */
-      }
-      
-      &::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
-      }
-      
-
       .detail-right-content {
         flex: 1;
-        overflow-y: auto;
+
         padding:rpx(20) rpx(20) 0 rpx(20);
+        overflow-y: auto;
+        @include screen-pc{
         /* 滚动条样式 */
         &::-webkit-scrollbar {
           width: 8px;
@@ -921,13 +877,12 @@
         &::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(45deg, #a0c0dc, #e9b4c4); /* hover 状态更深色 */
         }
+        }
 
       /* 用户信息和标题 */
       .user-header {
         display: flex;
         flex-direction: column;
-        margin-bottom: 15px;
-        padding-bottom: 15px;
         border-bottom: 1px solid #eee;
 
          .edit-btn{
@@ -2223,9 +2178,6 @@
     opacity: 0.7;
   }
 }
-
-
-
 
 /* 移动设备优化 */
 @media (max-width: 768px) {

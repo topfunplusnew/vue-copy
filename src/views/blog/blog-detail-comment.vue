@@ -237,8 +237,6 @@ const cancelDeleteComment = () => {
               @click="comment.id && toggleReplyInput(comment.id)">↩️</span>
             </el-tooltip> -->
 
-
-
             </div>
           </div>
           <!-- 删除指示器 -->
