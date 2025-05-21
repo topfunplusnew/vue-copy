@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed} from 'vue';
+import { ref, reactive, onMounted, computed, nextTick} from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
@@ -9,16 +9,11 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
-<<<<<<< HEAD
 import type { IBlogComment } from '@/types/blog';
-import commonHeader from '@/layout/common-header.vue';
-=======
-// import type { IBlogComment } from '@/types/blog';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import type { IBlog } from '@/types/blog';
->>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
+import commonHeader from '@/layout/common-header.vue';
 
-// import commonHeader from '@/layout/common-header.vue';
 const selectedBlog =ref<IBlog | null>(null); // 当前选中的博客详情
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -254,7 +249,6 @@ const deleteBlog = async (blogId?: number) => {
   }
 };
 
-<<<<<<< HEAD
 // 编辑博客
 
 // 评论功能
@@ -443,8 +437,6 @@ function scrollToComments() {
     });
   }
 }
-=======
->>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
@@ -527,7 +519,7 @@ const toggleMenu = () => {
         {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
       </el-button>
     </div>
-    
+
     <!-- 顶部导航栏 - 移除了编辑按钮 -->
     <header class="header-userpage">
       <div class="nav-container-userpage" :class="{ 'menu-active-userpage': menuActive }">
@@ -818,12 +810,8 @@ const toggleMenu = () => {
       @close="closeBlogDetail"
       @toggle-follow="toggleFollowUser"
     />
-    </div>
-<<<<<<< HEAD
   </div>
 </div>
-=======
->>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
 </template>
 
 

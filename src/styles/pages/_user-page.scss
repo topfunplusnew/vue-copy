@@ -1290,9 +1290,7 @@
         
       }
     }
-<<<<<<< HEAD
-    
-    /* 右侧内容区域 */
+/* 右侧内容区域 */
     .detail-right {
       flex: 4;
       background: white;
@@ -1508,12 +1506,8 @@
         }
       }
     }
-=======
->>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
   }
-}
 
-/* 闪光动画 */
 @keyframes shine {
   0% {
     transform: translateX(-100%) rotate(45deg);
@@ -1525,7 +1519,6 @@
     transform: translateX(100%) rotate(45deg);
   }
 }
-
 
 /* 编辑个人信息按钮和登出按钮的容器 */
 .profile-buttons {
@@ -2670,4 +2663,4 @@
     }
   }
 }
-
+}
