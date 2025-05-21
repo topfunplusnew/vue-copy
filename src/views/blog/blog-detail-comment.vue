@@ -7,8 +7,6 @@ import { getImageUrl } from '@/utils';
 import type { IBlogComment } from '@/types/blog';
 
 
-
-
 // const store = useBlogStore();
 // const userStore = useUserStore();
 
@@ -37,8 +35,6 @@ onUnmounted(() => {
 //   const mi = String(date.getMinutes()).padStart(2, '0');
 //   return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
 // }
-
-
 
 
 const store = useBlogStore();

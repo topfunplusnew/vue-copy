@@ -2,7 +2,6 @@
 @use '../utils/mixins' as *; // 混合宏
 
 
-
 .user-page {
   display: flex;
   flex-direction: column;
@@ -197,7 +196,6 @@
         border: 1px solid rgba(255, 255, 255, 0.4);
       }
       .post-carousel{
-
         .post-image {
         width: 100%;
         /* 减小图片高度 */
@@ -338,9 +336,6 @@
     background-color: rgba(0, 0, 0, 0.8) !important; /* 悬停更深 */
   }
 }
-
-
-
 
 
 /* 用户信息 */
@@ -2118,6 +2113,7 @@
     padding: 10px 12px;
   }
 }
+
 .comment-replies-home{
 
   .reply-item{

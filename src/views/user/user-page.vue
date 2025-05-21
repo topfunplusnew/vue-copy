@@ -462,7 +462,6 @@ const toggleMenu = () => {
               </el-carousel-item>
             </el-carousel>
 
-
             <!-- 博客内容 -->
             <div class="post-content-userpage">
               <h2 class="post-title-userpage">{{ post.title }}</h2>
