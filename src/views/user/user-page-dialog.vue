@@ -207,7 +207,6 @@ const isOwnPost = computed(() => {
             <div class="image-slider">
               <div
                 class="image-wrapper"
-
               >
                 <img
                   :src="getImageUrl(image)"
@@ -242,7 +241,7 @@ const isOwnPost = computed(() => {
                   <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
                 </el-button>
                 <!-- 编辑按钮 -->
-                <el-button
+                <!-- <el-button
                   v-else
                   class="edit-btn"
                   size="small"
@@ -250,7 +249,7 @@ const isOwnPost = computed(() => {
                 >
                   <span class="edit-icon">✏️</span>
                   <span class="edit-text">Edit</span>
-                </el-button>
+                </el-button> -->
               </div>
               <div class="tags-section-pref-userpage" v-if="selectedBlog?.social_filters">
                 <span v-for="(item, index) in selectedBlog?.social_filters"
@@ -350,22 +349,7 @@ const isOwnPost = computed(() => {
                       </div>
                     </div>
 
-                    <!-- 显示更多回复 -->
-                    <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
-                        class="view-more-replies" @click="expandReplies(comment.id)">
-                      <span class="view-more-text-r2r">
-                      View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
-                      </span>
-                      <span class="view-more-icon-r2r">↓</span>
-                    </div>
-
-                    <!-- 隐藏回复 -->
-                    <div v-if="comment.total_replies > 2 && comment.replies.length === comment.total_replies"
-                        class="view-more-replies"
-                        @click="collapseComments(comment.id)">
-                      <span class="hide-replies-text-r2r">Hide {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}</span>
-                      <span class="hide-replies-icon-r2r">↑</span>
-                    </div>
+                    
                   </div>
 
                   <!-- 回复输入框 -->
@@ -406,6 +390,22 @@ const isOwnPost = computed(() => {
                       >Reply</el-button>
                     </div>
                   </div>
+                  <!-- 显示更多回复 -->
+                  <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
+                        class="view-more-replies" @click="expandReplies(comment.id)">
+                      <span class="view-more-text-r2r">
+                      View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
+                      </span>
+                      <span class="view-more-icon-r2r">↓</span>
+                    </div>
+
+                    <!-- 隐藏回复 -->
+                    <div v-if="comment.total_replies > 2 && comment.replies.length === comment.total_replies"
+                        class="view-more-replies"
+                        @click="collapseComments(comment.id)">
+                      <span class="hide-replies-text-r2r">Hide {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}</span>
+                      <span class="hide-replies-icon-r2r">↑</span>
+                    </div>
                 </div>
               </div>
             </div>
