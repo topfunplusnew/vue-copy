@@ -928,7 +928,6 @@
           margin: 0;
           line-height: 1.3;
           text-align: center; /* 标题居中 */
-          margin-top: -10px; /* 增加与作者信息的间距 */
         }
 
         /* 偏好标签区域 */
@@ -954,6 +953,7 @@
         flex-wrap: wrap;
         gap: 8px;
         justify-content: left; /* 标签左对齐 */
+        padding-top: 10px;
         
         .tag {
           background: #f0f0f0;
