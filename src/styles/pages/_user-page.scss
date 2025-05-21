@@ -747,6 +747,7 @@
     /* 在窄屏幕上调整为垂直布局 */
     @include screen-mobile {
       flex-direction: column;
+      height: 98vh;
 
     }
 
@@ -782,6 +783,7 @@
       display: flex;
       flex-direction: column;
       transition: height 0.3s ease;
+      min-height: 280px;
 
       /* 图片显示区域 */
       .image-section {
@@ -805,6 +807,7 @@
               box-sizing: border-box;
               padding: 0 15px;
               background-color: #fff;
+
             }
           }
       
@@ -848,9 +851,6 @@
       display: flex;
       flex-direction: column;
 
-      @include screen-mobile{
-        height: 70%;
-      }
 
       .detail-right-content {
         flex: 1;
@@ -1084,7 +1084,7 @@
         left: 0;
         right: 0;
         height: 40px;
-        background: #f8f8f8;
+        background: rgba(248, 248, 248, 0.98);
         border-top: 1px solid #eee;
         z-index: 10;
         display: flex;
