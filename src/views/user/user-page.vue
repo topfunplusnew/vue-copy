@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick } from 'vue';
+import { ref, reactive, onMounted, computed} from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
@@ -9,11 +9,22 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
+<<<<<<< HEAD
 import type { IBlogComment } from '@/types/blog';
 import commonHeader from '@/layout/common-header.vue';
+=======
+// import type { IBlogComment } from '@/types/blog';
+import UserPageDialog from '@/views/user/user-page-dialog.vue';
+import type { IBlog } from '@/types/blog';
+>>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
 
 // import commonHeader from '@/layout/common-header.vue';
-
+const selectedBlog =ref<IBlog | null>(null); // 当前选中的博客详情
+// 关闭博客详情弹出层
+const closeBlogDetail = () => {
+  store.clearSelectedPost();
+  document.body.style.overflow = '';
+};
 const store = useUserStore();
 const router = useRouter();
 
@@ -50,8 +61,7 @@ const postsContainer = ref<HTMLElement | null>(null);
 // 用户博客数据
 const userPosts = computed(() => store.blogs);
 
-// 博客详情相关的状态和方法
-const selectedBlog = computed(() => store.selectedPost);
+
 
 const isFollowing = ref(false);
 
@@ -73,10 +83,6 @@ function gotoEidtPage(id?:number) {
   })
 }
 
-const closeBlogDetail = () => {
-  store.clearSelectedPost();
-  document.body.style.overflow = '';
-};
 
 function handleScroll() {
   const container = postsContainer.value;
@@ -197,20 +203,20 @@ const isWalletConnected = computed(() => {
 });
 
 // 添加图片导航相关状态
-const currentImageIndex = ref(0);
+// const currentImageIndex = ref(0);
 
 // 添加图片导航方法
-function prevImage() {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
-  }
-}
+// function prevImage() {
+//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+//     currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
+//   }
+// }
 
-function nextImage() {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
-  }
-}
+// function nextImage() {
+//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
+//     currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
+//   }
+// }
 
 // 添加编辑模式状态
 const isEditMode = ref(false);
@@ -248,6 +254,7 @@ const deleteBlog = async (blogId?: number) => {
   }
 };
 
+<<<<<<< HEAD
 // 编辑博客
 
 // 评论功能
@@ -436,6 +443,8 @@ function scrollToComments() {
     });
   }
 }
+=======
+>>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
@@ -496,6 +505,10 @@ const menuActive = ref(false);
 const toggleMenu = () => {
   menuActive.value = !menuActive.value;
 };
+
+
+
+
 </script>
 
 <template>
@@ -613,7 +626,25 @@ const toggleMenu = () => {
             </div>
 
             <!-- 原有的博客内容 -->
-            <img v-if="post.image && post.image.length > 0" :src="getImageUrl(post.image[0])" alt="Blog Image" class="post-image" />
+            <!-- 使用 el-carousel 代替单张图片显示 -->
+            <el-carousel
+              v-if="post.image && post.image.length > 0"
+              :interval="3000"
+              arrow="hover"
+              height="200px"
+              class="post-carousel"
+              :touchable="true"
+              :loop="true"
+              :autoplay="false"
+            >
+              <el-carousel-item
+                v-for="(img, index) in post.image"
+                :key="index"
+              >
+                <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
+              </el-carousel-item>
+            </el-carousel>
+
 
             <!-- 博客内容 -->
             <div class="post-content-userpage">
@@ -778,233 +809,21 @@ const toggleMenu = () => {
         </div>
       </div>
     </div>
-  </div>
+
 
   <!-- 博客详情弹出层 -->
-  <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
-    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
-      <!-- 关闭按钮移到容器顶层 -->
-      <button class="close-button" @click="closeBlogDetail">×</button>
-
-      <!-- 左侧区域：图片和统计信息 -->
-      <div class="detail-left">
-        <!-- 图片区域 -->
-        <div class="image-section">
-          <div class="image-slider">
-            <div class="image-wrapper" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
-              <img
-                v-for="(image, index) in selectedBlog?.image"
-                :key="index"
-                :src="getImageUrl(image)"
-                alt="Blog Image"
-                class="detail-image"
-              />
-            </div>
-            <!-- 导航按钮 -->
-            <button class="nav-btn prev" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
-            <button class="nav-btn next" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
-          </div>
-        </div>
-
-        <!-- 统计信息栏 -->
-        <div class="stats-bar">
-          <!-- 统计信息 -->
-          <div class="stats-info">
-            <span class="likes">❤️ {{ selectedBlog.likes }}</span>
-            <span class="comments" @click="scrollToComments">💬 {{ selectedBlog.comments_count }}</span>
-            <span class="coins" v-if="selectedBlog.isNFT">₿ {{ selectedBlog.coins }}</span>
-          </div>
-
-
-          <!-- 简化的评论输入框 -->
-          <div class="quick-comment-input">
-            <input
-              type="text"
-              v-model="newComment"
-              placeholder="Add a comment..."
-              @keyup.enter="submitComment"
-              class="comment-input"
-            />
-            <button
-              class="submit-quick-comment"
-              @click="submitComment"
-              :disabled="!newComment.trim()"
-            >
-              <span>💬</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧内容区域 -->
-      <div class="detail-right" ref="detailRight">
-        <!-- 用户信息和标题 -->
-        <div class="user-header">
-          <div class="author-info">
-            <img
-              :src="getImageUrl(selectedBlog?.user?.avatar || '')"
-              alt="Author Avatar"
-              class="author-avatar"
-            />
-            <span class="author-name">{{ selectedBlog?.user?.name }}</span>
-          </div>
-          <h2 class="blog-title">{{ selectedBlog.title }}</h2>
-          <!-- 偏好标签区域 -->
-          <div class="tags-section-pref-userpage" v-if="selectedBlog?.social_filters">
-            <span v-for="(item, index) in selectedBlog?.social_filters"
-            :key="index" class="tag-pref-userpage">
-              {{ item.name }} {{ item.icon }}
-            </span>
-          </div>
-        </div>
-
-        <!-- 标签区域 -->
-        <div class="tags-section">
-          <div class="nft-tag" v-if="selectedBlog.isNFT">NFT</div>
-          <span class="tag" v-for="tag in selectedBlog?.tags" :key="tag">
-            {{ tag }}
-          </span>
-        </div>
-
-        <!-- 博客内容 -->
-        <div class="content-section">
-          <p class="blog-content">{{ selectedBlog.content }}</p>
-        </div>
-
-        <!-- 评论部分 -->
-        <div class="comments-container" ref="commentsSection">
-          <div class="comments-header">
-            <h3>Comments</h3>
-            <span class="comment-count">{{ selectedBlog?.comments?.length || 0 }}</span>
-          </div>
-          <div class="comments-list">
-            <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
-              <div class="comment-row"
-                   :class="{'long-press-active': activeComment === comment.id}"
-                   @touchstart.stop="handleTouchStart(comment)"
-                   @touchend.stop="handleTouchEnd"
-                   @touchmove.stop="handleTouchMove"
-                   @mousedown="handleTouchStart(comment)"
-                   @mouseup="handleTouchEnd"
-                   @mouseleave="handleTouchEnd">
-                <img
-                  :src="getImageUrl(comment.user.avatar)"
-                  alt="Commenter Avatar"
-                  class="comment-avatar"
-                />
-                <span class="comment-username">{{ comment.user.name }}</span>
-                <p class="comment-text">{{ comment.content }}</p>
-
-                <!-- 删除指示器 -->
-                <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
-                  <i class="el-icon-delete"></i>
-                </div>
-
-                <!-- 删除确认浮层 -->
-                <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}" @click="console.log(123)">
-                  <div class="delete-message">Delete this comment?</div>
-                  <div class="delete-actions">
-                    <button class="delete-btn-rp" @click.stop="confirmDeleteComment(comment.id)">Delete</button>
-                    <button class="cancel-btn-rp" @click.stop="cancelDeleteComment">Cancel</button>
-                  </div>
-                </div>
-              </div>
-
-              <!-- 显示评论的回复 -->
-              <div
-                v-if="comment.replies && comment.replies.length > 0"
-                class="comment-replies-home"
-              >
-                <div v-for="reply in comment.replies" :key="reply.id"
-                class="reply-item">
-                  <div class="reply-row"
-                    :class="{'long-press-active': activeComment === reply.id}"
-                    @touchstart.prevent="handleTouchStart(reply)"
-                    @touchend.prevent="handleTouchEnd"
-                    @touchmove.prevent="handleTouchMove"
-                    @mousedown="handleTouchStart(reply)"
-                    @mouseup="handleTouchEnd"
-                    @mouseleave="handleTouchEnd"
-                  >
-                    <img
-                      :src="getImageUrl(reply.user.avatar)"
-                      alt="Replier Avatar"
-                      class="reply-avatar"
-                    />
-                    <div class="reply-info">
-                      <div class="reply-header">
-                        <span class="reply-username-home">{{ reply.user.name }}</span>
-                        <span class="replying-to">replying to</span>
-                        <span class="target-name-show">@{{ comment.user.name }}</span>
-                        <div class="reply-content-wrapper">
-                          <p class="reply-text-home"
-                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
-                          <!-- 回复到回复的图标 -->
-                          <el-tooltip content="Reply to this reply" placement="top">
-                            <span class="reply-icon-reply-to-reply"
-                            @click.stop.prevent="toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
-                          </el-tooltip>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <!-- 添加查看更多回复按钮 -->
-                </div>
-                <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
-                    class="view-more-replies" @click="expandReplies(comment.id)">
-                  <span class="view-more-text-r2r">
-                  View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
-              </span>
-                  <span class="view-more-icon-r2r">↓</span>
-                </div>
-              </div>
-
-              <!-- 回复输入框 -->
-              <div class="reply-input-container-home" v-if="replyTarget &&
-                ((replyTarget.type === 'comment' && replyTarget.id === comment.id) ||
-                (replyTarget.type === 'reply' && replyTarget.parentId === comment.id))">
-                <div class="replying-to-label">
-                  <span>Replying to</span>
-                  <span class="target-name">@{{
-                    replyTarget.type === 'comment'
-                      ? comment.user.name
-                      : comment.replies.find(r => r.id === replyTarget?.id)?.user.name
-                  }}</span>
-                </div>
-                <el-input
-                  v-model="replyContent"
-                  type="textarea"
-                  :rows="1"
-                  resize="none"
-                  placeholder="Reply to this comment..."
-                  maxlength="200"
-                  show-word-limit
-                  class="reply-textarea-home"
-                ></el-input>
-                <div class="reply-actions-home">
-                  <el-button
-                    size="small"
-                    @click="cancelReply"
-                    class="cancel-reply-btn-home"
-                  >Cancel</el-button>
-                  <el-button
-                    type="primary"
-                    size="small"
-                    @click="submitReply"
-                    :loading="isSubmittingReply"
-                    :disabled="!replyContent.trim()"
-                    class="submit-reply-btn-home"
-                  >Reply</el-button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
+    <user-page-dialog
+      v-if="store.selectedPost"
+      :is-following="isFollowing"
+      @close="closeBlogDetail"
+      @toggle-follow="toggleFollowUser"
+    />
     </div>
+<<<<<<< HEAD
   </div>
 </div>
+=======
+>>>>>>> d246d9ca566972c53982ecfcfc9526575f3ef0b3
 </template>
 
 

@@ -10,6 +10,7 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
+import BlogDetailDialog from './blog-detail-dialog.vue';
 
 const store = useUserStore();
 const router = useRouter();
@@ -182,21 +183,7 @@ const isWalletConnected = computed(() => {
   return false;
 });
 
-// 添加图片导航相关状态
-const currentImageIndex = ref(0);
 
-// 添加图片导航方法
-function prevImage() {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
-  }
-}
-
-function nextImage() {
-  if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-    currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
-  }
-}
 
 // 添加编辑模式状态
 const isEditMode = ref(false);
@@ -234,19 +221,7 @@ const deleteBlog = async (blogId?: number) => {
   }
 };
 
-// 评论功能
 
-function scrollToComments() {
-  const commentsSection = document.querySelector('.comments-container') as HTMLElement;
-  const detailRight = document.querySelector('.detail-right');
-
-  if (commentsSection && detailRight) {
-    detailRight.scrollTo({
-      top: commentsSection.offsetTop - 20,
-      behavior: 'smooth'
-    });
-  }
-}
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
@@ -576,93 +551,12 @@ function toggleFollowUser(follower:IUser) {
   </div>
 
   <!-- 博客详情弹出层 -->
-  <div class="blog-detail-overlay" v-if="selectedBlog" @click.self="closeBlogDetail">
-    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
-      <!-- 关闭按钮移到容器顶层 -->
-      <button class="close-button" @click="closeBlogDetail">×</button>
-
-      <!-- 左侧区域：图片和统计信息 -->
-      <div class="detail-left">
-        <!-- 图片区域 -->
-        <div class="image-section">
-          <div class="image-slider">
-            <div class="image-wrapper" :style="{ transform: `translateX(-${currentImageIndex * 100}%)` }">
-              <img
-                v-for="(image, index) in selectedBlog?.image"
-                :key="index"
-                :src="getImageUrl(image)"
-                alt="Blog Image"
-                class="detail-image"
-              />
-            </div>
-            <!-- 导航按钮 -->
-            <button class="nav-btn prev" @click="prevImage" v-if="selectedBlog?.image?.length > 1">❮</button>
-            <button class="nav-btn next" @click="nextImage" v-if="selectedBlog?.image?.length > 1">❯</button>
-          </div>
-        </div>
-
-        <!-- 统计信息栏 -->
-        <div class="stats-bar">
-          <!-- 统计信息 -->
-          <div class="stats-info">
-            <span class="likes">❤️ {{ selectedBlog.likes }}</span>
-            <span class="comments" @click="scrollToComments">💬 {{ selectedBlog.comments_count }}</span>
-            <span class="coins" v-if="selectedBlog.isNFT">💰 {{ selectedBlog.coins }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 右侧内容区域 -->
-      <div class="detail-right" ref="detailRight">
-        <!-- 用户信息和标题 -->
-        <div class="user-header">
-          <div class="author-info">
-            <img
-              :src="getImageUrl(selectedBlog?.user?.avatar || '')"
-              alt="Author Avatar"
-              class="author-avatar"
-            />
-            <span class="author-name">{{ selectedBlog?.user?.name }}</span>
-          </div>
-          <h2 class="blog-title">{{ selectedBlog.title }}</h2>
-        </div>
-
-        <!-- 标签区域 -->
-        <div class="tags-section">
-          <div class="nft-tag" v-if="selectedBlog.isNFT">NFT</div>
-          <span class="tag" v-for="tag in selectedBlog?.tags" :key="tag">
-            {{ tag }}
-          </span>
-        </div>
-
-        <!-- 博客内容 -->
-        <div class="content-section">
-          <p class="blog-content">{{ selectedBlog.content }}</p>
-        </div>
-
-        <!-- 评论部分 -->
-        <div class="comments-container" ref="commentsSection">
-          <div class="comments-header">
-            <h3>Comments</h3>
-            <span class="comment-count">{{ selectedBlog?.comments?.length || 0 }}</span>
-          </div>
-          <div class="comments-list">
-            <div v-for="comment in selectedBlog?.comments" :key="comment.id" class="comment-item">
-              <div class="comment-row">
-                <img
-                  :src="getImageUrl(comment.user.avatar)"
-                  alt="Commenter Avatar"
-                  class="comment-avatar"
-                />
-                <span class="comment-username">{{ comment.user.name }}</span>
-                <p class="comment-text">{{ comment.content }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <BlogDetailDialog
+      v-if="selectedBlog"
+      :blogId="selectedBlog.id"
+      :visible="!!selectedBlog"
+      @update:visible="closeBlogDetail"
+  />
 </template>
 
 <style lang="scss" scoped>
