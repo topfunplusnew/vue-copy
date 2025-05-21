@@ -24,6 +24,11 @@ const userChatInput = ref('');
 const showHistory = ref(false);
 const showTripOptions = ref(false);
 const editablePrompt = ref('');
+const isLeftPanelCollapsed = ref(false); // State for collapsing the left panel
+
+function toggleLeftPanel() {
+  isLeftPanelCollapsed.value = !isLeftPanelCollapsed.value;
+}
 
 function handleUserInput(event: Event | KeyboardEvent) {
   if ((event as KeyboardEvent).shiftKey) return; // 如果按住 shift，允许换行
@@ -320,62 +325,66 @@ onMounted(async() => {
 
     <!-- 外层内容容器 -->
     <div class="content-wrapper">
-      <!-- 主体布局：聊天面板 + 右侧信息面板 -->
-      <div class="main-content">
-        <!-- 中间：Chat 模块 -->
-        <div class="center-panel">
-          <div class="chat-header">
-            <div class="header-title">
-              <h2>Chat with iPoloGO</h2>
-            </div>
-            <div class="header-actions">
-              <el-button 
-              class="action-btn primary-btn" 
-              @click.stop="toggleHistory">
-                <i class="el-icon-document" 
-                style="margin-right: 6px"></i> 
-                History
+      <!-- 主体三栏布局 -->
+      <div class="main-layout">
+        <!-- 左侧：可折叠导航模块 -->
+        <div
+          :class="['left-navigation-panel', { collapsed: isLeftPanelCollapsed }]"
+          @click="toggleLeftPanel"
+        >
+          <div class="nav-button-group" @click.stop>
+            <el-tooltip content="Chatbox" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
+              <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
+                <i class="el-icon-chat-dot-round"></i>
+                <span v-if="!isLeftPanelCollapsed">Chatbox</span>
               </el-button>
-              <el-button 
-              class="action-btn trip-options-btn" 
-              @click.stop="toggleTripOptions">
-                <i class="el-icon-magic-stick" 
-                style="margin-right: 6px"></i> 
-                Generate Token
+            </el-tooltip>
+            <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
+              <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
+                <i class="el-icon-magic-stick"></i>
+                <span v-if="!isLeftPanelCollapsed">Generate Plan</span>
               </el-button>
-              <el-button 
-              class="action-btn finishc-btn" 
-              @click="finishConversation">
-                <i class="el-icon-close" 
-                style="margin-right: 6px"></i>
-                Finish Conversation
+            </el-tooltip>
+            <el-tooltip content="History" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
+              <el-button class="nav-item-btn" @click.stop="toggleHistory">
+                <i class="el-icon-document"></i>
+                <span v-if="!isLeftPanelCollapsed">History</span>
               </el-button>
-            </div>
+            </el-tooltip>
+            <el-tooltip content="My Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
+              <el-button class="nav-item-btn" @click="finishConversation">
+                <i class="el-icon-collection-tag"></i>
+                <span v-if="!isLeftPanelCollapsed">My Plan</span>
+              </el-button>
+            </el-tooltip>
+            <el-tooltip content="New Chat" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
+              <el-button class="nav-item-btn" @click="finishConversation">
+                <i class="el-icon-plus"></i>
+                <span v-if="!isLeftPanelCollapsed">New Chat</span>
+              </el-button>
+            </el-tooltip>
           </div>
-          
-          <div class="chat-box">
-            <div
-              v-for="(msg, index) in messages"
-              :key="index"
-              class="chat-message"
-              :class="msg.role"
-              v-html="md.render(msg.content)"
-            ></div>
-            <div
-              v-if="message.length > 0"
-              class="chat-message ai"
-            >{{ message }}</div>
+        </div>
+
+        <!-- 中间：Chatbox 模块 -->
+        <div class="center-chat-panel">
+          <div class="chat-box-placeholder">
+            <p>Chatbox Area</p>
+            <i class="el-icon-chat-line-round" style="font-size: 40px;"></i>
+             <!-- Actual chatbox content will go here -->
+             <!-- For now, you can move your existing .chat-box and .chat-input here -->
+             <!--
+             <div class="chat-box"> ... </div>
+             <div class="chat-input"> ... </div>
+             -->
           </div>
-          <div class="chat-input">
-            <el-input
-              v-model="userChatInput"
-              placeholder="Type your message..."
-              class="chat-input-box"
-              type="textarea"
-              :rows="3"
-              clearable
-              @keydown.enter.prevent="handleUserInput"
-            />
+        </div>
+
+        <!-- 右侧：地图模块 -->
+        <div class="right-map-panel">
+          <div class="map-placeholder">
+            <p>Map Area</p>
+            <i class="el-icon-map-location" style="font-size: 40px;"></i>
           </div>
         </div>
       </div>
