@@ -324,11 +324,11 @@ const handleFollowClick = async (id?: number) => {
               {{ item.icon }}{{ item.name }}
             </span>
           </div>
+          <p class="blog-content-title">{{ selectedBlog?.title }}</p>
         </div>
 
         <!-- 博客内容 -->
         <div class="content-section-home">
-          <p class="blog-content-title">{{ selectedBlog?.title }}</p>
           <div class="tags-section">
             <div class="nft-tag" v-if="selectedBlog?.isNFT">NFT</div>
             <span class="tag" v-for="tag in selectedBlog?.tags" :key="tag">
@@ -337,9 +337,6 @@ const handleFollowClick = async (id?: number) => {
           </div>
           <p class="blog-content-home">{{ selectedBlog?.content }}</p>
         </div>
-
-
-
         <!-- 评论部分 -->
         <CommentSection
           v-if="selectedBlog?.id && blogId > 0"
@@ -358,7 +355,6 @@ const handleFollowClick = async (id?: number) => {
             <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
             <span class="coins-home" v-if="selectedBlog?.isNFT">₿ {{ selectedBlog?.coins }}</span>
           </div>
-
           <!-- 简化的评论输入框 -->
           <div class="quick-comment-input">
             <input

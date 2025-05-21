@@ -452,6 +452,7 @@ const toggleMenu = () => {
               class="post-carousel"
               :touchable="true"
               :loop="true"
+              :autoplay="false"
             >
               <el-carousel-item
                 v-for="(img, index) in post.image"
