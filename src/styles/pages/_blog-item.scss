@@ -16,6 +16,9 @@
     margin: rpx(5);
     min-width: 0;
 
+    .blog-image{
+      height: 220px;
+    }
     a {
       text-decoration: none;
     }
@@ -30,26 +33,35 @@
       object-fit: cover;
       flex-shrink: 0;
       margin-bottom: 0;
+      
     }
 
     .blog-text {
       flex: 1;
-      padding: rpx(8) rpx(10);
+      padding: rpx(8) rpx(10) rpx(40);
       margin-top: rpx(-25);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
-
+      
+       
       .post-item-title {
         font-size: rpx(17);
         font-weight: bold;
         color: black; /* 中蓝色，稍微浅一点但仍有足够对比度 */
         text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
-        line-clamp: 1;
-        -webkit-box-orient: vertical;
         overflow: hidden;
         margin-bottom: rpx(6);
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        @media (max-width: 556px) {
+          margin-top: rpx(-30);  //不受没显示是博客的图片把他挡住了
+        }
+        
+
+        
       }
 
       .post-item-content {
@@ -58,6 +70,7 @@
         text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
         display: -webkit-box;
         line-clamp: 1;
+        // display: none;  //评论隐藏
         -webkit-box-orient: vertical;
         overflow: hidden;
         line-height: 1.3;
