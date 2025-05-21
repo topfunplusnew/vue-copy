@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import postPreview from './post-preview.vue';
-import { Plus, Delete } from '@element-plus/icons-vue';
+import { Plus, Delete, Close } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox, type UploadFile, type FormInstance } from 'element-plus';
 import { useBlogStore } from '@/stores/blog';
 import { useUserStore } from '@/stores/user';
@@ -40,9 +40,23 @@ const visible = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
 });
-// const closeDialog = () => {
-//   visible.value = false;
-// };
+
+// 添加关闭对话框方法
+const closeDialog = () => {
+  ElMessageBox.confirm('是否确定关闭此窗口？')
+    .then(() => {
+      visible.value = false;
+    })
+    .catch(() => {
+      // 用户取消关闭
+    });
+};
+
+// 直接关闭对话框不询问（用于移动端情况）
+const directClose = () => {
+  visible.value = false;
+};
+
 const handleClose = (done: () => void) => {
   ElMessageBox.confirm('Are you sure to close this dialog?')
     .then(() => {
@@ -270,6 +284,14 @@ const canPreview = computed(() => {
          createData.value.social_filters.length > 0;
 });
 
+// 添加判断是否为移动端视图的计算属性
+const isMobileView = ref(window.innerWidth <= 768);
+
+// 窗口大小变化处理函数
+const handleResize = () => {
+  isMobileView.value = window.innerWidth <= 768;
+};
+
 // 添加关闭预览的函数
 const closePreview = () => {
   showPreview.value = false;
@@ -278,18 +300,29 @@ const closePreview = () => {
 onMounted(async () => {
   await store.getSocialFilter();
   store.postReset(props.id);
+  // 添加窗口大小变化监听
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  // 移除窗口大小变化监听
+  window.removeEventListener('resize', handleResize);
 });
 </script>
 
 <template>
   <el-dialog
   v-model="visible"
-  title="Post Your Blog"
-  width="60%"
-  :fullscreen="false"
+  :show-close="false"
+  :width="isMobileView ? '100%' : '60%'"
+  :fullscreen="isMobileView"
   :before-close="handleClose"
   class="post-view-dialog"
   >
+    <!-- 添加自定义关闭按钮 -->
+    <div class="custom-close-btn" @click="isMobileView ? directClose() : closeDialog()">
+      <el-icon><Close /></el-icon>
+    </div>
 
     <el-main class="post-content">
       <!-- 内容卡片 -->
@@ -327,6 +360,7 @@ onMounted(async () => {
               placeholder="Enter a catchy title"
               maxlength="50"
               show-word-limit
+              :rows="isMobileView ? 1 : 2"
             ></el-input>
           </el-form-item>
 
@@ -358,7 +392,7 @@ onMounted(async () => {
             <el-input
               v-model="createData.content"
               type="textarea"
-              :autosize="{ minRows: 4, maxRows: 8 }"
+              :autosize="{ minRows: isMobileView ? 3 : 4, maxRows: isMobileView ? 5 : 8 }"
               placeholder="What's happening? Share your experience..."
             ></el-input>
           </el-form-item>

@@ -483,8 +483,6 @@ const expandedComments = ref<number[]>([]);
 
             <!-- Post按钮 -->
             <el-button type="primary" @click="showPostView = true" class="custom-post-button">Post</el-button>
-            <post-view :modelValue="showPostView" @update:modelValue="showPostView = $event" />
-
           </div>
         </div>
 
@@ -516,8 +514,7 @@ const expandedComments = ref<number[]>([]);
     <!-- 搜索结果为空提示 -->
     <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
 
-
-  <!-- 博客详情弹出层 -->
+    <!-- 博客详情弹出层 -->
     <blog-detail-dialog
       v-model:visible="dialogBlog"
       :blog-id="Number(blogID)"
@@ -527,5 +524,8 @@ const expandedComments = ref<number[]>([]);
 
     <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
   </div>
+
+  <!-- 将 post-view 组件移到这里，作为整个页面的子元素 -->
+  <post-view :modelValue="showPostView" @update:modelValue="showPostView = $event" />
 </template>
 
