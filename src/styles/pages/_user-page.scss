@@ -3,6 +3,40 @@
 
 
 .user-page {
+  /* 如果你想要全屏高度背景，可以加下行 */
+    position: relative;
+    width: 100%;
+    height: 100%;
+    
+    // 注释掉直接设置的背景，改用 background-layer
+    // 原背景样式注释掉，但保留为注释
+    /* background: linear-gradient(180deg, #faf1cb, #cde4df, #a1d9ff);
+    background-size: 100% 150%;
+    
+    /* 自然柔和的动画效果 */
+    /* animation: gentleFlow 20s ease-in-out infinite alternate; */
+    
+    // 注释掉这些样式，因为现在使用 background-layer
+    /* background: linear-gradient(135deg, rgba(30, 55, 95, 0.8), rgba(20, 30, 60, 0.9));
+    
+    // 添加网格背景效果
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(90deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(65, 145, 255, 0.07) 1px, transparent 1px);
+      background-size: 10px 10px;
+      background-position: 0 0;
+      z-index: -1;
+      opacity: 0.5;
+    } */
+    
+    z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -10,10 +44,7 @@
   padding-top: rpx(20);
   box-sizing: border-box;
   min-height: 100vh;
-  background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
-  background-size: 200% 150%;
-  animation: gradientAnimation 10s ease infinite;
-  color: #fff;
+  color: #1a3566; /* 改为深蓝色，与 About 页面一致 */
   font-family: 'Helvetica Neue', sans-serif;
   .reply-header-line{
     text-align: left;
@@ -72,6 +103,39 @@
     gap: rpx(10);
     margin-bottom: rpx(20);
   }
+
+  /* 编辑按钮区域 */
+  .nav-edit {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 100;
+  }
+  
+  /* 编辑模式按钮样式 */
+  .edit-mode-btn {
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-bottom: 2px solid rgba(65, 145, 255, 0.4);
+    color: #1a3566; /* 深蓝色 */
+    padding: 8px 15px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    &.is-primary {
+      background: rgba(65, 145, 255, 0.2);
+      border-bottom: 2px solid rgba(65, 145, 255, 0.4);
+      color: #1a3566; /* 深蓝色 */
+    }
+  }
 }
 
 /* 简单的渐变动画 */
@@ -104,14 +168,17 @@
 
 /* 左侧用户面板 */
 .main-content .sidebar {
-  margin-top: rpx(20);
-  width: rpx(300);
-  height: rpx(480);
+  margin-top: 20px;
+  width: 300px;
+  height: 650px;
   min-height: 40vh;
-  background: rgba(255, 255, 255, 0.1);
-  padding: rpx(20);
+  background: rgba(255, 255, 255, 0.7); /* 增加背景不透明度，让内容更清晰 */
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 20px;
   box-sizing: border-box;
-  border-radius: rpx(5);
+  border-radius: 10px;
   position: relative;
   z-index: 1;
   transition: width 0.3s ease, margin-bottom 0.3s ease;
@@ -119,15 +186,15 @@
   /* 在窄屏幕上调整宽度和高度 */
   @media (max-width: 992px) {
     width: 90%;
-    max-width: rpx(600);
-    margin-bottom: rpx(20);
+    max-width: 600px;
+    margin-bottom: 20px;
   }
 }
 
 /* 垂直分隔线，随 sidebar 同高 */
 .vertical-divider-us {
-  width: rpx(2);
-  background: rgba(255, 255, 255, 0.5);
+  width: 2px;
+  background: rgba(26, 53, 102, 0.2); /* 深蓝色，但更透明 */
   // height: 100%;
   min-height: 30vh;
   /* 如果 header 是固定定位，需要自行计算 offset */
@@ -178,7 +245,7 @@
 
     .blog-post {
       position: relative;
-      background: rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.8) !important;
       border-radius: rpx(8);
       overflow: hidden;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -186,7 +253,7 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       box-shadow: 0 rpx(6) rpx(16) rgba(119, 166, 211, 0.15);
       backdrop-filter: blur(2px);
       
@@ -222,7 +289,7 @@
         .post-title-userpage {
           font-size: rpx(17);
           font-weight: bold;
-          color: #fff;
+          color: #1a3566; /* 深蓝色 */
           display: -webkit-box;
           -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
@@ -232,7 +299,7 @@
 
         .post-text-userpage {
           font-size: rpx(16);
-          color: rgba(255, 255, 255, 0.8);
+          color: #1a3566; /* 深蓝色 */
           display: -webkit-box;
           -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
@@ -252,7 +319,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 6px 12px;
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.6); /* 增加不透明度 */
         z-index: 2;
         border-top: 1px solid rgba(255, 255, 255, 0.25);
         border-radius: 0;
@@ -283,11 +350,12 @@
           
 
           .author-name {
-            font-size: rpx(15); /* 减小字体大小 */
+            font-size: rpx(15);
             font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
             max-width: 60px; /* 限制宽度 */
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #1a3566; /* 深蓝色 */
           }
         }
 
@@ -296,6 +364,7 @@
 
           span {
             font-size: rpx(12); /* 减小字体大小 */
+            color: #1a3566; /* 深蓝色 */
           }
         }
       }
@@ -341,7 +410,6 @@
 /* 用户信息 */
 .user-info {
   text-align: center;
-  
 }
 
 .avatar-section {
@@ -358,7 +426,9 @@
   margin-bottom: 10px;
   border-radius: 50%;
   overflow: hidden;
-  background: rgba(128, 128, 128, 0.5); // 默认灰色背景
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 
   &:hover .avatar-upload-icon {
     opacity: 1;
@@ -387,7 +457,7 @@
     left: 0;
     right: 0;
     height: 40px;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -398,47 +468,27 @@
   }
 }
 
-.avatar-buttons {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-
-  .el-button {
-    font-size: 14px;
-    padding: 8px 15px;
-    
-    &--primary {
-      background-color: #409EFF;
-      border-color: #409EFF;
-      color: white;
-      
-      &:hover {
-        background-color: #66b1ff;
-        border-color: #66b1ff;
-      }
-    }
-  }
-}
-
 .username {
-  font-size:rpx(20);
+  font-size: 2.2rem;
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
-
   font-weight: bold;
   margin-bottom: 4px;
+  color: #1a3566;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .user-id {
-  font-size:rpx(20);
+  font-size: 1.8rem;
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
-
   margin-bottom: 4px;
+  color: #1a3566;
 }
-.registration-time {
-  margin-top: rpx(25);
-  font-size: rpx(14);
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
 
-  color: #eee9e9;
+.registration-time {
+  margin-top: 25px;
+  font-size: 1.4rem;
+  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+  color: #1a3566;
   margin-bottom: 10px;
 }
 
@@ -467,7 +517,7 @@
   }
 }
 .follow-link, .follower-link {
-  color: #fff;
+  color: #1a3566;
   font-size: rpx(15);
   font-weight: 500;
   text-decoration: underline;
@@ -482,19 +532,33 @@
     
     /* 使用动画下划线替代静态下划线 */
     &:after {
-      transform: scaleX(1);
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background-color: #1a3566;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
     }
   }
 }
 
 .follower-item {
   text-align: center;
-}
-.follower-link {
-  color: #fff;
-  font-size: rpx(16);
-  text-decoration: underline;
-  margin-left: 8px;
+  .number {
+    color: #1a3566; /* 深蓝色 */
+  }
+  
+  .follower-link {
+    color: #1a3566; /* 深蓝色 */
+    
+    .link-text {
+      color: #1a3566; /* 深蓝色 */
+    }
+  }
 }
 
 /* Likes & Coins 统计 */
@@ -505,43 +569,19 @@
 }
 .stat {
   text-align: center;
-}
-.number {
-  font-size: rpx(18);
-  font-weight: bold;
-  margin-right: 8px;
-  position: relative;
-  z-index: 1;
   
-  /* 添加微妙的光晕效果 */
-  &:after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 120%;
-    height: 120%;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  
-  .follow-item:hover &:after,
-  .follower-item:hover &:after {
-    opacity: 1;
-  }
-  
-  /* 在非常窄的屏幕上减小字体大小 */
-  @media (max-width: 400px) {
+  .number {
     font-size: rpx(18);
-    margin-right: 5px;
+    font-weight: bold;
+    margin-right: 8px;
+    color: #1a3566; /* 深蓝色 */
   }
-}
-.label {
-  display: block;
-  font-size: rpx(15);
+  
+  .label {
+    display: block;
+    font-size: rpx(15);
+    color: #1a3566; /* 深蓝色 */
+  }
 }
 
 /* 帖子网格 */
@@ -620,7 +660,7 @@
   margin: 10px 0;
   font-size: rpx(12);
   font-weight: bold;
-  color: #fff;
+  color: #1a3566; /* 深蓝色 */
 }
 
 /* 博客列表样式 */
@@ -721,7 +761,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
   display: flex;
   justify-content: center;
@@ -1245,10 +1285,224 @@
         
       }
     }
-  }
-}
+/* 右侧内容区域 */
+    .detail-right {
+      flex: 4;
+      background: white;
+      padding: 30px 0 30px 30px;
+      overflow-y: overlay;
+      position: relative;
+      transition: height 0.3s ease;
+      
+      /* 在窄屏幕上调整高度 */
+      @media (max-width: 768px) {
+        height: 50%;
+      }
+      
+      /* 自定义滚动条样式 */
+      &::-webkit-scrollbar {
+        width: 6px; /* 减小滚动条宽度 */
+        background-color: transparent; /* 滚动条背景透明 */
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
+        border-radius: 4px; /* 滚动条滑块圆角 */
+      }
+      
+      &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
+      }
+      
+      /* 内容容器，添加右侧内边距 */
+      .content-wrapper {
+        padding-right: 30px; /* 为内容添加右侧内边距 */
+      }
+      
+      /* 用户信息和标题 */
+      .user-header {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+        padding-right: 30px; /* 为标题区域添加右侧内边距 */
+        
+        .author-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
+          
+          .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+          }
+          
+          .author-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a3566; /* 深蓝色 */
+          }
+        }
+        
+        /* 博客标题 - 居中显示 */
+        .blog-title {
+          font-size: 20px;
+          font-weight: bold;
+          color: #1a3566; /* 深蓝色 */
+          margin: 0;
+          line-height: 1.3;
+          text-align: center; /* 标题居中 */
+          margin-top: 10px; /* 增加与作者信息的间距 */
+        }
 
-/* 闪光动画 */
+        /* 偏好标签区域 */
+        .tags-section-pref-userpage {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin: 15px 0 20px 0;
+
+        .tag-pref-userpage { 
+          background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          }
+        }
+      }
+      
+      /* 标签部分 */
+      .tags-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 15px 0 20px 0;
+        justify-content: left; /* 标签左对齐 */
+        padding-right: 30px; /* 为标签区域添加右侧内边距 */
+        
+        .tag {
+          background: #f0f0f0;
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        
+        .nft-tag {
+          background: linear-gradient(45deg, #ffd700, #ffaa00);
+          color: #111;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+          &::before {
+            content: "₿";
+            font-weight: bold;
+          }
+        }
+      }
+      
+      /* 内容部分 */
+      .content-section {
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+        // border-bottom: 1px solid #eee;
+        padding-right: 30px; /* 为内容区域添加右侧内边距 */
+        
+        .blog-content {
+          font-size: 15px;
+          line-height: 1.6;
+          color: #1a3566; /* 深蓝色 */
+          white-space: pre-wrap;
+          margin: 0;
+        }
+      }
+      
+      /* 评论部分 */
+      .comments-container {
+        padding-right: 30px; /* 为评论区域添加右侧内边距 */
+        
+        .comments-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 15px;
+          
+          h3 {
+            font-size: 16px;
+            margin: 0;
+            color: #1a3566; /* 深蓝色 */
+          }
+          
+          .comment-count {
+            background: #eee;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #555;
+          }
+        }
+        
+        .comments-list {
+          .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            
+            &:last-child {
+              border-bottom: none;
+            }
+            
+            .comment-row {
+              display: flex;
+              align-items: flex-start;
+              gap: 10px;
+              
+              .comment-avatar {
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                object-fit: cover;
+                flex-shrink: 0;
+              }
+              
+              .comment-username {
+                font-size: 14px;
+                font-weight: 500;
+                color: #1a3566; /* 深蓝色 */
+                min-width: 80px;
+                max-width: 80px;
+                flex-shrink: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin-top: 3px;
+              }
+              
+              .comment-text {
+                flex: 1;
+                font-size: 14px;
+                color: #1a3566; /* 深蓝色 */
+                margin: 3px 0 0;
+                line-height: 1.4;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
 @keyframes shine {
   0% {
     transform: translateX(-100%) rotate(45deg);
@@ -1261,7 +1515,6 @@
   }
 }
 
-
 /* 编辑个人信息按钮和登出按钮的容器 */
 .profile-buttons {
   display: flex;
@@ -1273,17 +1526,18 @@
 .edit-profile-btn {
   flex: 1;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(65, 145, 255, 0.3);
   border-radius: 8px;
-  color: white;
-  font-size: rpx(12);
+  color: #1a3566; /* 深蓝色 */
+  font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -1291,17 +1545,19 @@
 .logout-btn {
   flex: 1;
   padding: 10px;
-  background: rgba(255, 255, 255, 0.2); // 使用红色调
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 100, 100, 0.2);
   border-radius: 8px;
-  color: white;
-  font-size: rpx(12);
+  color: #1a3566; /* 深蓝色 */
+  font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-1px);
+    background: rgba(255, 100, 100, 0.1);
+    border-color: rgba(255, 100, 100, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -1312,7 +1568,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
@@ -1320,21 +1576,22 @@
   z-index: 100;
 
   .edit-profile-container {
-    background: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     border-radius: 16px;
     padding: 30px;
     width: 400px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(65, 145, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     cursor: move;
     user-select: none;
 
     h2 {
       text-align: center;
       margin-bottom: 20px;
-      color: #333;
-      font-size: rpx(18);
+      color: #1a3566; /* 深蓝色 */
+      font-size: 1.8rem;
+      text-shadow: none;
     }
 
     .edit-avatar-section {
@@ -1344,7 +1601,9 @@
       margin: 0 auto 20px;
       border-radius: 50%;
       overflow: hidden;
-      background: rgba(128, 128, 128, 0.1);
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(65, 145, 255, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 
       &:hover .avatar-upload-icon {
         opacity: 1;
@@ -1364,21 +1623,23 @@
         label {
           display: block;
           margin-bottom: 8px;
-          color: #333;
-          font-size: rpx(15);
+          color: #1a3566; /* 深蓝色 */
+          font-size: 1.5rem;
         }
 
         input {
           width: 100%;
           padding: 10px;
           border-radius: 8px;
-          border: 1px solid rgba(0, 0, 0, 0.1);
+          border: 1px solid rgba(65, 145, 255, 0.3);
           background: rgba(255, 255, 255, 0.8);
-          font-size: rpx(15);
+          font-size: 1.5rem;
+          color: #1a3566; /* 深蓝色 */
 
           &:focus {
             outline: none;
-            border-color: rgba(0, 0, 0, 0.2);
+            border-color: rgba(65, 145, 255, 0.5);
+            box-shadow: 0 0 8px rgba(65, 145, 255, 0.2);
           }
         }
       }
@@ -1391,17 +1652,18 @@
       margin-top: 30px;
 
       .el-button {
-        background: rgba(255, 255, 255, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        color: #333;
-        font-size: 18px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(65, 145, 255, 0.3);
+        color: #1a3566; /* 深蓝色 */
+        font-size: 16px;
         padding: 8px 20px;
         border-radius: 6px;
         transition: all 0.3s ease;
 
         &:hover {
-          background: rgba(255, 255, 255, 0.5);
-          transform: translateY(-1px);
+          background: rgba(255, 255, 255, 0.9);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
       }
     }
@@ -1466,7 +1728,7 @@
 }
 
 .social-modal-container {
-  background: rgba(30, 30, 30, 0.95);
+  background: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
   max-width: 900px;
   width: 90%;
@@ -1535,6 +1797,7 @@
   margin: 0 0 20px 0;
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+  color: #1a3566; /* 深蓝色 */
 }
 
 .social-user-list {
@@ -1580,6 +1843,7 @@
 .social-user-info {
   flex: 1;
   min-width: 0; /* 确保文本可以正确截断 */
+  color: #1a3566; /* 深蓝色，降低透明度 */
 }
 
 .social-user-name {
@@ -1589,7 +1853,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: #111;
+  color: #1a3566; /* 深蓝色 */
   
   @media (max-width: 480px) {
     text-align: center;
@@ -1599,7 +1863,7 @@
 
 .social-user-meta {
   font-size: rpx(12);
-  color: #888;
+  color: #1a3566; /* 深蓝色，降低透明度 */
 }
 
 .social-action-btn {
@@ -1607,21 +1871,22 @@
   border-radius: 20px;
   border: 1px solid #4a90e2;
   background: white;
-  color: #4a90e2;
+  color: #1a3566; /* 深蓝色 */
   font-size: rpx(14);
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    background: #f0f7ff;
+    background: rgba(26, 53, 102, 0.05);
   }
   
   &.following {
-    background: #4a90e2;
-    color: white;
+    background: rgba(26, 53, 102, 0.1);
+    color: #1a3566;
+    border-color: #1a3566;
     
     &:hover {
-      background: #3a80d2;
+      background: rgba(26, 53, 102, 0.2);
     }
   }
 }
@@ -1644,7 +1909,7 @@
   }
   
   p {
-    color: #888;
+    color: #1a3566; /* 深蓝色 */
     font-size: rpx(14);
   }
 }
@@ -1663,7 +1928,7 @@
   }
   
   p {
-    color: #888;
+    color: #1a3566; /* 深蓝色 */
     font-size: rpx(16);
   }
 }
@@ -1701,9 +1966,9 @@
     right: 10%;
     height: 1px;
     background: linear-gradient(90deg, 
-      rgba(255,255,255,0), 
-      rgba(255,255,255,0.3) 50%, 
-      rgba(255,255,255,0)
+      rgba(26,53,102,0), 
+      rgba(26,53,102,0.3) 50%, 
+      rgba(26,53,102,0)
     );
   }
   
@@ -1728,9 +1993,9 @@
       height: 70%;
       width: 1px;
       background: linear-gradient(180deg, 
-        rgba(255,255,255,0), 
-        rgba(255,255,255,0.4) 50%, 
-        rgba(255,255,255,0)
+        rgba(26,53,102,0), 
+        rgba(26,53,102,0.4) 50%, 
+        rgba(26,53,102,0)
       );
     }
   }
@@ -1763,11 +2028,11 @@
 .number {
   font-size: rpx(22);
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
-
   font-weight: bold;
   margin-right: 8px;
   position: relative;
   z-index: 1;
+  color: #1a3566; /* 深蓝色 */
   
   /* 添加微妙的光晕效果 */
   &:after {
@@ -1778,7 +2043,7 @@
     width: 120%;
     height: 120%;
     transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    background: radial-gradient(circle, rgba(26,53,102,0.15) 0%, rgba(26,53,102,0) 70%);
     z-index: -1;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -1792,26 +2057,32 @@
   /* 在非常窄的屏幕上减小字体大小 */
   @media (max-width: 400px) {
     font-size: rpx(18);
-    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
-
     margin-right: 5px;
   }
 }
 
 .follow-link, .follower-link {
+  color: #1a3566; /* 深蓝色 */
   font-size: rpx(15);
   font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
-
   font-weight: 500;
+  text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
   padding-bottom: 2px;
   
+  .link-text {
+    color: #1a3566; /* 深蓝色 */
+  }
+  
   &:hover {
     color: #4a90e2;
     
-    /* 使用动画下划线替代静态下划线 */
+    .link-text {
+      color: #4a90e2;
+    }
+    
     &:after {
       transform: scaleX(1);
     }
@@ -1929,23 +2200,21 @@
 
 /* 添加头部导航样式 */
 .header-userpage {
-  position: sticky;
+  position: absolute;
   top: 0;
-  width: 100%;
-  padding: 10px 0;
+  right: 0;
+  width: auto;
+  padding: 0;
   z-index: 100;
 }
 
 /* 导航容器布局 */
 .nav-container-userpage {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  max-width: 1020px;
-  margin: 0 auto;
-  padding: 0 20px;
+  padding: 0;
   position: relative;
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -1955,73 +2224,9 @@
   align-items: center;
 }
 
-/* 右侧Edit按钮区域 */
-.nav-edit {
-  margin-left: auto;
-}
-
-/* 汉堡菜单按钮 */
+/* 隐藏汉堡菜单按钮，因为我们使用的是全局的 header */
 .hamburger-menu-userpage {
   display: none;
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  margin-right: 15px;
-  padding: 5px;
-  z-index: 200;
-}
-
-/* 导航链接组 */
-.left-nav-userpage {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-}
-
-/* 按钮样式 */
-.nav-button-userpage {
-  background: rgba(86, 180, 233, 0.2);
-  border: 1px solid rgba(86, 180, 233, 0.3);
-  color: white;
-  padding: 8px 15px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.nav-button-userpage:hover {
-  background: rgba(86, 180, 233, 0.3);
-  transform: translateY(-2px);
-}
-
-/* 编辑模式按钮样式 */
-.edit-mode-btn {
-  background: linear-gradient(45deg, rgba(142, 68, 173, 0.85), rgba(233, 86, 108, 0.85));
-  border: none;
-  border-bottom: 3px solid rgba(255, 116, 138, 0.6);
-  color: white;
-  padding: 8px 15px;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.edit-mode-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(233, 86, 108, 0.4);
-  background: linear-gradient(45deg, rgba(162, 88, 193, 0.9), rgba(253, 106, 128, 0.9));
-}
-
-/* 当编辑模式激活时 */
-.edit-mode-btn.is-primary {
-  background: linear-gradient(45deg, rgba(86, 180, 233, 0.85), rgba(41, 128, 200, 0.85));
-  border-bottom: 3px solid rgba(115, 210, 255, 0.6);
-}
-
-.edit-mode-btn.is-primary:hover {
-  box-shadow: 0 6px 20px rgba(86, 180, 233, 0.4);
-  background: linear-gradient(45deg, rgba(106, 200, 253, 0.9), rgba(61, 148, 220, 0.9));
 }
 
 /* 响应式设计 */
@@ -2424,3 +2629,34 @@
   }
 }
 
+/* 在社交模态窗口中的 followers 列表标题 */
+.social-modal-column.followers-column {
+  .social-modal-title {
+    color: #1a3566; /* 深蓝色 */
+  }
+}
+
+/* 确保 followers 中的 user-name 和文本有正确的颜色 */
+.followers-column {
+  .social-user-name {
+    color: #1a3566; /* 深蓝色 */
+  }
+  
+  .social-user-meta {
+    color: #1a3566; /* 深蓝色，降低透明度 */
+  }
+}
+
+/* 社交面板改进 */
+.social-modal-overlay {
+  .social-modal-container {
+    .social-modal-column {
+      &.followers-column, &.following-column {
+        h3.social-modal-title {
+          color: #1a3566; /* 深蓝色 */
+        }
+      }
+    }
+  }
+}
+}

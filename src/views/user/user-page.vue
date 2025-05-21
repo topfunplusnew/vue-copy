@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed} from 'vue';
+import { ref, reactive, onMounted, computed, nextTick} from 'vue';
 import walletItem from '@/components/wallet-item.vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
@@ -9,11 +9,11 @@ import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
-// import type { IBlogComment } from '@/types/blog';
+import type { IBlogComment } from '@/types/blog';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import type { IBlog } from '@/types/blog';
+import commonHeader from '@/layout/common-header.vue';
 
-// import commonHeader from '@/layout/common-header.vue';
 const selectedBlog =ref<IBlog | null>(null); // 当前选中的博客详情
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -77,7 +77,6 @@ function gotoEidtPage(id?:number) {
     params: {id}
   })
 }
-
 
 
 function handleScroll() {
@@ -250,6 +249,194 @@ const deleteBlog = async (blogId?: number) => {
   }
 };
 
+// 编辑博客
+
+// 评论功能
+const newComment = ref('');
+
+const submitComment = async () => {
+  if (!newComment.value.trim()) return;
+  if (!selectedBlog.value?.id) return;
+
+  // 用户已登录不用检查登录状态
+  store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
+    console.log(res);
+  }).catch(e=>{
+    console.log(e);
+  }).finally(()=>{
+    // 清空输入
+    newComment.value = '';
+    if(selectedBlog.value?.id) store.getUserBlogByID(selectedBlog.value?.id);
+
+    // 滚动到新评论
+    nextTick(() => {
+      scrollToComments();
+    });
+  });
+
+  // 模拟添加评论
+  ElMessage({
+    message: 'Comment submitted successfully!',
+    type: 'success'
+  });
+
+  newComment.value = '';
+}
+
+
+
+// 评论相关的状态
+
+// 评论长按删除功能
+const longPressTimeout = ref();
+const longPressDuration = 800; // 长按时间阈值，单位为毫秒
+const activeComment = ref();
+
+// 长按开始处理函数
+const handleTouchStart = (comment:IBlogComment) => {
+  console.log(comment);
+  // 检查是否是当前用户的评论
+  const currentUser = store.user;
+
+  // 如果不是当前用户的评论，不允许删除
+  if (!comment || !currentUser || comment.user.id !== currentUser.id) {
+    return;
+  }
+
+  longPressTimeout.value = setTimeout(() => {
+    activeComment.value = comment.id;
+  }, longPressDuration);
+};
+
+// 长按结束处理函数
+const handleTouchEnd = () => {
+  if (longPressTimeout.value) {
+    clearTimeout(longPressTimeout.value);
+    longPressTimeout.value = null;
+  }
+};
+
+// 移动时取消长按
+const handleTouchMove = () => {
+  if (longPressTimeout.value) {
+    clearTimeout(longPressTimeout.value);
+    longPressTimeout.value = null;
+  }
+};
+
+// 确认删除评论
+const confirmDeleteComment = async (commentId?:number) => {
+  if(!commentId) return;
+  try {
+    // 调用删除评论API
+    await store.userDeleteComment(commentId);
+
+    // 刷新博客数据以更新评论列表
+    if(selectedBlog.value?.id) {
+      await store.getUserBlogByID(selectedBlog.value.id);
+    }
+
+    ElMessage.success('Comment deleted successfully');
+  } catch (error) {
+    console.error('Failed to delete comment:', error);
+    ElMessage.error('Failed to delete comment');
+  } finally {
+    activeComment.value = undefined;
+  }
+};
+
+// 取消删除操作
+const cancelDeleteComment = () => {
+  activeComment.value = undefined;
+};
+// const activeCommentId = ref<number | null>(null);
+const replyContent = ref('');
+const isSubmittingReply = ref(false);
+// 展开回复相关的状态
+
+// 添加回复目标状态
+const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
+
+// 切换回复输入框显示状态
+const toggleReplyInput = (id: number|undefined, type: string = 'comment', parentId?: number) => {
+  if (!id) return;
+  // 如果当前已经是在回复这个评论/回复，则关闭回复框
+  if (replyTarget.value &&
+      replyTarget.value.id === id &&
+      replyTarget.value.type === type) {
+    replyTarget.value = null;
+    replyContent.value = '';
+  } else {
+    // 否则打开回复框
+    if (type === 'reply' && !parentId) {
+      console.error('回复需要提供父评论ID');
+      return;
+    }
+
+    replyTarget.value = {
+      id,
+      type,
+      parentId
+    };
+
+    // 添加延迟滚动到回复框，确保DOM已更新
+    nextTick(() => {
+      // 滚动到回复框
+      const replyInputContainer = document.querySelector('.reply-input-container-home');
+      if (replyInputContainer) {
+        replyInputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+
+    replyContent.value = '';
+  }
+};
+
+// 取消回复
+const cancelReply = () => {
+  replyTarget.value = null;
+  replyContent.value = '';
+};
+// 展开查看所有回复
+const expandReplies = async (commentId: number|undefined) => {
+  // 如果需要调用API加载更多回复，可以在这里添加
+  // await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
+  if (commentId) store.getComments(commentId);
+  // 标记该评论已展开
+  // expandedComments.value.push(commentId);
+};
+// 提交回复
+const submitReply = async () => {
+  if (!replyContent.value.trim()) return;
+
+  isSubmittingReply.value = true;
+  try {
+
+
+    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
+    ElMessage.success('Reply added successfully');
+    if(selectedBlog.value?.id)store.getUserBlogByID(selectedBlog.value?.id);
+    replyTarget.value = null;
+    replyContent.value = '';
+  } catch (error) {
+    console.error('Failed to add reply:', error);
+    ElMessage.error('Failed to add reply. Please try again.');
+  } finally {
+    isSubmittingReply.value = false;
+  }
+};
+
+function scrollToComments() {
+  const commentsSection = document.querySelector('.comments-container') as HTMLElement;
+  const detailRight = document.querySelector('.detail-right');
+
+  if (commentsSection && detailRight) {
+    detailRight.scrollTo({
+      top: commentsSection.offsetTop - 20,
+      behavior: 'smooth'
+    });
+  }
+}
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
@@ -317,9 +504,23 @@ const toggleMenu = () => {
 </script>
 
 <template>
+<div class="background-layer"></div>
+<div class="about layout-main">
+  <commonHeader />
 
   <div class="user-page">
-    <!-- 顶部导航栏 -->
+    <!-- 编辑模式按钮，直接放在 user-page 容器下 -->
+    <div class="nav-edit">
+      <el-button
+        class="edit-mode-btn"
+        :type="isEditMode ? 'primary' : 'default'"
+        @click="toggleEditMode"
+      >
+        {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
+      </el-button>
+    </div>
+
+    <!-- 顶部导航栏 - 移除了编辑按钮 -->
     <header class="header-userpage">
       <div class="nav-container-userpage" :class="{ 'menu-active-userpage': menuActive }">
         <div class="nav-left">
@@ -328,32 +529,6 @@ const toggleMenu = () => {
             <span v-if="menuActive">✕</span>
             <span v-else>☰</span>
           </button>
-
-          <div class="left-nav-userpage" :class="{ 'active-userpage': menuActive }">
-            <router-link :to="{ name: 'home' }">
-              <el-button class="nav-button-userpage">HOME</el-button>
-            </router-link>
-            <router-link :to="{ name: 'about' }">
-              <el-button class="nav-button-userpage">ABOUT</el-button>
-            </router-link>
-            <router-link :to="{ name: 'blog' }">
-              <el-button class="nav-button-userpage">BLOG</el-button>
-            </router-link>
-            <router-link :to="{ name: 'contact' }">
-              <el-button class="nav-button-userpage">CONTACT</el-button>
-            </router-link>
-            <wallet-item />
-          </div>
-        </div>
-
-        <div class="nav-edit">
-          <el-button
-            class="edit-mode-btn"
-            :type="isEditMode ? 'primary' : 'default'"
-            @click="toggleEditMode"
-          >
-            {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
-          </el-button>
         </div>
       </div>
     </header>
@@ -634,7 +809,8 @@ const toggleMenu = () => {
       @close="closeBlogDetail"
       @toggle-follow="toggleFollowUser"
     />
-    </div>
+  </div>
+</div>
 </template>
 
 
