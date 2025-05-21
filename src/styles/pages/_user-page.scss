@@ -16,7 +16,16 @@
   animation: gradientAnimation 10s ease infinite;
   color: #fff;
   font-family: 'Helvetica Neue', sans-serif;
- 
+  .reply-header-line{
+    text-align: left;
+  }
+ .reply-text-home{
+  color: #5c5c5c;
+  font-size: rpx(13);
+  text-align: left;
+  cursor: pointer;
+ }
+
   .left-nav-userpage {
     margin-left: rpx(350);
     display: flex;
@@ -187,8 +196,9 @@
         box-shadow: 0 rpx(8) rpx(22) rgba(129, 176, 221, 0.25);
         border: 1px solid rgba(255, 255, 255, 0.4);
       }
+      .post-carousel{
 
-      .post-image {
+        .post-image {
         width: 100%;
         /* 减小图片高度 */
         height: rpx(200); 
@@ -198,6 +208,8 @@
         margin: 0; /* 移除可能的外边距 */
         border-radius: 0; /* 确保没有圆角 */
       }
+      }
+      
 
       .post-content-userpage {
         flex: 1;
@@ -273,6 +285,41 @@
     }
   }
 }
+
+//走马灯
+.post-carousel {
+
+    // 卡片走马灯的指示点 
+  .el-carousel__indicators {
+    flex-wrap: nowrap !important; /* 防止多行 */
+    justify-content: center;      /* 居中显示，可选 */
+    gap: 4px;                     /* 控制点之间的间距 */
+  }
+  .el-carousel__indicator {
+    width: 6px !important;        /* 控制点宽度 */
+    height: 6px !important;       /* 控制点高度 */
+    border-radius: 50%;           /* 圆形 */
+  }
+  .el-carousel__indicator.is-active button {
+    background-color: #409EFF;    /* 激活状态颜色，可按需修改 */
+    
+  }
+
+  //
+  .el-carousel__arrow {
+    background-color: rgba(0, 0, 0, 0.6) !important; /* 更深的半透明黑 */
+    color: white; /* 箭头颜色 */
+    transition: background-color 0.3s;
+  }
+
+  .el-carousel__arrow:hover {
+    background-color: rgba(0, 0, 0, 0.8) !important; /* 悬停更深 */
+  }
+}
+
+
+
+
 
 /* 用户信息 */
 .user-info {
@@ -674,6 +721,7 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
     background: white;
     max-width: none;
+    position: relative;
     transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
     
     /* 在窄屏幕上调整为垂直布局 */
@@ -726,30 +774,32 @@
         flex: 1;
         position: relative;
         overflow: hidden;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
         
         .image-slider {
           width: 100%;
           height: 100%;
           position: relative;
-          
+      
           .image-wrapper {
             width: 100%;
             height: 100%;
             display: flex;
             transition: transform 0.3s ease;
-            
+      
             .detail-image {
               width: 100%;
-                height: 100%;
-                flex-shrink: 0;
-                object-fit: contain; /* 保持图片比例 */
-                box-sizing: border-box; /* 确保内边距计入总宽度 */
-                padding: 0 15px; /* 图片两侧添加内边距 */
-                background-color: #fff; /* 添加背景色，防止透明 */
+              height: 100%;
+              flex-shrink: 0;
+              object-fit: contain;
+              box-sizing: border-box;
+              padding: 0 15px;
+              background-color: #fff;
             }
           }
-          
-          /* 导航按钮 */
+      
           .nav-btn {
             position: absolute;
             top: 50%;
@@ -766,15 +816,15 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            
+      
             &:hover {
               background: rgba(0, 0, 0, 0.6);
             }
-            
+      
             &.prev {
               left: 15px;
             }
-            
+      
             &.next {
               right: 15px;
             }
@@ -782,108 +832,18 @@
         }
       }
       
-      /* 统计信息栏 */
-      .stats-bar {
-        height: 60px;
-        background: #f8f8f8;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 20px;
-        border-top: 1px solid #eee;
-        
-        /* 统计信息 */
-        .stats-info {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          
-          span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            
-            &:hover {
-              transform: translateY(-2px);
-            }
-          }
-          /* 为统计数据添加不同颜色 */
-          .likes {
-            color: #e74c3c; /* 红色 */
-          }
-          
-          .comments {
-            color: #3498db; /* 蓝色 */
-          }
-          
-          .coins {
-            color: #f39c12; /* 金色 */
-          }
-        }
-        /* 美化评论输入区域 */
-        .quick-comment-input {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          width: 280px;
-        }
-        
-        .comment-input {
-          flex: 1;
-          padding: 8px 12px;
-          border: 1px solid #ddd;
-          border-radius: 20px;
-          font-size: 14px;
-          background-color: #f5f5f5;
-          transition: all 0.3s ease;
-          outline: none;
-        }
-        
-        .comment-input:focus {
-          border-color: #3498db;
-          background-color: #fff;
-          box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
-        }
-        
-        .submit-quick-comment {
-          background: #3498db;
-          color: white;
-          border: none;
-          border-radius: 50%;
-          width: 32px;
-          height: 32px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-        
-        .submit-quick-comment:hover:not(:disabled) {
-          background: #2980b9;
-          transform: scale(1.05);
-        }
-        
-        .submit-quick-comment:disabled {
-          background: #ccc;
-          cursor: default;
-        }
-        
-      }
     }
     
     /* 右侧内容区域 */
     .detail-right {
       flex: 4;
       background: white;
-      padding: 30px 0 30px 30px;
+      padding: 30px 0 0 10px;
       overflow-y: overlay;
       position: relative;
       transition: height 0.3s ease;
+      // padding-bottom: 80px; /* 预留 stats-bar 高度，防止内容被挡住 */
+      overflow-y: auto; /* 保证内容可滚动 */
       
       /* 在窄屏幕上调整高度 */
       @media (max-width: 768px) {
@@ -1059,17 +1019,19 @@
               display: flex;
               align-items: flex-start;
               gap: 10px;
+              margin: 0 0 rpx(20) 0;
+              
               
               .comment-avatar {
-                width: 28px;
-                height: 28px;
+                width: 30px;
+                height: 30px;
                 border-radius: 50%;
                 object-fit: cover;
                 flex-shrink: 0;
               }
               
               .comment-username {
-                font-size: 14px;
+                font-size: 18px;
                 font-weight: 500;
                 color: #333;
                 min-width: 80px;
@@ -1078,7 +1040,8 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                margin-top: 3px;
+                margin-bottom: 10px;
+                
               }
               
               .comment-text {
@@ -1087,10 +1050,122 @@
                 color: #555;
                 margin: 3px 0 0;
                 line-height: 1.4;
+                word-wrap: break-word;        /* 强制长词换行 */
+                word-break: break-word;       /* 控制长单词/URL 换行 */
+                white-space: normal;          /* 允许换行 */
+                overflow-wrap: break-word;    /* 现代浏览器支持 */
+                display: block;               /* 确保它占据整行 */
+                cursor: pointer;
+              }
+            }
+
+            .reply-input-container-home{
+              .replying-to-label{
+                font-size: 13px;
+                color: #999;
+                margin-bottom: 5px;
               }
             }
           }
         }
+      }
+       /* 统计信息栏 */
+       .stats-bar {
+        position: sticky;
+        bottom: 0;
+        display: flex;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: #f8f8f8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 20px;
+        border-top: 1px solid #eee;
+        z-index: 10;
+        
+        /* 统计信息 */
+        .stats-info {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          
+          span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover {
+              transform: translateY(-2px);
+            }
+          }
+          /* 为统计数据添加不同颜色 */
+          .likes {
+            color: #e74c3c; /* 红色 */
+          }
+          
+          .comments {
+            color: #3498db; /* 蓝色 */
+          }
+          
+          .coins {
+            color: #f39c12; /* 金色 */
+          }
+        }
+        /* 美化评论输入区域 */
+        .quick-comment-input {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 280px;
+        }
+        
+        .comment-input {
+          flex: 1;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 20px;
+          font-size: 14px;
+          background-color: #f5f5f5;
+          transition: all 0.3s ease;
+          outline: none;
+        }
+        
+        .comment-input:focus {
+          border-color: #3498db;
+          background-color: #fff;
+          box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        
+        .submit-quick-comment {
+          background: #3498db;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .submit-quick-comment:hover:not(:disabled) {
+          background: #2980b9;
+          transform: scale(1.05);
+        }
+        
+        .submit-quick-comment:disabled {
+          background: #ccc;
+          cursor: default;
+        }
+        
       }
     }
   }
@@ -1943,95 +2018,114 @@
     padding: 10px 12px;
   }
 }
+.comment-replies-home{
 
-.reply-item{
-  .reply-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    .reply-avatar {
-      width: 28px;
-      height: 28px;
-    }
-
-    .reply-info {
+  .reply-item{
+    .reply-row {
       display: flex;
-      flex-direction: column;
-      flex: 1;
-      padding-top: 25px;
-      
-      .reply-header {
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: rpx(10);
+      margin-left: rpx(20);
+      .reply-avatar {
+        width: 24px;
+        height: 24px;
+      }
+
+      .reply-info {
         display: flex;
-        align-items: center;
-        margin-bottom: 2px;
-        
-        .reply-username-home {
-          font-weight: 500;
-          color: #333;
-          margin-right: 10px;
-          margin-top: -30px;
-        }
-        
-        .replying-to {
-          font-size: 11px;
-          color: #999;
-          margin-right: 10px;
-          margin-top: -30px;
-        }
-        
-        .target-name-show {
-          font-size: 12px;
-          color: #4e6ef2;
-          font-weight: 500;
-          margin-right: 0;
-          margin-top: -30px;
-        }
-        
-        .reply-content-wrapper{
-          flex: 1;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-
-          .reply-text-home {
-            flex: 1;
+        flex-direction: column;
+        flex: 1;
+        padding-top: 25px;
+        .reply-header-line{
+          margin-top: rpx(-20);
+          margin-left: rpx(-5);
+          .reply-username-home {
+            font-weight: 500;
             font-size: 14px;
-            color: #555;
-            padding-left: 0;
-            margin-left: -70px; /* 添加负边距让文本更靠左 */
-            padding-top: 0;
-            margin-top:-15px;
-            line-height: 1.4;
-            word-break: break-word;
-            cursor: pointer;
-            transition: color 0.2s ease;
-            
-            &:hover {
-              color: #4e6ef2; /* 鼠标悬停时文本变色，提示可点击 */
-            }
+            color: #333;
+            margin-right: 10px;
+            margin-top: 50px;
           }
-
-          .reply-icon-reply-to-reply{
-            font-size: 16px;
-            color: #999;
-            margin-left: 10px;
-            cursor: pointer;
-            opacity: 0; /* 默认隐藏 */
-            transition: opacity 0.2s ease;
-            
-            &:hover {
-              color: #4e6ef2; /* 悬停时颜色更明显 */
-              opacity: 1;
-            }
+          .target-name-show {
+            font-size: 10px;
+            color: #b7b8b9;
+            font-weight: 500;
+            margin-right: 0;
+            margin-top: 3px;
           }
         }
-        &:hover .reply-icon-reply-to-reply {
-          opacity: 1;
+        
+        .reply-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 2px;
+          
+          
+          
+          .replying-to {
+            font-size: 11px;
+            color: #999;
+            margin-right: 10px;
+            margin-top: -30px;
+          }
+          
+          
+          
+          .reply-content-wrapper{
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            
+
+            .reply-text-home {
+              flex: 1;
+              font-size: 14px;
+              color: #555;
+              padding-left: 0;
+              margin-left: -70px; /* 添加负边距让文本更靠左 */
+              padding-top: 0;
+              margin-top:-15px;
+              line-height: 1.4;
+              word-break: break-word;
+              cursor: pointer;
+              transition: color 0.2s ease;
+              
+              &:hover {
+                color: #4e6ef2; /* 鼠标悬停时文本变色，提示可点击 */
+              }
+            }
+
+            .reply-icon-reply-to-reply{
+              font-size: 16px;
+              color: #999;
+              margin-left: 10px;
+              cursor: pointer;
+              opacity: 0; /* 默认隐藏 */
+              transition: opacity 0.2s ease;
+              
+              &:hover {
+                color: #4e6ef2; /* 悬停时颜色更明显 */
+                opacity: 1;
+              }
+            }
+          }
+          &:hover .reply-icon-reply-to-reply {
+            opacity: 1;
+          }
         }
       }
-    }
 
-  }  
+    }  
+  }
+  .view-more-text-r2r{
+    cursor: pointer;
+  }
+  .hide-replies-text-r2r{
+    cursor: pointer;
+  }
+
 }
 /* 评论长按删除功能样式 */
 .comment-row {

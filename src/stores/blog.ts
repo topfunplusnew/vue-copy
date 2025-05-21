@@ -7,14 +7,33 @@ import type { IBlogPage, IBlog, IBlogReq, IBlogPostCreate, ISocialFilter } from 
 import { INIT_BLOG_POST } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
 import type { UploadFile } from 'element-plus';
+import axios from 'axios';
 
 export const useBlogStore = defineStore('blog', () => {
+
   const blogs = ref<IBlogPage>(INIT_PAGINATION); // blog列表数据
   const condition = ref<IBlogReq>({}); // 查询blog列表的条件
   const socialFilters = ref<ISocialFilter[]>([]); // 社会过滤器
   const blog = ref<IBlog>(); // 单独blog
   const blogos = ref<IBlogPage>(INIT_PAGINATION); // 官方博客列表
+  //点赞
+  const likeBlog = async (blogId: number) => {
+    const response = await axios.post(
+      `http://127.0.0.1:4523/m1/6157155-5849182-default/api/like`,
+      { blogId },  // 如果需要传参数
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  };
 
+  const checkUserLike = async (blogId: number) => {
+    const response = await axios.get(`/blogs/${blogId}/check-like`);
+    return response.data;
+  };
   const createData = ref<IBlogPostCreate>(INIT_BLOG_POST);
 
   const commentPermission = [{id: 0, name: 'Everyone'}, {id: 10, name: 'Followers'}, {id: 11, name: 'Only me'}];
@@ -158,11 +177,22 @@ export const useBlogStore = defineStore('blog', () => {
       }
     });
   }
+  function collapseComments(commentId: number) {
+    if (blog.value) {
+      for (const comment of blog.value.comments) {
+        if (comment.id === commentId && comment.replies.length > 2) {
+          comment.replies = comment.replies.slice(0, 2);
+        }
+      }
+    }
+  }
+
+
   return {
     blogs, condition, blog, createData, socialFilters,blogos,
     commentPermission,
     getSocialFilter, userPostblog,getBlogList, getBlogByID, clearBlog, userPostimage,postReset,
-    editmyblog, getComments,
-    getBlogosList
+    editmyblog, getComments,collapseComments,
+    getBlogosList,likeBlog,checkUserLike
   };
 });

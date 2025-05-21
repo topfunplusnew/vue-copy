@@ -1049,7 +1049,7 @@ $border-color: rgba(100, 179, 244, 0.2);
 // 弹窗容器
 .blog-detail-dialog {
   background-color: transparent !important;
-  background: linear-gradient(135deg, $primary-bg, $secondary-bg) !important;
+  background: white !important;
   backdrop-filter: blur(15px) !important;
   border-radius: 16px !important;
   overflow: hidden !important;
@@ -1165,31 +1165,83 @@ $border-color: rgba(100, 179, 244, 0.2);
   }
 }
 
-// 主内容区
+// 博客详情弹框主内容区
 .blog-detail-content {
-  display: flex;
-  height: 100%;
-  height: calc(100vh - rpx(60));
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    background: white;
+    max-width: none;
+    position: relative;
+    transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+    /* 在窄屏幕上调整为垂直布局 */
+    @media (max-width: 768px) {
+      flex-direction: column;
+      height: 90vh;
+    }
 
+    /* 关闭按钮 */
+    .close-button {
+      position: absolute;
+      top: 20px;
+      right: 50px;
+      width: 40px;
+      height:40px;
+      background: rgba(0, 0, 0, 0.3);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.6);
+        transform: rotate(90deg);
+      }
+    }
   // 左侧图片区
   .detail-left-home {
-    flex: 1;
-    overflow: hidden;
+    flex: 6;
+    background: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    transition: height 0.3s ease;
+    
+    /* 在窄屏幕上调整高度 */
+    @media (max-width: 768px) {
+      height: 50%;
+    }
 
     .carousel-home {
-      height: 100%;
+      flex: 1;
+      position: relative;
       overflow: hidden;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
 
       .carousel-item-home {
+        width: 100%;
         height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        position: relative;
 
         .detail-image-home {
           width: 100%;
           height: 100%;
-          object-fit: cover;
+          flex-shrink: 0;
+          object-fit: contain;
+          box-sizing: border-box;
+          padding: 0 15px;
+          background-color: #fff;
         }
       }
     }
@@ -1197,59 +1249,98 @@ $border-color: rgba(100, 179, 244, 0.2);
 
   // 右侧内容区
   .detail-right-home {
-    flex: 1;
-    overflow-y: auto;/*滚动条*/
-    padding: 1.5rem;
-    background: linear-gradient(180deg, #000000, $secondary-bg);
+    flex: 4;
+    background: white;
+    padding: 30px 0 0 10px;
+    overflow-y: overlay;
+    position: relative;
+    transition: height 0.3s ease;
+    // padding-bottom: 80px; /* 预留 stats-bar 高度，防止内容被挡住 */
+    overflow-y: auto; /* 保证内容可滚动 */
+    
+    /* 在窄屏幕上调整高度 */
+    @media (max-width: 768px) {
+      height: 50%;
+    }
+    
+    /* 自定义滚动条样式 */
+    &::-webkit-scrollbar {
+      width: 6px; /* 减小滚动条宽度 */
+      background-color: transparent; /* 滚动条背景透明 */
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
+      border-radius: 4px; /* 滚动条滑块圆角 */
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
+    }
 
     // 用户信息区
     .user-header-home {
-      margin-bottom: 1.5rem;
-      position: relative;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-right: 30px; /* 为标题区域添加右侧内边距 */
 
       .author-info-home {
         display: flex;
         align-items: center;
-        gap: 1rem;
-
+        gap: 10px;
+        margin-bottom: 10px;
+        // 发帖人头像
         .author-avatar-home {
-          width: rpx(50);
-          height: rpx(50);
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
           object-fit: cover;
         }
 
         .author-name-home {
-          color: $text-color;
-          font-size: 1.2rem;
-          font-weight: 600;
+          font-size: 20px;
+          font-weight: bold;
+          color: #2e2e2e;
         }
 
         .follow-btn {
-          margin-left: auto;
-          background: rgba($accent-color, 0.2);
-          color: white;
-          border: 1px solid rgba($accent-color, 0.3);
+          background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
 
           &.following {
             background: rgba($accent-color, 0.4);
           }
+        }
+        .edit-btn{
+          background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
         }
       }
 
       // 分类标签区
       .tags-section-pref {
         display: flex;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-        padding-top: rpx(20);
-
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 15px 0 20px 0;
         .tag-pref {
-          background: rgba($accent-color, 0.2);
-          color: $text-color;
-          padding: 0.3rem 0.8rem;
-          border-radius: rpx(20);
-          font-size: 0.9rem;
+          background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
         }
       }
     }
@@ -1258,28 +1349,106 @@ $border-color: rgba(100, 179, 244, 0.2);
     .content-section-home {
       margin-bottom: 2rem;
 
-      .blog-content-home {
-        color: $secondary-text;
-        font-size: 1.1rem;
-        line-height: 1.6;
+      .blog-content-title{
+        font-size: 20px;
+        font-weight: bold;
+        color: #111;
         margin: 0;
+        line-height: 1.3;
+        text-align: center; /* 标题居中 */
+        margin-top: 10px; /* 增加与作者信息的间距 */
+      }
+      .tags-section{
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 15px 0 20px 0;
+        justify-content: left; /* 标签左对齐 */
+        padding-right: 30px; /* 为标签区域添加右侧内边距 */
+        
+        .tag {
+          background: #f0f0f0;
+          color: #555;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+        
+        .nft-tag {
+          background: linear-gradient(45deg, #ffd700, #ffaa00);
+          color: #111;
+          padding: 4px 10px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          
+          &::before {
+            content: "₿";
+            font-weight: bold;
+          }
+        }
+      }
+
+      .blog-content-home {
+        font-size: 15px;
+          line-height: 1.6;
+          color: #333;
+          white-space: pre-wrap;
+          margin: 0;
+          text-align: justify; 
       }
     }
 
     // 统计信息区
     .stats-bar-home {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: rpx(8);
-      padding: 1rem;
-      margin-bottom: 1.5rem;
+      position: sticky;
+      bottom: 0;
+      display: flex;
+      height: 60px; 
+      background: #f8f8f8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      border-top: 1px solid #eee;
+      z-index: 10;
+      margin-left: rpx(-30);
 
       .stats-info-home {
         display: flex;
-        gap: 1.5rem;
-        margin-bottom: 1rem;
+        align-items: center;
+        gap: 20px;
+        span {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          
+          &:hover {
+            transform: translateY(-2px);
+          }
+          .likes-home {
+            color: #e74c3c; /* 红色 */
+          }
+          
+          .comments-home {
+            color: #3498db; /* 蓝色 */
+          }
+          
+          .coins-home {
+            color: #f39c12; /* 金色 */
+          }
+        }
 
         .likes-home, .comments-home, .coins-home {
-          color: #adb5bd;
+          color: #9da6a6;
           font-size: 1rem;
           cursor: pointer;
         }
@@ -1288,15 +1457,24 @@ $border-color: rgba(100, 179, 244, 0.2);
       // 简化评论输入框
       .quick-comment-input {
         display: flex;
-        gap: 0.5rem;
+        align-items: center;
+        gap: 10px;
+        width: 280px;
 
         .comment-input-home {
           flex: 1;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba($accent-color, 0.3);
-          padding: 0.5rem;
-          border-radius: rpx(6);
-          color: $secondary-text;
+          padding: 8px 12px;
+          border: 1px solid #ddd;
+          border-radius: 20px;
+          font-size: 14px;
+          background-color: #f5f5f5;
+          transition: all 0.3s ease;
+          outline: none;
+          &:focus {
+            border-color: #3498db;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+          }
         }
 
         .submit-quick-comment {
@@ -1307,13 +1485,17 @@ $border-color: rgba(100, 179, 244, 0.2);
           padding: 0 rpx(1);
           cursor: pointer;
 
-          &:hover {
-            background: rgba($accent-color, 0.5);
-            transform: translateY(-2px);
+          &:hover:not(:disabled) {
+            background: #2980b9;
+            transform: scale(1.05);
           }
 
           &:active {
             transform: translateY(0);
+          }
+          &:disabled {
+            background: #ccc;
+            cursor: default;
           }
         }
       }
@@ -1321,29 +1503,27 @@ $border-color: rgba(100, 179, 244, 0.2);
 
     // 评论区
     .comments-container-home {
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: rpx(8);
-      padding: 1rem;
-      margin-top: 2rem;
-      // overflow-y: auto;  //给评论加上滑动
-      // max-height: 100vh;  //限制评论的高度
+      padding-right: 30px;
       
 
       .comments-header-home {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        padding-bottom: 0.5rem;
-
+        margin-bottom: 15px;
+        
         h3 {
+          font-size: 16px;
           margin: 0;
-          color: $text-color;
+          color: #333;
         }
 
         .comment-count-home {
-          color: #adb5bd;
+          background: #eee;
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-size: 12px;
+          color: #555;
         }
         i{
           width: rpx(20);
@@ -1352,62 +1532,87 @@ $border-color: rgba(100, 179, 244, 0.2);
       }
 
       .comment-item-home {
-        margin-bottom: 1.5rem;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        
+        &:last-child {
+          border-bottom: none;
+        }
 
         .comment-row-home {
           display: flex;
-          gap: 0.8rem;
-          position: relative;
+          align-items: flex-start;
+          gap: 10px;
+          margin: 0 0 rpx(20) 0;
+
           &.long-press-active {
             background: rgba($accent-color, 0.1);
           }
 
           .comment-avatar-home {
-            width: rpx(40);
-            height: rpx(40);
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             object-fit: cover;
+            flex-shrink: 0;
           }
-
-          .comment-username-home {
-            color: $text-color;
-            font-weight: 500;
-            margin: 0;
-            .comment-text-home {
-              color: $secondary-text;
-              line-height: 1.6;
-              margin: 0;
-            }
-          }
-
           .comment-content-wrapper {
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             gap: 0.5rem; /* 控制用户名和评论内容之间的间距 */
-            .comment-user-home {
-              color: $text-color;
-              font-weight: 500;
-              margin-left: rpx(10);
-            }
-          
-
+           
             .reply-icon {
               color: #6b6b6b;
               cursor: pointer;
               float: right;
             }
+          .comment-username-home {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            flex-shrink: 0;
+            overflow: hidden;
+            // text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-bottom: 10px;
+            margin-top: rpx(3);
+            // margin-left: rpx(-20);
           }
+          .comment-text-home {
+            flex: 1;
+            font-size: 14px;
+            color: #555;
+            margin: 3px 0 0;
+            line-height: 1.4;
+            word-wrap: break-word;        /* 强制长词换行 */
+            word-break: break-word;       /* 控制长单词/URL 换行 */
+            white-space: normal;          /* 允许换行 */
+            overflow-wrap: break-word;    /* 现代浏览器支持 */
+            display: block;               /* 确保它占据整行 */
+            cursor: pointer;
+          } 
+        }
+          
+          
 
           // 删除功能样式
           .delete-indicator {
             position: absolute;
-            top: rpx(10);
-            right: rpx(10);
+            top: 10px;
+            right: 10px;
+            background-color: rgba(255, 59, 59, 0.2);
+            color: #ff3b3b;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 10; /* 确保在最上层 */
-
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            
             &.visible {
               opacity: 1;
             }
@@ -1445,37 +1650,35 @@ $border-color: rgba(100, 179, 244, 0.2);
               gap: rpx(10);
               justify-content: flex-end;
 
-              button {
-                padding: rpx(6) rpx(12);
-                border-radius: rpx(4);
-                font-size: rpx(14);
-                cursor: pointer;
-              }
-              .delete-btn-rp, .cancel-btn-rp {
-                padding: rpx(6) rpx(12);
-                border-radius: rpx(4);
-                cursor: pointer;
-                transition: all 0.2s;
-               
-              }
               .delete-btn-rp {
-                background: #ff4d4f;
+                background-color: #ff3b3b;
                 color: white;
                 border: none;
-
+                padding: 4px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                font-size: rpx(12);
+                
                 &:hover {
-                  background: #c0392b;
+                  background-color: #ff1f1f;
                 }
               }
-
+              
               .cancel-btn-rp {
-                background: transparent;
-                color: #adadad;
-                border: 1px solid #434343;
-
+                background-color: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: none;
+                padding: 4px 10px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-weight: 600;
+                transition: all 0.2s ease;
+                font-size: rpx(12);
+                
                 &:hover {
-                  color: white;
-                  border-color: #595959;
+                  background-color: rgba(255, 255, 255, 0.3);
                 }
               }
             }
@@ -1484,33 +1687,56 @@ $border-color: rgba(100, 179, 244, 0.2);
 
         // 评论回复区
         .comment-replies-home {
-          margin-left: 2rem;
-          margin-top: 1rem;
+
           .reply-item-home {
             .reply-row-home {
               display: flex;
-              gap: 0.8rem;
-              position: relative;
+              align-items: flex-start;
+              gap: 10px;
+              margin-top: rpx(10);
+              margin-left: rpx(20);
               .reply-content-wrapper {
                 display: flex;
                 flex-direction: column;
                 gap: 0.5rem; /* 控制用户名和回复内容之间的间距 */
-                .reply-text-home {
-                  color: $secondary-text;
-                  line-height: 1.6;
-                  margin: 0;
+                .reply-user-info {
+                  display: flex;
+                  align-items: center; /* 垂直居中 */
+                }
+                .reply-username-home{
+                  font-weight: 500;
+                  font-size: 14px;
+                  color: #333;
+                  margin-right: 10px;
+                  margin-top: rpx(5);
                 }
                 .target-name-show{
-                  font-size: rpx(12);
-                  color: #adabab;
+                  font-size: 11px;
+                  color: #b7b8b9;
+                  font-weight: 500;
+                  margin-right: 0;
+                  margin-top: 3px;
+                  margin-left: rpx(-5);
                 }
+                
+                .reply-text-home {
+                  flex: 1;
+                  font-size: 14px;
+                  color: #555;
+                  padding-left: 0;
+                  // margin-left: -70px; /* 添加负边距让文本更靠左 */
+                  padding-top: 0;
+                  margin-top:0px;
+                  line-height: 1.4;
+                  word-break: break-word;
+                  cursor: pointer;
+                  transition: color 0.2s ease;
+                }
+                
               }
               .reply-avatar-home-view {
-                width: rpx(30);
-                height: rpx(30);
-                border-radius: 50%;
-                object-fit: cover;
-                float: left;
+                width: 24px;
+                height: 24px;
               }
               .reply-icon-reply-to-reply{
                color: #6b6b6b;
@@ -2318,4 +2544,15 @@ $border-color: rgba(100, 179, 244, 0.2);
     align-items: flex-start;
     gap: rpx(0.5);
   }
+}
+.detail-left-home{
+  .el-carousel__arrow {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #fff;
+  }
+
+  .el-carousel__arrow:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
 }

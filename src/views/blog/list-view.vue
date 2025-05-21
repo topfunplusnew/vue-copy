@@ -3,18 +3,19 @@ import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBlogStore } from '@/stores/blog';
 import { usecomponentsStore } from '@/stores/components';
-import { ElMessageBox, ElMessage } from 'element-plus';
+import {  ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
 import blogItem from './blog-item.vue';
 import BlogDetailDialog from './blog-detail-dialog.vue';
+// import userPageDialog from '@/views/user/user-page-dialog.vue';
 // 引入定位和天气
 import { destinations } from '@/utils/destinations';
 import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
-
-
+import postView from './post-view.vue';
+const showPostView = ref(false);
 const props = defineProps({
   id: {
     type: String,
@@ -24,7 +25,10 @@ const blogID = computed(() => props.id);
 const dialogBlog = ref(false);
 
 const closeBlogDetail = () => {
-  dialogBlog.value = false;
+  router.push({
+    name: 'home',
+    params: { id: ''}
+  });
 };
 
 watch(blogID, (val, old) => {
@@ -278,19 +282,6 @@ function handleSearch() {
   store.getBlogList(true);
 }
 
-const handlePostClick = () => {
-  if (userStore.isLogin()) {
-    router.push({ name: 'PostView' });
-  } else {
-    ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
-      confirmButtonText: 'Go to Login',
-      cancelButtonText: 'Cancel',
-      type: 'warning',
-    }).then(() =>{
-      router.push({ name: 'login' });
-    });
-  }
-};
 
 // 关注状态
 const isFollowing = ref(false);
@@ -491,10 +482,11 @@ const expandedComments = ref<number[]>([]);
             </div>
 
             <!-- Post按钮 -->
-            <el-button class="custom-post-button"
-            @click="handlePostClick">Post</el-button>
-            </div>
+            <el-button type="primary" @click="showPostView = true" class="custom-post-button">Post</el-button>
+            <post-view :modelValue="showPostView" @update:modelValue="showPostView = $event" />
+
           </div>
+        </div>
 
         <!-- 水平分割线 -->
         <hr class="horizontal-divider" />
@@ -526,13 +518,14 @@ const expandedComments = ref<number[]>([]);
 
 
   <!-- 博客详情弹出层 -->
-  <blog-detail-dialog
-    :blog-id="Number(blogID)"
-    :visible="dialogBlog"
-    @update:visible="val => dialogBlog = val"
-    @close="closeBlogDetail"
-  />
-  <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
+    <blog-detail-dialog
+      v-model:visible="dialogBlog"
+      :blog-id="Number(blogID)"
+      :is-following="isFollowing"
+      @close="closeBlogDetail"
+    />
+
+    <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
   </div>
 </template>
 

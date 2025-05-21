@@ -1,10 +1,43 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useBlogStore } from '@/stores/blog';
 import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 import type { IBlogComment } from '@/types/blog';
+
+
+
+
+// const store = useBlogStore();
+// const userStore = useUserStore();
+
+// 新增：自动更新时间显示的定时器
+let timeUpdateInterval: number;
+onMounted(() => {
+  timeUpdateInterval = window.setInterval(() => {
+    // 这个空interval只是为了触发重新计算相对时间
+  }, 60000); // 每分钟更新一次
+});
+
+onUnmounted(() => {
+  if (timeUpdateInterval) {
+    clearInterval(timeUpdateInterval);
+  }
+});
+
+// function formatDate(dateStr?: string): string {
+//   if (!dateStr) return '';
+//   const date = new Date(dateStr);
+//   if (isNaN(date.getTime())) return ''; // 日期无效
+//   const yyyy = date.getFullYear();
+//   const mm = String(date.getMonth() + 1).padStart(2, '0');
+//   const dd = String(date.getDate()).padStart(2, '0');
+//   const hh = String(date.getHours()).padStart(2, '0');
+//   const mi = String(date.getMinutes()).padStart(2, '0');
+//   return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+// }
+
 
 
 
@@ -119,6 +152,12 @@ const expandReplies = async (commentId: number) => {
   }
 };
 
+const collapseComments = async (commentId: number) => {
+  if (commentId) {
+    await store.collapseComments(commentId);
+  }
+};
+
 const handleTouchStart = (comment: IBlogComment) => {
   const currentUser = userStore.user;  //获取当前的用户信息
   if (!comment || !currentUser || comment.user.id !== currentUser.id) {
@@ -176,7 +215,7 @@ const cancelDeleteComment = () => {
       </div>
     </div>
     <div class="comments-list-home">
-      <div v-for="comment in [...(selectedBlog?.comments || [])].reverse()" :key="comment.id" class="comment-item-home">
+      <div  v-for="comment in [...(selectedBlog?.comments || [])].reverse()" :key="comment.id" class="comment-item-home">
         <div class="comment-row-home"
               :class="{'long-press-active': activeComment === comment.id}"
               @touchstart.prevent="handleTouchStart(comment)"
@@ -191,17 +230,19 @@ const cancelDeleteComment = () => {
             class="comment-avatar-home"
           />
           <div class="comment-content-wrapper">
-          <span class="comment-username-home">{{ comment.user.name }}</span>
-            <p class="comment-text-home"
+            <span class="comment-username-home">{{ comment.user.name }}</span>
+            <p class="comment-text-home" style="text-align: start;"
             @click="comment.id && toggleReplyInput(comment.id)">{{ comment.content }}</p>
 
             <!-- 回复图标 -->
             <div class="comment-actions">
-            <el-tooltip content="Reply to this comment"
-            placement="top">
+            <!-- <el-tooltip content="Reply to this comment" placement="top">
               <span class="reply-icon"
-              @click="comment.id && toggleReplyInput(comment.id)">Answer↩️</span>
-            </el-tooltip>
+              @click="comment.id && toggleReplyInput(comment.id)">↩️</span>
+            </el-tooltip> -->
+
+
+
             </div>
           </div>
           <!-- 删除指示器 -->
@@ -239,23 +280,36 @@ const cancelDeleteComment = () => {
                 class="reply-avatar-home-view"
               />
               <div class="reply-content-wrapper">
-                <span class="reply-username-home">{{ reply.user.name }}</span>
-                <span class="target-name-show">@{{ comment.user.name }}</span>
-                <p class="reply-text-home" @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">{{ reply.content }}</p>
+                <div class="reply-user-info">
+                  <span class="reply-username-home">{{ reply.user.name }}</span>
+                  <span class="target-name-show">@{{ comment.user.name }}</span>
+                </div>
+                <p class="reply-text-home"
+                  @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">
+                  {{ reply.content }}
+                </p>
                   <!-- 回复到回复的图标 -->
-                <el-tooltip content="Reply to this reply" placement="top">
+                <!-- <el-tooltip content="Reply to this reply" placement="top">
                   <span class="reply-icon-reply-to-reply"
-                  @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">Answer↩️</span>
-                </el-tooltip>
+                  @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
+                </el-tooltip> -->
               </div>
             </div>
           </div>
+          <!-- 展开 -->
           <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
               class="view-more-replies" @click="comment.id && expandReplies(comment.id)">
             <span class="view-more-text-r2r">
             View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
             </span>
             <span class="view-more-icon-r2r">↓</span>
+          </div>
+          <!-- 收起 -->
+          <div v-if="comment.total_replies > 2 && comment.replies.length === comment.total_replies"
+              class="view-more-replies"
+              @click="comment.id && collapseComments(comment.id)">
+            <span class="hide-replies-text-r2r">Hide {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}</span>
+            <span class="hide-replies-icon-r2r">↑</span>
           </div>
         </div>
 

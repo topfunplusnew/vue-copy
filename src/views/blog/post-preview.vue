@@ -1,3 +1,53 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { getImageUrl } from '@/utils';
+import type { ISocialFilter } from '@/types/blog';
+
+const currentImageIndex = ref(0);
+
+const props = defineProps<{
+  title: string
+  content: string
+  images: string[]
+  tags: string[]
+  preferences: number[]
+  socialFilters: ISocialFilter[]
+  location:string[]
+}>();
+
+const emit = defineEmits<{
+  close: []
+}>();
+
+
+const list = computed(() =>{
+  const arr:ISocialFilter[] = [];
+  for(const item of props.socialFilters) {
+    if(props.preferences.includes(item.id)) arr.push(item);
+  }
+  return arr;
+});
+
+// 添加图片导航方法
+const prevImage = () => {
+  if (currentImageIndex.value > 0) {
+    currentImageIndex.value--;
+  } else {
+    currentImageIndex.value = props.images.length - 1;
+  }
+};
+
+const nextImage = () => {
+  if (currentImageIndex.value < props.images.length - 1) {
+    currentImageIndex.value++;
+  } else {
+    currentImageIndex.value = 0;
+  }
+};
+
+
+// 添加图标映射函数
+</script>
 <template>
   <div class="background-layer"></div>
   <div class="blog-detail-overlay-postp" @click.self="emit('close')">
@@ -80,54 +130,5 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { computed, ref } from 'vue';
-import { getImageUrl } from '@/utils';
-import type { ISocialFilter } from '@/types/blog';
 
-const currentImageIndex = ref(0);
-
-const props = defineProps<{
-  title: string
-  content: string
-  images: string[]
-  tags: string[]
-  preferences: number[]
-  socialFilters: ISocialFilter[]
-  location:string[]
-}>();
-
-const emit = defineEmits<{
-  close: []
-}>();
-
-
-const list = computed(() =>{
-  const arr:ISocialFilter[] = [];
-  for(const item of props.socialFilters) {
-    if(props.preferences.includes(item.id)) arr.push(item);
-  }
-  return arr;
-});
-
-// 添加图片导航方法
-const prevImage = () => {
-  if (currentImageIndex.value > 0) {
-    currentImageIndex.value--;
-  } else {
-    currentImageIndex.value = props.images.length - 1;
-  }
-};
-
-const nextImage = () => {
-  if (currentImageIndex.value < props.images.length - 1) {
-    currentImageIndex.value++;
-  } else {
-    currentImageIndex.value = 0;
-  }
-};
-
-
-// 添加图标映射函数
-</script>
 
