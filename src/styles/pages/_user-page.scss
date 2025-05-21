@@ -736,7 +736,7 @@
   /* 主容器 */
   .blog-detail-container {
     width: 94%;
-    height: 85vh;
+    height: 95vh;
     display: flex;
     border-radius: 16px;
     overflow: hidden;
@@ -749,16 +749,16 @@
     /* 在窄屏幕上调整为垂直布局 */
     @media (max-width: 768px) {
       flex-direction: column;
-      height: 90vh;
+      height: 95vh;
     }
 
     /* 关闭按钮 */
     .close-button {
       position: absolute;
-      top: 20px;
-      right: 50px;
-      width: 40px;
-      height:40px;
+      top: 5px;
+      right: 5px;
+      width: 30px;
+      height:30px;
       background: rgba(0, 0, 0, 0.3);
       color: white;
       border: none;
@@ -774,6 +774,9 @@
       &:hover {
         background: rgba(0, 0, 0, 0.6);
         transform: rotate(90deg);
+      }
+      @media (max-width: 768px) {
+        // margin: -15px -40px 0 0;
       }
     }
     
@@ -814,6 +817,7 @@
             .detail-image {
               width: 100%;
               height: 100%;
+              margin-top: 10px;
               flex-shrink: 0;
               object-fit: contain;
               box-sizing: border-box;
@@ -872,6 +876,20 @@
       /* 在窄屏幕上调整高度 */
       @media (max-width: 768px) {
         height: 50%;
+        &::-webkit-scrollbar {
+          width: 6px; /* 减小滚动条宽度 */
+          background-color: transparent; /* 滚动条背景透明 */
+        }
+        
+        &::-webkit-scrollbar-thumb {
+          background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
+          border-radius: 4px; /* 滚动条滑块圆角 */
+        }
+        
+        &::-webkit-scrollbar-thumb:hover {
+          background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
+        }
+        
       }
       
       /* 自定义滚动条样式 */
@@ -898,6 +916,25 @@
         overflow-y: auto;
         padding-right: 30px;
         // padding-bottom: 50px; /* 留出 stats-bar 的高度，防止内容被遮住 */
+        /* 滚动条样式 */
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: linear-gradient(45deg, #B0D1EC, #F3C9D7); /* 主题色 */
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+          background: linear-gradient(45deg, #a0c0dc, #e9b4c4); /* hover 状态更深色 */
+        }
+
       /* 用户信息和标题 */
       .user-header {
         display: flex;
@@ -1020,8 +1057,9 @@
           line-height: 1.6;
           color: #333;
           white-space: pre-wrap;
-          margin: 0;
+          margin: 0 0 0 25px;
           text-align: justify; /* 内容左右对齐 */
+          width: 100%;
         }
       }
       

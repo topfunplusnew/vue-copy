@@ -198,6 +198,7 @@ const isOwnPost = computed(() => {
           height="100%"
           :touchable="true"
           :loop="true"
+          :autoplay="false"
         >
           <el-carousel-item
             v-for="(image, index) in selectedBlog.image"
@@ -206,7 +207,7 @@ const isOwnPost = computed(() => {
             <div class="image-slider">
               <div
                 class="image-wrapper"
-                :style="{ backgroundImage: `url(${getImageUrl(image)})` }"
+
               >
                 <img
                   :src="getImageUrl(image)"

@@ -664,20 +664,24 @@ $border-color: rgba(100, 179, 244, 0.2);
           height: 50%;
         }
         
-        /* 自定义滚动条样式 */
-        &::-webkit-scrollbar {
-          width: 6px; /* 减小滚动条宽度 */
-          background-color: transparent; /* 滚动条背景透明 */
-        }
-        
-        &::-webkit-scrollbar-thumb {
-          background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
-          border-radius: 4px; /* 滚动条滑块圆角 */
-        }
-        
-        &::-webkit-scrollbar-thumb:hover {
-          background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
-        }
+          /* 滚动条样式 */
+          &::-webkit-scrollbar {
+            width: 8px;
+          }
+  
+          &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+  
+          &::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #B0D1EC, #F3C9D7); /* 主题色 */
+            border-radius: 4px;
+          }
+  
+          &::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(45deg, #a0c0dc, #e9b4c4); /* hover 状态更深色 */
+          }
         
         /* 内容容器，添加右侧内边距 */
         .content-wrapper {
@@ -1187,10 +1191,10 @@ $border-color: rgba(100, 179, 244, 0.2);
     /* 关闭按钮 */
     .close-button {
       position: absolute;
-      top: 20px;
-      right: 50px;
-      width: 40px;
-      height:40px;
+      top: 5px;
+      right: 5px;
+      width: 30px;
+      height:30px;
       background: rgba(0, 0, 0, 0.3);
       color: white;
       border: none;
@@ -1266,19 +1270,23 @@ $border-color: rgba(100, 179, 244, 0.2);
       height: 50%;
     }
     
-    /* 自定义滚动条样式 */
+    /* 滚动条样式 */
     &::-webkit-scrollbar {
-      width: 6px; /* 减小滚动条宽度 */
-      background-color: transparent; /* 滚动条背景透明 */
+      width: 8px;
     }
-    
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
     &::-webkit-scrollbar-thumb {
-      background-color: rgba(0, 0, 0, 0.2); /* 滚动条滑块颜色 */
-      border-radius: 4px; /* 滚动条滑块圆角 */
+      background: linear-gradient(45deg, #B0D1EC, #F3C9D7); /* 主题色 */
+      border-radius: 4px;
     }
-    
+
     &::-webkit-scrollbar-thumb:hover {
-      background-color: rgba(0, 0, 0, 0.3); /* 鼠标悬停时滚动条滑块颜色 */
+      background: linear-gradient(45deg, #a0c0dc, #e9b4c4); /* hover 状态更深色 */
     }
 
     // 用户信息区
