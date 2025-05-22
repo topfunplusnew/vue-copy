@@ -3,7 +3,7 @@
 @use './generator-base' as gbase;
 @use './generator-history' as ghistory;
 @use './generator-generatep' as ggeneratep;
-@use './generator-chatbox' as gchatbox;
+
 
 .generator {
   padding-top: rpx(20);
@@ -12,9 +12,8 @@
   justify-content: flex-start;
   align-items: center;
 
-
   @include gbase.wrapper;
-  @include gchatbox.wrapper;
+  
 //   @include gheader-action.wrapper;
   
 }

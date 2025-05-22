@@ -83,9 +83,6 @@ watch(() => selectedBlog.value, (newBlog) => {
 }, { immediate: true });
 
 
-
-
-
 const toggleReplyInput = (id: number, type: string = 'comment', parentId?: number) => {
   if (!id) return;
 

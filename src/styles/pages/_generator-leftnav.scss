@@ -1,0 +1,133 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+@mixin wrapper {
+// ========= 1. 左侧导航面板 =========
+.left-navigation-panel {
+    @extend %glass-panel;
+    width: rpx(150); // 明确设置展开时宽度
+    min-width: rpx(150);
+    padding: rpx(14) rpx(10);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    /* 覆盖 Element Plus 的按钮样式 */
+    .el-button {
+      &:not(:first-child) {
+        margin-left: 0 !important; /* 覆盖默认的 margin-left */
+      }
+    }
+
+    /* 特定场景下的按钮组 */
+    .el-button-group {
+      .el-button {
+        margin-left: 0 !important;
+      }
+    }
+
+    // 导航按钮组容器
+    .nav-button-group {
+      display: flex;
+      flex-direction: column;
+      gap: rpx(6); // 减小按钮间距
+      margin-top: rpx(4);
+      cursor: default;
+      width: 100%; // 确保宽度100%
+
+      // 导航按钮
+      .nav-item-btn {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start; // 确保内容左对齐
+        width: 100%;
+        padding: rpx(8) rpx(10); // 更紧凑的按钮
+        font-size: rpx(13);
+        border-radius: rpx(8);
+        background-color: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #1a3566; /* 深蓝色，适合浅色背景 */
+        transition: all 0.2s ease;
+        cursor: pointer;
+
+        // 图标样式 - 同时支持旧版和新版
+        .el-icon, .nav-icon {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: rpx(24); // 更窄的图标区域
+          height: rpx(24); // 确保高度一致
+          font-size: rpx(16);
+          margin-right: rpx(8);
+          color: rgba(26, 53, 102, 0.85); // 更深的颜色，提高对比度
+          flex-shrink: 0;
+        }
+
+        // 文本溢出处理
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          text-align: left; // 确保文本左对齐
+        }
+
+        // 悬停状态
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+        
+        // 激活状态
+        &.active-nav-item {
+          background-color: rgba(83, 142, 242, 0.6);
+          border-color: rgba(114, 163, 245, 0.8);
+          color: #ffffff;
+          font-weight: 500;
+          
+          i, .el-icon, .nav-icon {
+            color: #ffffff;
+          }
+        }
+
+        // 点击反馈
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+    }
+
+    // 折叠状态 - 修复左对齐问题
+    &.collapsed {
+      width: rpx(42);
+      min-width: rpx(42);
+      padding: rpx(14) rpx(4);
+      
+      .nav-button-group {
+        // width: 100%;
+        
+        .nav-item-btn {
+          width: rpx(42);
+          height: rpx(42);
+          padding: rpx(8) rpx(6); // 左右内边距不同，确保图标偏左
+          margin: 0;
+          border-radius: rpx(6);
+          justify-content: flex-start; // 保持左对齐
+          // 支持所有类型的图标，但保持左对齐
+          .el-icon, .nav-icon {
+            margin-right: 0;
+            margin-left: rpx(4); // 添加左边距确保偏左
+            font-size: rpx(18);
+            width: auto;
+            height: auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+}

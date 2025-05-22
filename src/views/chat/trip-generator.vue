@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, reactive } from 'vue';
+import { ref, computed, watch, onMounted, reactive, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
 import { useChatStore } from '@/stores/chat';
@@ -7,6 +7,20 @@ import { useRouter } from 'vue-router';
 
 import commonHeader from '@/layout/common-header.vue';
 import MarkdownIt from 'markdown-it';
+import { 
+  ChatDotRound, 
+  MagicStick, 
+  Document, 
+  Collection, 
+  Plus, 
+  MapLocation, 
+  ChatLineRound,
+  ChatDotSquare,
+  Right,
+  StarFilled,
+  CopyDocument,
+  Edit
+} from '@element-plus/icons-vue';
 const md = new MarkdownIt();
 
 const store = useChatStore();
@@ -16,8 +30,32 @@ const conversations = computed(() => store.conversations);
 
 const router = useRouter();
 
-function loadHistory(id:number|undefined) {
-  if(id) store.getChatsByConversationID(id).catch(e=>console.log(e));
+// 滚动到最新消息
+const chatBoxRef = ref(null);
+
+function scrollToBottom() {
+  nextTick(() => {
+    if (chatBoxRef.value) {
+      const chatBox = chatBoxRef.value;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+}
+
+// 监听消息变化，自动滚动到底部
+watch(() => messages.value.length, () => {
+  scrollToBottom();
+});
+
+function loadHistory(id: number | undefined) {
+  if(id) {
+    store.getChatsByConversationID(id)
+      .then(() => {
+        // 加载完成后滚动到底部
+        scrollToBottom();
+      })
+      .catch(e => console.log(e));
+  }
 }
 
 const userChatInput = ref('');
@@ -304,6 +342,50 @@ const toggleHistory = () => {
   showHistory.value = !showHistory.value;
 };
 
+// 编辑消息相关
+const editingMessageId = ref(-1);
+const editedMessageContent = ref('');
+
+// 复制消息
+function copyMessage(content: string) {
+  navigator.clipboard.writeText(content)
+    .then(() => {
+      ElMessage.success('消息已复制到剪贴板');
+    })
+    .catch(() => {
+      ElMessage.error('复制失败，请重试');
+    });
+}
+
+// 开始编辑消息
+function editMessage(index: number, content: string) {
+  editingMessageId.value = index;
+  editedMessageContent.value = content;
+}
+
+// 保存编辑的消息
+function saveEdit(index: number) {
+  if (editedMessageContent.value.trim()) {
+    // 更新消息内容
+    store.updateUserMessage(index, editedMessageContent.value);
+    
+    // 重新发送消息获取回复
+    store.regenerateResponse(index).catch(e => {
+      console.error(e);
+      ElMessage.error('获取回复失败');
+    });
+    
+    // 重置编辑状态
+    editingMessageId.value = -1;
+    editedMessageContent.value = '';
+  }
+}
+
+// 取消编辑
+function cancelEdit() {
+  editingMessageId.value = -1;
+  editedMessageContent.value = '';
+}
 
 onMounted(async() => {
   const query = router.currentRoute.value.query;
@@ -335,31 +417,31 @@ onMounted(async() => {
           <div class="nav-button-group" @click.stop>
             <el-tooltip content="Chatbox" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
-                <i class="el-icon-chat-dot-round"></i>
+                <el-icon class="nav-icon"><ChatDotRound /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Chatbox</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
-                <i class="el-icon-magic-stick"></i>
+                <el-icon class="nav-icon"><MagicStick /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Generate Plan</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="History" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleHistory">
-                <i class="el-icon-document"></i>
+                <el-icon class="nav-icon"><Document /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">History</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="My Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click="finishConversation">
-                <i class="el-icon-collection-tag"></i>
+                <el-icon class="nav-icon"><Star /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">My Plan</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="New Chat" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click="finishConversation">
-                <i class="el-icon-plus"></i>
+                <el-icon class="nav-icon"><Plus /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">New Chat</span>
               </el-button>
             </el-tooltip>
@@ -369,14 +451,63 @@ onMounted(async() => {
         <!-- 中间：Chatbox 模块 -->
         <div class="center-chat-panel">
           <div class="chat-box-placeholder">
-            <p>Chatbox Area</p>
-            <i class="el-icon-chat-line-round" style="font-size: 40px;"></i>
-             <!-- Actual chatbox content will go here -->
-             <!-- For now, you can move your existing .chat-box and .chat-input here -->
-             <!--
-             <div class="chat-box"> ... </div>
-             <div class="chat-input"> ... </div>
-             -->
+            <div class="chat-box" ref="chatBoxRef">
+              <div
+                v-for="(msg, index) in messages"
+                :key="index"
+                class="chat-message"
+                :class="msg.role"
+              >
+                <!-- 如果是用户消息且正在编辑 -->
+                <div v-if="msg.role === 'user' && editingMessageId === index">
+                  <el-input
+                    v-model="editedMessageContent"
+                    type="textarea"
+                    :rows="3"
+                    autofocus
+                    @blur="cancelEdit"
+                    @keydown.enter.prevent="saveEdit(index)"
+                  />
+                  <div class="edit-actions">
+                    <el-button size="small" @click="cancelEdit">Cancel</el-button>
+                    <el-button size="small" type="primary" @click="saveEdit(index)">Save</el-button>
+                  </div>
+                </div>
+                
+                <!-- 正常显示消息 -->
+                <div v-else v-html="md.render(msg.content)"></div>
+                
+                <!-- 用户消息的操作按钮 -->
+                <div v-if="msg.role === 'user'" class="message-actions">
+                  <el-tooltip content="Copy" placement="top" :show-after="300">
+                    <div class="action-btn" @click="copyMessage(msg.content)">
+                      <el-icon><CopyDocument /></el-icon>
+                    </div>
+                  </el-tooltip>
+                  
+                  <el-tooltip content="Edit Message" placement="top" :show-after="300">
+                    <div class="action-btn" @click="editMessage(index, msg.content)">
+                      <el-icon><Edit /></el-icon>
+                    </div>
+                  </el-tooltip>
+                </div>
+              </div>
+              <div
+                v-if="message.length > 0"
+                class="chat-message ai"
+              >{{ message }}</div>
+            </div>
+            <div class="chat-input">
+              <el-input
+                v-model="userChatInput"
+                placeholder="Type your message..."
+                class="chat-input-box"
+                type="textarea"
+                :rows="3"
+                clearable
+                @keydown.enter.prevent="handleUserInput"
+              />
+            </div>
           </div>
         </div>
 
