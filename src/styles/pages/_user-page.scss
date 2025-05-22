@@ -733,8 +733,8 @@
   
   /* 主容器 */
   .blog-detail-container {
-    width: 98%;
-    height: 98vh;
+    width: 96%;
+    height: 95vh;
     display: flex;
     border-radius: 16px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -747,7 +747,7 @@
     /* 在窄屏幕上调整为垂直布局 */
     @include screen-mobile {
       flex-direction: column;
-      height: 98vh;
+      height: 95vh;
 
     }
 
@@ -770,10 +770,6 @@
       justify-content: center;
       transition: all 0.3s ease;
       
-      &:hover {
-        background: rgba(0, 0, 0, 0.6);
-        transform: rotate(90deg);
-      }
     }
     
     /* 左侧区域：图片和统计信息 */
