@@ -518,19 +518,6 @@ const toggleMenu = () => {
       </el-button>
     </div>
 
-    <!-- 顶部导航栏 - 移除了编辑按钮 -->
-    <header class="header-userpage">
-      <div class="nav-container-userpage" :class="{ 'menu-active-userpage': menuActive }">
-        <div class="nav-left">
-          <!-- 汉堡菜单按钮 -->
-          <button class="hamburger-menu-userpage" @click="toggleMenu">
-            <span v-if="menuActive">✕</span>
-            <span v-else>☰</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
     <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
     <section class="main-content">
       <!-- 左侧用户信息面板 -->
