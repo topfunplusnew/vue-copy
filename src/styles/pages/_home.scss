@@ -3,6 +3,7 @@
 @use './home-trip' as trip;
 @use './home-blog' as blog;
 @use './post' as post; // 发布页
+
 .home {
   padding-top: rpx(20);
   display: flex;
