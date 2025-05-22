@@ -6,7 +6,6 @@ import { http, auth } from './http';
 import type { IRequest } from '@/types/service';
 
 
-
 /**
  * 用户登录
  * @param credentials 登录信息

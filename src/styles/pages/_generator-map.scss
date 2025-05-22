@@ -1,0 +1,22 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+@mixin wrapper {
+    // ========= 3. 右侧地图面板 =========
+    .right-map-panel {
+        @extend %glass-panel;
+        flex: 5;
+        padding: rpx(16);
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        
+        // 地图容器
+        .map-container {
+          flex: 1;
+          overflow: hidden;
+          border-radius: rpx(8);
+          background-color: rgba(0, 0, 0, 0.1);
+        }
+      }
+}

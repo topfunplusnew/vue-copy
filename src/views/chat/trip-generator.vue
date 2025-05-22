@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, reactive } from 'vue';
+import { ref, computed, watch, onMounted, reactive, nextTick, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
 import { useChatStore } from '@/stores/chat';
@@ -7,6 +7,20 @@ import { useRouter } from 'vue-router';
 
 import commonHeader from '@/layout/common-header.vue';
 import MarkdownIt from 'markdown-it';
+import { 
+  ChatDotRound, 
+  MagicStick, 
+  Document, 
+  Collection, 
+  Plus, 
+  MapLocation, 
+  ChatLineRound,
+  ChatDotSquare,
+  Right,
+  StarFilled,
+  CopyDocument,
+  Edit
+} from '@element-plus/icons-vue';
 const md = new MarkdownIt();
 
 const store = useChatStore();
@@ -16,8 +30,32 @@ const conversations = computed(() => store.conversations);
 
 const router = useRouter();
 
-function loadHistory(id:number|undefined) {
-  if(id) store.getChatsByConversationID(id).catch(e=>console.log(e));
+// 滚动到最新消息
+const chatBoxRef = ref(null);
+
+function scrollToBottom() {
+  nextTick(() => {
+    if (chatBoxRef.value) {
+      const chatBox = chatBoxRef.value;
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+  });
+}
+
+// 监听消息变化，自动滚动到底部
+watch(() => messages.value.length, () => {
+  scrollToBottom();
+});
+
+function loadHistory(id: number | undefined) {
+  if(id) {
+    store.getChatsByConversationID(id)
+      .then(() => {
+        // 加载完成后滚动到底部
+        scrollToBottom();
+      })
+      .catch(e => console.log(e));
+  }
 }
 
 const userChatInput = ref('');
@@ -276,7 +314,7 @@ const tripPrompt = computed(() => {
     }
   }
 
-  return parts.length > 0 ? parts.join(" ") : "请选择旅行选项生成提示。";
+  return parts.length > 0 ? parts.join(" ") : "Please select travel options to generate a prompt.";
 });
 
 // 监视tripPrompt变化，自动更新可编辑内容
@@ -304,6 +342,213 @@ const toggleHistory = () => {
   showHistory.value = !showHistory.value;
 };
 
+// 编辑消息相关
+const editingMessageId = ref(-1);
+const editedMessageContent = ref('');
+
+// 复制消息
+function copyMessage(content: string) {
+  navigator.clipboard.writeText(content)
+    .then(() => {
+      ElMessage.success('消息已复制到剪贴板');
+    })
+    .catch(() => {
+      ElMessage.error('复制失败，请重试');
+    });
+}
+
+// 开始编辑消息
+function editMessage(index: number, content: string) {
+  editingMessageId.value = index;
+  editedMessageContent.value = content;
+}
+
+// 保存编辑的消息
+function saveEdit(index: number) {
+  if (editedMessageContent.value.trim()) {
+    // 更新消息内容
+    store.updateUserMessage(index, editedMessageContent.value);
+    
+    // 重新发送消息获取回复
+    store.regenerateResponse(index).catch(e => {
+      console.error(e);
+      ElMessage.error('获取回复失败');
+    });
+    
+    // 重置编辑状态
+    editingMessageId.value = -1;
+    editedMessageContent.value = '';
+  }
+}
+
+// 取消编辑
+function cancelEdit() {
+  editingMessageId.value = -1;
+  editedMessageContent.value = '';
+}
+
+// 地图相关变量
+const mapDiv = ref(null);
+const map = ref(null);
+const markers = ref<any[]>([]);
+const infoWindows = ref<any[]>([]);
+
+// 初始化Google Maps
+function initializeMap() {
+  if (mapDiv.value) {
+    try {
+      // 创建地图实例
+      map.value = new window.google.maps.Map(mapDiv.value, {
+        center: { lat: 39.9042, lng: 116.4074 }, // 默认中心点（北京）
+        zoom: 12, // 默认缩放级别
+        mapTypeControl: true,
+        fullscreenControl: true,
+        streetViewControl: false
+      });
+      console.log('Map initialized successfully');
+    } catch (error) {
+      console.error('Error initializing map:', error);
+    }
+  }
+}
+
+// 地理编码：将地点名称转换为坐标
+async function geocodeLocation(placeName: string): Promise<{lat: number, lng: number} | null> {
+  if (!window.google || !window.google.maps) {
+    console.error('Google Maps API not loaded');
+    return null;
+  }
+  
+  return new Promise((resolve, reject) => {
+    const geocoder = new window.google.maps.Geocoder();
+    
+    geocoder.geocode({ address: placeName }, (results: any, status: any) => {
+      if (status === 'OK' && results && results.length > 0) {
+        const location = results[0].geometry.location;
+        resolve({
+          lat: location.lat(),
+          lng: location.lng()
+        });
+      } else {
+        console.warn(`Geocoding failed for ${placeName}: ${status}`);
+        // 如果地理编码失败，使用模拟坐标（仅用于演示）
+        resolve({
+          lat: 39.9042 + (Math.random() - 0.5) * 0.1,
+          lng: 116.4074 + (Math.random() - 0.5) * 0.1
+        });
+      }
+    });
+  });
+}
+
+// 在地图上添加标记
+function addMarkerToMap(location: {name: string, lat: number, lng: number, description?: string}) {
+  if (!map.value || !window.google) return;
+  
+  // 清除之前的标记
+  clearMarkers();
+  
+  // 创建新标记
+  const marker = new window.google.maps.Marker({
+    position: { lat: location.lat, lng: location.lng },
+    map: map.value,
+    title: location.name,
+    animation: window.google.maps.Animation.DROP
+  });
+  
+  // 创建信息窗口
+  const infoContent = `
+    <div class="info-window">
+      <h3>${location.name}</h3>
+      ${location.description ? `<p>${location.description}</p>` : ''}
+    </div>
+  `;
+  
+  const infoWindow = new window.google.maps.InfoWindow({
+    content: infoContent
+  });
+  
+  // 点击标记时显示信息窗口
+  marker.addListener('click', () => {
+    infoWindow.open(map.value, marker);
+  });
+  
+  // 保存标记和信息窗口的引用
+  markers.value.push(marker);
+  infoWindows.value.push(infoWindow);
+  
+  // 自动打开信息窗口并聚焦到该位置
+  infoWindow.open(map.value, marker);
+  map.value.setCenter({ lat: location.lat, lng: location.lng });
+  map.value.setZoom(15);
+}
+
+// 清除所有标记
+function clearMarkers() {
+  markers.value.forEach(marker => {
+    marker.setMap(null);
+  });
+  markers.value = [];
+  
+  infoWindows.value.forEach(infoWindow => {
+    infoWindow.close();
+  });
+  infoWindows.value = [];
+}
+
+// 处理聊天消息中地点的点击
+async function handleLocationClick(event: MouseEvent) {
+  const target = event.target as HTMLElement;
+  
+  if (target.classList.contains('location-tag')) {
+    // 获取地点名称
+    const placeName = target.getAttribute('data-location');
+    if (!placeName) return;
+    
+    // 显示加载状态
+    ElMessage({
+      message: `定位 ${placeName} 中...`,
+      type: 'info',
+      duration: 2000
+    });
+    
+    try {
+      // 地理编码获取坐标
+      const coordinates = await geocodeLocation(placeName);
+      
+      if (coordinates) {
+        // 在地图上添加标记
+        addMarkerToMap({
+          name: placeName,
+          lat: coordinates.lat,
+          lng: coordinates.lng,
+          description: `从聊天中点击的地点: ${placeName}`
+        });
+        
+        ElMessage({
+          message: `已在地图上标记 ${placeName}`,
+          type: 'success',
+          duration: 2000
+        });
+      }
+    } catch (error) {
+      console.error('Error locating place:', error);
+      ElMessage.error('无法定位该地点');
+    }
+  }
+}
+
+// 处理AI回复中的地点标记
+function processMessageContent(content: string): string {
+  // 匹配粗体文本，可能是地点名称
+  // 例如：**北京故宫**、**长城**、**上海东方明珠**
+  const placeRegex = /\*\*([\w\s\u4e00-\u9fa5]+)\*\*/g;
+  
+  // 将匹配到的地点名称转换为可点击的元素
+  return content.replace(placeRegex, (match, placeName) => {
+    return `<span class="location-tag" data-location="${placeName}">${match}</span>`;
+  });
+}
 
 onMounted(async() => {
   const query = router.currentRoute.value.query;
@@ -313,6 +558,35 @@ onMounted(async() => {
   store.getConversasions()
   // const {prompt, location, destination} = router.currentRoute.value.query;
 
+  // 为聊天区域添加事件委托
+  if (chatBoxRef.value) {
+    chatBoxRef.value.addEventListener('click', handleLocationClick);
+  }
+  
+  // 设置全局初始化函数
+  window.initMap = initializeMap;
+  
+  // 检查Google Maps API是否已加载
+  if (window.google && window.google.maps) {
+    console.log('Google Maps API already loaded');
+    initializeMap();
+  } else {
+    // 加载Google Maps API
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDG1OwabKoD6wmMgWp_HxoNY_J7GgxvAO8&callback=initMap`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    
+    console.log('Loading Google Maps API');
+  }
+});
+
+onUnmounted(() => {
+  // 移除事件监听器
+  if (chatBoxRef.value) {
+    chatBoxRef.value.removeEventListener('click', handleLocationClick);
+  }
 });
 
 </script>
@@ -335,31 +609,31 @@ onMounted(async() => {
           <div class="nav-button-group" @click.stop>
             <el-tooltip content="Chatbox" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
-                <i class="el-icon-chat-dot-round"></i>
+                <el-icon class="nav-icon"><ChatDotRound /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Chatbox</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
-                <i class="el-icon-magic-stick"></i>
+                <el-icon class="nav-icon"><MagicStick /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Generate Plan</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="History" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleHistory">
-                <i class="el-icon-document"></i>
+                <el-icon class="nav-icon"><Document /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">History</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="My Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click="finishConversation">
-                <i class="el-icon-collection-tag"></i>
+                <el-icon class="nav-icon"><Star /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">My Plan</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="New Chat" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click="finishConversation">
-                <i class="el-icon-plus"></i>
+                <el-icon class="nav-icon"><Plus /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">New Chat</span>
               </el-button>
             </el-tooltip>
@@ -369,23 +643,69 @@ onMounted(async() => {
         <!-- 中间：Chatbox 模块 -->
         <div class="center-chat-panel">
           <div class="chat-box-placeholder">
-            <p>Chatbox Area</p>
-            <i class="el-icon-chat-line-round" style="font-size: 40px;"></i>
-             <!-- Actual chatbox content will go here -->
-             <!-- For now, you can move your existing .chat-box and .chat-input here -->
-             <!--
-             <div class="chat-box"> ... </div>
-             <div class="chat-input"> ... </div>
-             -->
+            <div class="chat-box" ref="chatBoxRef">
+              <div
+                v-for="(msg, index) in messages"
+                :key="index"
+                class="chat-message"
+                :class="msg.role"
+              >
+                <!-- 如果是用户消息且正在编辑 -->
+                <div v-if="msg.role === 'user' && editingMessageId === index">
+                  <el-input
+                    v-model="editedMessageContent"
+                    type="textarea"
+                    :rows="3"
+                    autofocus
+                    @blur="cancelEdit"
+                    @keydown.enter.prevent="saveEdit(index)"
+                  />
+                  <div class="edit-actions">
+                    <el-button size="small" @click="cancelEdit">Cancel</el-button>
+                    <el-button size="small" type="primary" @click="saveEdit(index)">Save</el-button>
+                  </div>
+                </div>
+                
+                <!-- 正常显示消息 - 使用processMessageContent处理AI回复 -->
+                <div v-else v-html="msg.role === 'assistant' ? processMessageContent(msg.content) : md.render(msg.content)"></div>
+                
+                <!-- 用户消息的操作按钮 -->
+                <div v-if="msg.role === 'user'" class="message-actions">
+                  <el-tooltip content="Copy" placement="top" :show-after="300">
+                    <div class="action-btn" @click="copyMessage(msg.content)">
+                      <el-icon><CopyDocument /></el-icon>
+                    </div>
+                  </el-tooltip>
+                  
+                  <el-tooltip content="Edit Message" placement="top" :show-after="300">
+                    <div class="action-btn" @click="editMessage(index, msg.content)">
+                      <el-icon><Edit /></el-icon>
+                    </div>
+                  </el-tooltip>
+                </div>
+              </div>
+              <div
+                v-if="message.length > 0"
+                class="chat-message ai"
+              >{{ message }}</div>
+            </div>
+            <div class="chat-input">
+              <el-input
+                v-model="userChatInput"
+                placeholder="Type your message..."
+                class="chat-input-box"
+                type="textarea"
+                :rows="3"
+                clearable
+                @keydown.enter.prevent="handleUserInput"
+              />
+            </div>
           </div>
         </div>
 
         <!-- 右侧：地图模块 -->
         <div class="right-map-panel">
-          <div class="map-placeholder">
-            <p>Map Area</p>
-            <i class="el-icon-map-location" style="font-size: 40px;"></i>
-          </div>
+          <div id="map" ref="mapDiv" class="map-container"></div>
         </div>
       </div>
     </div>
@@ -713,3 +1033,41 @@ onMounted(async() => {
     </div>
   </transition>
 </template>
+
+<style>
+/* 可点击的地点标签样式 */
+.location-tag {
+  color: #1a73e8;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+.location-tag:hover {
+  background-color: rgba(26, 115, 232, 0.1);
+  text-decoration: underline;
+}
+
+/* 地图容器样式 */
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  border-radius: 8px;
+}
+
+/* 信息窗口样式 */
+.info-window h3 {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #1a3566;
+}
+
+.info-window p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+</style>
