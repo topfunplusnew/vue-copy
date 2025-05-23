@@ -206,8 +206,8 @@ const submitComment = async () => {
 };
 
 const scrollToComments = () => {
-  const commentsSection = document.querySelector('.comments-container-home') as HTMLElement;
-  const detailRight = document.querySelector('.detail-right-home');
+  const commentsSection = document.querySelector('.comments-container') as HTMLElement;
+  const detailRight = document.querySelector('.detail-right');
 
   if (commentsSection && detailRight) {
     detailRight.scrollTo({
@@ -259,43 +259,48 @@ const handleFollowClick = async (id?: number) => {
     class="blog-detail-dialog"
     @close="closeDialog"
     :style="{ '--el-dialog-width': dialogWidth }"
+    :show-close="false"
   >
-    <div class="blog-detail-content">
-      <button class="close-button" @click="closeDialog">×</button>
-
+    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
       <!-- 左侧区域：图片 -->
-      <div class="detail-left-home">
+      <div class="detail-left">
         <!-- 图片轮播 -->
         <el-carousel
           v-if="selectedBlog?.image && selectedBlog.image.length > 0"
           :interval="5000"
-          class="carousel-home"
-          height="100%">
+          class="image-section"
+          height="100%"
+          :touchable="true"
+          :loop="true"
+          :autoplay="false"
+        >
           <el-carousel-item v-for="(image, index) in selectedBlog.image" :key="index">
-            <div class="carousel-item-home">
-              <img
-                :src="getImageUrl(image)"
-                alt="Blog Image"
-                class="detail-image-home"
-                @error="handleImageError"
-              />
+            <div class="image-slider">
+              <div class="image-wrapper">
+                <img
+                  :src="getImageUrl(image)"
+                  alt="Blog Image"
+                  class="detail-image"
+                  @error="handleImageError"
+                />
+              </div>
             </div>
           </el-carousel-item>
         </el-carousel>
       </div>
 
       <!-- 右侧内容区域 -->
-      <div class="detail-right-home" ref="detailRight">
-        <!-- 用户信息和标题 -->
-        <div class="user-header-home">
-          <div class="author-container">
-            <div class="author-info-home">
+      <div class="detail-right" ref="detailRight">
+        <div class="detail-right-content">
+          <!-- 用户信息和标题 -->
+          <div class="user-header">
+            <div class="author-info">
               <img
                 :src="getImageUrl(selectedBlog?.user?.avatar || '')"
                 alt="Author Avatar"
-                class="author-avatar-home"
+                class="author-avatar"
               />
-              <span class="author-name-home">{{ selectedBlog?.user?.name }}</span>
+              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
               <el-button
                 v-if="!isOwnPost"
                 class="follow-btn"
@@ -317,43 +322,57 @@ const handleFollowClick = async (id?: number) => {
                 <span class="edit-text">Edit</span>
               </el-button>
             </div>
+            <!-- 分类 -->
+            <div class="tags-section-pref" v-if="selectedBlog?.social_filters">
+              <span v-for="(item, index) in selectedBlog.social_filters" :key="index" class="tag-pref">
+                {{ item.icon }}{{ item.name }}
+              </span>
+            </div>
+            <h2 class="blog-title">{{ selectedBlog?.title }}</h2>
           </div>
-          <!-- 分类 -->
-          <div class="tags-section-pref" v-if="selectedBlog?.social_filters">
-            <span v-for="(item, index) in selectedBlog.social_filters" :key="index" class="tag-pref">
-              {{ item.icon }}{{ item.name }}
-            </span>
-          </div>
-          <p class="blog-content-title">{{ selectedBlog?.title }}</p>
-        </div>
 
-        <!-- 博客内容 -->
-        <div class="content-section-home">
+          <!-- 标签 -->
           <div class="tags-section">
             <div class="nft-tag" v-if="selectedBlog?.isNFT">NFT</div>
             <span class="tag" v-for="tag in selectedBlog?.tags" :key="tag">
               {{ tag }}
             </span>
           </div>
-          <p class="blog-content-home">{{ selectedBlog?.content }}</p>
+
+          <!-- 博客内容 -->
+          <div class="content-section">
+            <p class="blog-content">{{ selectedBlog?.content }}</p>
+          </div>
+
+          <!-- 添加评论标题区域 -->
+          <div class="comments-title" v-if="selectedBlog?.id && blogId > 0">
+            <h3>Comments</h3>
+            <span class="comment-count">{{ selectedBlog?.comments_count || 0 }}</span>
+          </div>
+
+          <!-- 评论部分 -->
+          <CommentSection
+            v-if="selectedBlog?.id && blogId > 0"
+          />
         </div>
-        <!-- 评论部分 -->
-        <CommentSection
-          v-if="selectedBlog?.id && blogId > 0"
-        />
+
         <!-- 统计信息栏 -->
-        <div class="stats-bar-home">
+        <div class="stats-bar">
           <!-- 统计信息 -->
-          <div class="stats-info-home">
+          <div class="stats-info">
             <span
-              class="likes-home"
+              class="likes"
               @click="handleLike"
               :class="{ 'liked': isLiked }"
             >
-              {{ isLiked ? '❤️' : '🤍' }} {{ likesCount }}
+              <span class="heart-icon">{{ isLiked ? '❤️' : '🤍' }}</span> <span class="count">{{ likesCount }}</span>
             </span>
-            <span class="comments-home" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
-            <span class="coins-home" v-if="selectedBlog?.isNFT">₿ {{ selectedBlog?.coins }}</span>
+            <span class="comments" @click="scrollToComments">
+              <span class="comment-icon">💬</span> <span class="count">{{ selectedBlog?.comments_count }}</span>
+            </span>
+            <span class="coins" v-if="selectedBlog?.isNFT">
+              <span class="coin-icon">₿</span> <span class="count">{{ selectedBlog?.coins }}</span>
+            </span>
           </div>
           <!-- 简化的评论输入框 -->
           <div class="quick-comment-input">
@@ -362,14 +381,14 @@ const handleFollowClick = async (id?: number) => {
               v-model="newComment"
               placeholder="Add a comment..."
               @keyup.enter="submitComment"
-              class="comment-input-home"
+              class="comment-input comment-input-home"
             />
             <button
               class="submit-quick-comment"
               @click="submitComment"
               :disabled="!newComment.trim()"
             >
-              <span>💬</span>
+              <span>➤</span>
             </button>
           </div>
         </div>

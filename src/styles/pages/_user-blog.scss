@@ -73,7 +73,7 @@
           overflow: hidden;
           position: relative;
           margin-top: -10px;
-          margin-bottom: 40px;
+          margin-bottom: 55px; /* 增加底部间距，避免被底部信息栏遮挡 */
   
           .post-title-userpage {
             font-size: rpx(15);
@@ -87,11 +87,12 @@
   
             @include screen-mobile {
               font-size: rpx(25);
+              margin-bottom: 8px;
             }
           }
   
           .post-text-userpage {
-            font-size: rpx(13);
+            font-size: rpx(10);
             color: #1a3566; /* 深蓝色 */
             display: -webkit-box;
             -webkit-line-clamp: 1;
@@ -102,6 +103,7 @@
   
             @include screen-mobile {
               font-size: rpx(22);
+              line-height: 1.4;
             }
           }
         }
@@ -121,6 +123,11 @@
           border-top: 1px solid rgba(255, 255, 255, 0.25);
           border-radius: 0;
           height: auto;
+          min-height: 40px; /* 确保最小高度 */
+  
+          @include screen-mobile {
+            min-height: 45px; /* 移动端确保最小高度 */
+          }
   
           .author-info {
             display: flex;
@@ -147,7 +154,7 @@
   
           .post-stats {
             span {
-              font-size: rpx(12); /* 减小字体大小 */
+              font-size: rpx(2); /* 减小字体大小 */
               color: #1a3566; /* 深蓝色 */
   
               @include screen-mobile {

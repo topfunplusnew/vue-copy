@@ -353,6 +353,11 @@ const expandedComments = ref<number[]>([]);
 
 // 长按结束处理函数
 
+// 处理博客项点击事件
+const openBlogDetail = (id: number) => {
+  showBlogDetail(id);
+};
+
 </script>
 
 <template>
@@ -494,7 +499,12 @@ const expandedComments = ref<number[]>([]);
         <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel"
           style="overflow-y: auto; max-height: none;">
-            <blog-item v-for="(item, index) in allPosts?.items" :key="index" :post="item"></blog-item>
+            <blog-item
+              v-for="(item, index) in allPosts?.items"
+              :key="index"
+              :post="item"
+              @detail="openBlogDetail"
+            ></blog-item>
             <div ref="bottomTrigger" class="bottom-load-container">
               <div v-if="allPosts.loading"
               class="loading-indicator">Loading more posts...</div>

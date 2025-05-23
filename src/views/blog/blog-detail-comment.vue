@@ -200,16 +200,16 @@ const cancelDeleteComment = () => {
 </script>
 
 <template>
- <div class="comments-container-home" ref="commentsSection">
-    <div class="comments-header-home">
+ <div class="comments-container" ref="commentsSection">
+    <div class="comments-header">
       <h3>Comments</h3>
-      <div class="comments-actions-home">
-        <span class="comment-count-home">{{ selectedBlog?.comments_count || 0 }}</span>
+      <div class="comments-actions">
+        <span class="comment-count">{{ selectedBlog?.comments_count || 0 }}</span>
       </div>
     </div>
-    <div class="comments-list-home">
-      <div  v-for="comment in [...(selectedBlog?.comments || [])].reverse()" :key="comment.id" class="comment-item-home">
-        <div class="comment-row-home"
+    <div class="comments-list">
+      <div v-for="comment in [...(selectedBlog?.comments || [])].reverse()" :key="comment.id" class="comment-item">
+        <div class="comment-row"
               :class="{'long-press-active': activeComment === comment.id}"
               @touchstart.prevent="handleTouchStart(comment)"
               @touchend.prevent="handleTouchEnd"
@@ -220,21 +220,12 @@ const cancelDeleteComment = () => {
           <img
             :src="getImageUrl(comment.user.avatar)"
             alt="Commenter Avatar"
-            class="comment-avatar-home"
+            class="comment-avatar"
           />
           <div class="comment-content-wrapper">
-            <span class="comment-username-home">{{ comment.user.name }}</span>
-            <p class="comment-text-home" style="text-align: start;"
+            <span class="comment-username">{{ comment.user.name }}</span>
+            <p class="comment-text" style="text-align: start;"
             @click="comment.id && toggleReplyInput(comment.id)">{{ comment.content }}</p>
-
-            <!-- 回复图标 -->
-            <div class="comment-actions">
-            <!-- <el-tooltip content="Reply to this comment" placement="top">
-              <span class="reply-icon"
-              @click="comment.id && toggleReplyInput(comment.id)">↩️</span>
-            </el-tooltip> -->
-
-            </div>
           </div>
           <!-- 删除指示器 -->
           <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
@@ -253,10 +244,10 @@ const cancelDeleteComment = () => {
 
         <!-- 显示评论的回复 -->
         <div v-if="comment.replies && comment.replies.length > 0"
-          class="comment-replies-home">
+          class="comment-replies">
           <div v-for="reply in comment.replies" :key="reply.id"
-                class="reply-item-home">
-            <div class="reply-row-home"
+                class="reply-item">
+            <div class="reply-row"
             :class="{'long-press-active': activeComment === reply.id}"
               @touchstart.prevent="handleTouchStart(reply)"
               @touchend.prevent="handleTouchEnd"
@@ -268,44 +259,44 @@ const cancelDeleteComment = () => {
               <img
                 :src="getImageUrl(reply.user.avatar)"
                 alt="Replier Avatar"
-                class="reply-avatar-home-view"
+                class="reply-avatar"
               />
-              <div class="reply-content-wrapper">
-                <div class="reply-user-info">
-                  <span class="reply-username-home">{{ reply.user.name }}</span>
+              <div class="reply-info">
+                <!-- 顶部显示用户名和 replying to -->
+                <div class="reply-header-line">
+                  <span class="reply-username">{{ reply.user.name }}</span>
                   <span class="target-name-show">@{{ comment.user.name }}</span>
                 </div>
-                <p class="reply-text-home"
-                  @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">
-                  {{ reply.content }}
-                </p>
-                  <!-- 回复到回复的图标 -->
-                <!-- <el-tooltip content="Reply to this reply" placement="top">
-                  <span class="reply-icon-reply-to-reply"
-                  @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">↩️</span>
-                </el-tooltip> -->
+
+                <!-- 回复内容 -->
+                <div class="reply-content-wrapper">
+                  <p class="reply-text"
+                    @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">
+                    {{ reply.content }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
           <!-- 展开 -->
           <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
               class="view-more-replies" @click="comment.id && expandReplies(comment.id)">
-            <span class="view-more-text-r2r">
+            <span class="view-more-text">
             View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
             </span>
-            <span class="view-more-icon-r2r">↓</span>
+            <span class="view-more-icon">↓</span>
           </div>
           <!-- 收起 -->
           <div v-if="comment.total_replies > 2 && comment.replies.length === comment.total_replies"
               class="view-more-replies"
               @click="comment.id && collapseComments(comment.id)">
-            <span class="hide-replies-text-r2r">Hide {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}</span>
-            <span class="hide-replies-icon-r2r">↑</span>
+            <span class="hide-replies-text">Hide {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}</span>
+            <span class="hide-replies-icon">↑</span>
           </div>
         </div>
 
         <!-- 回复输入框 -->
-        <div class="reply-input-container-home" v-if="replyTarget &&
+        <div class="reply-input-container" v-if="replyTarget &&
           ((replyTarget.type === 'comment' && replyTarget.id === comment.id) ||
           (replyTarget.type === 'reply' && replyTarget.parentId === comment.id))">
           <div class="replying-to-label">
@@ -324,13 +315,13 @@ const cancelDeleteComment = () => {
             placeholder="Reply to this comment..."
             maxlength="200"
             show-word-limit
-            class="reply-textarea-home"
+            class="reply-textarea"
           ></el-input>
-          <div class="reply-actions-home">
+          <div class="reply-actions">
             <el-button
               size="small"
               @click="cancelReply"
-              class="cancel-reply-btn-home"
+              class="cancel-reply-btn"
             >Cancel</el-button>
             <el-button
               type="primary"
@@ -338,7 +329,7 @@ const cancelDeleteComment = () => {
               @click="submitReply"
               :loading="isSubmittingReply"
               :disabled="!replyContent.trim()"
-              class="submit-reply-btn-home"
+              class="submit-reply-btn"
             >Reply</el-button>
           </div>
         </div>

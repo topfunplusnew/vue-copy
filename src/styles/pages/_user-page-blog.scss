@@ -367,17 +367,30 @@
             height: 40px;
             background: rgba(248, 248, 248, 0.98);
             border-top: 1px solid #eee;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
             z-index: 10;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 20px;
             
+            @media (max-width: 768px) {
+              flex-direction: row;
+              gap: 10px;
+              padding: 0 15px;
+              height: 50px;
+            }
+            
             /* 统计信息 */
             .stats-info {
             display: flex;
             align-items: center;
             gap: 20px;
+            
+            @media (max-width: 768px) {
+              width: auto;
+              justify-content: flex-start;
+            }
             
             span {
                 display: flex;
@@ -391,18 +404,32 @@
                 &:hover {
                 transform: translateY(-2px);
                 }
+                
+                &.liked {
+                  .heart-icon {
+                    color: #e74c3c;
+                  }
+                }
             }
             /* 为统计数据添加不同颜色 */
             .likes {
-                color: #e74c3c; /* 红色 */
+                color: #e74c3c;
+                font-size: 18px;
             }
             
             .comments {
-                color: #3498db; /* 蓝色 */
+                color: #3498db;
+                font-size: 18px;
             }
             
             .coins {
-                color: #f39c12; /* 金色 */
+                color: #f39c12;
+                font-size: 18px;
+            }
+            
+            .count {
+              font-size: 16px;
+              color: #666;
             }
             }
             /* 美化评论输入区域 */
@@ -411,47 +438,60 @@
             align-items: center;
             gap: 10px;
             width: 280px;
+            position: relative;
+            
+            @media (max-width: 768px) {
+              width: 60%;
+              flex-grow: 1;
+            }
             }
             
             .comment-input {
             flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
+            padding: 8px 15px;
+            border: 1px solid #eee;
             border-radius: 20px;
             font-size: 14px;
-            background-color: #f5f5f5;
+            background-color: #f8f8f8;
             transition: all 0.3s ease;
             outline: none;
+            padding-right: 30px;
+            
+            &:focus {
+              border-color: #ddd;
+              background-color: #fff;
+              box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
             }
             
-            .comment-input:focus {
-            border-color: #3498db;
-            background-color: #fff;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            &::placeholder {
+              color: #999;
+            }
             }
             
             .submit-quick-comment {
-            background: #3498db;
-            color: white;
+            position: absolute;
+            right: 10px;
+            background: transparent;
+            color: #999;
             border: none;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 14px;
+            
+            &:hover:not(:disabled) {
+              color: #666;
             }
             
-            .submit-quick-comment:hover:not(:disabled) {
-            background: #2980b9;
-            transform: scale(1.05);
+            &:disabled {
+              color: #ddd;
+              cursor: default;
             }
-            
-            .submit-quick-comment:disabled {
-            background: #ccc;
-            cursor: default;
             }
         }
         }
