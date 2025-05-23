@@ -1,0 +1,242 @@
+@use '../utils/mixins' as *;
+@use '../utils/utils' as *;
+
+// 统一弹窗基础样式
+@mixin modal-base {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(rpx(5));
+}
+
+@mixin modal-content-base {
+  background: linear-gradient(165deg, 
+    rgba(26, 27, 46, 0.95), 
+    rgba(18, 18, 18, 0.95)
+  );
+  border-radius: rpx(12);
+  box-shadow: 
+    0 rpx(20) rpx(60) rgba(0, 0, 0, 0.5),
+    0 0 rpx(30) rgba(86, 180, 233, 0.2),
+    inset 0 rpx(1) rpx(1) rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(86, 180, 233, 0.2);
+  backdrop-filter: blur(rpx(10));
+  color: white;
+  width: 90%;
+  max-width: 800px;
+  max-height: 85vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@mixin modal-header-base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: rpx(20) rpx(24);
+  background: linear-gradient(90deg, 
+    rgba(86, 180, 233, 0.15), 
+    rgba(233, 86, 108, 0.15)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  h3 {
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0;
+    font-weight: 600;
+    font-size: rpx(20);
+    
+    @include screen-mobile {
+      font-size: rpx(18);
+    }
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: rpx(24);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: rpx(32);
+    height: rpx(32);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    
+    &:hover {
+      color: rgba(255, 255, 255, 1);
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+  }
+}
+
+@mixin modal-body-base {
+  padding: rpx(24);
+  overflow-y: auto;
+  flex: 1;
+  
+  &::-webkit-scrollbar {
+    width: rpx(6);
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: rpx(3);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(86, 180, 233, 0.5);
+    border-radius: rpx(3);
+    
+    &:hover {
+      background: rgba(86, 180, 233, 0.7);
+    }
+  }
+}
+
+@mixin modal-footer-base {
+  display: flex;
+  justify-content: flex-end;
+  gap: rpx(12);
+  padding: rpx(20) rpx(24);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.2);
+  
+  .action-btn {
+    padding: rpx(10) rpx(20);
+    border-radius: rpx(8);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: rpx(6);
+    font-size: rpx(14);
+    min-width: rpx(80);
+    justify-content: center;
+    
+    &.cancel-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 1);
+        transform: translateY(rpx(-1));
+      }
+    }
+    
+    &.primary-btn {
+      background: linear-gradient(135deg, #56b4e9 0%, #e9566c 100%);
+      color: white;
+      border: 1px solid rgba(86, 180, 233, 0.3);
+      box-shadow: 0 rpx(4) rpx(15) rgba(86, 180, 233, 0.3);
+      
+      &:hover:not(:disabled) {
+        background: linear-gradient(135deg, #67c5fa 0%, #fa677d 100%);
+        transform: translateY(rpx(-2));
+        box-shadow: 0 rpx(8) rpx(25) rgba(86, 180, 233, 0.4);
+      }
+      
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+    }
+    
+    &.danger-btn {
+      background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+      color: white;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      
+      &:hover {
+        background: linear-gradient(135deg, #ff7c7c 0%, #ff6b63 100%);
+        transform: translateY(rpx(-1));
+      }
+    }
+  }
+}
+
+// 统一动画效果
+@mixin modal-animations {
+  .modal-fade-enter-active, .modal-fade-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .modal-fade-enter-from, .modal-fade-leave-to {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    
+    .modal-content {
+      transform: scale(0.95) translateY(rpx(-20));
+      opacity: 0;
+    }
+  }
+  
+  .modal-fade-enter-to, .modal-fade-leave-from {
+    opacity: 1;
+    backdrop-filter: blur(rpx(5));
+    
+    .modal-content {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .slide-up-enter-active, .slide-up-leave-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .slide-up-enter-from, .slide-up-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(rpx(30));
+  }
+  
+  .slide-up-enter-to, .slide-up-leave-from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+// 空状态样式
+@mixin empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: rpx(40);
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  
+  i {
+    font-size: rpx(48);
+    margin-bottom: rpx(16);
+    color: rgba(86, 180, 233, 0.5);
+  }
+  
+  p {
+    margin: 0 0 rpx(8) 0;
+    font-size: rpx(16);
+    font-style: italic;
+    
+    &.hint {
+      font-size: rpx(14);
+      color: rgba(255, 255, 255, 0.4);
+    }
+  }
+} 

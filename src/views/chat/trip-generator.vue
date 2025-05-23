@@ -19,7 +19,10 @@ import {
   Right,
   StarFilled,
   CopyDocument,
-  Edit
+  Edit,
+  Star,
+  Delete,
+  Check
 } from '@element-plus/icons-vue';
 const md = new MarkdownIt();
 
@@ -456,11 +459,14 @@ function addMarkerToMap(location: {name: string, lat: number, lng: number, descr
     animation: window.google.maps.Animation.DROP
   });
   
-  // 创建信息窗口
+  // 创建信息窗口内容，包含添加到计划的按钮
   const infoContent = `
     <div class="info-window">
       <h3>${location.name}</h3>
       ${location.description ? `<p>${location.description}</p>` : ''}
+      <button class="add-to-plan-btn" onclick="window.addLocationToPlan('${location.name}', ${location.lat}, ${location.lng}, '${location.description || ''}')">
+        Add to My Plan
+      </button>
     </div>
   `;
   
@@ -550,6 +556,146 @@ function processMessageContent(content: string): string {
   });
 }
 
+// 添加My Plan相关状态
+const showMyPlan = ref(false);
+const myPlan = ref({
+  title: '',
+  destinations: [] as Array<{
+    id: string;
+    name: string;
+    description: string;
+    day: number;
+    coordinates?: { lat: number, lng: number };
+    addedAt: Date;
+  }>,
+  duration: {
+    startDate: '',
+    endDate: '',
+    totalDays: 0
+  },
+  notes: ''
+});
+
+// 从聊天中提取的可用景点
+const availableDestinations = ref<Array<{
+  name: string;
+  content: string;
+  messageIndex: number;
+  coordinates?: { lat: number, lng: number };
+}>>([]);
+
+// Chatbox功能：回到聊天界面并聚焦输入框
+function focusOnChat() {
+  // 关闭所有弹窗
+  showHistory.value = false;
+  showTripOptions.value = false;
+  showMyPlan.value = false;
+  
+  // 滚动到聊天底部
+  scrollToBottom();
+  
+  // 聚焦到输入框
+  nextTick(() => {
+    const inputElement = document.querySelector('.chat-input textarea');
+    if (inputElement) {
+      (inputElement as HTMLTextAreaElement).focus();
+    }
+  });
+  
+  ElMessage({
+    message: 'Returned to chat',
+    type: 'info',
+    duration: 1500
+  });
+}
+
+// My Plan相关功能
+function toggleMyPlan() {
+  showMyPlan.value = !showMyPlan.value;
+  if (showMyPlan.value) {
+    extractDestinationsFromChat();
+  }
+}
+
+// 从聊天消息中提取景点信息
+function extractDestinationsFromChat() {
+  const destinations: Array<{
+    name: string;
+    content: string;
+    messageIndex: number;
+    coordinates?: { lat: number, lng: number };
+  }> = [];
+  
+  messages.value.forEach((msg, index) => {
+    if (msg.role === 'assistant') {
+      // 使用正则表达式匹配可能的景点名称
+      const placeRegex = /\*\*([\w\s\u4e00-\u9fa5]+)\*\*/g;
+      let match;
+      
+      while ((match = placeRegex.exec(msg.content)) !== null) {
+        const placeName = match[1];
+        if (!destinations.some(d => d.name === placeName)) {
+          destinations.push({
+            name: placeName,
+            content: msg.content.substring(match.index - 50, match.index + 100),
+            messageIndex: index
+          });
+        }
+      }
+    }
+  });
+  
+  availableDestinations.value = destinations;
+}
+
+// 添加景点到My Plan
+function addDestinationToPlan(destination: any) {
+  const newDestination = {
+    id: Date.now().toString(),
+    name: destination.name,
+    description: destination.content || '',
+    day: myPlan.value.destinations.length + 1,
+    coordinates: destination.coordinates,
+    addedAt: new Date()
+  };
+  
+  myPlan.value.destinations.push(newDestination);
+  
+  ElMessage({
+    message: `Added ${destination.name} to your plan`,
+    type: 'success',
+    duration: 2000
+  });
+}
+
+// 从My Plan中移除景点
+function removeDestinationFromPlan(destinationId: string) {
+  myPlan.value.destinations = myPlan.value.destinations.filter(d => d.id !== destinationId);
+  // 重新排序天数
+  myPlan.value.destinations.forEach((dest, index) => {
+    dest.day = index + 1;
+  });
+}
+
+// 保存计划
+function savePlan() {
+  if (!myPlan.value.title.trim()) {
+    ElMessage.error('Please enter a plan title');
+    return;
+  }
+  
+  // 这里可以调用API保存计划
+  console.log('Saving plan:', myPlan.value);
+  
+  ElMessage({
+    message: 'Plan saved successfully',
+    type: 'success',
+    duration: 2000
+  });
+  
+  showMyPlan.value = false;
+}
+
 onMounted(async() => {
   const query = router.currentRoute.value.query;
   if(query && query.prompt && query.prompt.length > 0) {
@@ -580,6 +726,16 @@ onMounted(async() => {
     
     console.log('Loading Google Maps API');
   }
+
+  // 为地图信息窗口按钮添加全局函数
+  window.addLocationToPlan = (name: string, lat: number, lng: number, description: string) => {
+    const destination = {
+      name,
+      coordinates: { lat, lng },
+      content: description || `Location: ${name}`
+    };
+    addDestinationToPlan(destination);
+  };
 });
 
 onUnmounted(() => {
@@ -608,7 +764,7 @@ onUnmounted(() => {
         >
           <div class="nav-button-group" @click.stop>
             <el-tooltip content="Chatbox" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
-              <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
+              <el-button class="nav-item-btn" @click.stop="focusOnChat">
                 <el-icon class="nav-icon"><ChatDotRound /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Chatbox</span>
               </el-button>
@@ -626,8 +782,8 @@ onUnmounted(() => {
               </el-button>
             </el-tooltip>
             <el-tooltip content="My Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
-              <el-button class="nav-item-btn" @click="finishConversation">
-                <el-icon class="nav-icon"><Star /></el-icon>
+              <el-button class="nav-item-btn" @click.stop="toggleMyPlan">
+                <el-icon class="nav-icon"><StarFilled /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">My Plan</span>
               </el-button>
             </el-tooltip>
@@ -695,7 +851,7 @@ onUnmounted(() => {
                 placeholder="Type your message..."
                 class="chat-input-box"
                 type="textarea"
-                :rows="3"
+                :rows="2"
                 clearable
                 @keydown.enter.prevent="handleUserInput"
               />
@@ -1011,11 +1167,11 @@ onUnmounted(() => {
 
           <!-- 旅行提示生成结果 -->
           <div class="trip-prompt-result">
-            <h4>Generated Token</h4>
+            <span>Generated Plan</span>
             <el-input
               v-model="editablePrompt"
               type="textarea"
-              :rows="4"
+              :rows="3"
               placeholder="Your travel prompt will appear here"
               resize="none"
               class="editable-prompt"
@@ -1027,6 +1183,135 @@ onUnmounted(() => {
           <el-button @click="toggleTripOptions" class="action-btn cancel-btn">Cancel</el-button>
           <el-button @click="insertTripPrompt" class="action-btn primary-btn" :disabled="!tripPrompt">
             Insert into Chat
+          </el-button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <!-- My Plan弹窗 -->
+  <transition name="slide-up">
+    <div class="plan-modal" v-if="showMyPlan">
+      <div class="plan-modal-content">
+        <div class="plan-modal-header">
+          <h3>My Travel Plan</h3>
+          <button class="close-btn" @click="toggleMyPlan">&times;</button>
+        </div>
+
+        <div class="plan-modal-body">
+          <!-- 计划标题和基本信息 -->
+          <div class="plan-info-section">
+            <div class="plan-field">
+              <label>Plan Title:</label>
+              <el-input 
+                v-model="myPlan.title" 
+                placeholder="Enter your travel plan title"
+                class="plan-title-input"
+              />
+            </div>
+            
+            <div class="plan-field">
+              <label>Duration:</label>
+              <div class="duration-inputs">
+                <el-date-picker
+                  v-model="myPlan.duration.startDate"
+                  type="date"
+                  placeholder="Start Date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                />
+                <span class="duration-separator">to</span>
+                <el-date-picker
+                  v-model="myPlan.duration.endDate"
+                  type="date"
+                  placeholder="End Date"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- 可用景点（从聊天中提取） -->
+          <div class="available-destinations-section">
+            <h4>Available Destinations from Chat</h4>
+            <div v-if="availableDestinations.length === 0" class="empty-destinations">
+              <p>No destinations found in chat. Generate some travel suggestions first!</p>
+            </div>
+            <div v-else class="destinations-grid">
+              <div 
+                v-for="destination in availableDestinations" 
+                :key="destination.name"
+                class="destination-card"
+              >
+                <div class="destination-info">
+                  <h5>{{ destination.name }}</h5>
+                  <p>{{ destination.content.substring(0, 80) }}...</p>
+                </div>
+                <el-button 
+                  size="small" 
+                  type="primary"
+                  @click="addDestinationToPlan(destination)"
+                  :disabled="myPlan.destinations.some(d => d.name === destination.name)"
+                >
+                  {{ myPlan.destinations.some(d => d.name === destination.name) ? 'Added' : 'Add' }}
+                </el-button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 已添加的景点 -->
+          <div class="plan-destinations-section">
+            <h4>Your Itinerary ({{ myPlan.destinations.length }} destinations)</h4>
+            <div v-if="myPlan.destinations.length === 0" class="empty-plan">
+              <p>No destinations added to your plan yet.</p>
+            </div>
+            <div v-else class="plan-destinations">
+              <div 
+                v-for="destination in myPlan.destinations" 
+                :key="destination.id"
+                class="plan-destination-item"
+              >
+                <div class="destination-day">Day {{ destination.day }}</div>
+                <div class="destination-details">
+                  <h5>{{ destination.name }}</h5>
+                  <p>{{ destination.description.substring(0, 100) }}...</p>
+                  <small>Added: {{ destination.addedAt.toLocaleDateString() }}</small>
+                </div>
+                <div class="destination-actions">
+                  <el-button 
+                    size="small" 
+                    type="danger" 
+                    @click="removeDestinationFromPlan(destination.id)"
+                  >
+                    <el-icon><Delete /></el-icon>
+                  </el-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 计划备注 -->
+          <div class="plan-notes-section">
+            <label>Notes:</label>
+            <el-input
+              v-model="myPlan.notes"
+              type="textarea"
+              :rows="3"
+              placeholder="Add any additional notes for your travel plan..."
+            />
+          </div>
+        </div>
+
+        <div class="plan-modal-footer">
+          <el-button @click="toggleMyPlan" class="action-btn cancel-btn">Cancel</el-button>
+          <el-button 
+            @click="savePlan" 
+            class="action-btn primary-btn"
+            :disabled="!myPlan.title.trim() || myPlan.destinations.length === 0"
+          >
+            <el-icon><Check /></el-icon>
+            Save Plan
           </el-button>
         </div>
       </div>

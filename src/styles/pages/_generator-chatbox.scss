@@ -7,7 +7,7 @@
     .center-chat-panel {
       @extend %glass-panel;
       flex: 4;
-      padding: rpx(16);
+    //   padding: rpx(16);
       display: flex;
       flex-direction: column;
       position: relative;
@@ -25,10 +25,9 @@
       .chat-box {
         flex: 1;
         overflow-y: auto; // 启用垂直滚动
-        padding: rpx(16);
+        padding: rpx(10);
         display: flex;
         flex-direction: column;
-        gap: rpx(12);
         height: calc(100% - rpx(100)); // 为输入框预留空间
         
         // 自定义滚动条 - 只在交互时显示
@@ -145,7 +144,7 @@
   
       // 输入框
       .chat-input {
-        margin-top: rpx(12);
+        position:sticky;
         padding: rpx(8);
         background: rgba(255,255,255,0.5);
         border-radius: rpx(12);

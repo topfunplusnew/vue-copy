@@ -1,0 +1,262 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+@use '../components/modal-base' as modal;
+
+@mixin wrapper {
+  @include modal.modal-animations;
+  
+  .plan-modal {
+    @include modal.modal-base;
+    
+    .plan-modal-content {
+      @include modal.modal-content-base;
+      max-width: 900px;
+    }
+    
+    .plan-modal-header {
+      @include modal.modal-header-base;
+    }
+    
+    .plan-modal-body {
+      @include modal.modal-body-base;
+      
+      // 计划基本信息区域
+      .plan-info-section {
+        margin-bottom: rpx(32);
+        padding: rpx(20);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: rpx(8);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        
+        .plan-field {
+          margin-bottom: rpx(20);
+          
+          &:last-child {
+            margin-bottom: 0;
+          }
+          
+          label {
+            display: block;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            margin-bottom: rpx(8);
+            font-size: rpx(14);
+          }
+          
+          .plan-title-input {
+            width: 100%;
+            
+            :deep(.el-input__inner) {
+              background: rgba(255, 255, 255, 0.1);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              color: rgba(255, 255, 255, 0.9);
+              
+              &:focus {
+                border-color: rgba(86, 180, 233, 0.6);
+                box-shadow: 0 0 rpx(6) rgba(86, 180, 233, 0.2);
+              }
+            }
+          }
+          
+          .duration-inputs {
+            display: flex;
+            align-items: center;
+            gap: rpx(12);
+            
+            .duration-separator {
+              color: rgba(255, 255, 255, 0.6);
+              font-size: rpx(14);
+              font-weight: 500;
+            }
+          }
+        }
+      }
+      
+      // 可用景点区域
+      .available-destinations-section {
+        margin-bottom: rpx(32);
+        
+        h4 {
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0 0 rpx(16) 0;
+          font-size: rpx(16);
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: rpx(8);
+          
+          &::before {
+            content: '📍';
+            font-size: rpx(16);
+          }
+        }
+        
+        .empty-destinations {
+          @include modal.empty-state;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px dashed rgba(255, 255, 255, 0.2);
+          border-radius: rpx(8);
+        }
+        
+        .destinations-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(rpx(280), 1fr));
+          gap: rpx(16);
+          
+          .destination-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: rpx(8);
+            padding: rpx(16);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.1);
+              transform: translateY(rpx(-2));
+              border-color: rgba(86, 180, 233, 0.3);
+              box-shadow: 0 rpx(8) rpx(20) rgba(86, 180, 233, 0.1);
+            }
+            
+            .destination-info {
+              flex: 1;
+              margin-right: rpx(12);
+              
+              h5 {
+                margin: 0 0 rpx(8) 0;
+                color: rgba(255, 255, 255, 0.9);
+                font-size: rpx(14);
+                font-weight: 600;
+              }
+              
+              p {
+                margin: 0;
+                font-size: rpx(12);
+                color: rgba(255, 255, 255, 0.7);
+                line-height: 1.4;
+              }
+            }
+          }
+        }
+      }
+      
+      // 计划景点区域
+      .plan-destinations-section {
+        margin-bottom: rpx(24);
+        
+        h4 {
+          color: rgba(255, 255, 255, 0.9);
+          margin: 0 0 rpx(16) 0;
+          font-size: rpx(16);
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: rpx(8);
+          
+          &::before {
+            content: '📋';
+            font-size: rpx(16);
+          }
+        }
+        
+        .empty-plan {
+          @include modal.empty-state;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px dashed rgba(255, 255, 255, 0.2);
+          border-radius: rpx(8);
+        }
+        
+        .plan-destinations {
+          .plan-destination-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: rpx(8);
+            padding: rpx(16);
+            margin-bottom: rpx(12);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.1);
+              border-color: rgba(86, 180, 233, 0.3);
+            }
+            
+            .destination-day {
+              background: linear-gradient(135deg, #56b4e9 0%, #e9566c 100%);
+              color: white;
+              padding: rpx(8) rpx(12);
+              border-radius: rpx(20);
+              font-size: rpx(12);
+              font-weight: 600;
+              margin-right: rpx(16);
+              min-width: rpx(60);
+              text-align: center;
+              white-space: nowrap;
+              box-shadow: 0 rpx(2) rpx(8) rgba(86, 180, 233, 0.3);
+            }
+            
+            .destination-details {
+              flex: 1;
+              
+              h5 {
+                margin: 0 0 rpx(4) 0;
+                color: rgba(255, 255, 255, 0.9);
+                font-size: rpx(15);
+                font-weight: 600;
+              }
+              
+              p {
+                margin: 0 0 rpx(4) 0;
+                font-size: rpx(13);
+                color: rgba(255, 255, 255, 0.7);
+                line-height: 1.3;
+              }
+              
+              small {
+                color: rgba(255, 255, 255, 0.5);
+                font-size: rpx(11);
+              }
+            }
+            
+            .destination-actions {
+              margin-left: rpx(16);
+            }
+          }
+        }
+      }
+      
+      // 备注区域
+      .plan-notes-section {
+        label {
+          display: block;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+          margin-bottom: rpx(8);
+          font-size: rpx(14);
+        }
+        
+        :deep(.el-textarea__inner) {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.9);
+          
+          &:focus {
+            border-color: rgba(86, 180, 233, 0.6);
+            box-shadow: 0 0 rpx(6) rgba(86, 180, 233, 0.2);
+          }
+          
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+          }
+        }
+      }
+    }
+    
+    .plan-modal-footer {
+      @include modal.modal-footer-base;
+    }
+  }
+}

@@ -109,6 +109,20 @@ export const chatStream = (req:IChatReq) => http.post('/chatz', req, {
   responseType:'stream',
   adapter:'fetch'
 }); // chat 流试显示
+
 export const chatConversations = () => http.get('/chat/history'); // 主题列表
 export const chatRestore = (conversationID:number) => http.get(`/chat/restore/${conversationID}`); //根据主题返回本主题下的所有历史记录
 
+
+/**
+ * Plan
+ */
+export const planStream = (req:IChatReq) => http.post('/chat/plan', req, {
+  headers: {
+    'Accept': 'text/event-stream'
+  },
+  responseType:'stream',
+  adapter:'fetch'
+}); // chat 流试显示
+export const chatPlan = (req:IChatReq) => http.post('/chat/plan', req); // 根据主题返回本主题下的所有历史记录
+// export const 
