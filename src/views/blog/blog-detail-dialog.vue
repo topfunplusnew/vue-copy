@@ -5,8 +5,7 @@ import { useBlogStore } from '@/stores/blog';
 import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 import { useRouter } from 'vue-router';
-import CommentSection from './blog-detail-comment.vue';
-
+import BlogDetailComment from './blog-detail-comment.vue';
 
 const router = useRouter();
 const dialogWidth = ref('90%');
@@ -192,6 +191,8 @@ const submitComment = async () => {
   try {
     await userStore.commenttoBlog(selectedBlog.value.id, newComment.value);
     newComment.value = '';
+
+    // 重新获取博客数据以更新评论列表
     await store.getBlogByID(selectedBlog.value.id);
 
     nextTick(() => {
@@ -207,12 +208,12 @@ const submitComment = async () => {
 
 const scrollToComments = () => {
   const commentsSection = document.querySelector('.comments-container') as HTMLElement;
-  const detailRight = document.querySelector('.detail-right');
 
-  if (commentsSection && detailRight) {
-    detailRight.scrollTo({
-      top: commentsSection.offsetTop - 20,
-      behavior: 'smooth'
+  if (commentsSection) {
+    // 直接使用scrollIntoView方法，将评论区域滚动到视图顶部
+    commentsSection.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
     });
   }
 };
@@ -262,6 +263,9 @@ const handleFollowClick = async (id?: number) => {
     :show-close="false"
   >
     <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
+      <!-- 关闭按钮 -->
+      <button class="close-button" @click="closeDialog">×</button>
+
       <!-- 左侧区域：图片 -->
       <div class="detail-left">
         <!-- 图片轮播 -->
@@ -344,15 +348,9 @@ const handleFollowClick = async (id?: number) => {
             <p class="blog-content">{{ selectedBlog?.content }}</p>
           </div>
 
-          <!-- 添加评论标题区域 -->
-          <div class="comments-title" v-if="selectedBlog?.id && blogId > 0">
-            <h3>Comments</h3>
-            <span class="comment-count">{{ selectedBlog?.comments_count || 0 }}</span>
-          </div>
-
-          <!-- 评论部分 -->
-          <CommentSection
-            v-if="selectedBlog?.id && blogId > 0"
+          <!-- 评论组件 -->
+          <BlogDetailComment
+            :blog-id="blogId"
           />
         </div>
 

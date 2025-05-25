@@ -354,7 +354,27 @@ $border-color: rgba(100, 179, 244, 0.2);
 
   /* 关闭按钮 */
   .close-button {
-    display: none;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+      transform: rotate(90deg);
+    }
   }
   
   // 左侧图片区
@@ -491,6 +511,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             font-size: 12px;
             font-weight: 500;
             margin-left: auto;
+            margin-top: 25px;
             
             &.following {
               background: rgba($accent-color, 0.4);
@@ -867,6 +888,7 @@ $border-color: rgba(100, 179, 244, 0.2);
         height: 50px;
       }
       
+      /* 统计信息 */
       .stats-info {
         display: flex;
         align-items: center;
@@ -895,30 +917,31 @@ $border-color: rgba(100, 179, 244, 0.2);
               color: #e74c3c;
             }
           }
-          
-          .heart-icon {
-            color: #e74c3c;
-            font-size: 18px;
-          }
-          
-          .comment-icon {
-            color: #3498db;
-            font-size: 18px;
-          }
-          
-          .coin-icon {
-            color: #f39c12;
-            font-size: 18px;
-          }
-          
-          .count {
-            font-size: 16px;
-            color: #666;
-          }
+        }
+        
+        /* 为统计数据添加不同颜色 */
+        .likes {
+          color: #e74c3c;
+          font-size: 18px;
+        }
+        
+        .comments {
+          color: #3498db;
+          font-size: 18px;
+        }
+        
+        .coins {
+          color: #f39c12;
+          font-size: 18px;
+        }
+        
+        .count {
+          font-size: 16px;
+          color: #666;
         }
       }
       
-      // 简化评论输入框
+      /* 美化评论输入区域 */
       .quick-comment-input {
         display: flex;
         align-items: center;
@@ -931,7 +954,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           flex-grow: 1;
         }
         
-        input.comment-input {
+        input.comment-input, .comment-input-home {
           flex: 1;
           padding: 8px 15px;
           border: 1px solid #eee;
@@ -1007,5 +1030,487 @@ $border-color: rgba(100, 179, 244, 0.2);
   
   .el-dialog__title {
     font-size: 1.3rem;
+  }
+}
+
+// 创建detail mixin以便在home页面中正确包含
+@mixin detail {
+  // 博客详情弹窗
+  .blog-detail-dialog {
+    background-color: transparent !important;
+    background: transparent !important;
+    backdrop-filter: blur(15px);
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 90%;
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+    border: none;
+    top: 10px;
+    padding: 0;
+    
+    .el-dialog__header {
+      border-bottom: none;
+      margin-right: 0;
+      position: relative;
+      display: none;
+    }
+    
+    .el-dialog__title {
+      display: none;
+    }
+    
+    .el-dialog__headerbtn {
+      display: none;
+    }
+    
+    .el-dialog__body {
+      padding: 0;
+      color: #e9ecef;
+      max-height: 90vh;
+      scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+      
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 4px;
+      }
+    }
+  }
+
+  // 博客详情容器
+  .blog-detail-container {
+    width: 100%;
+    height: 90vh;
+    display: flex;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    background: white;
+    position: relative;
+    transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+    
+    &.nft-post {
+      border: 2px solid gold;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    
+    /* 在窄屏幕上调整为垂直布局 */
+    @media (max-width: 768px) {
+      flex-direction: column;
+      height: 90vh;
+    }
+
+    /* 关闭按钮 */
+    .close-button {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 36px;
+      height: 36px;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 1001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: rgba(0, 0, 0, 0.7);
+        transform: rotate(90deg);
+      }
+    }
+    
+    // 左侧图片区
+    .detail-left {
+      flex: 6;
+      background: white;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: height 0.3s ease;
+      
+      /* 在窄屏幕上调整高度 */
+      @media (max-width: 768px) {
+        height: 50%;
+      }
+
+      .image-section {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        
+        .image-slider {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          position: relative;
+          
+          .image-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            transform-style: preserve-3d;
+            
+            .detail-image {
+              width: 100%;
+              height: 100%;
+              flex-shrink: 0;
+              object-fit: contain;
+              box-sizing: border-box;
+              padding: 0 15px;
+              background-color: #fff;
+            }
+          }
+        }
+      }
+    }
+
+    // 右侧内容区
+    .detail-right {
+      flex: 4;
+      background: white;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      position: relative;
+      
+      /* 在窄屏幕上调整高度 */
+      @media (max-width: 768px) {
+        height: 50%;
+      }
+      
+      /* 滚动条样式 */
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(45deg, #a0c0dc, #e9b4c4);
+      }
+
+      .detail-right-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px 30px 0 30px;
+        
+        @media (max-width: 768px) {
+          padding: 20px 20px 0 20px;
+        }
+        
+        // 用户信息区
+        .user-header {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 15px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid #eee;
+          width: 100%;
+
+          .blog-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #111;
+            margin: 0;
+            line-height: 1.3;
+            text-align: center;
+            margin-top: 10px;
+          }
+          
+          .author-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            
+            // 发帖人头像
+            .author-avatar {
+              width: 40px;
+              height: 40px;
+              border-radius: 50%;
+              object-fit: cover;
+            }
+
+            .author-name {
+              font-size: 20px;
+              font-weight: bold;
+              color: #2e2e2e;
+            }
+
+            .follow-btn, .edit-btn {
+              background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+              color: #555;
+              padding: 4px 10px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 500;
+              margin-left: auto;
+              margin-top: 25px;
+              
+              &.following {
+                background: rgba($accent-color, 0.4);
+              }
+            }
+          }
+
+          // 分类标签区
+          .tags-section-pref {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0 20px 0;
+            
+            .tag-pref {
+              background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+              color: #555;
+              padding: 4px 10px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: 500;
+            }
+          }
+        }
+
+        // 标签区域
+        .tags-section {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin: 15px 0 20px 0;
+          justify-content: left;
+          
+          .tag {
+            background: #f0f0f0;
+            color: #555;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+          }
+          
+          .nft-tag {
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            color: #111;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            
+            &::before {
+              content: "₿";
+              font-weight: bold;
+            }
+          }
+        }
+
+        // 博客内容区
+        .content-section {
+          margin-bottom: 20px;
+
+          .blog-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            margin: 0;
+            text-align: justify;
+          }
+        }
+      }
+
+      // 统计信息栏
+      .stats-bar {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 40px;
+        background: rgba(248, 248, 248, 0.98);
+        border-top: 1px solid #eee;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10;
+        padding: 0 20px;
+        
+        @media (max-width: 768px) {
+          flex-direction: row;
+          gap: 10px;
+          padding: 0 15px;
+          height: 50px;
+        }
+        
+        /* 统计信息 */
+        .stats-info {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          
+          @media (max-width: 768px) {
+            width: auto;
+            justify-content: flex-start;
+          }
+          
+          span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover {
+              transform: translateY(-2px);
+            }
+            
+            &.liked {
+              .heart-icon {
+                color: #e74c3c;
+              }
+            }
+          }
+          
+          /* 为统计数据添加不同颜色 */
+          .likes {
+            color: #e74c3c;
+            font-size: 18px;
+          }
+          
+          .comments {
+            color: #3498db;
+            font-size: 18px;
+          }
+          
+          .coins {
+            color: #f39c12;
+            font-size: 18px;
+          }
+          
+          .count {
+            font-size: 16px;
+            color: #666;
+          }
+        }
+        
+        /* 美化评论输入区域 */
+        .quick-comment-input {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          width: 280px;
+          position: relative;
+          
+          @media (max-width: 768px) {
+            width: 60%;
+            flex-grow: 1;
+          }
+          
+          input.comment-input, .comment-input-home {
+            flex: 1;
+            padding: 8px 15px;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            font-size: 14px;
+            background-color: #f8f8f8;
+            transition: all 0.3s ease;
+            outline: none;
+            padding-right: 30px;
+            
+            &:focus {
+              border-color: #ddd;
+              background-color: #fff;
+              box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+            }
+            
+            &::placeholder {
+              color: #999;
+            }
+          }
+          
+          .submit-quick-comment {
+            position: absolute;
+            right: 10px;
+            background: transparent;
+            color: #999;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            
+            &:hover:not(:disabled) {
+              color: #666;
+            }
+            
+            &:disabled {
+              color: #ddd;
+              cursor: default;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 响应式设计优化
+  @media (max-width: 768px) {
+    .blog-detail-dialog {
+      max-width: 95%;
+      width: 95%;
+    }
+  }
+
+  // 响应式设计
+  @media (max-width: 480px) {
+    .blog-detail-dialog {
+      width: 100%;
+      margin: 0;
+      border-radius: 0;
+      height: 100%;
+      max-height: 100vh;
+    }
+    
+    .el-dialog__body {
+      max-height: calc(100vh - 60px);
+    }
+    
+    .el-dialog__title {
+      font-size: 1.3rem;
+    }
   }
 }

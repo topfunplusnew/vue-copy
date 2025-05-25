@@ -83,6 +83,7 @@
               text-overflow: ellipsis;
               font-weight: 400;
               letter-spacing: rpx(5);
+              font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; /* 与文本框使用相同的字体 */
             }
           }
         }
@@ -241,6 +242,7 @@
         .ld-info {
           .weather-info {
             font-size: rpx(15);
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
           }
         }
       }
@@ -290,6 +292,7 @@
         .ld-info {
           .weather-info {
             font-size: rpx(13);
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
           }
         }  
       }
@@ -339,6 +342,7 @@
         .ld-info {
           .weather-info {
             font-size: rpx(17);
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
           }
         }
       }

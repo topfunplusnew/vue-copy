@@ -9,7 +9,9 @@ import { getImageUrl } from '@/utils';
 const store = useUserStore();
 
 const selectedBlog = computed(() => store.selectedPost);
-// const isFollowing = ref(false);
+
+// 关注状态
+const isFollowing = ref(false);
 
 // Comment functionality
 const newComment = ref('');
@@ -144,31 +146,25 @@ const submitReply = async () => {
 
 function scrollToComments() {
   const commentsSection = document.querySelector('.comments-container') as HTMLElement;
-  const detailRight = document.querySelector('.detail-right');
 
-  if (commentsSection && detailRight) {
-    detailRight.scrollTo({
-      top: commentsSection.offsetTop - 20,
-      behavior: 'smooth'
+  if (commentsSection) {
+    // 直接使用scrollIntoView方法，将评论区域滚动到视图顶部
+    commentsSection.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
     });
   }
 }
 
-defineProps({
-  isFollowing: {
-    type: Boolean,
-    required: true
-  }
-});
 const handleFollowClick = async (id?: number) => {
   if (!id) return;
   try {
     if (isFollowing.value) {
-      await userStore.unfollow(id);
+      await store.unfollow(id);
       isFollowing.value = false;
       ElMessage.success('Unfollowed successfully');
     } else {
-      await userStore.follow(id);
+      await store.follow(id);
       isFollowing.value = true;
       ElMessage.success('Following successfully');
     }
@@ -177,6 +173,7 @@ const handleFollowClick = async (id?: number) => {
     ElMessage.error('Failed to update following status');
   }
 };
+
 const isOwnPost = computed(() => {
   const user = store.user;
   const blogUser = selectedBlog.value?.user;
@@ -349,7 +346,7 @@ const isOwnPost = computed(() => {
                       </div>
                     </div>
 
-                    
+
                   </div>
 
                   <!-- 回复输入框 -->

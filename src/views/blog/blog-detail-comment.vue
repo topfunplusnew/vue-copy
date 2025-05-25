@@ -6,9 +6,13 @@ import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 import type { IBlogComment } from '@/types/blog';
 
+// 定义 props
+const props = defineProps<{
+  blogId: number;
+}>();
 
-// const store = useBlogStore();
-// const userStore = useUserStore();
+const store = useBlogStore();
+const userStore = useUserStore();
 
 // 新增：自动更新时间显示的定时器
 let timeUpdateInterval: number;
@@ -24,23 +28,22 @@ onUnmounted(() => {
   }
 });
 
-// function formatDate(dateStr?: string): string {
-//   if (!dateStr) return '';
-//   const date = new Date(dateStr);
-//   if (isNaN(date.getTime())) return ''; // 日期无效
-//   const yyyy = date.getFullYear();
-//   const mm = String(date.getMonth() + 1).padStart(2, '0');
-//   const dd = String(date.getDate()).padStart(2, '0');
-//   const hh = String(date.getHours()).padStart(2, '0');
-//   const mi = String(date.getMinutes()).padStart(2, '0');
-//   return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
-// }
-
-
-const store = useBlogStore();
-const userStore = useUserStore();
-
 const selectedBlog = computed(() => store.blog);
+
+// 简化评论数据获取
+const commentsData = computed(() => selectedBlog.value?.comments || []);
+
+// 监控博客数据变化以便调试
+watch(() => selectedBlog.value, (newBlog) => {
+  if (newBlog) {
+    console.log('Blog loaded:', newBlog.id, 'Comments count:', newBlog.comments?.length);
+  }
+}, { immediate: true });
+
+// 监控博客数据变化
+watch(() => props.blogId, (newBlogId) => {
+  console.log('BlogId prop changed:', newBlogId);
+}, { immediate: true });
 
 // 评论相关的状态
 const replyContent = ref('');
@@ -207,8 +210,17 @@ const cancelDeleteComment = () => {
         <span class="comment-count">{{ selectedBlog?.comments_count || 0 }}</span>
       </div>
     </div>
+
+    <!-- 调试信息 -->
+    <div v-if="!commentsData || commentsData.length === 0" style="padding: 20px; text-align: center; color: #666;">
+      <p v-if="!selectedBlog">No blog selected</p>
+      <p v-else-if="!selectedBlog.comments">No comments data</p>
+      <p v-else-if="selectedBlog.comments.length === 0">No comments yet</p>
+      <p v-else>Comments: {{ selectedBlog.comments.length }}</p>
+    </div>
+
     <div class="comments-list">
-      <div v-for="comment in [...(selectedBlog?.comments || [])].reverse()" :key="comment.id" class="comment-item">
+      <div v-for="comment in [...commentsData].reverse()" :key="comment.id" class="comment-item">
         <div class="comment-row"
               :class="{'long-press-active': activeComment === comment.id}"
               @touchstart.prevent="handleTouchStart(comment)"

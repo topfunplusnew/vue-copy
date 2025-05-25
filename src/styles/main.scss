@@ -11,4 +11,8 @@
 @use 'pages/signup'; // 注册页
 @use 'pages/generator'; // 生成器页
 @use 'pages/post'; // 发布页
+@use 'pages/home-blog'; // home页面博客样式
+@use 'pages/home-blog-detail'; // 博客详情弹窗样式
+@use 'pages/blog-item'; // 博客列表项样式
+@use 'blog'; // 博客基础样式
 

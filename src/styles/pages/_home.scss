@@ -3,6 +3,9 @@
 @use './home-trip' as trip;
 @use './home-blog' as blog;
 @use './post' as post; // 发布页
+@use './home-blog-detail' as blogdetail; // 博客详情弹窗
+@use './blog-item' as blogitem; // 博客列表项
+@use '../blog' as blogbase; // 博客基础样式
 
 .home {
   padding-top: rpx(20);
@@ -28,7 +31,9 @@
     
   }
   @include post.detail;
-  // @include blog.detail;
+  @include blogbase.detail; // 博客详情弹窗样式
+  @include blogdetail.wrapper; // 博客详情评论样式
+  @include blogitem.list-item; // 博客列表项样式
   // @include blog.popup;
 
 }

@@ -1,0 +1,453 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+@use '../blog' as *; // 导入博客样式变量
+
+// 定义本地变量以防万一
+$accent-color: #64b3f4 !default;
+
+@mixin wrapper {
+
+// 评论区
+.comments-container {
+    padding-right: 20px;
+    padding-bottom: 60px;
+    
+    .comments-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      
+      h3 {
+        font-size: 16px;
+        margin: 0;
+        color: #333;
+      }
+
+      .comment-count {
+        background: #eee;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        color: #555;
+      }
+    }
+
+    // 添加评论标题区域样式
+    .comments-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 0 20px 10px 0;
+      border-bottom: 1px solid #eee;
+      
+      h3 {
+        font-size: 18px;
+        margin: 0;
+        color: #333;
+        font-weight: 600;
+      }
+      
+      .comment-count {
+        background: #f5f5f5;
+        padding: 2px 10px;
+        border-radius: 15px;
+        font-size: 14px;
+        color: #555;
+      }
+    }
+
+    // 修改评论样式
+    .comment-item {
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      .comment-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        position: relative;
+        
+        &.long-press-active {
+          background: rgba($accent-color, 0.1);
+        }
+        
+        .comment-avatar {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          object-fit: cover;
+          flex-shrink: 0;
+        }
+        
+        .comment-content-wrapper {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          
+          .comment-username {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+          }
+          
+          .comment-text {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.5;
+            word-break: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            display: block;
+          }
+        }
+        
+        // 删除功能样式
+        .delete-indicator {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background-color: rgba(255, 59, 59, 0.2);
+          color: #ff3b3b;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+          
+          &.visible {
+            opacity: 1;
+          }
+        }
+        
+        .delete-confirm-overlay {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: rgba(0, 0, 0, 0.9);
+          padding: 15px;
+          border-radius: 8px;
+          box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+          opacity: 0;
+          pointer-events: none;
+          transform: translateY(10px);
+          transition: opacity 0.3s ease, transform 0.3s ease;
+          z-index: 10;
+          
+          &.visible {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0);
+          }
+          
+          .delete-message {
+            margin-bottom: 10px;
+            color: #f8f9fa;
+          }
+          
+          .delete-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            
+            .delete-btn-rp {
+              background-color: #ff3b3b;
+              color: white;
+      border: none;
+              padding: 4px 10px;
+              border-radius: 4px;
+              cursor: pointer;
+              font-weight: 600;
+              transition: all 0.2s ease;
+              font-size: 12px;
+              
+              &:hover {
+                background-color: #ff1f1f;
+              }
+            }
+            
+            .cancel-btn-rp {
+              background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+              border: none;
+              padding: 4px 10px;
+              border-radius: 4px;
+              cursor: pointer;
+      font-weight: 600;
+              transition: all 0.2s ease;
+              font-size: 12px;
+      
+      &:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+              }
+            }
+          }
+        }
+      }
+      
+      // 评论回复区
+      .comment-replies {
+        margin-left: 48px;
+        margin-top: 10px;
+        
+        .reply-item {
+          margin-bottom: 8px;
+          
+          .reply-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            
+            .reply-avatar {
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              object-fit: cover;
+              flex-shrink: 0;
+            }
+            
+            .reply-info {
+              flex: 1;
+              
+              .reply-header-line {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                
+                .reply-username {
+                  font-weight: 500;
+                  font-size: 14px;
+                  color: #333;
+                }
+                
+                .target-name-show {
+                  font-size: 12px;
+                  color: #999;
+                }
+              }
+              
+              .reply-content-wrapper {
+                margin-top: 2px;
+                
+                .reply-text {
+                  font-size: 14px;
+                  color: #555;
+                  line-height: 1.4;
+                  margin: 0;
+                }
+              }
+            }
+          }
+        }
+        
+        .view-more-replies {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 0;
+          cursor: pointer;
+          color: $accent-color;
+          font-size: 13px;
+        
+        &:hover {
+            background: rgba($accent-color, 0.1);
+          }
+        }
+
+        // 回复输入框
+        .reply-input-container {
+          margin-top: 10px;
+          background: rgba(0, 0, 0, 0.05);
+          padding: 12px;
+          border-radius: 8px;
+          
+          .replying-to-label {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #666;
+            
+            .target-name {
+              color: $accent-color;
+              font-weight: 500;
+            }
+          }
+          
+          .reply-textarea {
+            margin: 8px 0;
+          }
+          
+          .reply-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 8px;
+            
+            .cancel-reply-btn {
+              background: #f5f5f5;
+              border: 1px solid #ddd;
+              color: #666;
+            }
+            
+            .submit-reply-btn {
+              background: $accent-color;
+              color: white;
+            }
+          }
+        }
+      }
+    }
+    
+    // 统计信息栏
+    .stats-bar {
+      position: sticky;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: rgba(248, 248, 248, 0.98);
+      border-top: 1px solid #eee;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      padding: 0 20px;
+
+      @media (max-width: 768px) {
+        flex-direction: row;
+        gap: 10px;
+        padding: 0 15px;
+        height: 50px;
+      }
+      
+      /* 统计信息 */
+      .stats-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        @media (max-width: 768px) {
+          width: auto;
+          justify-content: flex-start;
+        }
+        
+        span {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 16px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+
+          &:hover {
+            transform: translateY(-2px);
+          }
+
+          &.liked {
+            .heart-icon {
+              color: #e74c3c;
+            }
+          }
+        }
+        
+        /* 为统计数据添加不同颜色 */
+        .likes {
+          color: #e74c3c;
+          font-size: 18px;
+        }
+        
+        .comments {
+          color: #3498db;
+          font-size: 18px;
+        }
+        
+        .coins {
+          color: #f39c12;
+          font-size: 18px;
+        }
+        
+        .count {
+          font-size: 16px;
+          color: #666;
+        }
+      }
+      
+      /* 美化评论输入区域 */
+      .quick-comment-input {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 280px;
+        position: relative;
+        
+        @media (max-width: 768px) {
+          width: 60%;
+          flex-grow: 1;
+        }
+        
+        input.comment-input, .comment-input-home {
+          flex: 1;
+          padding: 8px 15px;
+          border: 1px solid #eee;
+          border-radius: 20px;
+          font-size: 14px;
+          background-color: #f8f8f8;
+          transition: all 0.3s ease;
+          outline: none;
+          padding-right: 30px;
+        
+          &:focus {
+            border-color: #ddd;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+          }
+          
+          &::placeholder {
+            color: #999;
+          }
+        }
+        
+        .submit-quick-comment {
+          position: absolute;
+          right: 10px;
+          background: transparent;
+          color: #999;
+          border: none;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          font-size: 14px;
+          
+          &:hover:not(:disabled) {
+            color: #666;
+          }
+          
+          &:disabled {
+            color: #ddd;
+            cursor: default;
+          }
+        }
+      }
+    }
+  }
+
+}
