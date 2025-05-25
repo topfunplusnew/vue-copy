@@ -5,6 +5,12 @@ import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
 import type { IRequest } from '@/types/service';
 
+import type { 
+  IPlanCreateReq, 
+  IPlanUpdateReq, 
+  IPlanSearchReq,
+  IPlaceCreateReq 
+} from '@/types/plan';
 
 /**
  * 用户登录
@@ -114,15 +120,75 @@ export const chatConversations = () => http.get('/chat/history'); // 主题列�
 export const chatRestore = (conversationID:number) => http.get(`/chat/restore/${conversationID}`); //根据主题返回本主题下的所有历史记录
 
 
+
 /**
- * Plan
+ * plan
  */
-export const planStream = (req:IChatReq) => http.post('/chat/plan', req, {
-  headers: {
-    'Accept': 'text/event-stream'
-  },
-  responseType:'stream',
-  adapter:'fetch'
-}); // chat 流试显示
-export const chatPlan = (req:IChatReq) => http.post('/chat/plan', req); // 根据主题返回本主题下的所有历史记录
-// export const 
+
+/**
+ * 创建计划
+ * @param data 计划数据
+ * @returns Promise
+ */
+export const planCreate = (data: IPlanCreateReq) => http.post('/plan', data);
+
+/**
+ * 修改计划
+ * @param data 计划数据（包含ID）
+ * @returns Promise
+ */
+export const planUpdate = (data: IPlanUpdateReq) => http.put('/plan', data);
+
+/**
+ * 获取计划详情
+ * @param id 计划ID
+ * @returns Promise
+ */
+export const planGet = (id: number) => http.get('/plan', { params: { id } });
+
+/**
+ * 删除计划
+ * @param id 计划ID
+ * @returns Promise
+ */
+export const planDelete = (id: number) => http.delete('/plan', { params: { id } });
+
+/**
+ * 搜索计划
+ * @param query 搜索参数
+ * @returns Promise
+ */
+export const planSearch = (query: IPlanSearchReq = {}) => http.get('/plans', { params: query });
+
+/**
+ * 获取我的计划列表
+ * @param query 查询参数
+ * @returns Promise
+ */
+export const getMyPlans = (query: IPlanSearchReq = {}) => http.get('/my_plans', { params: query });
+
+/**
+ * Place 相关 API
+ */
+
+/**
+ * 创建地点
+ * @param data 地点数据
+ * @returns Promise
+ */
+export const placeCreate = (data: IPlaceCreateReq) => http.post('/place', data);
+
+/**
+ * 获取地点详情
+ * @param id 地点ID
+ * @returns Promise
+ */
+export const placeGet = (id: number) => http.get('/place', { params: { id } });
+
+/**
+ * 搜索地点
+ * @param query 搜索参数
+ * @returns Promise
+ */
+export const placeSearch = (query: IRequest = {}) => http.get('/places', { params: query });
+

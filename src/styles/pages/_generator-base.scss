@@ -28,7 +28,7 @@
     .main-layout {
       display: flex;
       width: 100%;
-      gap: rpx(8); // 面板之间的间距
+      gap: rpx(3); // 面板之间的间距
 
       // ========= 通用面板样式 =========
       %glass-panel {

@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+---
+
+# 检查我添加的文件及说明，除了我的明确要求外，不要创建新的文件或在其他文件修。修改代码时需要先遍历一遍之前的修改，否则会出现修改出新的错误的问题。
+
+- You can @ files here
+- You can use markdown but dont have to

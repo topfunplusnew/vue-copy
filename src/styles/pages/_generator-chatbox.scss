@@ -3,6 +3,7 @@
 
 
 @mixin wrapper {
+
     // ========= 2. 中间聊天面板 =========
     .center-chat-panel {
       @extend %glass-panel;
@@ -60,6 +61,7 @@
         .chat-message.user {
           align-self: flex-end;
           max-width: 50%;
+          margin-top: rpx(10);
           background-color: rgba(255, 255, 255, 0.4);
           border: 1px solid rgba(255, 255, 255, 0.2);
           padding: 0 rpx(16);
@@ -161,6 +163,62 @@
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
           }
         }
+      }
+    }
+  
+  
+    // 地点标签样式
+    :deep(.location-tag) {
+      display: inline-block;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      padding: rpx(6) rpx(16);
+      border-radius: rpx(20);
+      font-size: rpx(14);
+      font-weight: 600;
+      cursor: pointer;
+      margin: rpx(2) rpx(6);
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+      border: none;
+      position: relative;
+      overflow: hidden;
+      
+      // 添加小图标
+      &::before {
+        content: "📍";
+        margin-right: rpx(4);
+        font-size: rpx(12);
+      }
+      
+      &:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        background: linear-gradient(135deg, #3730a3 0%, #6b21a8 100%);
+      }
+      
+      &:active {
+        transform: translateY(0) scale(1.02);
+        transition: all 0.1s ease;
+      }
+      
+      // 点击时的波纹效果
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.3s, height 0.3s;
+      }
+      
+      &:active::after {
+        width: 100%;
+        height: 100%;
       }
     }
   }
