@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { chatStream, chatConversations, chatRestore } from '@/services/api';
 import type { IChatReq, IConversation, IMessage } from '@/types/chat';
 
+
 export const useChatStore = defineStore('prompt', () => {
 
   const message = ref('');
@@ -86,6 +87,7 @@ export const useChatStore = defineStore('prompt', () => {
       conversation_id = id;
     })
   }
+
 
   return {
     message,

@@ -19,7 +19,10 @@ import {
   Right,
   StarFilled,
   CopyDocument,
-  Edit
+  Edit,
+  Star,
+  Delete,
+  Check
 } from '@element-plus/icons-vue';
 const md = new MarkdownIt();
 
@@ -456,11 +459,14 @@ function addMarkerToMap(location: {name: string, lat: number, lng: number, descr
     animation: window.google.maps.Animation.DROP
   });
   
-  // 创建信息窗口
+  // 创建信息窗口内容，包含添加到计划的按钮
   const infoContent = `
     <div class="info-window">
       <h3>${location.name}</h3>
       ${location.description ? `<p>${location.description}</p>` : ''}
+      <button class="add-to-plan-btn" onclick="window.addLocationToPlan('${location.name}', ${location.lat}, ${location.lng}, '${location.description || ''}')">
+        Add to My Plan
+      </button>
     </div>
   `;
   
@@ -550,6 +556,198 @@ function processMessageContent(content: string): string {
   });
 }
 
+// 添加My Plan相关状态
+const showMyPlan = ref(false);
+const myPlan = ref({
+  title: '',
+  content: '',
+  duration: {
+    startDate: '',
+    endDate: ''
+  },
+  people: 1,
+  budget: 0,
+  budgetMin: 0,
+  days: [] as Array<{
+    day: number;
+    attractions: Array<{
+      time: number;
+      timeFormatted: string;
+      budget: number;
+      currency: string;
+      place_id: number;
+      placeName: string;
+    }>;
+  }>
+});
+
+// 从聊天中提取的可用景点
+const availableDestinations = ref<Array<{
+  name: string;
+  content: string;
+  messageIndex: number;
+  coordinates?: { lat: number, lng: number };
+}>>([]);
+
+// Chatbox功能：回到聊天界面并聚焦输入框
+function focusOnChat() {
+  // 关闭所有弹窗
+  showHistory.value = false;
+  showTripOptions.value = false;
+  showMyPlan.value = false;
+  
+  // 滚动到聊天底部
+  scrollToBottom();
+  
+  // 聚焦到输入框
+  nextTick(() => {
+    const inputElement = document.querySelector('.chat-input textarea');
+    if (inputElement) {
+      (inputElement as HTMLTextAreaElement).focus();
+    }
+  });
+  
+  ElMessage({
+    message: 'Returned to chat',
+    type: 'info',
+    duration: 1500
+  });
+}
+
+// My Plan相关功能
+function toggleMyPlan() {
+  showMyPlan.value = !showMyPlan.value;
+  if (showMyPlan.value) {
+    extractDestinationsFromChat();
+  }
+}
+
+// 从聊天消息中提取景点信息
+function extractDestinationsFromChat() {
+  const destinations: Array<{
+    name: string;
+    content: string;
+    messageIndex: number;
+    coordinates?: { lat: number, lng: number };
+  }> = [];
+  
+  messages.value.forEach((msg, index) => {
+    if (msg.role === 'assistant') {
+      // 使用正则表达式匹配可能的景点名称
+      const placeRegex = /\*\*([\w\s\u4e00-\u9fa5]+)\*\*/g;
+      let match;
+      
+      while ((match = placeRegex.exec(msg.content)) !== null) {
+        const placeName = match[1];
+        if (!destinations.some(d => d.name === placeName)) {
+          destinations.push({
+            name: placeName,
+            content: msg.content.substring(match.index - 50, match.index + 100),
+            messageIndex: index
+          });
+        }
+      }
+    }
+  });
+  
+  availableDestinations.value = destinations;
+}
+
+// 添加景点到My Plan
+function addDestinationToPlan(destination: any) {
+  // 如果没有天数，先添加第一天
+  if (myPlan.value.days.length === 0) {
+    addNewDay();
+  }
+  
+  // 添加到最后一天
+  const lastDayIndex = myPlan.value.days.length - 1;
+  myPlan.value.days[lastDayIndex].attractions.push({
+    time: 9,
+    timeFormatted: '09:00',
+    budget: 0,
+    currency: 'CNY',
+    place_id: 0,
+    placeName: destination.name
+  });
+  
+  ElMessage.success(`Added ${destination.name} to Day ${myPlan.value.days[lastDayIndex].day}`);
+}
+
+// 添加新的一天
+function addNewDay() {
+  const dayNumber = myPlan.value.days.length + 1;
+  myPlan.value.days.push({
+    day: dayNumber,
+    attractions: []
+  });
+}
+
+// 删除某一天
+function removeDay(dayIndex: number) {
+  myPlan.value.days.splice(dayIndex, 1);
+  // 重新编号剩余的天数
+  myPlan.value.days.forEach((day, index) => {
+    day.day = index + 1;
+  });
+}
+
+// 添加景点到某一天
+function addAttraction(dayIndex: number) {
+  if (myPlan.value.days[dayIndex]) {
+    myPlan.value.days[dayIndex].attractions.push({
+      time: 9, // 默认上午9点
+      timeFormatted: '09:00',
+      budget: 0,
+      currency: 'CNY',
+      place_id: 0,
+      placeName: ''
+    });
+  }
+}
+
+// 删除景点
+function removeAttraction(dayIndex: number, attractionIndex: number) {
+  if (myPlan.value.days[dayIndex]) {
+    myPlan.value.days[dayIndex].attractions.splice(attractionIndex, 1);
+  }
+}
+
+// 更新景点时间
+function updateAttractionTime(dayIndex: number, attractionIndex: number, timeStr: string) {
+  if (myPlan.value.days[dayIndex] && myPlan.value.days[dayIndex].attractions[attractionIndex]) {
+    const [hours, minutes] = timeStr.split(':').map(Number);
+    myPlan.value.days[dayIndex].attractions[attractionIndex].time = hours + (minutes / 60);
+  }
+}
+
+// 保存计划
+function savePlan() {
+  // 构建符合后端格式的数据
+  const planData = {
+    name: myPlan.value.title,
+    content: myPlan.value.content,
+    start_date: myPlan.value.duration.startDate,
+    end_date: myPlan.value.duration.endDate,
+    people: myPlan.value.people,
+    budget: myPlan.value.budget,
+    budget_min: myPlan.value.budgetMin,
+    days: myPlan.value.days.map(day => ({
+      day: day.day,
+      attractions: day.attractions.map(attraction => ({
+        time: attraction.time,
+        budget: attraction.budget,
+        currency: attraction.currency,
+        place_id: attraction.place_id || 1 // 临时使用1，实际需要根据地点获取
+      }))
+    }))
+  };
+  
+  console.log('Saving plan:', planData);
+  ElMessage.success('Plan saved successfully!');
+  toggleMyPlan();
+}
+
 onMounted(async() => {
   const query = router.currentRoute.value.query;
   if(query && query.prompt && query.prompt.length > 0) {
@@ -580,6 +778,16 @@ onMounted(async() => {
     
     console.log('Loading Google Maps API');
   }
+
+  // 为地图信息窗口按钮添加全局函数
+  window.addLocationToPlan = (name: string, lat: number, lng: number, description: string) => {
+    const destination = {
+      name,
+      coordinates: { lat, lng },
+      content: description || `Location: ${name}`
+    };
+    addDestinationToPlan(destination);
+  };
 });
 
 onUnmounted(() => {
@@ -608,7 +816,7 @@ onUnmounted(() => {
         >
           <div class="nav-button-group" @click.stop>
             <el-tooltip content="Chatbox" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
-              <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
+              <el-button class="nav-item-btn" @click.stop="focusOnChat">
                 <el-icon class="nav-icon"><ChatDotRound /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Chatbox</span>
               </el-button>
@@ -616,7 +824,7 @@ onUnmounted(() => {
             <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
                 <el-icon class="nav-icon"><MagicStick /></el-icon>
-                <span v-if="!isLeftPanelCollapsed">Generate Plan</span>
+                <span v-if="!isLeftPanelCollapsed">Auto Prompt</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="History" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
@@ -626,8 +834,8 @@ onUnmounted(() => {
               </el-button>
             </el-tooltip>
             <el-tooltip content="My Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
-              <el-button class="nav-item-btn" @click="finishConversation">
-                <el-icon class="nav-icon"><Star /></el-icon>
+              <el-button class="nav-item-btn" @click.stop="toggleMyPlan">
+                <el-icon class="nav-icon"><StarFilled /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">My Plan</span>
               </el-button>
             </el-tooltip>
@@ -695,7 +903,7 @@ onUnmounted(() => {
                 placeholder="Type your message..."
                 class="chat-input-box"
                 type="textarea"
-                :rows="3"
+                :rows="2"
                 clearable
                 @keydown.enter.prevent="handleUserInput"
               />
@@ -1011,11 +1219,11 @@ onUnmounted(() => {
 
           <!-- 旅行提示生成结果 -->
           <div class="trip-prompt-result">
-            <h4>Generated Token</h4>
+            <span>Generated Plan</span>
             <el-input
               v-model="editablePrompt"
               type="textarea"
-              :rows="4"
+              :rows="3"
               placeholder="Your travel prompt will appear here"
               resize="none"
               class="editable-prompt"
@@ -1032,42 +1240,269 @@ onUnmounted(() => {
       </div>
     </div>
   </transition>
+
+  <!-- My Plan弹窗 -->
+  <transition name="slide-from-left">
+    <div v-if="showMyPlan" class="my-plan-overlay">
+      <div class="my-plan-panel">
+        
+        <!-- 弹窗头部 -->
+        <div class="plan-header">
+          <div class="plan-header-left">
+            <h2>
+              <el-icon><StarFilled /></el-icon>
+              My Travel Plan
+            </h2>
+          </div>
+          <div class="plan-header-actions">
+            <el-button 
+              size="small" 
+              @click="toggleMyPlan"
+              class="close-btn"
+            >
+              <el-icon><Right /></el-icon>
+            </el-button>
+          </div>
+        </div>
+
+        <!-- 弹窗内容 -->
+        <div class="plan-content">
+          
+          <!-- 基本信息部分 -->
+          <div class="plan-section">
+            <h3>Basic Information</h3>
+            <div class="form-grid">
+              <div class="form-item">
+                <label>Plan Name</label>
+                <el-input 
+                  v-model="myPlan.title" 
+                  placeholder="Enter your travel plan name"
+                  size="small"
+                />
+              </div>
+              
+              <div class="form-item">
+                <label>Description</label>
+                <el-input 
+                  v-model="myPlan.content" 
+                  type="textarea"
+                  :rows="2"
+                  placeholder="Describe your travel plan"
+                  size="small"
+                />
+              </div>
+
+              <div class="date-range">
+                <div class="form-item">
+                  <label>Start Date</label>
+                  <el-date-picker
+                    v-model="myPlan.duration.startDate"
+                    type="date"
+                    placeholder="Start Date"
+                    format="YYYY-MM-DD"
+                    value-format="YYYY-MM-DD"
+                    size="small"
+                  />
+                </div>
+                <span>to</span>
+                <div class="form-item">
+                  <label>End Date</label>
+                  <el-date-picker
+                    v-model="myPlan.duration.endDate"
+                    type="date"
+                    placeholder="End Date"
+                    format="YYYY-MM-DD"
+                    value-format="YYYY-MM-DD"
+                    size="small"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-item">
+                  <label>People</label>
+                  <el-input-number 
+                    v-model="myPlan.people" 
+                    :min="1"
+                    :max="20"
+                    size="small"
+                  />
+                </div>
+                <div class="form-item">
+                  <label>Budget (¥)</label>
+                  <el-input-number 
+                    v-model="myPlan.budget" 
+                    :min="0"
+                    :step="100"
+                    size="small"
+                  />
+                </div>
+                <div class="form-item">
+                  <label>Min Budget (¥)</label>
+                  <el-input-number 
+                    v-model="myPlan.budgetMin" 
+                    :min="0"
+                    :step="100"
+                    size="small"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 行程安排部分 -->
+          <div class="plan-section">
+            <div class="section-header">
+              <h3>Itinerary</h3>
+              <el-button 
+                size="small" 
+                type="primary" 
+                @click="addNewDay"
+              >
+                <el-icon><Plus /></el-icon>
+                Add Day
+              </el-button>
+            </div>
+
+            <div v-if="myPlan.days.length === 0" class="empty-state">
+              <p>No days planned yet</p>
+              <p class="hint">Click "Add Day" to start planning your itinerary</p>
+            </div>
+
+            <div v-else class="days-list">
+              <div 
+                v-for="(day, dayIndex) in myPlan.days" 
+                :key="dayIndex"
+                class="day-item"
+              >
+                <div class="day-header">
+                  <h4>Day {{ day.day }}</h4>
+                  <div class="day-actions">
+                    <span class="attractions-count">{{ day.attractions.length }} attractions</span>
+                    <el-button 
+                      size="small" 
+                      type="danger" 
+                      circle
+                      @click="removeDay(dayIndex)"
+                    >
+                      <el-icon><Delete /></el-icon>
+                    </el-button>
+                  </div>
+                </div>
+                
+                <div class="attractions-list">
+                  <div 
+                    v-for="(attraction, attractionIndex) in day.attractions"
+                    :key="attractionIndex" 
+                    class="attraction-item"
+                  >
+                    <div class="attraction-time">
+                      <el-time-select
+                        v-model="attraction.timeFormatted"
+                        start="06:00"
+                        step="00:30"
+                        end="23:30"
+                        placeholder="Time"
+                        size="small"
+                        @change="updateAttractionTime(dayIndex, attractionIndex, $event)"
+                      />
+                    </div>
+                    <div class="attraction-budget">
+                      <el-input-number 
+                        v-model="attraction.budget" 
+                        :min="0"
+                        :step="10"
+                        placeholder="Budget"
+                        size="small"
+                      />
+                      <el-select 
+                        v-model="attraction.currency" 
+                        size="small"
+                        style="width: 70px;"
+                      >
+                        <el-option label="CNY" value="CNY" />
+                        <el-option label="USD" value="USD" />
+                        <el-option label="EUR" value="EUR" />
+                        <el-option label="JPY" value="JPY" />
+                      </el-select>
+                    </div>
+                    <div class="attraction-place">
+                      <el-input 
+                        v-model="attraction.placeName" 
+                        placeholder="Attraction name"
+                        size="small"
+                      />
+                    </div>
+                    <el-button 
+                      size="small" 
+                      type="danger" 
+                      circle
+                      @click="removeAttraction(dayIndex, attractionIndex)"
+                    >
+                      <el-icon><Delete /></el-icon>
+                    </el-button>
+                  </div>
+                  
+                  <div class="add-attraction">
+                    <el-button 
+                      size="small" 
+                      type="primary" 
+                      @click="addAttraction(dayIndex)"
+                    >
+                      <el-icon><Plus /></el-icon>
+                      Add Attraction
+                    </el-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 可选景点部分 -->
+          <div class="plan-section" v-if="availableDestinations.length > 0">
+            <h3>Available Destinations from Chat</h3>
+            <div class="destinations-list">
+              <div 
+                v-for="(destination, index) in availableDestinations"
+                :key="index" 
+                class="destination-item"
+              >
+                <div class="destination-info">
+                  <h4>{{ destination.name }}</h4>
+                  <p>{{ destination.content }}</p>
+                </div>
+                <div class="destination-actions">
+                  <el-button 
+                    size="small" 
+                    type="primary"
+                    @click="addDestinationToPlan(destination)"
+                  >
+                    <el-icon><Plus /></el-icon>
+                    Add
+                  </el-button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 弹窗底部操作 -->
+        <div class="plan-footer">
+          <el-button @click="toggleMyPlan">
+            Cancel
+          </el-button>
+          <el-button 
+            type="primary" 
+            @click="savePlan"
+            :disabled="!myPlan.title.trim() || myPlan.days.length === 0"
+          >
+            <el-icon><Check /></el-icon>
+            Save Plan
+          </el-button>
+        </div>
+
+      </div>
+    </div>
+  </transition>
 </template>
-
-<style>
-/* 可点击的地点标签样式 */
-.location-tag {
-  color: #1a73e8;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  padding: 0 2px;
-  border-radius: 3px;
-}
-
-.location-tag:hover {
-  background-color: rgba(26, 115, 232, 0.1);
-  text-decoration: underline;
-}
-
-/* 地图容器样式 */
-.map-container {
-  width: 100%;
-  height: 100%;
-  min-height: 400px;
-  border-radius: 8px;
-}
-
-/* 信息窗口样式 */
-.info-window h3 {
-  margin: 5px 0;
-  font-size: 16px;
-  color: #1a3566;
-}
-
-.info-window p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #555;
-}
-</style>

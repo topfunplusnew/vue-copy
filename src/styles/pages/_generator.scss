@@ -3,7 +3,8 @@
 @use './generator-base' as gbase;
 @use './generator-history' as ghistory;
 @use './generator-generatep' as ggeneratep;
-
+@use './generator-plan' as gplan;
+@use './generator-map' as gmap;
 
 .generator {
   padding-top: rpx(20);
@@ -19,3 +20,5 @@
 }
 @include ghistory.wrapper;
 @include ggeneratep.wrapper;
+@include gplan.wrapper;
+@include gmap.wrapper;

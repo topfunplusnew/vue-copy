@@ -1,0 +1,332 @@
+@use '../utils/mixins' as *; // 混合宏
+@use '../utils/utils' as *; // 工具类
+
+
+@mixin wrapper{
+  // My Plan 弹窗样式
+  .my-plan-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+    pointer-events: none; // 背景不拦截点击
+  }
+
+  .my-plan-panel {
+    position: absolute;
+    left: 0;
+    top: rpx(60); // 从导航栏下方开始
+    width: rpx(450);
+    height: calc(100vh - rpx(60));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 248, 255, 0.95) 100%);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto; // 面板本身可以点击
+  }
+
+  // 弹窗头部
+  .plan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: rpx(16) rpx(20);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+
+    .plan-header-left h2 {
+      display: flex;
+      align-items: center;
+      gap: rpx(8);
+      margin: 0;
+      font-size: rpx(18);
+      font-weight: 600;
+      color: #1a3566;
+
+      .el-icon {
+        color: #56b4e9;
+      }
+    }
+
+    .plan-header-actions {
+      .close-btn {
+        background: rgba(255, 255, 255, 0.6);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: #1a3566;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.8);
+        }
+      }
+    }
+  }
+
+  // 弹窗内容区域
+  .plan-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: rpx(16) rpx(20);
+
+    .plan-section {
+      margin-bottom: rpx(24);
+
+      h3 {
+        font-size: rpx(16);
+        font-weight: 600;
+        color: #1a3566;
+        margin-bottom: rpx(12);
+        display: flex;
+        align-items: center;
+        gap: rpx(6);
+
+        &:before {
+          content: '';
+          width: rpx(3);
+          height: rpx(16);
+          background: linear-gradient(135deg, #56b4e9 0%, #e9566c 100%);
+          border-radius: rpx(2);
+        }
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: rpx(12);
+
+        h3 {
+          margin-bottom: 0;
+        }
+      }
+
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: rpx(16);
+
+        .form-item {
+          label {
+            display: block;
+            font-size: rpx(12);
+            font-weight: 500;
+            color: #1a3566;
+            margin-bottom: rpx(4);
+          }
+        }
+
+        .date-range {
+          display: flex;
+          align-items: center;
+          gap: rpx(8);
+
+          span {
+            color: #666;
+            font-size: rpx(12);
+          }
+        }
+
+        .form-row {
+          display: flex;
+          gap: rpx(12);
+
+          .form-item {
+            flex: 1;
+          }
+        }
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: rpx(24);
+        color: #666;
+
+        p {
+          margin: rpx(4) 0;
+
+          &.hint {
+            font-size: rpx(12);
+            color: #999;
+          }
+        }
+      }
+
+      // 天数列表
+      .days-list {
+        .day-item {
+          margin-bottom: rpx(16);
+          background: rgba(255, 255, 255, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: rpx(8);
+          overflow: hidden;
+
+          .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: rpx(12) rpx(16);
+            background: rgba(86, 180, 233, 0.1);
+
+            h4 {
+              margin: 0;
+              font-size: rpx(14);
+              font-weight: 600;
+              color: #1a3566;
+            }
+
+            .day-actions {
+              display: flex;
+              align-items: center;
+              gap: rpx(8);
+
+              .attractions-count {
+                font-size: rpx(12);
+                color: #666;
+              }
+            }
+          }
+
+          .attractions-list {
+            padding: rpx(12);
+
+            .attraction-item {
+              display: flex;
+              align-items: center;
+              gap: rpx(8);
+              padding: rpx(8);
+              margin-bottom: rpx(8);
+              background: rgba(255, 255, 255, 0.6);
+              border-radius: rpx(6);
+
+              .attraction-time {
+                width: rpx(80);
+              }
+
+              .attraction-budget {
+                display: flex;
+                gap: rpx(4);
+                align-items: center;
+                width: rpx(120);
+              }
+
+              .attraction-place {
+                flex: 1;
+              }
+            }
+
+            .add-attraction {
+              text-align: center;
+              padding: rpx(8);
+            }
+          }
+        }
+      }
+
+      // 可选景点列表
+      .destinations-list {
+        .destination-item {
+          display: flex;
+          align-items: center;
+          padding: rpx(12);
+          margin-bottom: rpx(8);
+          background: rgba(255, 255, 255, 0.4);
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: rpx(8);
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.6);
+          }
+
+          .destination-info {
+            flex: 1;
+
+            h4 {
+              font-size: rpx(14);
+              font-weight: 600;
+              color: #1a3566;
+              margin: 0 0 rpx(4) 0;
+            }
+
+            p {
+              font-size: rpx(12);
+              color: #666;
+              margin: 0;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
+          }
+
+          .destination-actions {
+            .el-button {
+              background: rgba(255, 255, 255, 0.6);
+              border-color: rgba(255, 255, 255, 0.3);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 弹窗底部
+  .plan-footer {
+    padding: rpx(16) rpx(20);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: flex-end;
+    gap: rpx(12);
+  }
+
+  // 动画效果
+  .slide-from-left-enter-active,
+  .slide-from-left-leave-active {
+    transition: all 0.3s ease;
+  }
+
+  .slide-from-left-enter-from {
+    .my-plan-panel {
+      transform: translateX(-100%);
+    }
+  }
+
+  .slide-from-left-leave-to {
+    .my-plan-panel {
+      transform: translateX(-100%);
+    }
+  }
+
+  // 手机端样式 - 从下向上弹出
+  @include screen-mobile {
+    .my-plan-overlay {
+      .my-plan-panel {
+        left: 0;
+        top: auto;
+        bottom: 0;
+        width: 100%;
+        height: 70vh;
+        max-height: 70vh;
+        border-radius: rpx(16) rpx(16) 0 0;
+        border-right: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    // 手机端动画
+    .slide-from-left-enter-from {
+      .my-plan-panel {
+        transform: translateY(100%);
+      }
+    }
+
+    .slide-from-left-leave-to {
+      .my-plan-panel {
+        transform: translateY(100%);
+      }
+    }
+  }
+}
