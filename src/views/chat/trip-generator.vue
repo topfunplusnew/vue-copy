@@ -824,7 +824,7 @@ onUnmounted(() => {
             <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
                 <el-icon class="nav-icon"><MagicStick /></el-icon>
-                <span v-if="!isLeftPanelCollapsed">Generate Plan</span>
+                <span v-if="!isLeftPanelCollapsed">Auto Prompt</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="History" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
