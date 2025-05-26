@@ -13,13 +13,18 @@ const router = createRouter({
       path: '/home/:id?',
       name: 'home',
       component: () => import('@/views/blog/list-view.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/post-view/:id?', // 路由路径
       name: 'PostView',
       component: () => import('@/views/blog/post-view.vue'),
-      props: true
+      props: true,
+    },
+    {
+      path: '/map',
+      name: 'map',
+      component: () => import('@/views/chat/plan-map.vue'),
     },
     {
       path: '/about',
@@ -52,7 +57,7 @@ const router = createRouter({
       component: () => import('@/views/user/account-active.vue'),
       props(to) {
         const token = to.query.token;
-        return {token}
+        return { token };
       },
     },
     {
@@ -69,7 +74,7 @@ const router = createRouter({
       path: '/generator',
       name: 'generator',
       component: () => import('@/views/chat/trip-generator.vue'),
-    }
+    },
   ],
 });
 
