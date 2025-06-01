@@ -1304,7 +1304,6 @@ onUnmounted(() => {
                     size="small"
                   />
                 </div>
-                <span>to</span>
                 <div class="form-item">
                   <label>End Date</label>
                   <el-date-picker
