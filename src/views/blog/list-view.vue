@@ -472,31 +472,31 @@ const availableTools = ref([
     icon: '🌤️',
     description: 'Weather forecast'
   },
-  {
-    name: 'Currency',
-    icon: '💱',
-    description: 'Exchange rates'
-  },
-  {
-    name: 'Translation',
-    icon: '🌐',
-    description: 'Language translator'
-  },
-  {
-    name: 'Maps',
-    icon: '🗺️',
-    description: 'Interactive maps'
-  },
-  {
-    name: 'Reviews',
-    icon: '⭐',
-    description: 'Place reviews'
-  },
-  {
-    name: 'Budget',
-    icon: '💰',
-    description: 'Trip budget planner'
-  }
+  // {
+  //   name: 'Currency',
+  //   icon: '💱',
+  //   description: 'Exchange rates'
+  // },
+  // {
+  //   name: 'Translation',
+  //   icon: '🌐',
+  //   description: 'Language translator'
+  // },
+  // {
+  //   name: 'Maps',
+  //   icon: '🗺️',
+  //   description: 'Interactive maps'
+  // },
+  // {
+  //   name: 'Reviews',
+  //   icon: '⭐',
+  //   description: 'Place reviews'
+  // },
+  // {
+  //   name: 'Budget',
+  //   icon: '💰',
+  //   description: 'Trip budget planner'
+  // }
 ]);
 
 // 切换Interests菜单
