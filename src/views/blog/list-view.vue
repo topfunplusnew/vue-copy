@@ -15,7 +15,18 @@ import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
 import postView from './post-view.vue';
+import postPreview from './post-preview.vue';
+import { ElMessageBox } from 'element-plus';
 const showPostView = ref(false);
+const showPreview = ref(false);
+const previewData = ref({
+  title: '',
+  content: '',
+  images: [] as string[],
+  tags: [] as string[],
+  preferences: [] as number[],
+  location: [] as string[]
+});
 const props = defineProps({
   id: {
     type: String,
@@ -207,6 +218,9 @@ onMounted(async() => {
 
 // 清理IntersectionObserver
 onUnmounted(() => {
+  // 恢复背景滚动
+  document.body.style.overflow = '';
+  // 清理观察器
   if (observer.value) {
     observer.value.disconnect();
   }
@@ -341,7 +355,6 @@ const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(nu
 
 
 
-
 // 添加"查看更多回复"功能
 const expandedComments = ref<number[]>([]);
 
@@ -355,6 +368,62 @@ const expandedComments = ref<number[]>([]);
 // 处理博客项点击事件
 const openBlogDetail = (id: number) => {
   showBlogDetail(id);
+};
+
+// 监听弹窗状态，控制背景滚动
+watch(showPostView, (newValue) => {
+  if (newValue) {
+    // 弹窗打开时，阻止背景滚动
+    document.body.style.overflow = 'hidden';
+  } else {
+    // 弹窗关闭时，恢复背景滚动
+    document.body.style.overflow = '';
+  }
+});
+
+// 添加处理post按钮点击的函数
+const handlePostClick = async () => {
+  // 检查用户是否登录
+  if (!userStore.isLogin()) {
+    try {
+      // 显示登录确认弹窗
+      await ElMessageBox.confirm(
+        'You need to login first to post a blog. Would you like to login now?',
+        'Login Required',
+        {
+          confirmButtonText: 'Go to Login',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        }
+      );
+      // 用户确认后跳转到登录页面
+      router.push({ name: 'login' });
+    } catch {
+      // 用户取消登录，不做任何操作
+      return;
+    }
+  } else {
+    // 用户已登录，直接显示post视图
+    showPostView.value = true;
+  }
+};
+
+// 添加处理preview显示的函数
+const handleShowPreview = (data: {
+  title: string;
+  content: string;
+  images: string[];
+  tags: string[];
+  preferences: number[];
+  location: string[];
+}) => {
+  previewData.value = { ...data };
+  showPreview.value = true;
+};
+
+// 添加关闭preview的函数
+const closePreview = () => {
+  showPreview.value = false;
 };
 
 </script>
@@ -487,7 +556,7 @@ const openBlogDetail = (id: number) => {
             </div>
 
             <!-- Post按钮 -->
-            <el-button type="primary" @click="showPostView = true" class="custom-post-button">Post</el-button>
+            <el-button type="primary" @click="handlePostClick" class="custom-post-button">Post</el-button>
           </div>
         </div>
 
@@ -536,6 +605,70 @@ const openBlogDetail = (id: number) => {
   </div>
 
   <!-- 将 post-view 组件移到这里，作为整个页面的子元素 -->
-  <post-view :modelValue="showPostView" @update:modelValue="showPostView = $event" />
+  <div v-if="showPostView" class="post-view-overlay" @click.self="showPostView = false">
+    <post-view @close="showPostView = false" @show-preview="handleShowPreview" />
+  </div>
+
+  <!-- 将 preview 组件移到这里，作为整个页面的子元素 -->
+  <post-preview
+    v-if="showPreview"
+    :title="previewData.title"
+    :content="previewData.content"
+    :images="previewData.images"
+    :tags="previewData.tags"
+    :preferences="previewData.preferences"
+    :socialFilters="socialFilters"
+    :location="previewData.location"
+    @close="closePreview"
+  />
 </template>
+
+<style scoped>
+.post-view-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 2000;
+  padding: 2vh 20px;
+  box-sizing: border-box;
+  /* 确保可以滚动 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 确保滚动平滑 */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保post-view组件在遮罩层中正确显示 */
+.post-view-overlay > * {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: auto;
+}
+
+@media (max-width: 768px) {
+  .post-view-overlay {
+    padding: 0;
+    align-items: flex-start;
+    /* 在移动设备上确保可以滚动 */
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .post-view-overlay > * {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+</style>
 

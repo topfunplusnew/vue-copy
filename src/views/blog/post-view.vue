@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import postPreview from './post-preview.vue';
 import { Plus, Delete, Close } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox, type UploadFile, type FormInstance } from 'element-plus';
 import { useBlogStore } from '@/stores/blog';
@@ -13,15 +12,9 @@ import { destinations } from '@/utils/destinations';
 const props = defineProps({
   id: {
     type: Number
-  },
-  modelValue: {
-    type: Boolean,
-    default: false,
-  },
+  }
 });
-const emit = defineEmits(['update:modelValue']);
-
-
+const emit = defineEmits(['close', 'show-preview']);
 
 const store = useBlogStore();
 const userStore = useUserStore();
@@ -33,38 +26,26 @@ const commentPermission = computed(() => store.commentPermission); // 评论权�
 // 响应式数据
 const tagInput = ref('');
 const router = useRouter();
-const showPreview = ref(false);
 const formRef = ref<FormInstance>();
 
-const visible = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value),
-});
-
-// 添加关闭对话框方法
+// 添加关闭组件方法
 const closeDialog = () => {
-  ElMessageBox.confirm('是否确定关闭此窗口？')
+  ElMessageBox.confirm('Are you sure you want to close this window?', 'Confirm Close', {
+    confirmButtonText: 'Close',
+    cancelButtonText: 'Cancel',
+    type: 'warning',
+  })
     .then(() => {
-      visible.value = false;
+      emit('close');
     })
     .catch(() => {
       // 用户取消关闭
     });
 };
 
-// 直接关闭对话框不询问（用于移动端情况）
+// 直接关闭组件不询问（用于移动端情况）
 const directClose = () => {
-  visible.value = false;
-};
-
-const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('Are you sure to close this dialog?')
-    .then(() => {
-      done();
-    })
-    .catch(() => {
-      // catch error
-    });
+  emit('close');
 };
 
 // 处理目的地选择变更
@@ -80,6 +61,9 @@ const togglePreference = (id: number) => {
   } else {
     createData.value.social_filters.splice(index, 1);
   }
+
+  // 触发表单验证，确保Categories字段的验证状态正确更新
+  formRef.value?.validateField('social_filters');
 };
 
 // 显示登录确认弹窗
@@ -128,12 +112,61 @@ const rules = {
 
 // 修改预览按钮点击处理
 const handlePreviewClick = async () => {
+  // 检查各个必填字段并收集缺失信息
+  const missingFields = [];
+
+  // 检查标题
+  if (!createData.value.title.trim()) {
+    missingFields.push('Title');
+  }
+
+  // 检查内容
+  if (!createData.value.content.trim()) {
+    missingFields.push('Content');
+  }
+
+  // 检查图片
+  if (createData.value.image.length === 0) {
+    missingFields.push('At least one image');
+  }
+
+  // 检查分类
+  if (createData.value.social_filters.length === 0) {
+    missingFields.push('At least one category');
+  }
+
+  // 如果有缺失字段，显示具体提示
+  if (missingFields.length > 0) {
+    const missingText = missingFields.join(', ');
+    ElMessage({
+      message: `Please complete the following required fields: ${missingText}`,
+      type: 'warning',
+      duration: 4000,
+    });
+    return;
+  }
+
+  // 所有验证通过，发送preview数据到父组件
   try {
     await formRef.value?.validate();
-    showPreview.value = true;
+
+    // 发送preview数据到父组件
+    emit('show-preview', {
+      title: createData.value.title,
+      content: createData.value.content,
+      images: createData.value.image,
+      tags: createData.value.tags,
+      preferences: createData.value.social_filters,
+      location: createData.value.location
+    });
   } catch (error) {
-    // 验证将直接显示错误信息
-    console.error('错误', error);
+    // 如果还有其他验证错误，显示通用提示
+    ElMessage({
+      message: 'Please check and complete all required fields',
+      type: 'error',
+      duration: 3000,
+    });
+    console.error('Error', error);
   }
 };
 
@@ -227,6 +260,40 @@ const saveDraft = () => {
 
 // 修改发布博客处理
 async function postTweet() {
+  // 首先检查各个必填字段并收集缺失信息
+  const missingFields = [];
+
+  // 检查标题
+  if (!createData.value.title.trim()) {
+    missingFields.push('Title');
+  }
+
+  // 检查内容
+  if (!createData.value.content.trim()) {
+    missingFields.push('Content');
+  }
+
+  // 检查图片
+  if (createData.value.image.length === 0) {
+    missingFields.push('At least one image');
+  }
+
+  // 检查分类
+  if (createData.value.social_filters.length === 0) {
+    missingFields.push('At least one category');
+  }
+
+  // 如果有缺失字段，显示具体提示
+  if (missingFields.length > 0) {
+    const missingText = missingFields.join(', ');
+    ElMessage({
+      message: `Please complete the following required fields before posting: ${missingText}`,
+      type: 'warning',
+      duration: 4000,
+    });
+    return;
+  }
+
   try {
     await formRef.value?.validate();
 
@@ -247,11 +314,50 @@ async function postTweet() {
       });
     });
   } catch (error) {
-    console.error('错误', error);
+    ElMessage({
+      message: 'Please check and complete all required fields',
+      type: 'error',
+      duration: 3000,
+    });
+    console.error('Error', error);
   }
 };
 
 async function editTweet() {
+  // 首先检查各个必填字段并收集缺失信息
+  const missingFields = [];
+
+  // 检查标题
+  if (!createData.value.title.trim()) {
+    missingFields.push('Title');
+  }
+
+  // 检查内容
+  if (!createData.value.content.trim()) {
+    missingFields.push('Content');
+  }
+
+  // 检查图片
+  if (createData.value.image.length === 0) {
+    missingFields.push('At least one image');
+  }
+
+  // 检查分类
+  if (createData.value.social_filters.length === 0) {
+    missingFields.push('At least one category');
+  }
+
+  // 如果有缺失字段，显示具体提示
+  if (missingFields.length > 0) {
+    const missingText = missingFields.join(', ');
+    ElMessage({
+      message: `Please complete the following required fields before editing: ${missingText}`,
+      type: 'warning',
+      duration: 4000,
+    });
+    return;
+  }
+
   try {
     await formRef.value?.validate();
 
@@ -272,7 +378,12 @@ async function editTweet() {
       });
     });
   } catch (error) {
-    console.error('错误', error);
+    ElMessage({
+      message: 'Please check and complete all required fields',
+      type: 'error',
+      duration: 3000,
+    });
+    console.error('Error', error);
   }
 };
 
@@ -292,11 +403,6 @@ const handleResize = () => {
   isMobileView.value = window.innerWidth <= 768;
 };
 
-// 添加关闭预览的函数
-const closePreview = () => {
-  showPreview.value = false;
-};
-
 onMounted(async () => {
   await store.getSocialFilter();
   store.postReset(props.id);
@@ -311,234 +417,203 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <el-dialog
-  v-model="visible"
-  :show-close="false"
-  :width="isMobileView ? '100%' : '60%'"
-  :fullscreen="isMobileView"
-  :before-close="handleClose"
-  class="post-view-dialog"
-  >
-    <!-- 添加自定义关闭按钮 -->
-    <div class="custom-close-btn" @click="isMobileView ? directClose() : closeDialog()">
+  <!-- 内容卡片 - 直接作为组件内容 -->
+  <el-card class="post-card">
+    <!-- 添加新的关闭按钮到卡片头部 -->
+    <div class="card-close-btn" @click="isMobileView ? directClose() : closeDialog()">
       <el-icon><Close /></el-icon>
     </div>
 
-    <el-main class="post-content">
-      <!-- 内容卡片 -->
-      <el-card class="post-card">
-        <template #header>
-          <div class="post-card-header">
-            <div class="post-title">Post Your Blog</div>
-            <el-button
-              type="primary"
-              @click="handlePreviewClick"
-              :disabled="!canPreview"
-              class="preview-btn"
-            >
-              Preview
-            </el-button>
-          </div>
-        </template>
-
-        <!-- 博客创建表单 -->
-        <el-form
-          :model="createData"
-          label-position="top"
-          :rules="rules"
-          ref="formRef"
+    <template #header>
+      <div class="post-card-header">
+        <div class="post-title">Post Your Blog</div>
+        <el-button
+          type="primary"
+          @click="handlePreviewClick"
+          :disabled="!canPreview"
+          class="preview-btn"
         >
-          <!-- 标题输入 -->
-          <el-form-item
-            label="Title"
-            prop="title"
+          Preview
+        </el-button>
+      </div>
+    </template>
+
+    <!-- 博客创建表单 -->
+    <el-form
+      :model="createData"
+      label-position="top"
+      :rules="rules"
+      ref="formRef"
+    >
+      <!-- 标题输入 -->
+      <el-form-item
+        label="Title"
+        prop="title"
+      >
+        <el-input
+          v-model="createData.title"
+          type="textarea"
+          :autosize="{ minRows: 1, maxRows: 2 }"
+          placeholder="Enter a catchy title"
+          maxlength="50"
+          show-word-limit
+          :rows="isMobileView ? 1 : 2"
+        ></el-input>
+      </el-form-item>
+
+      <!-- 社交筛选器 -->
+      <el-form-item
+        label="Categories"
+        prop="social_filters"
+      >
+        <div class="filter-tags">
+          <el-tag
+            v-for="option in socialFilters"
+            :key="option.id"
+            :class="{ 'active-tag': createData.social_filters.includes(option.id) }"
+            @click="togglePreference(option.id)"
+            effect="plain"
+            class="filter-tag"
           >
-            <el-input
-              v-model="createData.title"
-              type="textarea"
-              :autosize="{ minRows: 1, maxRows: 2 }"
-              placeholder="Enter a catchy title"
-              maxlength="50"
-              show-word-limit
-              :rows="isMobileView ? 1 : 2"
-            ></el-input>
-          </el-form-item>
+            <span class="filter-icon">{{ option.icon }}</span>
+            <span>{{ option.name }}</span>
+          </el-tag>
+        </div>
+      </el-form-item>
 
-          <!-- 社交筛选器 -->
-          <el-form-item
-            label="Categories"
-            prop="social_filters"
+      <!-- 内容输入 -->
+      <el-form-item
+        label="Content"
+        prop="content"
+      >
+        <el-input
+          v-model="createData.content"
+          type="textarea"
+          :autosize="{ minRows: isMobileView ? 3 : 4, maxRows: isMobileView ? 5 : 8 }"
+          placeholder="What's happening? Share your experience..."
+        ></el-input>
+      </el-form-item>
+
+      <!-- 图片上传 -->
+      <el-form-item
+        label="Photos"
+        prop="image"
+      >
+        <div class="upload-section">
+          <el-upload
+            class="image-uploader"
+            :show-file-list="false"
+            :on-change="handleImageUpload"
+            :auto-upload="false"
+            :multiple="true"
+            accept="image/*"
           >
-            <div class="filter-tags">
-              <el-tag
-                v-for="option in socialFilters"
-                :key="option.id"
-                :class="{ 'active-tag': createData.social_filters.includes(option.id) }"
-                @click="togglePreference(option.id)"
-                effect="plain"
-                class="filter-tag"
-              >
-                <span class="filter-icon">{{ option.icon }}</span>
-                <span>{{ option.name }}</span>
-              </el-tag>
-            </div>
-          </el-form-item>
+            <el-button type="primary" size="large">
+              <el-icon><Plus /></el-icon>
+              Select Images
+            </el-button>
+          </el-upload>
+          <span class="upload-hint"
+            v-if="!createData.image.length">Upload up to 9 images,
+            double click to delete</span>
+        </div>
 
-          <!-- 内容输入 -->
-          <el-form-item
-            label="Content"
-            prop="content"
+        <!-- 图片展示区域 -->
+        <div class="images-gallery" v-if="createData.image.length">
+          <div v-for="(image, index) in createData.image"
+          :key="index" class="image-item">
+            <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
+            <div class="image-overlay">
+              <button class="delete-btn"
+              @click.stop="removeImage(index)" title="Remove image">
+                <el-icon><Delete /></el-icon>
+              </button>
+            </div>
+          </div>
+          <div class="images-counter">{{ createData.image.length }}/9 images</div>
+        </div>
+      </el-form-item>
+
+      <!-- 标签输入 -->
+      <el-form-item prop="tags" label="Tags">
+        <!-- 标签输入区域 -->
+        <div class="tag-input-wrapper">
+          <el-input
+            type="textarea"
+            v-model="tagInput"
+            :autosize="{ minRows: 1, maxRows: 1 }"
+            placeholder="Type tag and press Enter"
+            @keydown.prevent.stop.enter="handleTagInput"
+            maxlength="15"
+          ></el-input>
+        </div>
+
+        <!-- 标签显示区域 -->
+        <div class="tags-display">
+          <el-empty v-if="createData.tags.length === 0" description="No tags added yet"
+          :image-size="40" />
+          <div v-else class="tags-list">
+            <el-tag
+              v-for="(tag, index) in createData.tags"
+              :key="index"
+              closable
+              @close="removeTag(index)"
+              effect="plain"
+              class="post-tag"
+            >
+              #{{ tag }}
+            </el-tag>
+            <span class="tag-counter">{{ createData.tags.length }}/5</span>
+          </div>
+        </div>
+      </el-form-item>
+
+      <!-- 选择目的地 -->
+      <el-form-item label="Destination">
+        <el-select
+          v-model="createData.location"
+          multiple
+          filterable
+          placeholder="Select destinations"
+          @change="handleDestinationsChange"
+          style="max-width: 500px; width: 100%;">
+          <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label"
+          :value="dest.value" />
+        </el-select>
+      </el-form-item>
+
+      <!-- 评论权限 -->
+      <el-form-item label="Who can reply?">
+        <el-radio-group v-model="createData.comment_permission">
+          <el-radio
+            v-for="option in commentPermission"
+            :key="option.id"
+            :label="option.id"
           >
-            <el-input
-              v-model="createData.content"
-              type="textarea"
-              :autosize="{ minRows: isMobileView ? 3 : 4, maxRows: isMobileView ? 5 : 8 }"
-              placeholder="What's happening? Share your experience..."
-            ></el-input>
-          </el-form-item>
+            {{ option.name }} can reply
+          </el-radio>
+        </el-radio-group>
+      </el-form-item>
 
-          <!-- 图片上传 -->
-          <el-form-item
-            label="Photos"
-            prop="image"
-          >
-            <div class="upload-section">
-              <el-upload
-                class="image-uploader"
-                :show-file-list="false"
-                :on-change="handleImageUpload"
-                :auto-upload="false"
-                :multiple="true"
-                accept="image/*"
-              >
-                <el-button type="primary" size="large">
-                  <el-icon><Plus /></el-icon>
-                  Select Images
-                </el-button>
-              </el-upload>
-              <span class="upload-hint"
-                v-if="!createData.image.length">Upload up to 9 images,
-                double click to delete</span>
-            </div>
+      <!-- NFT 选项 -->
+      <el-form-item>
+        <el-checkbox v-model="createData.isNFT">
+          <div class="nft-option">
+            <span class="nft-icon">🖼️</span>
+            Make your NFT
+          </div>
+        </el-checkbox>
+      </el-form-item>
 
-            <!-- 图片展示区域 -->
-            <div class="images-gallery" v-if="createData.image.length">
-              <div v-for="(image, index) in createData.image"
-              :key="index" class="image-item">
-                <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
-                <div class="image-overlay">
-                  <button class="delete-btn"
-                  @click.stop="removeImage(index)" title="Remove image">
-                    <el-icon><Delete /></el-icon>
-                  </button>
-                </div>
-              </div>
-              <div class="images-counter">{{ createData.image.length }}/9 images</div>
-            </div>
-          </el-form-item>
-
-          <!-- 标签输入 -->
-          <el-form-item prop="tags" label="Tags">
-            <!-- 标签输入区域 -->
-            <div class="tag-input-wrapper">
-              <el-input
-                type="textarea"
-                v-model="tagInput"
-                :autosize="{ minRows: 1, maxRows: 1 }"
-                placeholder="Type tag and press Enter"
-                @keydown.prevent.stop.enter="handleTagInput"
-                maxlength="15"
-              ></el-input>
-            </div>
-
-            <!-- 标签显示区域 -->
-            <div class="tags-display">
-              <el-empty v-if="createData.tags.length === 0" description="No tags added yet"
-              :image-size="40" />
-              <div v-else class="tags-list">
-                <el-tag
-                  v-for="(tag, index) in createData.tags"
-                  :key="index"
-                  closable
-                  @close="removeTag(index)"
-                  effect="plain"
-                  class="post-tag"
-                >
-                  #{{ tag }}
-                </el-tag>
-                <span class="tag-counter">{{ createData.tags.length }}/5</span>
-              </div>
-            </div>
-          </el-form-item>
-
-          <!-- 选择目的地 -->
-          <el-form-item label="Destination">
-            <el-select
-              v-model="createData.location"
-              multiple
-              filterable
-              placeholder="Select destinations"
-              @change="handleDestinationsChange"
-              style="max-width: 500px; width: 100%;">
-              <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label"
-              :value="dest.value" />
-            </el-select>
-          </el-form-item>
-
-          <!-- 评论权限 -->
-          <el-form-item label="Who can reply?">
-            <el-radio-group v-model="createData.comment_permission">
-              <el-radio
-                v-for="option in commentPermission"
-                :key="option.id"
-                :label="option.id"
-              >
-                {{ option.name }} can reply
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-
-          <!-- NFT 选项 -->
-          <el-form-item>
-            <el-checkbox v-model="createData.isNFT">
-              <div class="nft-option">
-                <span class="nft-icon">🖼️</span>
-                Make your NFT
-              </div>
-            </el-checkbox>
-          </el-form-item>
-
-          <!-- 操作按钮 -->
-          <el-form-item>
-            <div class="action-buttons">
-              <el-button @click="saveDraft" plain>Save Draft</el-button>
-              <el-button v-if="id" @click="editTweet" type="primary">Edit</el-button>
-              <el-button v-else @click="postTweet" type="primary">Post</el-button>
-            </div>
-          </el-form-item>
-        </el-form>
-      </el-card>
-    </el-main>
-
-    <!-- 预览组件 -->
-    <post-preview
-      v-if="showPreview"
-      :title="createData.title"
-      :content="createData.content"
-      :images="createData.image"
-      :tags="createData.tags"
-      :preferences="createData.social_filters"
-      :socialFilters="socialFilters"
-      :location="createData.location"
-      @close="closePreview"
-    />
-    <!-- <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="closeDialog">Cancel</el-button>
-        <el-button type="primary" @click="postTweet">Post</el-button>
-      </span>
-    </template> -->
-  </el-dialog>
-
+      <!-- 操作按钮 -->
+      <el-form-item>
+        <div class="action-buttons">
+          <el-button @click="saveDraft" plain>Save Draft</el-button>
+          <el-button v-if="id" @click="editTweet" type="primary">Edit</el-button>
+          <el-button v-else @click="postTweet" type="primary">Post</el-button>
+        </div>
+      </el-form-item>
+    </el-form>
+  </el-card>
 </template>
 
