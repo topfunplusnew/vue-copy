@@ -283,7 +283,7 @@
             }
 
             &:focus {
-              outline: none;
+          outline: none;
               box-shadow: none;
             }
           }
@@ -302,9 +302,9 @@
             justify-content: center;
             width: rpx(36);
             height: rpx(36);
-            border: none;
+        border: none;
             border-radius: 50%;
-            cursor: pointer;
+        cursor: pointer;
             transition: all 0.2s ease;
             color: #3a5683;
 

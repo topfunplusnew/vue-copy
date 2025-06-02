@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, onMounted, watch } from 'vue';
 import { Close, Search, Warning, ChatDotRound, Promotion } from '@element-plus/icons-vue';
+import { useRouter } from 'vue-router';
 import { getImageUrl } from '@/utils';
 import { useUserStore } from '@/stores/user';
 
-interface User {
-  id: number;
-  name: string;
-  avatar: string;
-  isOnline: boolean;
-}
+const router = useRouter();
+
 
 interface Message {
   id: number;
@@ -25,6 +22,8 @@ interface Chat {
   lastMessage?: Message;
   unreadCount: number;
 }
+
+
 
 // Props
 defineProps<{

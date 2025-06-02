@@ -15,6 +15,7 @@ import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
 import postView from './post-view.vue';
+
 const showPostView = ref(false);
 const props = defineProps({
   id: {
