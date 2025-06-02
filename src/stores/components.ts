@@ -16,7 +16,7 @@ export const usecomponentsStore = defineStore('components', ()=>{
             // ${weatherData.temperature}°C,
             // Humidity:${weatherData.humidity}%, WindSpeed:${weatherData.wind_speed}km/h`;
 
-            const weatherText = `${weatherData.city}, ${weatherData.condition}, 
+            const weatherText = `${weatherData.condition}, 
             ${weatherData.temperature}°C`;
             
             if (isDestination) {

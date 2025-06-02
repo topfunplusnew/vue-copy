@@ -47,6 +47,10 @@
       font-weight: 600;
       color: #1a3566;
 
+      @include screen-mobile{
+        font-size: rpx(25);
+      }
+
       .el-icon {
         color: #56b4e9;
       }
@@ -83,6 +87,10 @@
         align-items: center;
         gap: rpx(6);
 
+        @include screen-mobile{
+          font-size: rpx(25);
+        }
+
         &:before {
           content: '';
           width: rpx(3);
@@ -100,6 +108,7 @@
 
         h3 {
           margin-bottom: 0;
+          
         }
       }
 
@@ -115,17 +124,36 @@
             font-weight: 500;
             color: #1a3566;
             margin-bottom: rpx(4);
+
+            @include screen-mobile{
+              font-size: rpx(22);
+            }
           }
         }
 
         .date-range {
-          display: flex;
-          align-items: center;
-          gap: rpx(8);
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: rpx(12);
+          width: 100%;
 
-          span {
-            color: #666;
-            font-size: rpx(12);
+          .form-item {
+            .el-date-picker {
+              width: 100% !important;
+              max-width: none;
+              
+              :deep(.el-input) {
+                .el-input__wrapper {
+                  width: 100%;
+                  
+                  .el-input__inner {
+                    font-size: rpx(11);
+                    padding: rpx(4) rpx(6);
+                    text-align: center;
+                  }
+                }
+              }
+            }
           }
         }
 
@@ -135,6 +163,18 @@
 
           .form-item {
             flex: 1;
+            
+            .el-input-number {
+              width: 100%;
+              
+              :deep(.el-input) {
+                .el-input__wrapper {
+                  .el-input__inner {
+                    font-size: rpx(12);
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -147,9 +187,17 @@
         p {
           margin: rpx(4) 0;
 
+          @include screen-mobile{
+            font-size: rpx(25);
+          }
+
           &.hint {
             font-size: rpx(12);
             color: #999;
+
+            @include screen-mobile{
+              font-size: rpx(20);
+            }
           }
         }
       }
@@ -175,6 +223,10 @@
               font-size: rpx(14);
               font-weight: 600;
               color: #1a3566;
+
+              @include screen-mobile{
+                font-size: rpx(22);
+              }
             }
 
             .day-actions {
@@ -313,6 +365,30 @@
         border-radius: rpx(16) rpx(16) 0 0;
         border-right: none;
         border-top: 1px solid rgba(255, 255, 255, 0.3);
+        
+        .plan-content {
+          .plan-section {
+            .form-grid {
+              .date-range {
+                grid-template-columns: 1fr 1fr;
+                gap: rpx(8);
+                
+                .form-item {
+                  .el-date-picker {
+                    :deep(.el-input) {
+                      .el-input__wrapper {
+                        .el-input__inner {
+                          font-size: rpx(10);
+                          padding: rpx(2) rpx(4);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
 

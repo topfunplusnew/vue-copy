@@ -128,7 +128,6 @@
   
   @include screen-pad {
     width: 95%;
-    padding: rpx(25);
     margin: rpx(50) auto;
     
     h3 {
@@ -368,9 +367,7 @@
 
 /* 统计数据样式 */
 .stats-container-about {
-  margin: rpx(60) auto;
   max-width: rpx(1000); // 限制最大宽度，PC端可能不需要滚动
-  padding: rpx(30) rpx(20);
   background: linear-gradient(135deg, rgba(240, 245, 255, 0.8), rgba(220, 230, 250, 0.7));
   backdrop-filter: blur(15px);
   border-radius: rpx(16);
@@ -517,7 +514,6 @@
 .stat-label-about {
   font-size: rpx(13);
   color: #4a648f;
-  margin-top: rpx(10); // 调整间距
   z-index: 1;
   position: relative;
   font-weight: 500;

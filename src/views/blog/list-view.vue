@@ -370,61 +370,194 @@ const openBlogDetail = (id: number) => {
   showBlogDetail(id);
 };
 
-// 监听弹窗状态，控制背景滚动
-watch(showPostView, (newValue) => {
-  if (newValue) {
-    // 弹窗打开时，阻止背景滚动
-    document.body.style.overflow = 'hidden';
+// 在script setup中添加新的响应式变量和方法
+
+// 定位组件展开状态
+const locationExpanded = ref(false);
+
+const toggleLocation = () => {
+  locationExpanded.value = !locationExpanded.value;
+  if (locationExpanded.value) {
+    locationSearchQuery.value = '';
+    // 延迟聚焦到搜索框
+    nextTick(() => {
+      const searchInput = document.querySelector('.location-search input');
+      if (searchInput) searchInput.focus();
+    });
+  }
+};
+
+// 语音输入功能
+const startVoiceInput = () => {
+  // 检查浏览器是否支持语音识别
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      ElMessage.info('Listening... Speak now!');
+    };
+
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      userInput.value = transcript;
+      ElMessage.success('Voice input captured!');
+    };
+
+    recognition.onerror = (event) => {
+      ElMessage.error('Voice recognition error: ' + event.error);
+    };
+
+    recognition.start();
   } else {
-    // 弹窗关闭时，恢复背景滚动
-    document.body.style.overflow = '';
+    ElMessage.warning('Voice recognition not supported in this browser');
+  }
+};
+
+// 监听定位变化，自动关闭展开状态
+watch(selectedLocation, () => {
+  if (selectedLocation.value) {
+    setTimeout(() => {
+      locationExpanded.value = false;
+    }, 1000);
   }
 });
 
-// 添加处理post按钮点击的函数
-const handlePostClick = async () => {
-  // 检查用户是否登录
-  if (!userStore.isLogin()) {
-    try {
-      // 显示登录确认弹窗
-      await ElMessageBox.confirm(
-        'You need to login first to post a blog. Would you like to login now?',
-        'Login Required',
-        {
-          confirmButtonText: 'Go to Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning',
-        }
-      );
-      // 用户确认后跳转到登录页面
-      router.push({ name: 'login' });
-    } catch {
-      // 用户取消登录，不做任何操作
-      return;
-    }
-  } else {
-    // 用户已登录，直接显示post视图
-    showPostView.value = true;
+// 定位组件 - 弹窗设计
+const locationWidgetRef = ref(null);
+const locationSearchQuery = ref('');
+const filteredLocations = computed(() => {
+  if (!locationSearchQuery.value) {
+    return destinations.slice(0, 8); // 默认显示前8个
+  }
+
+  return destinations.filter(location =>
+    location.label.toLowerCase().includes(locationSearchQuery.value.toLowerCase()) ||
+    (location.region && location.region.toLowerCase().includes(locationSearchQuery.value.toLowerCase()))
+  );
+});
+
+const handleLocationSearch = () => {
+  // 搜索逻辑已在计算属性中处理
+};
+
+const selectLocation = (locationValue) => {
+  selectedLocation.value = locationValue;
+  handleLocationChange(locationValue);
+  locationExpanded.value = false;
+  locationSearchQuery.value = '';
+};
+
+// 点击外部区域关闭弹窗
+const handleClickOutside = (event) => {
+  if (locationExpanded.value && locationWidgetRef.value && !locationWidgetRef.value.contains(event.target)) {
+    locationExpanded.value = false;
+    locationSearchQuery.value = '';
   }
 };
 
-// 添加处理preview显示的函数
-const handleShowPreview = (data: {
-  title: string;
-  content: string;
-  images: string[];
-  tags: string[];
-  preferences: number[];
-  location: string[];
-}) => {
-  previewData.value = { ...data };
-  showPreview.value = true;
+// 监听文档点击事件
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
+
+// 底部选择器状态
+const interestsExpanded = ref(false);
+const toolsExpanded = ref(false);
+const interestsWidgetRef = ref<HTMLElement | null>(null);
+const toolsWidgetRef = ref<HTMLElement | null>(null);
+
+// 选中的工具
+const selectedTools = ref<string[]>([]);
+
+// 可用工具列表
+const availableTools = ref([
+  {
+    name: 'Weather',
+    icon: '🌤️',
+    description: 'Weather forecast'
+  },
+  // {
+  //   name: 'Currency',
+  //   icon: '💱',
+  //   description: 'Exchange rates'
+  // },
+  // {
+  //   name: 'Translation',
+  //   icon: '🌐',
+  //   description: 'Language translator'
+  // },
+  // {
+  //   name: 'Maps',
+  //   icon: '🗺️',
+  //   description: 'Interactive maps'
+  // },
+  // {
+  //   name: 'Reviews',
+  //   icon: '⭐',
+  //   description: 'Place reviews'
+  // },
+  // {
+  //   name: 'Budget',
+  //   icon: '💰',
+  //   description: 'Trip budget planner'
+  // }
+]);
+
+// 切换Interests菜单
+const toggleInterests = () => {
+  interestsExpanded.value = !interestsExpanded.value;
+  if (interestsExpanded.value) {
+    toolsExpanded.value = false; // 关闭另一个菜单
+  }
 };
 
-// 添加关闭preview的函数
-const closePreview = () => {
-  showPreview.value = false;
+// 切换Tools菜单
+const toggleTools = () => {
+  toolsExpanded.value = !toolsExpanded.value;
+  if (toolsExpanded.value) {
+    interestsExpanded.value = false; // 关闭另一个菜单
+  }
 };
+
+// 切换工具选择
+const toggleTool = (toolName: string) => {
+  if (selectedTools.value.includes(toolName)) {
+    selectedTools.value = selectedTools.value.filter(t => t !== toolName);
+  } else {
+    selectedTools.value.push(toolName);
+  }
+};
+
+// 点击外部区域关闭菜单
+const handleSelectorClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement;
+  if (interestsExpanded.value && interestsWidgetRef.value && !interestsWidgetRef.value.contains(target)) {
+    interestsExpanded.value = false;
+  }
+  if (toolsExpanded.value && toolsWidgetRef.value && !toolsWidgetRef.value.contains(target)) {
+    toolsExpanded.value = false;
+  }
+};
+
+// 更新现有的生命周期钩子
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('click', handleSelectorClickOutside); // 添加新的监听器
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('click', handleSelectorClickOutside); // 移除新的监听器
+});
 
 </script>
 
@@ -448,75 +581,182 @@ const closePreview = () => {
         class="welcome-text2"
       />
     </section>
+
     <!-- 主体区域 -->
     <main class="main">
-      <!-- 行程规划模块 -->
-      <div class="combined-card">
-        <div class="plan-header">
-          <div class="plan-it-text">Plan Your Itinerary</div>
-        </div>
-        <hr class="horizontal-divider" />
-        <div class="location-destination-row">
-          <!-- Localization -->
-          <div class="field location-field">
-            <div class="field-label">Localization</div>
-            <el-select v-model="selectedLocation" placeholder="Select location"
-            class="select" filterable @change="handleLocationChange">
-              <el-option v-for="(loc, index) in destinations" :key="index" :label="loc.label" :value="loc.value" />
-            </el-select>
-            <div class="ld-info">
-              <!-- <img v-if="userFlag" :src="userFlag" alt="Flag" class="flag" /> -->
-              <div class="location-info">
-                <div class="weather-info" v-if="originWeather">
-                  <span class="weather-icon" :class="originWeatherIcon"></span>
-                  <span class="weather-data">{{ originWeather }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <!-- 行程规划模块 - 重新设计 -->
+      <div class="trip-planning-container">
 
-          <!-- Destination -->
-          <div class="field destination-field">
-            <div class="field-label">Destination</div>
-            <el-select v-model="selectedDestination" placeholder="Select destination"
-            class="select" filterable @change="handleDestinationSelect">
-              <el-option v-for="(destination, index) in destinations" :key="index"
-              :label="destination.label" :value="destination.value" />
-            </el-select>
-            <div class="ld-info">
-              <!-- <img v-if="destinationFlag" :src="destinationFlag"
-              alt="Destination Flag" class="flag" /> -->
-              <div class="location-info">
-                <div class="weather-info" v-if="destinationWeather">
-                  <span class="weather-icon" :class="destinationWeatherIcon"></span>
-                  <span class="weather-data">{{ destinationWeather }}</span>
-                </div>
-              </div>
+        <!-- 主输入区域 -->
+        <div class="chat-input-container">
+          <div class="input-wrapper">
+            <el-input
+              v-model="userInput"
+              placeholder="Plan your perfect trip... Where would you like to go?"
+              class="trip-input"
+              type="textarea"
+              :rows="1"
+              :autosize="{ minRows: 3, maxRows: 6 }"
+              @keydown.enter.ctrl.stop.prevent="submitItinerary"
+            />
+
+            <div class="input-actions">
+              <button class="action-btn microphone-btn" @click="startVoiceInput" title="Voice Input">
+                <el-icon><Microphone /></el-icon>
+              </button>
+              <button class="action-btn send-btn" @click="submitItinerary" title="Start Planning">
+                <el-icon><Position /></el-icon>
+              </button>
             </div>
           </div>
         </div>
 
-        <hr class="horizontal-divider" />
+        <!-- 底部选择菜单 - 固定在下方 -->
+        <div class="bottom-selectors">
+          <!-- Location 定位选择器 -->
+          <div class="selector-widget" ref="locationWidgetRef">
+            <div class="selector-trigger" @click="toggleLocation">
+              <el-icon class="selector-icon">
+                <Location />
+              </el-icon>
 
-        <!-- 旅游偏好  -->
-        <div class="preference-options">
-          <span v-for="option in socialFilters" :key="option.name"
-            class="preference-option"
-            :class="{ selected: selectedOptions.includes(option.name) }"
-            @click="togglePreference(option.name)">
-            <span class="option-icon">{{ option.icon }}</span>
-            <span class="option-name">{{ option.name }}</span>
-          </span>
-        </div>
+              <!-- 当有选择地点时显示地名和天气 -->
+              <div class="selector-content" v-if="selectedLocation">
+                <span class="selector-name">{{ selectedLocation }}</span>
+                <span class="weather-info" v-if="originWeather">{{ originWeather }}</span>
+              </div>
 
-        <!-- 用户行程输入框 -->
-        <div class="input-container">
-          <el-input v-model="userInput"
-          placeholder="Edit your trip prompt..."
-          class="itinerary-input" type="textarea" :rows="4"
-          @keydown.enter.stop.prevent="submitItinerary" />
-          <button class="togenerator"
-          @click.prevent.stop="submitItinerary">Start Now</button>
+              <!-- 没有选择地点时的默认文本 -->
+              <span class="selector-text" v-else>Add Location</span>
+
+              <el-icon class="dropdown-icon" :class="{ 'rotated': locationExpanded }">
+                <ArrowDown />
+              </el-icon>
+            </div>
+
+            <!-- Location 下拉菜单 - 统一使用selector-dropdown -->
+            <transition name="dropdown">
+              <div class="selector-dropdown" v-if="locationExpanded" @click.stop>
+                <div class="dropdown-content">
+                  <div class="search-section">
+                    <el-input
+                      v-model="locationSearchQuery"
+                      placeholder="Search for a location..."
+                      class="location-search"
+                      clearable
+                      @input="handleLocationSearch"
+                    >
+                      <template #prefix>
+                        <el-icon><Search /></el-icon>
+                      </template>
+                    </el-input>
+                  </div>
+
+                  <div class="results-section">
+                    <div class="result-list">
+                      <div
+                        v-for="(location, index) in filteredLocations"
+                        :key="index"
+                        class="location-item"
+                        @click="selectLocation(location.value)"
+                      >
+                        <div class="location-item-content">
+                          <el-icon class="item-icon"><Location /></el-icon>
+                          <div class="item-info">
+                            <span class="item-name">{{ location.label }}</span>
+                            <span class="item-region" v-if="location.region">{{ location.region }}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- 无搜索结果 -->
+                      <div class="no-results" v-if="filteredLocations.length === 0 && locationSearchQuery">
+                        <el-icon><Warning /></el-icon>
+                        <span>No locations found</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <!-- Interests 兴趣选择器 -->
+          <div class="selector-widget" ref="interestsWidgetRef">
+            <div class="selector-trigger" @click="toggleInterests">
+              <el-icon class="selector-icon">
+                <Star />
+              </el-icon>
+              <span class="selector-text">Interests</span>
+              <span class="selected-count" v-if="selectedOptions.length > 0">({{ selectedOptions.length }})</span>
+              <el-icon class="dropdown-icon" :class="{ 'rotated': interestsExpanded }">
+                <ArrowDown />
+              </el-icon>
+            </div>
+
+            <!-- Interests 下拉菜单 -->
+            <transition name="dropdown">
+              <div class="selector-dropdown" v-if="interestsExpanded" @click.stop>
+                <div class="dropdown-content">
+                  <div class="dropdown-header">
+                    <span class="header-title">Choose your interests</span>
+                  </div>
+
+                  <div class="options-grid">
+                    <div
+                      v-for="option in socialFilters"
+                      :key="option.name"
+                      class="option-item"
+                      :class="{ 'selected': selectedOptions.includes(option.name) }"
+                      @click="togglePreference(option.name)"
+                    >
+                      <span class="option-icon">{{ option.icon }}</span>
+                      <span class="option-name">{{ option.name }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
+
+          <!-- Tools 工具选择器 -->
+          <div class="selector-widget" ref="toolsWidgetRef">
+            <div class="selector-trigger" @click="toggleTools">
+              <el-icon class="selector-icon">
+                <Setting />
+              </el-icon>
+              <span class="selector-text">Tools</span>
+              <span class="selected-count" v-if="selectedTools.length > 0">({{ selectedTools.length }})</span>
+              <el-icon class="dropdown-icon" :class="{ 'rotated': toolsExpanded }">
+                <ArrowDown />
+              </el-icon>
+            </div>
+
+            <!-- Tools 下拉菜单 -->
+            <transition name="dropdown">
+              <div class="selector-dropdown" v-if="toolsExpanded" @click.stop>
+                <div class="dropdown-content">
+                  <div class="dropdown-header">
+                    <span class="header-title">Available tools</span>
+                  </div>
+
+                  <div class="tools-grid">
+                    <div
+                      v-for="tool in availableTools"
+                      :key="tool.name"
+                      class="tool-item"
+                      :class="{ 'selected': selectedTools.includes(tool.name) }"
+                      @click="toggleTool(tool.name)"
+                    >
+                      <span class="tool-icon">{{ tool.icon }}</span>
+                      <span class="tool-name">{{ tool.name }}</span>
+                      <span class="tool-desc">{{ tool.description }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
         </div>
       </div>
 
