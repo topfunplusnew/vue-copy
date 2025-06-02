@@ -1,168 +1,120 @@
 @use '../utils/mixins' as *; // 混合宏
 @use '../utils/utils' as *; // 工具类
 
-
 @mixin detail {
-  
-    .post-view-dialog {
-      position: relative;
-      // width: 100%;
-      max-width: 1200px;
-      margin: rpx(30) auto rpx(20);
-      padding: rpx(5) rpx(20) rpx(20);
-      background: rgba(255, 255, 255, 0.15);
-      background-color: white;
-      backdrop-filter: blur(10px);
-      border-radius: rpx(16);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-      transition: all 0.3s ease;
-  
-      /* 自定义关闭按钮样式 */
-      .custom-close-btn {
-        position: absolute;
-        top: rpx(15);
-        right: rpx(15);
-        width: rpx(32);
-        height: rpx(32);
+    .post-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: rpx(20);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        width: 100%;
+        max-width: 1200px;
+        /* 移除高度限制，让内容自由扩展 */
+        height: auto !important;
+        min-height: 60vh;
+        max-height: none !important;
+        /* 确保内容可以滚动 */
+        overflow-y: visible !important;
+        overflow-x: hidden;
+        /* 确保滚动流畅 */
+        scroll-behavior: smooth;
+        -webkit-overflow-scrolling: touch;
+        /* 确保所有子元素可以正常交互 */
+        pointer-events: auto;
+        /* 添加内边距确保内容不贴边 */
+        padding: rpx(20);
+        box-sizing: border-box;
+        /* 确保flexbox布局 */
         display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 10;
-        transition: all 0.3s ease;
+        flex-direction: column;
+        /* 确保内容不被截断 */
+        contain: none;
         
-        .el-icon {
-          color: #3a5683;
-          font-size: rpx(20);
-          transition: all 0.3s ease;
+        /* 确保所有表单元素可以接收事件 */
+        * {
+          pointer-events: auto;
         }
         
-        &:hover {
-          background: rgba(255, 255, 255, 0.4);
-          transform: rotate(90deg);
-          
-          .el-icon {
-            color: #e95670;
-          }
+        @include screen-pc {
+          margin: 0 auto;
+          width: 60%;
+          padding: rpx(30);
+          min-height: auto;
+          max-height: none;
+        }
+        
+        @include screen-pad {
+          margin: 0 auto;
+          width: 80%;
+          padding: rpx(25);
+          min-height: auto;
+          max-height: none;
         }
         
         @include screen-mobile {
+          width: 100%;
+          height: auto;
+          min-height: 95vh;
+          max-height: none;
+          border-radius: 0;
+          margin: 0;
+          padding: rpx(20);
+          overflow-y: auto;
+        }
+        
+        /* 新的卡片内关闭按钮样式 */
+        .card-close-btn {
+          position: absolute;
           top: rpx(15);
           right: rpx(15);
-          width: rpx(40);
-          height: rpx(40);
-          background: rgba(58, 86, 131, 0.7);
+          width: rpx(32);
+          height: rpx(32);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.3);
+          border-radius: 50%;
+          cursor: pointer;
+          z-index: 10;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(255, 255, 255, 0.5);
           
           .el-icon {
-            font-size: rpx(24);
-            color: white;
+            color: #3a5683;
+            font-size: rpx(20);
+            transition: all 0.3s ease;
           }
-        }
-      }
-  
-      /* 响应式容器调整 */
-      @include screen-pc {
-        padding: rpx(20) rpx(30) rpx(30);
-        max-width: 1200px;
-      }
-      
-      @include screen-pad {
-        padding: rpx(15) rpx(20) rpx(20);
-        max-width: 95%;
-        margin: rpx(20) auto;
-      }
-      
-      @include screen-mobile {
-        padding: rpx(10) rpx(5) rpx(5);
-        max-width: 100%;
-        margin: rpx(5) auto;
-        border-radius: rpx(12);
-        height: auto;
-      }
-      
-      /* Element Plus 对话框样式覆盖 - 修复移动端显示问题 */
-      &:deep(.el-dialog) {
-        margin: 0 auto;
-        width: 100%;
-        max-width: 98%;
-        max-height: 90vh;
-        overflow-y: auto;
-        
-        @include screen-mobile {
-          width: 100% !important;
-          max-width: 100% !important;
-          margin: 0 !important;
-          max-height: 100vh !important;
-          height: 100vh !important;
-          border-radius: 0 !important;
-          position: fixed !important;
-          left: 0 !important;
-          right: 0 !important;
-          top: 0 !important;
-          transform: none !important;
-          display: flex !important;
-          flex-direction: column !important;
-          overflow: hidden !important; // 防止整个对话框滚动
           
-          /* 全屏模式下关闭按钮样式调整 */
-          & + .custom-close-btn {
-            top: rpx(15);
-            right: rpx(15);
-            width: rpx(48);
-            height: rpx(48);
-            background: rgba(58, 86, 131, 0.9);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          &:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: rotate(90deg) scale(1.1);
+            border-color: rgba(255, 255, 255, 0.8);
             
             .el-icon {
-              font-size: rpx(28);
+              color: #e95670;
+            }
+          }
+          
+          @include screen-mobile {
+            top: rpx(15);
+            right: rpx(15);
+            width: rpx(40);
+            height: rpx(40);
+            background: rgba(58, 86, 131, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            
+            .el-icon {
+              font-size: rpx(24);
               color: white;
             }
             
-            &:active {
-              transform: scale(0.9);
+            &:hover {
+              background: rgba(58, 86, 131, 0.9);
             }
           }
         }
-        
-        .el-dialog__header {
-          padding: rpx(12) rpx(12) rpx(8);
-          
-          @include screen-mobile {
-            padding: rpx(5) rpx(5) rpx(2);
-            min-height: 0;
-            display: none; // 隐藏头部
-          }
-        }
-        
-        .el-dialog__body {
-          padding: rpx(10) rpx(10) rpx(10);
-          
-          @include screen-mobile {
-            padding: rpx(5) rpx(5) rpx(5);
-            max-height: none;
-            height: 100%;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-          }
-        }
-        
-        .el-dialog__footer {
-          padding: rpx(10) rpx(15) rpx(15);
-          
-          @include screen-mobile {
-            padding: rpx(8) rpx(12) rpx(12);
-            min-height: 0; // 最小高度为0
-          }
-        }
-      }
-  
-      .post-card {
-        background: transparent;
-        border: none;
-        box-shadow: none;
         
         .post-card-header {
           display: flex;
@@ -170,6 +122,7 @@
           align-items: center;
           flex-wrap: wrap;
           gap: 16px;
+          padding-right: rpx(50);
           
           /* 响应式头部调整 */
           @include screen-pad {
@@ -186,8 +139,8 @@
             @include screen-pc { font-size: rpx(30); }
             @include screen-pad { font-size: rpx(26); }
             @include screen-mobile { font-size: rpx(22); }
-            color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
-            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
+            color: #3a5683;
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
             margin: 0;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -249,50 +202,308 @@
             }
           }
         }
-      }
-    }
-    
-    /* 确保表单标签左对齐 */
-    .el-form-item__label,
-    .el-form .el-form-item .el-form-item__label {
-      color: #3a5683; 
-      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
-      /* 响应式字号调整 */
-      @include screen-pc { font-size: rpx(20); }
-      @include screen-pad { font-size: rpx(18); }
-      @include screen-mobile { font-size: rpx(20); }
-      font-weight: 600;
-      text-align: left;
-      justify-content: flex-start; /* Flex布局下的左对齐 */
-      padding-left: 0; /* 移除可能的左内边距 */
-      width: 100%; /* 确保标签占据整行 */
-    }
-  
-    /* 优化表单项布局 */
-    .post-content .el-form-item {
-      display: flex;
-      flex-direction: column; /* 垂直排列 */
-      align-items: flex-start; /* 左对齐内容 */
-      margin-bottom: rpx(20);
-      /* 表单项响应式间距 */
-      @include screen-pc { margin-bottom: rpx(20); }
-      @include screen-pad { margin-bottom: rpx(20); }
-      @include screen-mobile { margin-bottom: rpx(20); }
-    }
-  
-    /* 移除内容区的默认左边距 */
-    .post-content .el-form-item__content {
-      margin-left: 0; /* 移除Element Plus默认的缩进 */
-      width: 100%; /* 内容区占满宽度 */
-    }
-  
-    /* 输入框文字颜色 */
-    .post-content .el-input__inner,
-    .post-content .el-textarea__inner {
-      color: #3a5683;
+        
+        /* 确保表单标签左对齐 */
+        .el-form-item__label,
+        .el-form .el-form-item .el-form-item__label {
+          color: #3a5683; 
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
+          /* 响应式字号调整 */
+          @include screen-pc { font-size: rpx(20); }
+          @include screen-pad { font-size: rpx(18); }
+          @include screen-mobile { font-size: rpx(20); }
+          font-weight: 600;
+          text-align: left;
+          justify-content: flex-start;
+          padding-left: 0;
+          width: 100%;
+        }
+      
+        /* 优化表单项布局 */
+        .el-form-item {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          margin-bottom: rpx(20);
+          /* 表单项响应式间距 */
+          @include screen-pc { margin-bottom: rpx(25); }
+          @include screen-pad { margin-bottom: rpx(22); }
+          @include screen-mobile { margin-bottom: rpx(20); }
+          
+          &:last-child {
+            margin-bottom: rpx(30);
+            
+            @include screen-mobile {
+              margin-bottom: rpx(20);
+            }
+          }
+        }
+      
+        /* 移除内容区的默认左边距 */
+        .el-form-item__content {
+          margin-left: 0;
+          width: 100%;
+          /* 确保内容区可以正常显示 */
+          min-height: auto;
+        }
+      
+        /* 输入框文字颜色 */
+        .el-input__inner,
+        .el-textarea__inner {
+          color: #3a5683;
+          /* 确保输入框可以接收焦点和输入 */
+          pointer-events: auto !important;
+          user-select: auto !important;
+        }
+        
+        /* 确保文本域可以正常编辑 */
+        .el-textarea {
+          pointer-events: auto !important;
+          
+          .el-textarea__inner {
+            pointer-events: auto !important;
+            user-select: auto !important;
+            cursor: text !important;
+          }
+        }
+        
+        /* 确保输入框可以正常编辑 */
+        .el-input {
+          pointer-events: auto !important;
+          
+          .el-input__wrapper {
+            pointer-events: auto !important;
+            
+            .el-input__inner {
+              pointer-events: auto !important;
+              user-select: auto !important;
+              cursor: text !important;
+            }
+          }
+        }
+        
+        /* 位置选择器样式 */
+        .select-post-destination {
+          width: 100%;
+          /* 确保选择器可以正常交互 */
+          pointer-events: auto !important;
+          
+          .el-input__wrapper {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: none;
+            pointer-events: auto !important;
+          }
+          
+          .el-input__inner {
+            color: #3a5683;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+          }
+        }
+        
+        /* 通用选择器样式 */
+        .el-select {
+          pointer-events: auto !important;
+          
+          .el-input {
+            pointer-events: auto !important;
+            
+            .el-input__wrapper {
+              pointer-events: auto !important;
+              cursor: pointer !important;
+            }
+          }
+        }
+      
+        /* 评论权限 */
+        .el-radio-group {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          /* 确保单选框组可以交互 */
+          pointer-events: auto !important;
+          
+          .el-radio {
+            margin-right: 0;
+            color: #3a5683;
+            text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
+            /* 确保单选框可以点击 */
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            /* 响应式字号 */
+            @include screen-pc { font-size: rpx(14); }
+            @include screen-pad { font-size: rpx(13); }
+            @include screen-mobile { font-size: rpx(15); }
+          }
+        }
+      
+        /* NFT选项 */
+        .nft-option {
+          display: flex;
+          align-items: center;
+          color: #3a5683;
+          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
+          font-weight: 600;
+          /* 确保复选框可以点击 */
+          pointer-events: auto !important;
+          cursor: pointer !important;
+
+          /* 响应式字号 */
+          @include screen-pc { font-size: rpx(14); }
+          @include screen-pad { font-size: rpx(13); }
+          @include screen-mobile { font-size: rpx(20); }
+
+          .nft-icon {
+            margin-right: 8px;
+            font-size: rpx(12);
+          }
+        }
+        
+        /* 确保复选框可以正常交互 */
+        .el-checkbox {
+          pointer-events: auto !important;
+          cursor: pointer !important;
+          
+          .el-checkbox__input {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+          }
+          
+          .el-checkbox__label {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+          }
+        }
+        
+        /* 操作按钮 */
+        .action-buttons {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          width: 100%;
+          justify-content: flex-start;
+          gap: 16px;
+          margin-top: 20px;
+          /* 确保按钮容器可以接收事件 */
+          pointer-events: auto;
+          /* 确保按钮区域有足够的底部边距 */
+          padding-bottom: rpx(20);
+          margin-bottom: rpx(20);
+          
+          @include screen-mobile {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: rpx(30);
+            justify-content: space-between;
+            padding-bottom: rpx(30);
+          }
+          
+          .el-button {
+            /* 确保所有按钮都可以点击 */
+            pointer-events: auto !important;
+            cursor: pointer !important;
+          }
+          
+          .el-button[type="primary"] {
+            background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
+            border: none;
+            font-weight: 700;
+            flex: 0 0 auto;
+            min-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: rpx(12);
+            padding: 14px 30px;
+            color: white;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(233, 86, 108, 0.3);
+            /* 确保主要按钮可以点击 */
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            
+            @include screen-mobile {
+              width: 49%;
+              min-width: unset;
+              padding: 7px 10px;
+              font-size: rpx(16);
+              flex: 0 0 49%;
+              border-radius: 25px;
+              height: rpx(36);
+              line-height: rpx(20);
+            }
+            
+            &:hover {
+              background: linear-gradient(45deg, rgba(86, 180, 233, 1), rgba(233, 86, 108, 1));
+              transform: translateY(-2px);
+              box-shadow: 0 8px 20px rgba(233, 86, 108, 0.4);
+              letter-spacing: 0.5px;
+            }
+            
+            &:active {
+              transform: translateY(1px);
+              box-shadow: 0 2px 8px rgba(233, 86, 108, 0.3);
+              transition: all 0.1s ease;
+            }
+          }
+          
+          .el-button[plain] {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: #3a5683;
+            flex: 0 0 auto;
+            min-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: rpx(12);
+            font-weight: 600;
+            padding: 14px 30px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            
+            @include screen-mobile {
+              width: 49%;
+              min-width: unset;
+              padding: 7px 10px;
+              font-size: rpx(16);
+              flex: 0 0 49%;
+              border-radius: 25px;
+              color: #3a5683;
+              height: rpx(36);
+              line-height: rpx(20);
+              border-width: 1px;
+            }
+            
+            &:hover {
+              background: rgba(255, 255, 255, 0.2);
+              border-color: rgba(255, 255, 255, 0.6);
+              color: #3a5683;
+              text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+            }
+            
+            &:active {
+              transform: translateY(1px);
+              box-shadow: none;
+              transition: all 0.1s ease;
+            }
+          }
+        }
     }
 
     .upload-section {
+        /* 确保上传区域可以正常交互 */
+        pointer-events: auto !important;
+        
         .upload-hint {
             font-size: rpx(15);
             color: #3a5683;
@@ -305,12 +516,34 @@
             }
         }
         
+        /* 确保上传组件可以正常交互 */
+        .el-upload {
+          pointer-events: auto !important;
+          
+          .el-upload-dragger {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+          }
+        }
+        
+        .image-uploader {
+          pointer-events: auto !important;
+          
+          .el-button {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+          }
+        }
+        
         /* Element Plus 上传组件样式增强 */
-        :deep(.el-upload--picture-card) {
+        .el-upload--picture-card {
             background: rgba(255, 255, 255, 0.2);
             border: 2px dashed rgba(255, 255, 255, 0.4);
             border-radius: rpx(12);
             transition: all 0.3s ease;
+            /* 确保上传卡片可以点击 */
+            pointer-events: auto !important;
+            cursor: pointer !important;
             
             @include screen-pc {
                 width: rpx(120);
@@ -345,6 +578,9 @@
 
     .images-gallery {
         margin: rpx(20) 0;
+        /* 确保图片画廊可以正常显示 */
+        width: 100%;
+        max-width: 100%;
         
         /* 响应式网格布局 */
         display: grid;
@@ -353,10 +589,12 @@
         
         @include screen-pc { 
             grid-template-columns: repeat(4, 1fr);
+            gap: rpx(15);
         }
         
         @include screen-pad { 
             grid-template-columns: repeat(3, 1fr);
+            gap: rpx(12);
         }
         
         @include screen-mobile { 
@@ -373,6 +611,10 @@
             background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 rpx(4) rpx(8) rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            /* 确保图片项占满网格空间 */
+            width: 100%;
+            height: auto;
+            min-height: 0;
             
             &:hover {
                 transform: translateY(-4px);
@@ -466,6 +708,8 @@
       display: flex;
       flex-wrap: wrap;
       gap:rpx(3);
+      /* 确保标签可以正常点击 */
+      pointer-events: auto;
       
       @include screen-mobile {
         gap: 5px;
@@ -496,6 +740,9 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        /* 确保标签可以点击 */
+        pointer-events: auto !important;
+        user-select: none;
         
         @include screen-mobile {
           font-size: rpx(14);
@@ -550,11 +797,15 @@
     .tags-display {
         margin-top: rpx(10);
         min-height: rpx(40);
+        /* 确保标签区域可以正常交互 */
+        pointer-events: auto !important;
 
         .tags-list {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
+            /* 确保标签列表可以交互 */
+            pointer-events: auto !important;
             
             /* 响应式间距调整 */
             @include screen-pc { gap: rpx(8); }
@@ -567,6 +818,9 @@
                 color: #3a5683;
                 text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
                 transition: all 0.2s ease;
+                /* 确保标签本身可以交互 */
+                pointer-events: auto !important;
+                cursor: default !important;
                 
                 /* 响应式尺寸和内边距 */
                 @include screen-pc {
@@ -598,6 +852,9 @@
                     color: #3a5683;
                     text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
                     background-color: transparent;
+                    /* 确保关闭按钮可以点击 */
+                    pointer-events: auto !important;
+                    cursor: pointer !important;
                     
                     /* 响应式图标尺寸 */
                     @include screen-pc { font-size: rpx(16); }
@@ -623,6 +880,23 @@
             }
         }
         
+        /* 标签输入框样式 */
+        .tag-input-wrapper {
+          margin-bottom: rpx(10);
+          /* 确保输入包装器可以交互 */
+          pointer-events: auto !important;
+          
+          .el-textarea {
+            pointer-events: auto !important;
+            
+            .el-textarea__inner {
+              pointer-events: auto !important;
+              cursor: text !important;
+              user-select: auto !important;
+            }
+          }
+        }
+        
         .el-empty {
             padding: 0;
             
@@ -642,377 +916,64 @@
             }
         }
     }
-  
-    /* 位置选择器样式 */
-    .select-post-destination {
-      width: 100%;
-      
-      :deep(.el-input__wrapper) {
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        box-shadow: none;
-      }
-      
-      :deep(.el-input__inner) {
-        color: white;
-      }
-    }
-  
-    /* 评论权限 */
-    .el-radio-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      
-      
-      .el-radio {
-        margin-right: 0;
-        color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
-        text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
-        /* 响应式字号 */
-        @include screen-pc { font-size: rpx(14); }
-        @include screen-pad { font-size: rpx(13); }
-        @include screen-mobile { font-size: rpx(15); }
-         
-      }
-    }
-  
-    /* NFT选项 */
-    .nft-option {
-      display: flex;
-      align-items: center;
-      color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
-      text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
-      font-weight: 600;
 
-       /* 响应式字号 */
-        @include screen-pc { font-size: rpx(14); }
-        @include screen-pad { font-size: rpx(13); }
-        @include screen-mobile { font-size: rpx(20); }
-
-      .nft-icon {
-        margin-right: 8px;
-        font-size: rpx(12);
-      }
-    }
-  
-  
-    /* 上传组件样式 */
-    .post-upload {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 10px;
-      transition: all 0.3s ease;
-      
-      &:hover {
-        background: rgba(255, 255, 255, 0.15);
-      }
-      
-      :deep(.el-upload--picture-card) {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px dashed rgba(255, 255, 255, 0.3);
-        color: white;
-        width: 120px;
-        height: 120px;
-        line-height: 128px;
-        transition: all 0.3s ease;
-        
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.5);
-          color: white;
-        }
-        
-        .el-icon {
-          color: white;
-          font-size: 24px;
-        }
-        
-        .upload-text {
-          font-size: rpx(9);
-          margin-top: -25px;
-          color: white;
-        }
-      }
-    }
-  
-    /* 上传组件响应式调整 */
-    .post-upload {
-      @include screen-mobile {
-        padding: 8px;
-        
-        :deep(.el-upload--picture-card) {
-          width: 100px;
-          height: 100px;
-          line-height: 100px;
-        }
-      }
-    }
-  
-    /* 操作按钮 */
-    .post-view-dialog .action-buttons {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      width: 100%;
-      justify-content: flex-start;
-      gap: 16px;
-      margin-top: 20px;
-      
-      @include screen-mobile {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 10px;
-        margin-bottom: 5px;
-        justify-content: space-between;
-      }
-      
-      .el-button[type="primary"] {
-        background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
-        border: none;
-        font-weight: 700;
-        flex: 0 0 auto;
-        min-width: 140px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: rpx(12);
-        padding: 14px 30px;
-        color: white;
-        border-radius: 12px;
-        position: relative;
-        overflow: hidden;
-        z-index: 1;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 4px 15px rgba(233, 86, 108, 0.3);
-        
-        @include screen-mobile {
-          width: 49%;
-          min-width: unset;
-          padding: 7px 10px;
-          font-size: rpx(16);
-          flex: 0 0 49%;
-          border-radius: 25px;
-          height: rpx(36);
-          line-height: rpx(20);
-        }
-        
-        &:hover {
-          background: linear-gradient(45deg, rgba(86, 180, 233, 1), rgba(233, 86, 108, 1));
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(233, 86, 108, 0.4);
-          letter-spacing: 0.5px;
-        }
-        
-        &:active {
-          transform: translateY(1px);
-          box-shadow: 0 2px 8px rgba(233, 86, 108, 0.3);
-          transition: all 0.1s ease;
-        }
-      }
-      
-      .el-button[plain] {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.4);
-        color: white;
-        flex: 0 0 auto;
-        min-width: 140px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: rpx(12);
-        font-weight: 600;
-        padding: 14px 30px;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        
-        @include screen-mobile {
-          width: 49%;
-          min-width: unset;
-          padding: 7px 10px;
-          font-size: rpx(16);
-          flex: 0 0 49%;
-          border-radius: 25px;
-          color: #3a5683;
-          height: rpx(36);
-          line-height: rpx(20);
-          border-width: 1px;
-        }
-        
-        &:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.6);
-          color: #3a5683;
-          text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
-        }
-        
-        &:active {
-          transform: translateY(1px);
-          box-shadow: none;
-          transition: all 0.1s ease;
-        }
-      }
-    }
-  
-    /* 输入框在手机端的样式优化 */
-    @include screen-mobile {
-      .post-view-dialog {
-        .el-textarea__inner,
-        .el-input__inner {
-          font-size: rpx(16);
-          padding: 8px;
-          width: 100%;
-        }
-        
-        .el-form-item {
-          margin-bottom: 10px;
-          width: 100%;
-        }
-        
-        .el-form-item__label {
-          margin-bottom: 3px;
-          font-size: rpx(18);
-        }
-        
-        /* 优化选择器和多行文本框 */
-        .el-select {
-          width: 100%;
-        }
-        
-        .el-textarea {
-          width: 100%;
-          
-          .el-textarea__inner {
-            min-height: rpx(60);
-            max-height: rpx(120);
-            padding: 5px 8px;
-          }
-        }
-        
-        /* 确保图片上传区域占满宽度 */
-        .upload-section {
-          width: 100%;
-          margin-bottom: 8px;
-          
-          .el-button {
-            width: auto;
-            min-width: 110px;
-            font-size: rpx(16);
-            padding: 6px 12px;
-          }
-          
-          .upload-hint {
-            margin-bottom: rpx(5);
-            font-size: rpx(14);
-          }
-        }
-        
-        /* 调整图片网格布局 */
-        .images-gallery {
-          width: 100%;
-          grid-template-columns: repeat(3, 1fr);
-          gap: rpx(5);
-          margin-bottom: rpx(15);
-          
-          .image-item {
-            border-radius: rpx(6);
-          }
-          
-          .images-counter {
-            bottom: rpx(-20);
-            font-size: rpx(14);
-          }
-        }
-      }
+    /* Element Plus 卡片组件样式调整 */
+    .el-card__header {
+      padding: 0 0 rpx(20) 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: rpx(20);
+      flex-shrink: 0;
     }
     
-    /* 优化移动端内容区域 */
-    .post-content {
-      @include screen-mobile {
-        padding: rpx(5) rpx(5);
-        width: 100%;
-        overflow-x: hidden;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-      }
-    }
-  
-    /* 调整卡片内部元素大小，适应宽屏幕 */
-    .post-card {
-      @include screen-mobile {
-        width: 100%;
-        padding: rpx(5) rpx(2);
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        border: none !important;
-        box-shadow: none !important;
-        
-        :deep(.el-card__header) {
-          padding: rpx(10) rpx(5);
-        }
-        
-        :deep(.el-card__body) {
-          padding: rpx(10) rpx(5);
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          overflow-y: auto;
-        }
-        
-        .post-card-header {
-          margin-bottom: 10px;
-          
-          .post-title {
-            font-size: rpx(20);
-          }
-          
-          .preview-btn {
-            padding: 8px 15px;
-            font-size: rpx(16);
-          }
-        }
-      }
-    }
-    
-    /* 表单样式优化 */
-    .post-content .el-form {
-      @include screen-mobile {
-        flex: 1;
+    .el-card__body {
+      padding: 0;
+      height: auto;
+      /* 确保表单内容可以正常显示 */
+      overflow: visible;
+      /* 让表单占用自然高度 */
+      flex: none;
+      min-height: auto;
+      
+      /* 确保表单占满可用空间 */
+      .el-form {
+        height: auto;
+        min-height: auto;
         display: flex;
         flex-direction: column;
         
+        /* 调整表单项间距 */
         .el-form-item {
-          margin-bottom: 10px;
-        }
-        
-        .el-form-item:last-child {
-          margin-top: auto;
-          padding-bottom: rpx(5);
-          margin-bottom: 0;
+          margin-bottom: rpx(25);
+          
+          @include screen-mobile {
+            margin-bottom: rpx(20);
+          }
+          
+          &:last-child {
+            margin-bottom: rpx(20);
+            padding-bottom: rpx(10);
+          }
         }
       }
     }
-  
-    /* 位置选择器响应式调整 */
-    .select-post-destination {
-      @include screen-mobile {
-        margin-bottom: rpx(15);
+
+    /* 覆盖Element Plus的默认卡片样式 */
+    .post-card.el-card {
+      height: auto !important;
+      max-height: none !important;
+      overflow: visible !important;
+      
+      .el-card__header {
+        height: auto !important;
       }
-    }
-  
-    /* 评论权限响应式布局 */
-    .el-radio-group {
-      @include screen-mobile {
-        flex-direction: column;
-        gap: 10px;
+      
+      .el-card__body {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
       }
     }
 }
 
 // 确保调用 detail mixin，使样式生效
-@include detail;
+@include detail; 

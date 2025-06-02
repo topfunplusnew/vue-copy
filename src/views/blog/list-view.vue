@@ -15,8 +15,22 @@ import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
 import postView from './post-view.vue';
+<<<<<<< HEAD
 
+=======
+import postPreview from './post-preview.vue';
+import { ElMessageBox } from 'element-plus';
+>>>>>>> bfc84fd39147a884bb10536d3644e74a968faab8
 const showPostView = ref(false);
+const showPreview = ref(false);
+const previewData = ref({
+  title: '',
+  content: '',
+  images: [] as string[],
+  tags: [] as string[],
+  preferences: [] as number[],
+  location: [] as string[]
+});
 const props = defineProps({
   id: {
     type: String,
@@ -208,6 +222,9 @@ onMounted(async() => {
 
 // 清理IntersectionObserver
 onUnmounted(() => {
+  // 恢复背景滚动
+  document.body.style.overflow = '';
+  // 清理观察器
   if (observer.value) {
     observer.value.disconnect();
   }
@@ -342,7 +359,6 @@ const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(nu
 
 
 
-
 // 添加"查看更多回复"功能
 const expandedComments = ref<number[]>([]);
 
@@ -381,7 +397,7 @@ const startVoiceInput = () => {
   if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
     const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
     const recognition = new SpeechRecognition();
-    
+
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = 'en-US';
@@ -422,8 +438,8 @@ const filteredLocations = computed(() => {
   if (!locationSearchQuery.value) {
     return destinations.slice(0, 8); // 默认显示前8个
   }
-  
-  return destinations.filter(location => 
+
+  return destinations.filter(location =>
     location.label.toLowerCase().includes(locationSearchQuery.value.toLowerCase()) ||
     (location.region && location.region.toLowerCase().includes(locationSearchQuery.value.toLowerCase()))
   );
@@ -569,7 +585,7 @@ onUnmounted(() => {
         class="welcome-text2"
       />
     </section>
-    
+
     <!-- 主体区域 -->
     <main class="main">
       <!-- 行程规划模块 - 重新设计 -->
@@ -578,16 +594,16 @@ onUnmounted(() => {
         <!-- 主输入区域 -->
         <div class="chat-input-container">
           <div class="input-wrapper">
-            <el-input 
+            <el-input
               v-model="userInput"
               placeholder="Plan your perfect trip... Where would you like to go?"
-              class="trip-input" 
-              type="textarea" 
+              class="trip-input"
+              type="textarea"
               :rows="1"
               :autosize="{ minRows: 3, maxRows: 6 }"
               @keydown.enter.ctrl.stop.prevent="submitItinerary"
             />
-            
+
             <div class="input-actions">
               <button class="action-btn microphone-btn" @click="startVoiceInput" title="Voice Input">
                 <el-icon><Microphone /></el-icon>
@@ -607,21 +623,21 @@ onUnmounted(() => {
               <el-icon class="selector-icon">
                 <Location />
               </el-icon>
-              
+
               <!-- 当有选择地点时显示地名和天气 -->
               <div class="selector-content" v-if="selectedLocation">
                 <span class="selector-name">{{ selectedLocation }}</span>
                 <span class="weather-info" v-if="originWeather">{{ originWeather }}</span>
               </div>
-              
+
               <!-- 没有选择地点时的默认文本 -->
               <span class="selector-text" v-else>Add Location</span>
-              
+
               <el-icon class="dropdown-icon" :class="{ 'rotated': locationExpanded }">
                 <ArrowDown />
               </el-icon>
             </div>
-            
+
             <!-- Location 下拉菜单 - 统一使用selector-dropdown -->
             <transition name="dropdown">
               <div class="selector-dropdown" v-if="locationExpanded" @click.stop>
@@ -639,11 +655,11 @@ onUnmounted(() => {
                       </template>
                     </el-input>
                   </div>
-                  
+
                   <div class="results-section">
                     <div class="result-list">
-                      <div 
-                        v-for="(location, index) in filteredLocations" 
+                      <div
+                        v-for="(location, index) in filteredLocations"
                         :key="index"
                         class="location-item"
                         @click="selectLocation(location.value)"
@@ -656,7 +672,7 @@ onUnmounted(() => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <!-- 无搜索结果 -->
                       <div class="no-results" v-if="filteredLocations.length === 0 && locationSearchQuery">
                         <el-icon><Warning /></el-icon>
@@ -681,7 +697,7 @@ onUnmounted(() => {
                 <ArrowDown />
               </el-icon>
             </div>
-            
+
             <!-- Interests 下拉菜单 -->
             <transition name="dropdown">
               <div class="selector-dropdown" v-if="interestsExpanded" @click.stop>
@@ -689,10 +705,10 @@ onUnmounted(() => {
                   <div class="dropdown-header">
                     <span class="header-title">Choose your interests</span>
                   </div>
-                  
+
                   <div class="options-grid">
-                    <div 
-                      v-for="option in socialFilters" 
+                    <div
+                      v-for="option in socialFilters"
                       :key="option.name"
                       class="option-item"
                       :class="{ 'selected': selectedOptions.includes(option.name) }"
@@ -719,7 +735,7 @@ onUnmounted(() => {
                 <ArrowDown />
               </el-icon>
             </div>
-            
+
             <!-- Tools 下拉菜单 -->
             <transition name="dropdown">
               <div class="selector-dropdown" v-if="toolsExpanded" @click.stop>
@@ -727,10 +743,10 @@ onUnmounted(() => {
                   <div class="dropdown-header">
                     <span class="header-title">Available tools</span>
                   </div>
-                  
+
                   <div class="tools-grid">
-                    <div 
-                      v-for="tool in availableTools" 
+                    <div
+                      v-for="tool in availableTools"
                       :key="tool.name"
                       class="tool-item"
                       :class="{ 'selected': selectedTools.includes(tool.name) }"
@@ -784,7 +800,7 @@ onUnmounted(() => {
             </div>
 
             <!-- Post按钮 -->
-            <el-button type="primary" @click="showPostView = true" class="custom-post-button">Post</el-button>
+            <el-button type="primary" @click="handlePostClick" class="custom-post-button">Post</el-button>
           </div>
         </div>
 
@@ -833,6 +849,70 @@ onUnmounted(() => {
   </div>
 
   <!-- 将 post-view 组件移到这里，作为整个页面的子元素 -->
-  <post-view :modelValue="showPostView" @update:modelValue="showPostView = $event" />
+  <div v-if="showPostView" class="post-view-overlay" @click.self="showPostView = false">
+    <post-view @close="showPostView = false" @show-preview="handleShowPreview" />
+  </div>
+
+  <!-- 将 preview 组件移到这里，作为整个页面的子元素 -->
+  <post-preview
+    v-if="showPreview"
+    :title="previewData.title"
+    :content="previewData.content"
+    :images="previewData.images"
+    :tags="previewData.tags"
+    :preferences="previewData.preferences"
+    :socialFilters="socialFilters"
+    :location="previewData.location"
+    @close="closePreview"
+  />
 </template>
+
+<style scoped>
+.post-view-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  z-index: 2000;
+  padding: 2vh 20px;
+  box-sizing: border-box;
+  /* 确保可以滚动 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* 确保滚动平滑 */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 确保post-view组件在遮罩层中正确显示 */
+.post-view-overlay > * {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: auto;
+}
+
+@media (max-width: 768px) {
+  .post-view-overlay {
+    padding: 0;
+    align-items: flex-start;
+    /* 在移动设备上确保可以滚动 */
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .post-view-overlay > * {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+</style>
 

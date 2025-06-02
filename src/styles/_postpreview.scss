@@ -1,44 +1,55 @@
 /* 博客详情弹出层样式 */
 .blog-detail-overlay-postp {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  position: fixed !important; /* 强制固定定位，不受父容器影响 */
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important; /* 强制全宽 */
+  height: 100vh !important; /* 强制全高 */
+  background: rgba(0, 0, 0, 0.85); /* 增加背景透明度，更突出预览效果 */
+  backdrop-filter: blur(12px); /* 增加模糊效果 */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 2100; /* 提高z-index，确保在post窗口(z-index: 2000)之上 */
+  margin: 0 !important; /* 移除任何可能的外边距 */
+  padding: 20px; /* 添加内边距确保内容不贴边 */
+  box-sizing: border-box;
   
   /* 主容器 */
   .blog-detail-container {
     width: 94%;
-    height: 80vh;
+    max-width: 1200px; /* 限制最大宽度 */
+    height: 85vh; /* 调整高度，给顶部和底部留更多空间 */
     display: flex;
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); /* 增强阴影效果 */
     background: white;
-    max-width: none;
     transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+    position: relative; /* 确保子元素绝对定位相对于此容器 */
     
     /* 在窄屏幕上调整为垂直布局 */
     @media (max-width: 768px) {
       flex-direction: column;
       height: 90vh;
+      width: 96%;
     }
     
     .preview-label {
       position: absolute;
-      top: 50px;
-      left: 20px;
-      background: none;
-      font-size: 20px;
+      top: 30px; /* 调整位置 */
+      left: 30px; /* 调整位置 */
+      background: linear-gradient(45deg, #00ccff, #0099cc); /* 添加渐变背景 */
+      padding: 8px 16px; /* 添加内边距 */
+      border-radius: 20px; /* 添加圆角 */
+      font-size: 16px; /* 调整字体大小 */
       font-weight: bold;
-      color: rgb(0, 204, 255);
-      z-index: 10;
+      color: white; /* 改为白色字体 */
+      z-index: 2102; /* 确保在最上层 */
+      box-shadow: 0 2px 8px rgba(0, 204, 255, 0.3); /* 添加阴影效果 */
+      letter-spacing: 0.5px; /* 增加字间距 */
     }
 
     /* 关闭按钮 */
@@ -54,7 +65,7 @@
       border-radius: 50%;
       font-size: 20px;
       cursor: pointer;
-      z-index: 1001;
+      z-index: 2101; /* 确保关闭按钮在预览内容之上 */
       display: flex;
       align-items: center;
       justify-content: center;
