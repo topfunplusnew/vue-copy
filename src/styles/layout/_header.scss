@@ -3,9 +3,6 @@
 
 header.layout {
   .header-container {
-    &.menu-active {
-      display: flex;
-    }
     display: flex;
     justify-content: space-between;
     gap: rpx(20);
@@ -15,6 +12,64 @@ header.layout {
     margin: 0 auto;
     padding: rpx(5);
     position: relative;
+
+    // 移动端导航区域
+    .mobile-nav {
+      display: none;
+      align-items: center;
+      
+      .home-with-menu {
+        display: flex;
+        align-items: center;
+        background: rgba(35, 58, 95, 0.7);
+        border-radius: rpx(6);
+        overflow: hidden;
+        transition: all .3s ease;
+        
+        &:hover {
+          background: rgba(40, 65, 110, 0.85);
+        }
+        
+        .home-btn {
+          display: inline-flex;
+          line-height: 1;
+          font-size: rpx(32);
+          text-decoration: none;
+          background: transparent;
+          color: #fff;
+          padding: rpx(8) rpx(12);
+          border-radius: 0;
+          font-weight: 500;
+          transition: all .3s ease;
+          transform: translateY(0);
+          margin: 0;
+          border-right: 1px solid rgba(255, 255, 255, 0.2);
+          
+          &:hover {
+            background: transparent;
+            transform: translateY(0);
+          }
+        }
+        
+        .nav-hamburger-menu.embedded {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: rpx(18);
+          background: transparent;
+          border: none;
+          color: white;
+          width: rpx(40);
+          height: rpx(40);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+      }
+    }
 
     .hamburger-menu {
       align-items: center;
@@ -82,6 +137,7 @@ header.layout {
         transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
         position: relative;
         overflow: hidden;
+        min-height: rpx(40);
         
         /* 科技感容器样式 */
         &::before {
@@ -247,67 +303,150 @@ header.layout {
   @include screen-pc {
     .header-container {
       justify-content: center;
+      
+      .mobile-nav {
+        display: none;
+      }
+      
       .hamburger-menu {
         display: none;
       }
-      nav {
+      
+      .nav-hamburger-menu:not(.embedded) {
+        display: none;
+      }
+      
+      nav.user-nav {
         .nav-btn {
           font-size: rpx(18);
         }
+        
+        // 桌面端用户信息栏高度调整
+        .user-profile-nav {
+          padding: rpx(2) rpx(5);
+          min-height: rpx(32);
+        }
       }
+      
       nav.pop-nav {
         position: static;
         flex-direction: row;
+        display: flex;
+        
+        .desktop-nav {
+          display: inline-flex;
+        }
       }
     }
   }
   @include screen-pad {
     .header-container {
       justify-content: center;
+      
+      .mobile-nav {
+        display: none;
+      }
+      
       .hamburger-menu {
         display: none;
       }
-      nav {
+      
+      .nav-hamburger-menu:not(.embedded) {
+        display: none;
+      }
+      
+      nav.user-nav {
         .nav-btn {
           font-size: rpx(16);
         }
+        
+        // 平板端用户信息栏高度调整
+        .user-profile-nav {
+          padding: rpx(8) rpx(16);
+          min-height: rpx(40);
+        }
       }
+      
       nav.pop-nav {
         position: static;
         flex-direction: row;
+        display: flex;
+        
+        .desktop-nav {
+          display: inline-flex;
+        }
       }
     }    
   }
   @include screen-mobile {
     .header-container {
-      justify-content: space-between;
-      .hamburger-menu {
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      gap: rpx(15);
+      
+      // 显示移动端导航区域 - 居中显示
+      .mobile-nav {
         display: flex;
+        order: 1; // HOME+汉堡菜单组合排在第一位
+        
+        // 确保嵌入式汉堡菜单按钮在移动端可见
+        .nav-hamburger-menu.embedded {
+          display: flex !important;
+          pointer-events: auto;
+        }
       }
-      nav {
+      
+      .hamburger-menu {
+        display: none; // 隐藏原有的汉堡菜单
+      }
+      
+      // 用户导航区域 - 与其他按钮在同一行
+      nav.user-nav {
+        display: flex;
+        order: 2; // wallet和用户按钮排在第二位
+        gap: rpx(10);
+        
         .nav-btn {
           font-size: rpx(32);
         }
       }
+      
       nav.pop-nav {
         position: absolute;
         background: #1e1e1ef2;
         flex-direction: column;
         display: none;
-      }
-      &.menu-active {
-        nav.pop-nav {
+        
+        // 在桌面端显示的HOME按钮在移动端隐藏
+        .desktop-nav {
+          display: none;
+        }
+        
+        &.nav-menu-active {
           display: flex;
           top: 100%;
-          left: 0;
-          right: 0;
+          left: rpx(10);
+          right: auto;
+          width: rpx(200);
           backdrop-filter: blur(10px);
           padding: rpx(16);
           z-index: 1000;
           box-shadow: 0 rpx(8) rpx(16) #0003;
-          border-radius: 0 0 rpx(8) rpx(8);
+          border-radius: rpx(8);
           animation: fadeInDown .3s ease;
-        }  
+          gap: rpx(8);
+          
+          .nav-btn {
+            width: 100%;
+            justify-content: center;
+            text-align: center;
+            min-width: rpx(120);
+            box-sizing: border-box;
+            margin: 0;
+            font-size: rpx(30);
+          }
+        }
       }
     }
   }
@@ -343,5 +482,26 @@ header.layout {
   100% {
     transform: scale(1.5);
     opacity: 0;
+  }
+}
+
+// 基础汉堡菜单按钮样式 - 用于非嵌入式
+.nav-hamburger-menu:not(.embedded) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: rpx(18);
+  background: rgba(35, 58, 95, 0.7);
+  border: 1px solid rgba(35, 58, 95, 0.3);
+  border-radius: 4px;
+  color: white;
+  width: rpx(40);
+  height: rpx(40);
+  cursor: pointer;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(40, 65, 110, 0.85);
   }
 }

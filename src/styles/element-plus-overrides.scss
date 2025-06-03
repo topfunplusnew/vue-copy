@@ -1,0 +1,92 @@
+// Element Plus 组件样式覆盖
+// 使用高权重选择器而不是!important来确保样式正确应用
+
+// 博客详情弹窗 - 使用具体的结构选择器
+.blog-detail-dialog .el-dialog__body .blog-detail-container .author-info .el-button.inline-btn,
+.blog-detail-overlay .blog-detail-container .author-info .el-button.inline-btn {
+  margin-left: 12px;
+  margin-right: 0;
+  margin-top: 0;
+  height: auto;
+  align-self: center;
+  flex-shrink: 0;
+  position: static;
+}
+
+// 针对特定按钮类型 - 组合类选择器
+.el-button.el-button--small.follow-btn.inline-btn,
+.el-button.el-button--small.edit-btn.inline-btn,
+.el-button.el-button--small.massage-btn.inline-btn {
+  margin-left: 12px;
+  margin-right: 0;
+  margin-top: 0;
+  height: auto;
+  align-self: center;
+  flex-shrink: 0;
+  position: static;
+}
+
+// 更高权重的选择器 - 包含Element Plus内部类名
+.el-dialog .el-dialog__wrapper .el-dialog__body .blog-detail-container .author-info .el-button.inline-btn {
+  margin-left: 12px;
+  margin-right: 0;
+  margin-top: 0;
+  height: auto;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+// 确保按钮布局正确
+.blog-detail-container .author-info .el-button.inline-btn,
+.blog-detail-overlay .author-info .el-button.inline-btn {
+  display: inline-flex;
+  vertical-align: middle;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-height: unset;
+  line-height: normal;
+}
+
+// 按钮内容样式
+.el-button.inline-btn .follow-icon,
+.el-button.inline-btn .edit-icon,
+.el-button.inline-btn .follow-text,
+.el-button.inline-btn .edit-text {
+  display: inline;
+  margin: 0;
+}
+
+// 单独控制编辑按钮中的铅笔图标大小
+.el-button.edit-btn.inline-btn .edit-icon {
+  font-size: 10px; // 缩小铅笔图标
+  margin-right: 3px; // 与文字保持适当间距
+}
+
+// 控制Edit按钮的整体尺寸
+.el-button.edit-btn.inline-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  line-height: 1.2;
+}
+
+// 控制Massage按钮中图标的大小
+.el-button.massage-btn.inline-btn .massage-icon {
+  font-size: 10px;
+  margin-right: 3px;
+}
+
+// 控制Message按钮的整体尺寸
+.el-button.massage-btn.inline-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  line-height: 1.2;
+}
+
+// 使用属性选择器增加权重
+.el-button[class*="inline-btn"] {
+  margin-left: 12px;
+  margin-right: 0;
+  margin-top: 0;
+  height: auto;
+} 

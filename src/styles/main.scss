@@ -13,4 +13,5 @@
 @use 'pages/post'; // 发布页
 @use './pages/generator-plan';
 @use 'pages/user-message'; // 添加这一行
+@use 'element-plus-overrides'; // Element Plus 样式覆盖
 

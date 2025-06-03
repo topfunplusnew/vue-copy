@@ -503,7 +503,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             color: #2e2e2e;
           }
 
-          .follow-btn, .edit-btn {
+          .follow-btn, .edit-btn, .massage-btn {
             background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
             color: #555;
             padding: 4px 10px;
@@ -515,6 +515,42 @@ $border-color: rgba(100, 179, 244, 0.2);
             
             &.following {
               background: rgba($accent-color, 0.4);
+            }
+            
+            // 内联按钮样式（紧跟在用户名后面）
+            &.inline-btn {
+              margin-left: 12px;
+              margin-right: 0;
+              margin-top: 0;
+              height: auto;
+              align-self: center;
+              flex-shrink: 0;
+            }
+            
+            // 控制编辑按钮中铅笔图标的大小
+            .edit-btn.inline-btn .edit-icon {
+              font-size: 10px;
+              margin-right: 3px;
+            }
+            
+            // 控制Edit按钮的整体尺寸
+            .edit-btn.inline-btn {
+              font-size: 11px;
+              padding: 3px 8px;
+              line-height: 1.2;
+            }
+            
+            // 控制Massage按钮中图标的大小
+            .massage-btn.inline-btn .massage-icon {
+              font-size: 10px;
+              margin-right: 3px;
+            }
+            
+            // 控制Message按钮的整体尺寸
+            .massage-btn.inline-btn {
+              font-size: 11px;
+              padding: 3px 8px;
+              line-height: 1.2;
             }
           }
         }
@@ -1262,7 +1298,7 @@ $border-color: rgba(100, 179, 244, 0.2);
               color: #2e2e2e;
             }
 
-            .follow-btn, .edit-btn {
+            .follow-btn, .edit-btn, .massage-btn {
               background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
               color: #555;
               padding: 4px 10px;
@@ -1274,6 +1310,42 @@ $border-color: rgba(100, 179, 244, 0.2);
               
               &.following {
                 background: rgba($accent-color, 0.4);
+              }
+              
+              // 内联按钮样式（紧跟在用户名后面）
+              &.inline-btn {
+                margin-left: 12px;
+                margin-right: 0;
+                margin-top: 0;
+                height: auto;
+                align-self: center;
+                flex-shrink: 0;
+              }
+              
+              // 控制编辑按钮中铅笔图标的大小
+              .edit-btn.inline-btn .edit-icon {
+                font-size: 10px;
+                margin-right: 3px;
+              }
+              
+              // 控制Edit按钮的整体尺寸
+              .edit-btn.inline-btn {
+                font-size: 11px;
+                padding: 3px 8px;
+                line-height: 1.2;
+              }
+              
+              // 控制Massage按钮中图标的大小
+              .massage-btn.inline-btn .massage-icon {
+                font-size: 10px;
+                margin-right: 3px;
+              }
+              
+              // 控制Message按钮的整体尺寸
+              .massage-btn.inline-btn {
+                font-size: 11px;
+                padding: 3px 8px;
+                line-height: 1.2;
               }
             }
           }
@@ -1513,4 +1585,23 @@ $border-color: rgba(100, 179, 244, 0.2);
       font-size: 1.3rem;
     }
   }
+}
+
+// Element Plus 按钮覆盖样式 - 确保我们的自定义样式被应用
+.blog-detail-container .author-info .el-button.inline-btn {
+  margin-left: 12px;
+  margin-right: 0;
+  margin-top: 0;
+  height: auto;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.author-info .el-button.inline-btn {
+  margin-left: 12px;
+  margin-right: 0;
+  margin-top: 0;
+  height: auto;
+  align-self: center;
+  flex-shrink: 0;
 }
