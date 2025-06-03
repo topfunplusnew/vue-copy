@@ -1,5 +1,46 @@
-<template>
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import walletItem from '@/components/wallet-item.vue';
+import UserMessage from '@/views/user/user-message.vue';
+import { ElMessage, ElIcon } from 'element-plus';
+import { useUserStore } from '@/stores/user';
+import { getImageUrl } from '@/utils';
 
+const router = useRouter();
+const userStore = useUserStore();
+
+// 消息弹窗状态
+const showMessageModal = ref(false);
+
+onMounted(() => {
+  userStore.getUserInfo();
+});
+
+// 处理下拉菜单命令
+const handleCommand = (command: string) => {
+  if (command === 'profile') {
+    router.push({ name: 'userpage' });
+  } else if (command === 'message') {
+    showMessageModal.value = true;
+  } else if (command === 'logout') {
+    userStore.logout();
+    ElMessage.success('Logged out successfully');
+    router.push({ path: '/' });
+  }
+  // TODO: 处理其他命令 (wallet, plan, history, cart, orders)
+};
+
+// 导航菜单状态
+const menuActive = ref(false);
+
+// 切换菜单显示
+const toggleMenu = () => {
+  menuActive.value = !menuActive.value;
+};
+</script>
+
+<template>
   <!-- 顶部导航栏 -->
   <!-- Header 区域 -->
   <header class="layout">

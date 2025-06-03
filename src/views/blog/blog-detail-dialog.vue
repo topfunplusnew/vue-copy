@@ -97,8 +97,6 @@ const handleLike = async () => {
   }
 };
 
-
-
 // 关注状态
 const isFollowing = ref(false);
 

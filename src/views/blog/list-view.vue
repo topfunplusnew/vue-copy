@@ -15,8 +15,11 @@ import { getReverseGeocoding } from '@/utils/geolocationService';
 
 import { generateUserPrompt } from '@/stores/userprompt';
 import postView from './post-view.vue';
+
+
 import postPreview from './post-preview.vue';
 import { ElMessageBox } from 'element-plus';
+
 const showPostView = ref(false);
 const showPreview = ref(false);
 const previewData = ref({
