@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import UserMessage from '@/views/user/user-message.vue';
 import { ElMessage, ElIcon } from 'element-plus';
+import { User } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 
@@ -13,8 +14,18 @@ const userStore = useUserStore();
 // 消息弹窗状态
 const showMessageModal = ref(false);
 
+// 导航菜单状态
+const navMenuActive = ref(false);
+
 onMounted(() => {
   userStore.getUserInfo();
+  // 添加点击事件监听器
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  // 清理事件监听器
+  document.removeEventListener('click', handleClickOutside);
 });
 
 // 处理下拉菜单命令
@@ -31,12 +42,27 @@ const handleCommand = (command: string) => {
   // TODO: 处理其他命令 (wallet, plan, history, cart, orders)
 };
 
-// 导航菜单状态
-const menuActive = ref(false);
+// 切换导航菜单显示
+const toggleNavMenu = (event: Event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  navMenuActive.value = !navMenuActive.value;
+};
 
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
+// 处理点击外部区域收起菜单
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement;
+
+  // 检查点击的元素是否在汉堡菜单按钮或下拉菜单内
+  if (navMenuActive.value && target) {
+    const hamburgerBtn = target.closest('.nav-hamburger-menu');
+    const dropdownMenu = target.closest('.pop-nav');
+
+    // 如果点击的不是汉堡菜单按钮和下拉菜单，则收起菜单
+    if (!hamburgerBtn && !dropdownMenu) {
+      navMenuActive.value = false;
+    }
+  }
 };
 </script>
 
@@ -106,71 +132,3 @@ const toggleMenu = () => {
   <!-- 消息弹窗组件 -->
   <UserMessage v-model:visible="showMessageModal" />
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
-import walletItem from '@/components/wallet-item.vue';
-import UserMessage from '@/views/user/user-message.vue';
-import { ElMessage, ElIcon } from 'element-plus';
-import { User } from '@element-plus/icons-vue';
-import { useUserStore } from '@/stores/user';
-import { getImageUrl } from '@/utils';
-
-const router = useRouter();
-const userStore = useUserStore();
-
-// 消息弹窗状态
-const showMessageModal = ref(false);
-
-onMounted(() => {
-  userStore.getUserInfo();
-  // 添加点击事件监听器
-  document.addEventListener('click', handleClickOutside);
-});
-
-onUnmounted(() => {
-  // 清理事件监听器
-  document.removeEventListener('click', handleClickOutside);
-});
-
-// 处理下拉菜单命令
-const handleCommand = (command: string) => {
-  if (command === 'profile') {
-    router.push({ name: 'userpage' });
-  } else if (command === 'message') {
-    showMessageModal.value = true;
-  } else if (command === 'logout') {
-    userStore.logout();
-    ElMessage.success('Logged out successfully');
-    router.push({ path: '/' });
-  }
-  // TODO: 处理其他命令 (wallet, plan, history, cart, orders)
-};
-
-// 导航菜单状态
-const navMenuActive = ref(false);
-
-// 切换导航菜单显示
-const toggleNavMenu = (event: Event) => {
-  event.preventDefault();
-  event.stopPropagation();
-  navMenuActive.value = !navMenuActive.value;
-};
-
-// 处理点击外部区域收起菜单
-const handleClickOutside = (event: Event) => {
-  const target = event.target as HTMLElement;
-
-  // 检查点击的元素是否在汉堡菜单按钮或下拉菜单内
-  if (navMenuActive.value && target) {
-    const hamburgerBtn = target.closest('.nav-hamburger-menu');
-    const dropdownMenu = target.closest('.pop-nav');
-
-    // 如果点击的不是汉堡菜单按钮和下拉菜单，则收起菜单
-    if (!hamburgerBtn && !dropdownMenu) {
-      navMenuActive.value = false;
-    }
-  }
-};
-</script>
