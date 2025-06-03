@@ -43,11 +43,6 @@ const closeDialog = () => {
     });
 };
 
-// 直接关闭组件不询问（用于移动端情况）
-const directClose = () => {
-  emit('close');
-};
-
 // 处理目的地选择变更
 const handleDestinationsChange = (values: string[]) => {
   createData.value.location = values;
@@ -157,7 +152,8 @@ const handlePreviewClick = async () => {
       images: createData.value.image,
       tags: createData.value.tags,
       preferences: createData.value.social_filters,
-      location: createData.value.location
+      location: createData.value.location,
+      isNFT: createData.value.isNFT
     });
   } catch (error) {
     // 如果还有其他验证错误，显示通用提示
@@ -398,9 +394,91 @@ const canPreview = computed(() => {
 // 添加判断是否为移动端视图的计算属性
 const isMobileView = ref(window.innerWidth <= 768);
 
+// 滑动相关的响应式数据
+const touchStartX = ref(0);
+const touchStartY = ref(0);
+const touchCurrentX = ref(0);
+const isSwipingToClose = ref(false);
+const swipeThreshold = 100; // 滑动阈值（像素）
+
 // 窗口大小变化处理函数
 const handleResize = () => {
   isMobileView.value = window.innerWidth <= 768;
+};
+
+// 触摸开始事件
+const handleTouchStart = (event: TouchEvent) => {
+  if (!isMobileView.value) return;
+
+  const touch = event.touches[0];
+  touchStartX.value = touch.clientX;
+  touchStartY.value = touch.clientY;
+  touchCurrentX.value = touch.clientX;
+  isSwipingToClose.value = false;
+};
+
+// 触摸移动事件
+const handleTouchMove = (event: TouchEvent) => {
+  if (!isMobileView.value) return;
+
+  const touch = event.touches[0];
+  touchCurrentX.value = touch.clientX;
+
+  const deltaX = touch.clientX - touchStartX.value;
+  const deltaY = Math.abs(touch.clientY - touchStartY.value);
+
+  // 检查是否是向右滑动且垂直偏移不大
+  if (deltaX > 30 && deltaY < 100) {
+    isSwipingToClose.value = true;
+
+    // 添加视觉反馈：根据滑动距离调整透明度
+    const swipeProgress = Math.min(deltaX / swipeThreshold, 1);
+    const postCard = document.querySelector('.post-card') as HTMLElement;
+    if (postCard) {
+      postCard.style.opacity = `${1 - swipeProgress * 0.3}`;
+      postCard.style.transform = `translateX(${deltaX * 0.3}px)`;
+    }
+  }
+};
+
+// 触摸结束事件
+const handleTouchEnd = (event: TouchEvent) => {
+  if (!isMobileView.value) {
+    isSwipingToClose.value = false;
+    return;
+  }
+
+  const deltaX = touchCurrentX.value - touchStartX.value;
+  const deltaY = Math.abs(event.changedTouches[0].clientY - touchStartY.value);
+
+  // 重置视觉效果
+  const postCard = document.querySelector('.post-card') as HTMLElement;
+  if (postCard) {
+    postCard.style.opacity = '1';
+    postCard.style.transform = 'translateX(0px)';
+  }
+
+  // 检查是否满足退出条件：向右滑动距离大于阈值且垂直偏移小
+  if (isSwipingToClose.value && deltaX > swipeThreshold && deltaY < 100) {
+    // 显示确认对话框，与桌面端保持一致
+    closeDialog();
+  }
+
+  isSwipingToClose.value = false;
+};
+
+// 触摸取消事件（当触摸被意外中断时）
+const handleTouchCancel = () => {
+  if (!isMobileView.value) return;
+
+  // 重置视觉效果
+  const postCard = document.querySelector('.post-card') as HTMLElement;
+  if (postCard) {
+    postCard.style.opacity = '1';
+    postCard.style.transform = 'translateX(0px)';
+  }
+
+  isSwipingToClose.value = false;
 };
 
 onMounted(async () => {
@@ -418,9 +496,15 @@ onUnmounted(() => {
 
 <template>
   <!-- 内容卡片 - 直接作为组件内容 -->
-  <el-card class="post-card">
-    <!-- 添加新的关闭按钮到卡片头部 -->
-    <div class="card-close-btn" @click="isMobileView ? directClose() : closeDialog()">
+  <el-card
+    class="post-card"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
+    @touchend="handleTouchEnd"
+    @touchcancel="handleTouchCancel"
+  >
+    <!-- 添加新的关闭按钮到卡片头部 - 只在桌面端显示 -->
+    <div v-if="!isMobileView" class="card-close-btn" @click="closeDialog()">
       <el-icon><Close /></el-icon>
     </div>
 
@@ -550,8 +634,7 @@ onUnmounted(() => {
 
         <!-- 标签显示区域 -->
         <div class="tags-display">
-          <el-empty v-if="createData.tags.length === 0" description="No tags added yet"
-          :image-size="40" />
+          <div v-if="createData.tags.length === 0" class="no-tags-hint">No tags added yet</div>
           <div v-else class="tags-list">
             <el-tag
               v-for="(tag, index) in createData.tags"

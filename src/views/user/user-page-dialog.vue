@@ -180,6 +180,13 @@ const isOwnPost = computed(() => {
   return user && blogUser && user.id === blogUser.id;
 });
 
+const handleMassageClick = (id?: number) => {
+  if (!id) return;
+  // TODO: 实现私信功能，可以跳转到私信页面或打开私信弹窗
+  ElMessage.info(`Opening message conversation with user ${id}`);
+  console.log('Message button clicked for user:', id);
+};
+
 </script>
 
 <template>
@@ -226,10 +233,10 @@ const isOwnPost = computed(() => {
                   class="author-avatar"
                 />
                 <span class="author-name">{{ selectedBlog?.user?.name }}</span>
-
+                <!-- Follow按钮直接跟在用户名后面 -->
                 <el-button
                   v-if="!isOwnPost"
-                  class="follow-btn"
+                  class="follow-btn inline-btn"
                   size="small"
                   :class="{ 'following': isFollowing }"
                   @click.stop="handleFollowClick(selectedBlog?.user?.id)"
@@ -237,10 +244,20 @@ const isOwnPost = computed(() => {
                   <span class="follow-icon">+</span>
                   <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
                 </el-button>
-                <!-- 编辑按钮 -->
+                <!-- Massage按钮 -->
+                <el-button
+                  v-if="!isOwnPost"
+                  class="massage-btn inline-btn"
+                  size="small"
+                  @click.stop="handleMassageClick(selectedBlog?.user?.id)"
+                >
+                  <span class="massage-icon">💬</span>
+                  <span class="massage-text">Message</span>
+                </el-button>
+                <!-- 编辑按钮已注释掉 -->
                 <!-- <el-button
                   v-else
-                  class="edit-btn"
+                  class="edit-btn inline-btn"
                   size="small"
                   @click="handleEditClick"
                 >

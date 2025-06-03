@@ -445,30 +445,66 @@ $border-color: rgba(100, 179, 244, 0.2);
             .author-info {
               display: flex;
               align-items: center;
-              gap: 6px;
+              gap: 10px;
+              margin-bottom: 10px;
               
-              .post-avatar {
-                width: 24px;
-                height: 24px;
+              // 发帖人头像
+              .author-avatar {
+                width: 40px;
+                height: 40px;
                 border-radius: 50%;
-                
-                @include screen-mobile {
-                  width: 24px;
-                  height: 24px;
-                }
+                object-fit: cover;
               }
               
               .author-name {
-                font-size: rpx(14);
-                max-width: 60px;
-                text-overflow: ellipsis;
-                color: #1a3566;
-                overflow: hidden;
-                white-space: nowrap;
+                font-size: 20px;
+                font-weight: bold;
+                color: #2e2e2e;
+              }
+
+              .follow-btn, .edit-btn {
+                background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+                color: #555;
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 500;
                 
-                @include screen-mobile {
-                  font-size: rpx(25);
-                  max-width: 80px;
+                &.following {
+                  background: rgba($accent-color, 0.4);
+                }
+                
+                // 内联按钮样式（紧跟在用户名后面）
+                &.inline-btn {
+                  margin-left: 12px;
+                  margin-right: 0;
+                  height: auto;
+                  align-self: center;
+                  flex-shrink: 0;
+                }
+                
+                // 控制Message按钮的整体尺寸
+                &.massage-btn.inline-btn {
+                  font-size: 11px;
+                  padding: 3px 8px;
+                  line-height: 1.2;
+                  
+                  .massage-icon {
+                    font-size: 10px;
+                    margin-right: 3px;
+                  }
+                }
+                
+                // 控制Edit按钮的整体尺寸
+                &.edit-btn.inline-btn {
+                  font-size: 11px;
+                  padding: 3px 8px;
+                  line-height: 1.2;
+                  
+                  .edit-icon {
+                    font-size: 10px;
+                    margin-right: 3px;
+                  }
                 }
               }
             }
@@ -885,10 +921,42 @@ $border-color: rgba(100, 179, 244, 0.2);
                 border-radius: 4px;
                 font-size: 12px;
                 font-weight: 500;
-                margin-left: auto;
                 
                 &.following {
                   background: rgba($accent-color, 0.4);
+                }
+                
+                // 内联按钮样式（紧跟在用户名后面）
+                &.inline-btn {
+                  margin-left: 12px;
+                  margin-right: 0;
+                  height: auto;
+                  align-self: center;
+                  flex-shrink: 0;
+                }
+                
+                // 控制Message按钮的整体尺寸
+                &.massage-btn.inline-btn {
+                  font-size: 11px;
+                  padding: 3px 8px;
+                  line-height: 1.2;
+                  
+                  .massage-icon {
+                    font-size: 10px;
+                    margin-right: 3px;
+                  }
+                }
+                
+                // 控制Edit按钮的整体尺寸
+                &.edit-btn.inline-btn {
+                  font-size: 11px;
+                  padding: 3px 8px;
+                  line-height: 1.2;
+                  
+                  .edit-icon {
+                    font-size: 10px;
+                    margin-right: 3px;
+                  }
                 }
               }
             }
@@ -1997,4 +2065,171 @@ $border-color: rgba(100, 179, 244, 0.2);
 //       }
 //     }
 // }
+
+//         // 统计信息栏
+//         // .stats-bar {
+//         //   position: sticky;
+//         //   bottom: 0;
+//         //   left: 0;
+//         //   right: 0;
+//         //   height: 40px;
+//         //   background: rgba(248, 248, 248, 0.98);
+//         //   border-top: 1px solid #eee;
+//         //   box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+//         //   display: flex;
+//         //   justify-content: space-between;
+//         //   align-items: center;
+//         //   z-index: 10;
+//         //   padding: 0 20px;
+  
+//         //   @media (max-width: 768px) {
+//         //     flex-direction: row;
+//         //     gap: 10px;
+//         //     padding: 0 15px;
+//         //     height: 50px;
+//         //   }
+          
+//         //   /* 统计信息 */
+//         //   .stats-info {
+//         //     display: flex;
+//         //     align-items: center;
+//         //     gap: 20px;
+  
+//         //     @media (max-width: 768px) {
+//         //       width: auto;
+//         //       justify-content: flex-start;
+//         //     }
+            
+//         //     span {
+//         //       display: flex;
+//         //       align-items: center;
+//         //       gap: 6px;
+//         //       font-size: 16px;
+//         //       font-weight: 500;
+//         //       cursor: pointer;
+//         //       transition: all 0.2s;
+  
+//         //       &:hover {
+//         //         transform: translateY(-2px);
+//         //       }
+  
+//         //       &.liked {
+//         //         .heart-icon {
+//         //           color: #e74c3c;
+//         //         }
+//         //       }
+//         //     }
+            
+//         //     /* 为统计数据添加不同颜色 */
+//         //     .likes {
+//         //       color: #e74c3c;
+//         //       font-size: 18px;
+//         //     }
+            
+//         //     .comments {
+//         //       color: #3498db;
+//         //       font-size: 18px;
+//         //     }
+            
+//         //     .coins {
+//         //       color: #f39c12;
+//         //       font-size: 18px;
+//         //     }
+            
+//         //     .count {
+//         //       font-size: 16px;
+//         //       color: #666;
+//         //     }
+//         //   }
+          
+//         //   /* 美化评论输入区域 */
+//         //   .quick-comment-input {
+//         //     display: flex;
+//         //     align-items: center;
+//         //     gap: 10px;
+//         //     width: 280px;
+//         //     position: relative;
+            
+//         //     @media (max-width: 768px) {
+//         //       width: 60%;
+//         //       flex-grow: 1;
+//         //     }
+            
+//         //     input.comment-input, .comment-input-home {
+//         //       flex: 1;
+//         //       padding: 8px 15px;
+//         //       border: 1px solid #eee;
+//         //       border-radius: 20px;
+//         //       font-size: 14px;
+//         //       background-color: #f8f8f8;
+//         //       transition: all 0.3s ease;
+//         //       outline: none;
+//         //       padding-right: 30px;
+            
+//         //       &:focus {
+//         //         border-color: #ddd;
+//         //         background-color: #fff;
+//         //         box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+//         //       }
+              
+//         //       &::placeholder {
+//         //         color: #999;
+//         //       }
+//         //     }
+//         //   }
+          
+//         //   .submit-quick-comment {
+//         //     position: absolute;
+//         //     right: 10px;
+//         //     background: transparent;
+//         //     color: #999;
+//         //     border: none;
+//         //     border-radius: 50%;
+//         //     width: 24px;
+//         //     height: 24px;
+//         //     display: flex;
+//         //     align-items: center;
+//         //     justify-content: center;
+//         //     cursor: pointer;
+//         //     transition: all 0.2s ease;
+//         //     font-size: 14px;
+          
+//         //     &:hover:not(:disabled) {
+//         //       color: #666;
+//         //     }
+            
+//         //     &:disabled {
+//         //       color: #ddd;
+//         //       cursor: default;
+//         //     }
+//         //   }
+//         // }
+//       }
+//     }
 // }
+
+// 控制Massage按钮中图标的大小
+.el-button.massage-btn.inline-btn .massage-icon {
+  font-size: 10px;
+  margin-right: 3px;
+}
+
+// 控制Message按钮的整体尺寸
+.el-button.massage-btn.inline-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  line-height: 1.2;
+}
+
+// 控制Edit按钮中图标的大小
+.el-button.edit-btn.inline-btn .edit-icon {
+  font-size: 10px;
+  margin-right: 3px;
+}
+
+// 控制Edit按钮的整体尺寸
+.el-button.edit-btn.inline-btn {
+  font-size: 11px;
+  padding: 3px 8px;
+  line-height: 1.2;
+}

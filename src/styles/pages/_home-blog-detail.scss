@@ -7,6 +7,59 @@ $accent-color: #64b3f4 !default;
 
 @mixin wrapper {
 
+// 博客详情弹窗中的内联按钮样式
+.blog-detail-container .author-info,
+.blog-detail-overlay .author-info {
+  .el-button.inline-btn {
+    margin-left: 12px;
+    margin-right: 0;
+    margin-top: 0;
+    height: auto;
+    align-self: center;
+    flex-shrink: 0;
+    position: static;
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  
+  .el-button.follow-btn.inline-btn,
+  .el-button.edit-btn.inline-btn,
+  .el-button.massage-btn.inline-btn {
+    margin-left: 12px;
+    margin-right: 0;
+    margin-top: 0;
+    height: auto;
+    align-self: center;
+    flex-shrink: 0;
+  }
+  
+  // 控制编辑按钮中铅笔图标的大小
+  .el-button.edit-btn.inline-btn .edit-icon {
+    font-size: 10px;
+    margin-right: 3px;
+  }
+  
+  // 控制Edit按钮的整体尺寸
+  .el-button.edit-btn.inline-btn {
+    font-size: 11px;
+    padding: 3px 8px;
+    line-height: 1.2;
+  }
+  
+  // 控制Massage按钮中图标的大小
+  .el-button.massage-btn.inline-btn .massage-icon {
+    font-size: 10px;
+    margin-right: 3px;
+  }
+  
+  // 控制Message按钮的整体尺寸
+  .el-button.massage-btn.inline-btn {
+    font-size: 11px;
+    padding: 3px 8px;
+    line-height: 1.2;
+  }
+}
+
 // 评论区
 .comments-container {
     padding-right: 20px;

@@ -31,6 +31,8 @@
         flex-direction: column;
         /* 确保内容不被截断 */
         contain: none;
+        /* 为滑动动画添加过渡效果 */
+        transition: opacity 0.2s ease, transform 0.2s ease;
         
         /* 确保所有表单元素可以接收事件 */
         * {
@@ -99,7 +101,7 @@
           
           @include screen-mobile {
             top: rpx(15);
-            right: rpx(15);
+            right: rpx(50);
             width: rpx(40);
             height: rpx(40);
             background: rgba(58, 86, 131, 0.8);
@@ -799,6 +801,20 @@
         min-height: rpx(40);
         /* 确保标签区域可以正常交互 */
         pointer-events: auto !important;
+        
+        /* 无标签提示样式 */
+        .no-tags-hint {
+            color: #999;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px 0;
+            font-style: italic;
+            
+            @include screen-mobile {
+                font-size: rpx(24);
+                padding: rpx(30) 0;
+            }
+        }
 
         .tags-list {
             display: flex;

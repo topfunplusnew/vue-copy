@@ -25,7 +25,8 @@ const previewData = ref({
   images: [] as string[],
   tags: [] as string[],
   preferences: [] as number[],
-  location: [] as string[]
+  location: [] as string[],
+  isNFT: false
 });
 const props = defineProps({
   id: {
@@ -51,9 +52,9 @@ const selectedLocation = ref('');
 const selectedDestination = ref('');
 
 const userLocation = ref('');
-const userDestination = ref('');
+// const userDestination = ref('');
 const userFlag = ref('');
-const destinationFlag = ref('');
+// const destinationFlag = ref('');
 const isLoading = ref(true);
 const contentReady = ref(false);
 const errorMessage = ref('');
@@ -64,9 +65,9 @@ const componentsStore = usecomponentsStore();
 const userStore = useUserStore();
 
 const originWeather = computed(() => componentsStore.originWeather);
-const originWeatherIcon = computed(() => componentsStore.originWeatherIcon);
-const destinationWeather = computed(() => componentsStore.destinationWeather);
-const destinationWeatherIcon = computed(() => componentsStore.destinationWeatherIcon);
+// const originWeatherIcon = computed(() => componentsStore.originWeatherIcon);
+// const destinationWeather = computed(() => componentsStore.destinationWeather);
+// const destinationWeatherIcon = computed(() => componentsStore.destinationWeatherIcon);
 
 const socialFilters = computed(() => store.socialFilters); // 社会过滤器
 
@@ -122,19 +123,19 @@ const handleLocationChange = async (value: string) => {
   updateUserInput();
 };
 
-const handleDestinationSelect = async (value: string) => {
-  selectedDestination.value = value;
-  const dest = destinations.find((item) => item.value === value);
-  if (dest) {
-    destinationFlag.value = dest.flagUrl || '';
-    userDestination.value = dest.label;
-  } else {
-    destinationFlag.value = '';
-  }
-  componentsStore.getWeather(value, true);
+// const handleDestinationSelect = async (value: string) => {
+//   selectedDestination.value = value;
+//   const dest = destinations.find((item) => item.value === value);
+//   if (dest) {
+//     destinationFlag.value = dest.flagUrl || '';
+//     userDestination.value = dest.label;
+//   } else {
+//     destinationFlag.value = '';
+//   }
+//   componentsStore.getWeather(value, true);
 
-  updateUserInput();
-};
+//   updateUserInput();
+// };
 
 const togglePreference = (optionName: string) => {
   const index = selectedOptions.value.indexOf(optionName);
@@ -381,54 +382,14 @@ const toggleLocation = () => {
     locationSearchQuery.value = '';
     // 延迟聚焦到搜索框
     nextTick(() => {
-      const searchInput = document.querySelector('.location-search input');
+      const searchInput = document.querySelector('.location-search input') as HTMLInputElement;
       if (searchInput) searchInput.focus();
     });
   }
 };
 
-// 语音输入功能
-const startVoiceInput = () => {
-  // 检查浏览器是否支持语音识别
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    const recognition = new SpeechRecognition();
-
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognition.lang = 'en-US';
-
-    recognition.onstart = () => {
-      ElMessage.info('Listening... Speak now!');
-    };
-
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      userInput.value = transcript;
-      ElMessage.success('Voice input captured!');
-    };
-
-    recognition.onerror = (event) => {
-      ElMessage.error('Voice recognition error: ' + event.error);
-    };
-
-    recognition.start();
-  } else {
-    ElMessage.warning('Voice recognition not supported in this browser');
-  }
-};
-
-// 监听定位变化，自动关闭展开状态
-watch(selectedLocation, () => {
-  if (selectedLocation.value) {
-    setTimeout(() => {
-      locationExpanded.value = false;
-    }, 1000);
-  }
-});
-
 // 定位组件 - 弹窗设计
-const locationWidgetRef = ref(null);
+const locationWidgetRef = ref<HTMLElement | null>(null);
 const locationSearchQuery = ref('');
 const filteredLocations = computed(() => {
   if (!locationSearchQuery.value) {
@@ -436,8 +397,7 @@ const filteredLocations = computed(() => {
   }
 
   return destinations.filter(location =>
-    location.label.toLowerCase().includes(locationSearchQuery.value.toLowerCase()) ||
-    (location.region && location.region.toLowerCase().includes(locationSearchQuery.value.toLowerCase()))
+    location.label.toLowerCase().includes(locationSearchQuery.value.toLowerCase())
   );
 });
 
@@ -445,7 +405,7 @@ const handleLocationSearch = () => {
   // 搜索逻辑已在计算属性中处理
 };
 
-const selectLocation = (locationValue) => {
+const selectLocation = (locationValue: string) => {
   selectedLocation.value = locationValue;
   handleLocationChange(locationValue);
   locationExpanded.value = false;
@@ -453,8 +413,9 @@ const selectLocation = (locationValue) => {
 };
 
 // 点击外部区域关闭弹窗
-const handleClickOutside = (event) => {
-  if (locationExpanded.value && locationWidgetRef.value && !locationWidgetRef.value.contains(event.target)) {
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement;
+  if (locationExpanded.value && locationWidgetRef.value && !locationWidgetRef.value.contains(target)) {
     locationExpanded.value = false;
     locationSearchQuery.value = '';
   }
@@ -557,6 +518,102 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
   document.removeEventListener('click', handleSelectorClickOutside); // 移除新的监听器
+});
+
+// 添加缺失的post相关函数
+const handlePostClick = async () => {
+  // 检查用户是否已登录
+  if (!userStore.isLogin()) {
+    try {
+      await ElMessageBox.confirm(
+        'You need to login first to post a blog. Would you like to login now?',
+        'Login Required',
+        {
+          confirmButtonText: 'Go to Login',
+          cancelButtonText: 'Cancel',
+          type: 'warning',
+        }
+      );
+      // 用户确认，跳转到登录页面
+      router.push({ name: 'login' });
+    } catch {
+      // 用户取消，不做任何操作
+    }
+    return;
+  }
+
+  // 用户已登录，显示发布页面
+  showPostView.value = true;
+};
+
+// 处理预览显示
+const handleShowPreview = (data: {
+  title: string;
+  content: string;
+  images: string[];
+  tags: string[];
+  preferences: number[];
+  location: string[];
+  isNFT: boolean;
+}) => {
+  previewData.value = {
+    title: data.title,
+    content: data.content,
+    images: data.images,
+    tags: data.tags,
+    preferences: data.preferences,
+    location: data.location,
+    isNFT: data.isNFT
+  };
+  showPreview.value = true;
+};
+
+// 关闭预览
+const closePreview = () => {
+  showPreview.value = false;
+};
+
+// 语音输入功能
+const startVoiceInput = () => {
+  // 检查浏览器是否支持语音识别
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const recognition = new SpeechRecognition();
+
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      ElMessage.info('Listening... Speak now!');
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      userInput.value = transcript;
+      ElMessage.success('Voice input captured!');
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    recognition.onerror = (event: any) => {
+      ElMessage.error('Voice recognition error: ' + event.error);
+    };
+
+    recognition.start();
+  } else {
+    ElMessage.warning('Voice recognition not supported in this browser');
+  }
+};
+
+// 监听定位变化，自动关闭展开状态
+watch(selectedLocation, () => {
+  if (selectedLocation.value) {
+    setTimeout(() => {
+      locationExpanded.value = false;
+    }, 1000);
+  }
 });
 
 </script>
@@ -664,7 +721,6 @@ onUnmounted(() => {
                           <el-icon class="item-icon"><Location /></el-icon>
                           <div class="item-info">
                             <span class="item-name">{{ location.label }}</span>
-                            <span class="item-region" v-if="location.region">{{ location.region }}</span>
                           </div>
                         </div>
                       </div>
@@ -859,6 +915,7 @@ onUnmounted(() => {
     :preferences="previewData.preferences"
     :socialFilters="socialFilters"
     :location="previewData.location"
+    :isNFT="previewData.isNFT"
     @close="closePreview"
   />
 </template>

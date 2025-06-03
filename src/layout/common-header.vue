@@ -3,20 +3,29 @@
   <!-- 顶部导航栏 -->
   <!-- Header 区域 -->
   <header class="layout">
-    <div class="header-container"  :class="{ 'menu-active': menuActive }">
-      <!-- 汉堡菜单按钮 -->
-      <button class="hamburger-menu" @click="toggleMenu">
-        <span v-if="menuActive">✕</span>
-        <span v-else>☰</span>
-      </button>
+    <div class="header-container">
+      <!-- 移动端导航区域 -->
+      <div class="mobile-nav">
+        <!-- HOME按钮带嵌入的汉堡菜单 -->
+        <div class="home-with-menu">
+          <router-link :to="{ name: 'home' }" class="nav-btn home-btn">HOME</router-link>
+          <button class="nav-hamburger-menu embedded" @click="toggleNavMenu">
+            <span v-if="navMenuActive">✕</span>
+            <span v-else>☰</span>
+          </button>
+        </div>
+      </div>
 
-      <nav class="pop-nav">
-        <router-link :to="{ name: 'home' }" class="nav-btn toggle-nav">HOME</router-link>
+      <!-- 主导航菜单 -->
+      <nav class="pop-nav" :class="{ 'nav-menu-active': navMenuActive }">
+        <router-link :to="{ name: 'home' }" class="nav-btn toggle-nav desktop-nav">HOME</router-link>
         <router-link :to="{ name: 'about' }" class="nav-btn toggle-nav">ABOUT</router-link>
         <router-link :to="{ name: 'blog' }" class="nav-btn toggle-nav">BLOG</router-link>
         <router-link :to="{ name: 'contact' }" class="nav-btn toggle-nav">CONTACT</router-link>
       </nav>
-      <nav>
+
+      <!-- 用户区域 -->
+      <nav class="user-nav">
         <wallet-item class="nav-btn" />
         <div v-if="userStore.user" class="nav-btn user-profile-btn">
           <div class="user-profile-nav">
@@ -28,7 +37,7 @@
             <span class="home-new-username">{{ userStore.user.name }}</span>
             <el-dropdown trigger="click" @command="handleCommand">
               <span class="el-dropdown-link">
-                <el-icon><user /></el-icon>
+                <el-icon><User /></el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -58,11 +67,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import UserMessage from '@/views/user/user-message.vue';
 import { ElMessage, ElIcon } from 'element-plus';
+import { User } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 
@@ -74,6 +84,13 @@ const showMessageModal = ref(false);
 
 onMounted(() => {
   userStore.getUserInfo();
+  // 添加点击事件监听器
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  // 清理事件监听器
+  document.removeEventListener('click', handleClickOutside);
 });
 
 // 处理下拉菜单命令
@@ -91,10 +108,28 @@ const handleCommand = (command: string) => {
 };
 
 // 导航菜单状态
-const menuActive = ref(false);
+const navMenuActive = ref(false);
 
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
+// 切换导航菜单显示
+const toggleNavMenu = (event: Event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  navMenuActive.value = !navMenuActive.value;
+};
+
+// 处理点击外部区域收起菜单
+const handleClickOutside = (event: Event) => {
+  const target = event.target as HTMLElement;
+
+  // 检查点击的元素是否在汉堡菜单按钮或下拉菜单内
+  if (navMenuActive.value && target) {
+    const hamburgerBtn = target.closest('.nav-hamburger-menu');
+    const dropdownMenu = target.closest('.pop-nav');
+
+    // 如果点击的不是汉堡菜单按钮和下拉菜单，则收起菜单
+    if (!hamburgerBtn && !dropdownMenu) {
+      navMenuActive.value = false;
+    }
+  }
 };
 </script>

@@ -14,6 +14,7 @@ const props = defineProps<{
   preferences: number[]
   socialFilters: ISocialFilter[]
   location: string[]
+  isNFT: boolean
 }>();
 
 const emit = defineEmits<{
@@ -37,7 +38,7 @@ const previewBlog = computed(() => ({
   likes: 0,
   comments_count: 0,
   coins: 0,
-  isNFT: false,
+  isNFT: props.isNFT,
   created_at: new Date().toISOString()
 }));
 
@@ -115,17 +116,10 @@ const handleImageError = (event: Event) => {
           </div>
 
           <!-- 标签 -->
-          <div class="tags-section" v-if="previewBlog?.tags && previewBlog.tags.length > 0">
+          <div class="tags-section" v-if="(previewBlog?.tags && previewBlog.tags.length > 0) || previewBlog?.isNFT">
+            <div class="nft-tag" v-if="previewBlog?.isNFT">NFT</div>
             <span class="tag" v-for="tag in previewBlog?.tags" :key="tag">
               #{{ tag }}
-            </span>
-          </div>
-
-          <!-- 目的地 -->
-          <div class="location-section" v-if="previewBlog?.location && previewBlog.location.length > 0">
-            <span class="location-label">📍 Destinations:</span>
-            <span v-for="(loc, index) in previewBlog.location" :key="loc" class="location-item">
-              {{ loc }}<span v-if="index < previewBlog.location.length - 1">, </span>
             </span>
           </div>
 
@@ -179,22 +173,61 @@ const handleImageError = (event: Event) => {
   z-index: 2200 !important;
 }
 
-/* 确保blog-detail-container完全填满dialog容器 */
-.preview-dialog .blog-detail-container {
-  /* 完全填满dialog的内容区域 */
-  height: 100% !important;
-  width: 100% !important;
-  /* 确保没有额外边距 */
-  margin: 0 !important;
-  /* 确保完全贴合dialog边界 */
-  border-radius: 16px !important;
-}
-
-/* 确保el-dialog的body完全填满 */
+/* 确保el-dialog的body高度正确 */
 .preview-dialog :deep(.el-dialog__body) {
   padding: 0 !important;
   height: 90vh !important;
   overflow: hidden !important;
+}
+
+/* 确保blog-detail-container完全填满dialog容器 */
+.preview-dialog .blog-detail-container {
+  /* 使用与BlogDetailDialog相同的高度设置 */
+  width: 100%;
+  height: 90vh;
+  display: flex;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background: white;
+  position: relative;
+  transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+
+  /* 在移动端调整为垂直布局 */
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: 90vh;
+  }
+}
+
+/* 左侧图片区域 */
+.preview-dialog .detail-left {
+  flex: 6;
+  background: white;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: height 0.3s ease;
+
+  /* 在移动端调整高度 */
+  @media (max-width: 768px) {
+    height: 50%;
+  }
+}
+
+/* 右侧内容区域 */
+.preview-dialog .detail-right {
+  flex: 4;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+
+  /* 在移动端调整高度 */
+  @media (max-width: 768px) {
+    height: 50%;
+  }
 }
 
 /* 只添加preview特有的样式，其他样式完全继承自BlogDetailDialog */
@@ -206,24 +239,6 @@ const handleImageError = (event: Event) => {
   font-size: 12px;
   font-weight: 500;
   margin-left: 8px;
-}
-
-.location-section {
-  margin: 15px 0;
-  padding: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.location-label {
-  font-weight: 500;
-  color: #555;
-  margin-right: 8px;
-}
-
-.location-item {
-  color: #007bff;
-  font-weight: 500;
 }
 
 .preview-notice {
