@@ -3,6 +3,15 @@ import HomeView from '@/views/home-view.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  // 配置滚动行为，确保页面跳转时滚动到顶部
+  scrollBehavior(to, from, savedPosition) {
+    // 如果有保存的滚动位置（比如浏览器前进后退），则恢复到该位置
+    if (savedPosition) {
+      return savedPosition;
+    }
+    // 否则滚动到页面顶部
+    return { top: 0, behavior: 'smooth' };
+  },
   routes: [
     {
       path: '/',

@@ -26,6 +26,13 @@ const router = useRouter();
 // const userProfile = computed(() => store.user); // user改成这种用法
 
 onMounted(() => {
+  // 确保页面滚动到顶部
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  });
+
   store.getUserInfo().then(({data})=>{
     editForm.name = data.name;
     editForm.avatar = data.avatar;

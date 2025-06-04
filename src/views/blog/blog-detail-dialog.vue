@@ -290,6 +290,15 @@ const handleUserClick = (event?: Event) => {
             console.log('尝试方式1: 使用路由名称');
             await router.push({ name: 'userpage' });
             console.log('✅ 方式1成功');
+
+            // 跳转成功后滚动到页面顶部
+            nextTick(() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              // 也尝试滚动document.body到顶部，以防某些情况下window.scrollTo不生效
+              document.body.scrollTop = 0;
+              document.documentElement.scrollTop = 0;
+            });
+
           } catch (error1) {
             console.error('❌ 方式1失败:', error1);
             try {
@@ -297,6 +306,14 @@ const handleUserClick = (event?: Event) => {
               console.log('尝试方式2: 使用路径');
               await router.push('/userpage');
               console.log('✅ 方式2成功');
+
+              // 跳转成功后滚动到页面顶部
+              nextTick(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+              });
+
             } catch (error2) {
               console.error('❌ 方式2也失败:', error2);
               const errorMessage = error2 instanceof Error ? error2.message : '未知错误';
