@@ -489,6 +489,60 @@ $border-color: rgba(100, 179, 244, 0.2);
           gap: 10px;
           margin-bottom: 10px;
           
+          // 用户点击区域样式
+          .user-click-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            padding: 5px;
+            transition: all 0.3s ease;
+            
+            // 当可点击时的样式
+            &.clickable {
+              cursor: pointer;
+              
+              &:hover {
+                background-color: rgba(176, 209, 236, 0.2);
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              }
+              
+              &:active {
+                transform: translateY(0);
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+              }
+              
+              .author-avatar {
+                transition: all 0.3s ease;
+              }
+              
+              .author-name {
+                color: #1976d2;
+                transition: all 0.3s ease;
+              }
+              
+              &:hover .author-avatar {
+                transform: scale(1.05);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+              }
+              
+              &:hover .author-name {
+                color: #1565c0;
+                text-decoration: underline;
+              }
+            }
+            
+            // 不可点击时保持原样
+            &:not(.clickable) {
+              cursor: default;
+              
+              .author-name {
+                color: #2e2e2e;
+              }
+            }
+          }
+          
           // 发帖人头像
           .author-avatar {
             width: 40px;
@@ -500,7 +554,6 @@ $border-color: rgba(100, 179, 244, 0.2);
           .author-name {
             font-size: 20px;
             font-weight: bold;
-            color: #2e2e2e;
           }
 
           .follow-btn, .edit-btn, .massage-btn {
@@ -1284,6 +1337,60 @@ $border-color: rgba(100, 179, 244, 0.2);
             gap: 10px;
             margin-bottom: 10px;
             
+            // 用户点击区域样式
+            .user-click-area {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              border-radius: 8px;
+              padding: 5px;
+              transition: all 0.3s ease;
+              
+              // 当可点击时的样式
+              &.clickable {
+                cursor: pointer;
+                
+                &:hover {
+                  background-color: rgba(176, 209, 236, 0.2);
+                  transform: translateY(-1px);
+                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+                
+                &:active {
+                  transform: translateY(0);
+                  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+                }
+                
+                .author-avatar {
+                  transition: all 0.3s ease;
+                }
+                
+                .author-name {
+                  color: #1976d2;
+                  transition: all 0.3s ease;
+                }
+                
+                &:hover .author-avatar {
+                  transform: scale(1.05);
+                  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                }
+                
+                &:hover .author-name {
+                  color: #1565c0;
+                  text-decoration: underline;
+                }
+              }
+              
+              // 不可点击时保持原样
+              &:not(.clickable) {
+                cursor: default;
+                
+                .author-name {
+                  color: #2e2e2e;
+                }
+              }
+            }
+            
             // 发帖人头像
             .author-avatar {
               width: 40px;
@@ -1295,7 +1402,6 @@ $border-color: rgba(100, 179, 244, 0.2);
             .author-name {
               font-size: 20px;
               font-weight: bold;
-              color: #2e2e2e;
             }
 
             .follow-btn, .edit-btn, .massage-btn {

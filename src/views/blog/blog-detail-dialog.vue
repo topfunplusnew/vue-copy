@@ -256,6 +256,66 @@ const handleMassageClick = (id?: number) => {
   ElMessage.info(`Opening message conversation with user ${id}`);
   console.log('Message button clicked for user:', id);
 };
+
+// 处理头像和用户名点击事件
+const handleUserClick = (event?: Event) => {
+  console.log('handleUserClick 被调用');
+  console.log('isOwnPost.value:', isOwnPost.value);
+
+  // 阻止事件冒泡，避免其他事件干扰
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  // 只有当前用户发布的博客才能点击跳转
+  if (isOwnPost.value) {
+    console.log('✅ 这是当前用户的博客，可以跳转');
+    console.log('当前用户ID:', userStore.user?.id);
+    console.log('博客作者ID:', selectedBlog.value?.user?.id);
+
+    try {
+      // 先关闭当前弹窗
+      console.log('📤 关闭弹窗...');
+      closeDialog();
+
+      // 使用setTimeout确保弹窗完全关闭后再跳转
+      setTimeout(() => {
+        console.log('🚀 开始跳转到用户页面...');
+
+        // 尝试两种跳转方式
+        const jumpToUserPage = async () => {
+          try {
+            // 方式1: 使用路由名称
+            console.log('尝试方式1: 使用路由名称');
+            await router.push({ name: 'userpage' });
+            console.log('✅ 方式1成功');
+          } catch (error1) {
+            console.error('❌ 方式1失败:', error1);
+            try {
+              // 方式2: 使用路径
+              console.log('尝试方式2: 使用路径');
+              await router.push('/userpage');
+              console.log('✅ 方式2成功');
+            } catch (error2) {
+              console.error('❌ 方式2也失败:', error2);
+              const errorMessage = error2 instanceof Error ? error2.message : '未知错误';
+              ElMessage.error(`跳转失败: ${errorMessage}`);
+            }
+          }
+        };
+
+        jumpToUserPage();
+      }, 100); // 100ms延迟确保弹窗关闭
+
+    } catch (error) {
+      console.error('❌ 处理跳转时发生错误:', error);
+      ElMessage.error('处理跳转时发生错误');
+    }
+  } else {
+    console.log('❌ 这不是当前用户的博客，不能跳转');
+  }
+};
 </script>
 
 <template>
@@ -304,12 +364,19 @@ const handleMassageClick = (id?: number) => {
           <!-- 用户信息和标题 -->
           <div class="user-header">
             <div class="author-info">
-              <img
-                :src="getImageUrl(selectedBlog?.user?.avatar || '')"
-                alt="Author Avatar"
-                class="author-avatar"
-              />
-              <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+              <div
+                class="user-click-area"
+                :class="{ 'clickable': isOwnPost }"
+                @click="handleUserClick($event)"
+                :title="isOwnPost ? '点击跳转到我的用户页面' : ''"
+              >
+                <img
+                  :src="getImageUrl(selectedBlog?.user?.avatar || '')"
+                  alt="Author Avatar"
+                  class="author-avatar"
+                />
+                <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+              </div>
               <!-- Edit/Follow按钮直接跟在用户名后面 -->
               <el-button
                 v-if="!isOwnPost"
