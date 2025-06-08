@@ -17,6 +17,97 @@
     @include screen-mobile {
       width: 98%;
     }
+    
+    /* 博客区域顶部操作栏 */
+    .blog-area-header {
+      display: flex;
+      justify-content: space-between; /* 两端对齐：左边搜索框，右边编辑按钮 */
+      align-items: center;
+      width: 100%; /* 确保操作栏占据全宽 */
+      padding: rpx(10) 0 rpx(8) 0; /* 缩小高度：顶部间距10px，下边距8px */
+      margin-bottom: 0; /* 与下面的blog-post区域间距为0 */
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* 添加分割线 */
+      box-sizing: border-box; /* 确保padding不影响总宽度 */
+      
+      @include screen-mobile {
+        padding: rpx(8) 0 rpx(6) 0; /* 移动端进一步缩小 */
+        margin-bottom: 0; /* 移动端也设为0 */
+      }
+      
+      /* 搜索框样式 - 与编辑按钮保持一致 */
+      .blog-search-input {
+        background: rgba(255, 255, 255, 0.7) !important;
+        border: none !important;
+        border-bottom: 2px solid rgba(65, 145, 255, 0.4) !important;
+        color: #1a3566 !important;
+        padding: rpx(8) rpx(15) !important;
+        border-radius: rpx(6) !important;
+        font-weight: 500;
+        box-shadow: 0 rpx(2) rpx(8) rgba(0, 0, 0, 0.1) !important;
+        transition: all 0.3s ease;
+        width: 200px;
+        font-size: rpx(14);
+        outline: none;
+        margin-left: rpx(20); /* 桌面端搜索框距离左侧的距离 */
+        
+        &::placeholder {
+          color: rgba(26, 53, 102, 0.6);
+          font-weight: 400;
+        }
+        
+        &:focus {
+          outline: none !important;
+          transform: translateY(rpx(-2));
+          box-shadow: 0 rpx(6) rpx(12) rgba(0, 0, 0, 0.1) !important;
+          background: rgba(255, 255, 255, 0.9) !important;
+          border-bottom: 2px solid rgba(65, 145, 255, 0.6) !important;
+        }
+        
+        &:hover {
+          transform: translateY(rpx(-1));
+          box-shadow: 0 rpx(4) rpx(10) rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        @include screen-mobile {
+          padding: rpx(6) rpx(12) !important;
+          font-size: rpx(13);
+          width: 140px;
+          margin-left: rpx(35); /* 移动端搜索框距离左侧的距离 */
+        }
+      }
+      
+      .edit-mode-btn {
+        background: rgba(255, 255, 255, 0.7); /* 改回之前的样式 */
+        border: none;
+        border-bottom: 2px solid rgba(65, 145, 255, 0.4);
+        color: #1a3566; /* 深蓝色 */
+        padding: rpx(8) rpx(15);
+        border-radius: rpx(6);
+        transition: all 0.3s ease;
+        font-weight: 500;
+        box-shadow: 0 rpx(2) rpx(8) rgba(0, 0, 0, 0.1);
+        /* 使用space-between布局，按钮自动在右侧 */
+        margin-right: rpx(20); /* 桌面端编辑按钮距离右侧的距离 */
+        
+        @include screen-mobile {
+          padding: rpx(6) rpx(12);
+          font-size: rpx(13);
+          margin-right: rpx(35); /* 移动端编辑按钮距离右侧的距离 */
+        }
+        
+        &:hover {
+          transform: translateY(rpx(-2));
+          box-shadow: 0 rpx(6) rpx(12) rgba(0, 0, 0, 0.1);
+          background: rgba(255, 255, 255, 0.9);
+        }
+        
+        &.el-button--primary {
+          background: rgba(65, 145, 255, 0.2);
+          border-bottom: 2px solid rgba(65, 145, 255, 0.4);
+          color: #1a3566; /* 深蓝色 */
+        }
+      }
+    }
   
     .blog-posts {
       display: grid;

@@ -189,6 +189,57 @@
   z-index: 1;
   transition: width 0.3s ease;
   
+  /* 博客区域顶部操作栏 */
+  .blog-area-header {
+    display: flex;
+    justify-content: flex-end; /* 靠右对齐 */
+    align-items: center;
+    width: 100%; /* 确保操作栏占据全宽 */
+    padding: 20px 0 15px 0; /* 增加顶部间距20px，下边距15px */
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* 添加分割线 */
+    box-sizing: border-box; /* 确保padding不影响总宽度 */
+    
+    @media (max-width: 768px) {
+      padding: 15px 0 12px 0; /* 移动端顶部间距15px */
+      margin-bottom: 8px;
+    }
+    
+    .edit-mode-btn {
+      background: linear-gradient(135deg, #56b4e9 0%, #e9566c 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(86, 180, 233, 0.3);
+      margin-left: auto; /* 确保按钮推到最右边 */
+      margin-right: 0; /* 移除右边距，让按钮完全贴右端 */
+      
+      @media (max-width: 768px) {
+        padding: 8px 16px;
+        font-size: 13px;
+      }
+      
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(86, 180, 233, 0.4);
+      }
+      
+      &.el-button--primary {
+        background: linear-gradient(135deg, #e9566c 0%, #56b4e9 100%);
+        box-shadow: 0 2px 8px rgba(233, 86, 108, 0.3);
+        
+        &:hover {
+          box-shadow: 0 4px 12px rgba(233, 86, 108, 0.4);
+        }
+      }
+    }
+  }
+  
   /* 添加滚动条样式 */
   &::-webkit-scrollbar {
     width: 6px;

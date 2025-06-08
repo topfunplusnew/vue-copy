@@ -39,10 +39,8 @@ const blogID = computed(() => props.id);
 const dialogBlog = ref(false);
 
 const closeBlogDetail = () => {
-  router.push({
-    name: 'home',
-    params: { id: ''}
-  });
+  // 直接关闭弹窗，不改变路由，避免触发滚动
+  dialogBlog.value = false;
 };
 
 watch(blogID, (val, old) => {

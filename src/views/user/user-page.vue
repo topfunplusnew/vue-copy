@@ -224,12 +224,30 @@ const isWalletConnected = computed(() => {
 const isEditMode = ref(false);
 const selectedBlogId = ref<number | null>(null);
 
+// 搜索功能相关
+const searchKeyword = ref('');
+const originalPosts = ref(); // 保存原始博客列表
+
 // 切换编辑模式
 const toggleEditMode = () => {
   isEditMode.value = !isEditMode.value;
   if (!isEditMode.value) {
     selectedBlogId.value = null;
   }
+};
+
+// 搜索功能处理
+const handleSearch = () => {
+  const keyword = searchKeyword.value.toLowerCase().trim();
+
+  if (!keyword) {
+    // 如果搜索框为空，显示所有博客
+    return;
+  }
+
+  // 这里可以调用store的搜索方法或者前端过滤
+  // 例如：store.searchUserBlogs(keyword);
+  console.log('搜索关键词:', keyword);
 };
 
 // 删除博客
@@ -514,17 +532,6 @@ const toggleMenu = () => {
   <commonHeader />
 
   <div class="user-page">
-    <!-- 编辑模式按钮，直接放在 user-page 容器下 -->
-    <div class="nav-edit">
-      <el-button
-        class="edit-mode-btn"
-        :type="isEditMode ? 'primary' : 'default'"
-        @click="toggleEditMode"
-      >
-        {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
-      </el-button>
-    </div>
-
     <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
     <section class="main-content">
       <!-- 左侧用户信息面板 -->
@@ -580,6 +587,26 @@ const toggleMenu = () => {
 
       <!-- 右侧博客列表区，填满剩余宽度 -->
       <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
+        <!-- 博客区域顶部操作栏 -->
+        <div class="blog-area-header">
+          <!-- 搜索框 -->
+          <input
+            class="blog-search-input"
+            type="text"
+            placeholder="Search your blog"
+            v-model="searchKeyword"
+            @input="handleSearch"
+          />
+          <!-- 编辑按钮 -->
+          <el-button
+            class="edit-mode-btn"
+            :type="isEditMode ? 'primary' : 'default'"
+            @click="toggleEditMode"
+          >
+            {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
+          </el-button>
+        </div>
+
         <div class="blog-posts">
           <div
             v-for="post in userPosts.items"

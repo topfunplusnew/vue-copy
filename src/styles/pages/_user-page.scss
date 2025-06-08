@@ -132,6 +132,7 @@
   @media (max-width: 992px) {
     flex-direction: column;
     align-items: center;
+    gap: rpx(20); /* 增加移动端sidebar与blog-area之间的间距 */
   }
 }
 

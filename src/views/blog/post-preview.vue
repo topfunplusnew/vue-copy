@@ -78,15 +78,15 @@ const handleImageError = (event: Event) => {
           :autoplay="false"
         >
           <el-carousel-item v-for="(image, index) in previewBlog.image" :key="index">
-            <div class="image-slider">
+          <div class="image-slider">
               <div class="image-wrapper">
-                <img
-                  :src="getImageUrl(image)"
-                  alt="Blog Image"
-                  class="detail-image"
+              <img
+                :src="getImageUrl(image)"
+                alt="Blog Image"
+                class="detail-image"
                   @error="handleImageError"
-                />
-              </div>
+              />
+            </div>
             </div>
           </el-carousel-item>
         </el-carousel>
@@ -105,26 +105,26 @@ const handleImageError = (event: Event) => {
               />
               <span class="author-name">{{ previewBlog?.user?.name }}</span>
               <span class="preview-badge">Preview Mode</span>
-            </div>
+        </div>
             <!-- 分类 -->
             <div class="tags-section-pref" v-if="previewBlog?.social_filters && previewBlog.social_filters.length > 0">
               <span v-for="(item, index) in previewBlog.social_filters" :key="index" class="tag-pref">
                 {{ item.icon }}{{ item.name }}
-              </span>
+          </span>
             </div>
             <h2 class="blog-title">{{ previewBlog?.title }}</h2>
-          </div>
+        </div>
 
           <!-- 标签 -->
           <div class="tags-section" v-if="(previewBlog?.tags && previewBlog.tags.length > 0) || previewBlog?.isNFT">
             <div class="nft-tag" v-if="previewBlog?.isNFT">NFT</div>
             <span class="tag" v-for="tag in previewBlog?.tags" :key="tag">
               #{{ tag }}
-            </span>
-          </div>
+          </span>
+        </div>
 
-          <!-- 博客内容 -->
-          <div class="content-section">
+        <!-- 博客内容 -->
+        <div class="content-section">
             <p class="blog-content">{{ previewBlog?.content }}</p>
           </div>
 

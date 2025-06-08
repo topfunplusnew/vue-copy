@@ -221,16 +221,7 @@ const handleImageError = (event: Event) => {
   target.src = '/path/to/fallback-image.jpg';
   target.classList.add('image-error');
 };
-// 编辑按钮
-const handleEditClick = () => {
-  if (!selectedBlog.value?.id) {
-    ElMessage.error('Blog ID is not available');
-    return;
-  }
-  // 跳转到编辑博客的页面
-  // router.push({ name: 'edit-blog', params: { id: selectedBlog.value.id } });
-  console.log('编辑博客', selectedBlog.value.id);
-};
+// 编辑按钮已移除
 
 const handleFollowClick = async (id?: number) => {
   if (!id) return;
@@ -415,16 +406,7 @@ const handleUserClick = (event?: Event) => {
                 <span class="massage-icon">💬</span>
                 <span class="massage-text">Message</span>
               </el-button>
-              <!-- 编辑按钮 -->
-              <el-button
-                v-else
-                class="edit-btn inline-btn"
-                size="small"
-                @click="handleEditClick"
-              >
-                <span class="edit-icon">✏️</span>
-                <span class="edit-text">Edit</span>
-              </el-button>
+              <!-- 编辑按钮已移除 -->
             </div>
             <!-- 分类 -->
             <div class="tags-section-pref" v-if="selectedBlog?.social_filters">

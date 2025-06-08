@@ -332,7 +332,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           gap: rpx(12);
         }
         
-        @include blog.list-item; // 使用博客项样式mixin
+        // 移除mixin引用，避免样式冲突，手动定义需要的样式
         
         .blog-item {
           height: 330px; /* 固定总高度为348px */
@@ -340,10 +340,27 @@ $border-color: rgba(100, 179, 244, 0.2);
           flex-direction: column;
           position: relative;
           overflow: hidden;
+          /* 从mixin中复制的基础样式 */
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          cursor: pointer;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+          backdrop-filter: blur(5px);
+          margin: rpx(5);
+          min-width: 0;
+          
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+          }
           
           @include screen-mobile {
             height: 348px; /* 移动端也使用相同高度 */
-            margin-bottom: rpx(15); /* 保持卡片间的垂直间距 */
+            margin: rpx(5) rpx(8); /* 移动端边距调整 */
+            border-radius: 12px; /* 移动端圆角调整 */
           }
           
           .post-carousel {
@@ -373,9 +390,10 @@ $border-color: rgba(100, 179, 244, 0.2);
             display: flex;
             flex-direction: column;
             flex-shrink: 0; /* 防止高度被压缩 */
+            flex: none ; /* 覆盖blog-item.scss中的flex: 1 */
             
             @include screen-mobile {
-              height: 90px; /* 移动端也是90px */
+              height: 80px ; 
               padding: 10px 12px;
             }
 
@@ -439,7 +457,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             z-index: 2;
             
             @include screen-mobile {
-              height: 58px; /* 移动端也是58px */
+              height: 48px; /* 移动端也是58px */
             }
             
             .author-info {
@@ -457,8 +475,8 @@ $border-color: rgba(100, 179, 244, 0.2);
               }
               
               .author-name {
-                font-size: 20px;
-                font-weight: bold;
+                font-size: 18px;
+                font-weight: normal;
                 color: #2e2e2e;
               }
 
@@ -522,6 +540,44 @@ $border-color: rgba(100, 179, 244, 0.2);
                 }
               }
             }
+          }
+          
+          /* NFT 博客的特殊样式 */
+          &.nft-blog {
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 rpx(15) rgba(255, 215, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+
+            &::before {
+              content: '';
+              position: absolute;
+              top: -50%;
+              left: -50%;
+              width: 200%;
+              height: 200%;
+              background: linear-gradient(
+                45deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+              );
+              transform: rotate(45deg);
+              animation: shine 3s infinite;
+            }
+          }
+        }
+        
+        /* NFT闪光动画 */
+        @keyframes shine {
+          0% {
+            left: -100%;
+          }
+          20% {
+            left: 100%;
+          }
+          100% {
+            left: 100%;
           }
         }
         

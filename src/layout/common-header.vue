@@ -78,8 +78,8 @@ const handleClickOutside = (event: Event) => {
           <router-link :to="{ name: 'home' }" class="nav-btn home-btn">HOME</router-link>
           <button class="nav-hamburger-menu embedded" @click="toggleNavMenu">
             <span v-if="navMenuActive">✕</span>
-            <span v-else>☰</span>
-          </button>
+        <span v-else>☰</span>
+      </button>
         </div>
       </div>
 
