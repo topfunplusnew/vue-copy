@@ -182,18 +182,160 @@ const infoWindows = ref<any[]>([]);
 function initializeMap() {
   if (mapDiv.value) {
     try {
+      // 默认中心点（北京）
+      const defaultCenter = { lat: 39.9042, lng: 116.4074 };
+      
       // 创建地图实例
-      map.value = new window.google.maps.Map(mapDiv.value, {
-        center: { lat: 39.9042, lng: 116.4074 }, // 默认中心点（北京）
-        zoom: 12, // 默认缩放级别
+      (map.value as any) = new (window as any).google.maps.Map(mapDiv.value, {
+        center: defaultCenter,
+        zoom: 12,
         mapTypeControl: true,
         fullscreenControl: true,
         streetViewControl: false
       });
+      
       console.log('Map initialized successfully');
+      
+      // 尝试获取用户当前位置
+      getUserLocation();
+      
     } catch (error) {
       console.error('Error initializing map:', error);
     }
+  }
+}
+
+// 获取用户当前位置
+function getUserLocation() {
+  if (navigator.geolocation) {
+    // 显示定位提示
+    const locationMessage = ElMessage({
+      message: '🌍 正在获取您的当前位置...',
+      type: 'info',
+      duration: 0,
+      showClose: false
+    });
+    
+    navigator.geolocation.getCurrentPosition(
+      // 成功获取位置
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        
+        console.log('User location:', { lat: userLat, lng: userLng });
+        
+        // 关闭定位提示
+        locationMessage.close();
+        
+        // 将地图中心设置为用户当前位置
+        const userLocation = new (window as any).google.maps.LatLng(userLat, userLng);
+        (map.value as any).setCenter(userLocation);
+        (map.value as any).setZoom(15);
+        
+        // 创建醒目的用户位置标记
+        const userLocationIcon = {
+          url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <!-- 外圈脉冲效果 -->
+              <circle cx="20" cy="20" r="18" fill="#4285F4" fill-opacity="0.2">
+                <animate attributeName="r" values="12;20;12" dur="2s" repeatCount="indefinite"/>
+                <animate attributeName="fill-opacity" values="0.3;0.1;0.3" dur="2s" repeatCount="indefinite"/>
+              </circle>
+              <!-- 中圈 -->
+              <circle cx="20" cy="20" r="12" fill="#4285F4" fill-opacity="0.4">
+                <animate attributeName="r" values="8;12;8" dur="1.5s" repeatCount="indefinite"/>
+              </circle>
+              <!-- 内核 -->
+              <circle cx="20" cy="20" r="8" fill="#1976D2" stroke="#ffffff" stroke-width="3"/>
+              <!-- 中心点 -->
+              <circle cx="20" cy="20" r="4" fill="#ffffff"/>
+              <!-- 人形图标 -->
+              <path d="M20 14c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 8c-2.7 0-5.8 1.29-6 2v1h12v-1c-.2-.71-3.3-2-6-2z" fill="#1976D2"/>
+            </svg>
+          `),
+          scaledSize: new (window as any).google.maps.Size(40, 40),
+          anchor: new (window as any).google.maps.Point(20, 20)
+        };
+
+        const userMarker = new (window as any).google.maps.Marker({
+          position: userLocation,
+          map: map.value,
+          title: '🧭 Your current location',
+          icon: userLocationIcon,
+          animation: (window as any).google.maps.Animation.DROP,
+          zIndex: 1000 // 确保在最顶层显示
+        });
+        
+        // 添加信息窗口
+        const userInfoWindow = new (window as any).google.maps.InfoWindow({
+          content: `
+            <div style="padding: 10px; text-align: center;">
+              <h4 style="margin: 0 0 8px 0; color: #333;">📍 Your current location</h4>
+              <p style="margin: 0; color: #666; font-size: 12px;">
+                Latitude: ${userLat.toFixed(6)}<br>
+                Longitude: ${userLng.toFixed(6)}
+              </p>
+            </div>
+          `
+        });
+        
+        // 点击标记显示信息
+        userMarker.addListener('click', () => {
+          userInfoWindow.open(map.value, userMarker);
+        });
+        
+        // 保存标记引用
+        markers.value.push(userMarker);
+        infoWindows.value.push(userInfoWindow);
+        
+        // 成功提示
+        ElMessage({
+          message: '📍 Your current location is located',
+          type: 'success',
+          duration: 3000
+        });
+      },
+      
+      // 获取位置失败
+      (error) => {
+        // 关闭定位提示
+        locationMessage.close();
+        
+        console.warn('Geolocation error:', error);
+        
+        let errorMessage = 'Failed to get your location information';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = 'Location access denied, using default location';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = 'Location information is not available, using default location';
+            break;
+          case error.TIMEOUT:
+            errorMessage = 'Location request timed out, using default location';
+            break;
+        }
+        
+        ElMessage({
+          message: `⚠️ ${errorMessage}`,
+          type: 'warning',
+          duration: 3000
+        });
+      },
+      
+      // 配置选项
+      {
+        enableHighAccuracy: true, // 启用高精度
+        timeout: 10000,          // 10秒超时
+        maximumAge: 300000       // 5分钟内的缓存位置有效
+      }
+    );
+  } else {
+    ElMessage({
+      message: '⚠️ Your browser does not support geolocation',
+      type: 'warning',
+      duration: 3000
+    });
   }
 }
 
@@ -327,16 +469,21 @@ async function handleLocationClick(event: MouseEvent) {
 }
 
 // 处理AI回复中的地点标记
+// 处理 AI 回复中的地名标记：支持 **鼓浪屿** 和 @location{鼓浪屿} 两种格式
 function processMessageContent(content: string): string {
-  // 匹配粗体文本，可能是地点名称
-  // 例如：**北京故宫**、**长城**、**上海东方明珠**
-  const placeRegex = /\*\*([\w\s\u4e00-\u9fa5]+)\*\*/g;
-  
-  // 将匹配到的地点名称转换为可点击的元素
-  return content.replace(placeRegex, (match, placeName) => {
-    return `<span class="location-tag" data-location="${placeName}">${match}</span>`;
+  // 将 **地名** 变成可点击标签
+  content = content.replace(/\*\*([\w\s\u4e00-\u9fa5]+)\*\*/g, (_, placeName) => {
+    return `<span class="location-tag" data-location="${placeName}">${placeName}</span>`;
   });
+
+  // 将 @location{地名} 转换为同样的点击标签
+  content = content.replace(/@location\{([^}]+)\}/g, (_, placeName) => {
+    return `<span class="location-tag" data-location="${placeName}">${placeName}</span>`;
+  });
+
+  return content;
 }
+
 
 // 添加My Plan相关状态
 const showMyPlan = ref(false);
@@ -623,3 +770,17 @@ onUnmounted(() => {
     @save="handlePlanSave"
   />
 </template>
+
+
+<style scoped>
+.location-tag {
+  color: #1a73e8;
+  cursor: pointer;
+  text-decoration: underline;
+  font-weight: 500;
+}
+.location-tag:hover {
+  text-decoration: none;
+  color: #0b66c3;
+}
+</style>

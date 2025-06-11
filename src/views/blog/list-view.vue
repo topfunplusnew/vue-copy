@@ -273,7 +273,6 @@ const showBlogDetail = async (id: number) => {
   };
 
 
-
 const selectedFilters = ref<number[]>([]);
 const isFilterMenuOpen = ref(false);
 
