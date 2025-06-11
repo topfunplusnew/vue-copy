@@ -14,11 +14,8 @@ import type { Destination, SavedPlanData } from '@/types/base';
 
 const router = useRouter();
 const userStore = useUserStore();
-<<<<<<< HEAD
 const walletStore = useWalletStore();
-=======
 const chatStore = useChatStore();
->>>>>>> d3db66d23978fb0c2ae598660d4e40322e1246c5
 
 // 消息弹窗状态
 const showMessageModal = ref(false);
@@ -101,7 +98,7 @@ const handleHistoryLoad = (conversationId: number) => {
       .then(() => {
         ElMessage.success('Conversation loaded successfully');
       })
-      .catch((e: any) => {
+      .catch((e: unknown) => {
         console.error('Failed to load conversation:', e);
         ElMessage.error('Failed to load conversation');
       });
@@ -111,7 +108,7 @@ const handleHistoryLoad = (conversationId: number) => {
     router.push({
       name: 'generator',
       query: { conversationId: conversationId.toString() }
-    }).catch((e: any) => {
+    }).catch((e: unknown) => {
       console.error('Failed to navigate:', e);
       ElMessage.error('Failed to navigate to chat page');
     });
