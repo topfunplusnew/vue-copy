@@ -100,6 +100,7 @@
               v-for="workshop in selectedWorkshops"
               :key="workshop.id"
               class="selected-workshop-item"
+              @click="switchToMeeting(workshop)"
             >
               <div class="selected-workshop-info">
                 <h5 class="selected-title">{{ workshop.title }}</h5>
@@ -115,7 +116,7 @@
               </div>
               <button
                 class="remove-btn"
-                @click="removeWorkshop(workshop.id)"
+                @click.stop="removeWorkshop(workshop.id)"
                 title="Remove workshop"
               >
                 <el-icon><Close /></el-icon>
@@ -184,10 +185,11 @@
             v-for="workshop in selectedWorkshops"
             :key="workshop.id"
             class="drawer-workshop-item"
+            @click="switchToMeeting(workshop); closeMobileSelected();"
           >
             <div class="drawer-workshop-info">
               <h5 class="drawer-workshop-title">{{ workshop.title }}</h5>
-              <div class="drawer-workshop-details">
+              <div class="drawer-details">
                 <span class="drawer-time">🕐 {{ workshop.time }}</span>
                 <span class="drawer-speaker">👤 {{ workshop.speaker }}</span>
               </div>
@@ -199,7 +201,7 @@
             </div>
             <button
               class="drawer-remove-btn"
-              @click="removeWorkshop(workshop.id)"
+              @click.stop="removeWorkshop(workshop.id)"
               title="Remove workshop"
             >
               <el-icon><Close /></el-icon>
@@ -238,6 +240,8 @@ interface Workshop {
   speaker: string;
   description: string;
   tags: string[];
+  meetingId: number;
+  meetingName: string;
 }
 
 interface Meeting {
@@ -276,7 +280,9 @@ const meetings = ref<Meeting[]>([
         time: '09:00 - 10:30',
         speaker: 'Dr. Sarah Chen',
         description: 'Explore how artificial intelligence is transforming the travel and tourism industry.',
-        tags: ['AI', 'Travel', 'Innovation']
+        tags: ['AI', 'Travel', 'Innovation'],
+        meetingId: 1,
+        meetingName: 'Tech Innovation Summit 2024'
       },
       {
         id: 102,
@@ -284,7 +290,9 @@ const meetings = ref<Meeting[]>([
         time: '11:00 - 12:30',
         speaker: 'Mark Johnson',
         description: 'Learn about eco-friendly travel practices and sustainable tourism development.',
-        tags: ['Sustainability', 'Environment', 'Tourism']
+        tags: ['Sustainability', 'Environment', 'Tourism'],
+        meetingId: 1,
+        meetingName: 'Tech Innovation Summit 2024'
       },
       {
         id: 103,
@@ -292,7 +300,9 @@ const meetings = ref<Meeting[]>([
         time: '14:00 - 15:30',
         speaker: 'Lisa Wang',
         description: 'Master digital marketing strategies specifically for travel businesses.',
-        tags: ['Marketing', 'Digital', 'Strategy']
+        tags: ['Marketing', 'Digital', 'Strategy'],
+        meetingId: 1,
+        meetingName: 'Tech Innovation Summit 2024'
       }
     ]
   },
@@ -308,7 +318,9 @@ const meetings = ref<Meeting[]>([
         time: '10:00 - 11:30',
         speaker: 'Alex Rodriguez',
         description: 'Discover how VR technology is enhancing travel experiences.',
-        tags: ['VR', 'Technology', 'Experience']
+        tags: ['VR', 'Technology', 'Experience'],
+        meetingId: 2,
+        meetingName: 'Global Travel Conference'
       },
       {
         id: 202,
@@ -316,7 +328,9 @@ const meetings = ref<Meeting[]>([
         time: '13:00 - 14:30',
         speaker: 'Emily Davis',
         description: 'Building bridges through cultural exchange and community tourism.',
-        tags: ['Culture', 'Exchange', 'Community']
+        tags: ['Culture', 'Exchange', 'Community'],
+        meetingId: 2,
+        meetingName: 'Global Travel Conference'
       }
     ]
   },
@@ -332,7 +346,9 @@ const meetings = ref<Meeting[]>([
         time: '09:30 - 11:00',
         speaker: 'Captain Tom Wilson',
         description: 'Essential safety protocols and risk management in adventure travel.',
-        tags: ['Safety', 'Adventure', 'Risk Management']
+        tags: ['Safety', 'Adventure', 'Risk Management'],
+        meetingId: 3,
+        meetingName: 'Adventure Travel Expo'
       },
       {
         id: 302,
@@ -340,7 +356,9 @@ const meetings = ref<Meeting[]>([
         time: '11:30 - 13:00',
         speaker: 'Natalie Green',
         description: 'Capture stunning nature photography during your adventures.',
-        tags: ['Photography', 'Nature', 'Adventure']
+        tags: ['Photography', 'Nature', 'Adventure'],
+        meetingId: 3,
+        meetingName: 'Adventure Travel Expo'
       }
     ]
   }
@@ -387,6 +405,15 @@ const toggleWorkshop = (workshop: Workshop) => {
 
 const removeWorkshop = (workshopId: number) => {
   selectedWorkshops.value = selectedWorkshops.value.filter(w => w.id !== workshopId);
+};
+
+// 新增：点击选中的workshop时切换到对应会议
+const switchToMeeting = (workshop: Workshop) => {
+  const targetMeeting = meetings.value.find(meeting => meeting.id === workshop.meetingId);
+  if (targetMeeting) {
+    selectedMeeting.value = targetMeeting;
+    ElMessage.info(`Switched to ${workshop.meetingName}`);
+  }
 };
 
 const formatDate = (dateString: string) => {

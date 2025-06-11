@@ -3,19 +3,33 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import walletItem from '@/components/wallet-item.vue';
 import UserMessage from '@/views/user/user-message.vue';
+import PlanComponent from '@/views/components/plan-component.vue';
+import HistoryComponent from '@/views/components/history-component.vue';
 import { ElMessage, ElIcon } from 'element-plus';
 import { User } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
+import { useChatStore } from '@/stores/chat';
 import { getImageUrl } from '@/utils';
+import type { Destination, SavedPlanData } from '@/types/base';
 
 const router = useRouter();
 const userStore = useUserStore();
+const chatStore = useChatStore();
 
 // 消息弹窗状态
 const showMessageModal = ref(false);
 
+// 计划弹窗状态
+const showPlanModal = ref(false);
+
+// 历史弹窗状态
+const showHistoryModal = ref(false);
+
 // 导航菜单状态
 const navMenuActive = ref(false);
+
+// 可用景点数据（header中通常为空，但保持接口一致）
+const availableDestinations = ref<Destination[]>([]);
 
 onMounted(() => {
   userStore.getUserInfo();
@@ -34,12 +48,53 @@ const handleCommand = (command: string) => {
     router.push({ name: 'userpage' });
   } else if (command === 'message') {
     showMessageModal.value = true;
+  } else if (command === 'plan') {
+    showPlanModal.value = true;
+  } else if (command === 'history') {
+    showHistoryModal.value = true;
   } else if (command === 'logout') {
     userStore.logout();
     ElMessage.success('Logged out successfully');
     router.push({ path: '/' });
   }
-  // TODO: 处理其他命令 (wallet, plan, history, cart, orders)
+  // TODO: 处理其他命令 (wallet, cart, orders)
+};
+
+// 处理计划保存
+const handlePlanSave = (plan: SavedPlanData) => {
+  console.log('Saving plan from header:', plan);
+  showPlanModal.value = false;
+  ElMessage.success('Plan saved successfully!');
+};
+
+// 处理历史对话加载
+const handleHistoryLoad = (conversationId: number) => {
+  showHistoryModal.value = false;
+  
+  // 检查当前是否在trip-generator页面
+  const currentRoute = router.currentRoute.value;
+  
+  if (currentRoute.name === 'generator') {
+    // 如果已经在generator页面，直接加载对话
+    chatStore.getChatsByConversationID(conversationId)
+      .then(() => {
+        ElMessage.success('Conversation loaded successfully');
+      })
+      .catch((e: any) => {
+        console.error('Failed to load conversation:', e);
+        ElMessage.error('Failed to load conversation');
+      });
+  } else {
+    // 如果在其他页面，跳转到generator页面并传递conversationId
+    ElMessage.info('Redirecting to chat page...');
+    router.push({ 
+      name: 'generator',
+      query: { conversationId: conversationId.toString() }
+    }).catch((e: any) => {
+      console.error('Failed to navigate:', e);
+      ElMessage.error('Failed to navigate to chat page');
+    });
+  }
 };
 
 // 切换导航菜单显示
@@ -131,4 +186,19 @@ const handleClickOutside = (event: Event) => {
 
   <!-- 消息弹窗组件 -->
   <UserMessage v-model:visible="showMessageModal" />
+
+  <!-- 计划弹窗组件 -->
+  <PlanComponent 
+    :visible="showPlanModal"
+    :available-destinations="availableDestinations"
+    @close="showPlanModal = false"
+    @save="handlePlanSave"
+  />
+
+  <!-- 历史弹窗组件 -->
+  <HistoryComponent 
+    :visible="showHistoryModal"
+    @close="showHistoryModal = false"
+    @load-history="handleHistoryLoad"
+  />
 </template>
