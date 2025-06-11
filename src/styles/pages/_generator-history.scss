@@ -5,37 +5,37 @@
 
 @mixin wrapper {
     @include modal.modal-animations;
-    
+
     .history-modal {
         @include modal.modal-base;
-        
-        .history-modal-content {
+    
+    .history-modal-content {
             @include modal.modal-content-base;
             max-width: 600px;
-        }
-        
-        .history-modal-header {
+    }
+    
+    .history-modal-header {
             @include modal.modal-header-base;
-        }
-        
-        .history-modal-body {
+    }
+    
+    .history-modal-body {
             @include modal.modal-body-base;
-            
-            .history-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                
-                .history-item {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
+    
+    .history-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    
+    .history-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
                     padding: rpx(16);
                     border-radius: rpx(8);
                     margin-bottom: rpx(12);
                     background: rgba(255, 255, 255, 0.05);
-                    cursor: pointer;
-                    transition: all 0.3s ease;
+        cursor: pointer;
+        transition: all 0.3s ease;
                     border-left: rpx(3) solid transparent;
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     
@@ -44,28 +44,28 @@
                         border-left: rpx(3) solid rgba(86, 180, 233, 0.8);
                         transform: translateX(rpx(3));
                         border-color: rgba(86, 180, 233, 0.3);
-                    }
-                    
-                    .history-item-content {
-                        display: flex;
-                        flex-direction: column;
+    }
+    
+    .history-item-content {
+        display: flex;
+        flex-direction: column;
                         gap: rpx(4);
                         flex: 1;
-                        
-                        .history-title {
-                            font-weight: 500;
+    
+    .history-title {
+        font-weight: 500;
                             color: rgba(255, 255, 255, 0.9);
                             font-size: rpx(15);
-                        }
-                        
-                        .history-date {
+    }
+    
+    .history-date {
                             font-size: rpx(12);
                             color: rgba(255, 255, 255, 0.6);
                         }
-                    }
-                    
+    }
+    
                     .history-actions {
-                        display: flex;
+        display: flex;
                         gap: rpx(8);
                         opacity: 0;
                         transition: opacity 0.3s ease;
@@ -74,10 +74,10 @@
                     &:hover .history-actions {
                         opacity: 1;
                     }
-                }
-            }
-            
-            .empty-history {
+        }
+    }
+    
+    .empty-history {
                 @include modal.empty-state;
             }
         }

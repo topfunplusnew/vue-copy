@@ -376,7 +376,7 @@ const handleUserClick = (event?: Event) => {
                 class="user-click-area"
                 :class="{ 'clickable': isOwnPost }"
                 @click="handleUserClick($event)"
-                :title="isOwnPost ? '点击跳转到我的用户页面' : ''"
+                :title="isOwnPost ? 'Click to jump to my user page' : ''"
               >
                 <img
                   :src="getImageUrl(selectedBlog?.user?.avatar || '')"

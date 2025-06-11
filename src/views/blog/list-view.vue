@@ -18,6 +18,7 @@ import postView from './post-view.vue';
 
 import postPreview from './post-preview.vue';
 import { ElMessageBox } from 'element-plus';
+import MeetingComponent from '@/views/components/meeting-component.vue';
 
 const showPostView = ref(false);
 const showPreview = ref(false);
@@ -442,35 +443,10 @@ const selectedTools = ref<string[]>([]);
 // 可用工具列表
 const availableTools = ref([
   {
-    name: 'Weather',
-    icon: '🌤️',
-    description: 'Weather forecast'
+    name: 'Meetings',
+    icon: '📅',
+    description: 'Find and join workshops'
   },
-  // {
-  //   name: 'Currency',
-  //   icon: '💱',
-  //   description: 'Exchange rates'
-  // },
-  // {
-  //   name: 'Translation',
-  //   icon: '🌐',
-  //   description: 'Language translator'
-  // },
-  // {
-  //   name: 'Maps',
-  //   icon: '🗺️',
-  //   description: 'Interactive maps'
-  // },
-  // {
-  //   name: 'Reviews',
-  //   icon: '⭐',
-  //   description: 'Place reviews'
-  // },
-  // {
-  //   name: 'Budget',
-  //   icon: '💰',
-  //   description: 'Trip budget planner'
-  // }
 ]);
 
 // 切换Interests菜单
@@ -489,8 +465,18 @@ const toggleTools = () => {
   }
 };
 
+// 会议弹窗状态
+const showMeetingDialog = ref(false);
+
 // 切换工具选择
 const toggleTool = (toolName: string) => {
+  if (toolName === 'Meetings') {
+    // 对于会议工具，打开弹窗而不是简单的选择
+    showMeetingDialog.value = true;
+    toolsExpanded.value = false; // 关闭工具菜单
+    return;
+  }
+  
   if (selectedTools.value.includes(toolName)) {
     selectedTools.value = selectedTools.value.filter(t => t !== toolName);
   } else {
@@ -917,6 +903,12 @@ watch(selectedLocation, () => {
     :location="previewData.location"
     :isNFT="previewData.isNFT"
     @close="closePreview"
+  />
+
+  <!-- 会议组件弹窗 -->
+  <MeetingComponent
+    v-if="showMeetingDialog"
+    @close="showMeetingDialog = false"
   />
 </template>
 

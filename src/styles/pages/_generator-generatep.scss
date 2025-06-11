@@ -4,68 +4,68 @@
 
 @mixin wrapper {
   @include modal.modal-animations;
-  
+
   .trip-options-modal {
     @include modal.modal-base;
-    
+
     .trip-options-modal-content {
       @include modal.modal-content-base;
       max-width: 700px;
-    }
-    
-    .trip-options-modal-header {
+      }
+
+      .trip-options-modal-header {
       @include modal.modal-header-base;
-    }
-    
+      }
+
     .trip-options-modal-body {
       @include modal.modal-body-base;
       padding: 0;
       
-      .trip-options-scrollable {
+        .trip-options-scrollable {
         padding: rpx(24);
-        overflow-y: auto;
-        flex: 1;
-      }
-      
-      .trip-prompt-result {
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .trip-prompt-result {
         padding: rpx(24);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
         background: rgba(0, 0, 0, 0.2);
-        
+
         span {
           display: block;
           color: rgba(255, 255, 255, 0.8);
           font-weight: 500;
           margin-bottom: rpx(12);
           font-size: rpx(16);
-        }
-        
-        .editable-prompt {
-          background: rgba(255, 255, 255, 0.05);
+            }
+            
+            .editable-prompt {
+                background: rgba(255, 255, 255, 0.05);
           border-radius: rpx(8);
           
           :deep(.el-textarea__inner) {
             color: rgba(255, 255, 255, 0.9) !important;
             background: transparent;
             border: 1px solid rgba(86, 180, 233, 0.3);
-            font-family: "Courier New", monospace;
-            
-            &:focus {
-              border-color: rgba(86, 180, 233, 0.6);
-              box-shadow: 0 0 rpx(6) rgba(86, 180, 233, 0.2);
-            }
-            
+                font-family: "Courier New", monospace;
+                
+                &:focus {
+                    border-color: rgba(86, 180, 233, 0.6);
+                    box-shadow: 0 0 rpx(6) rgba(86, 180, 233, 0.2);
+                }
+                
             &::placeholder {
               color: rgba(255, 255, 255, 0.5);
+                }
             }
-          }
         }
       }
     }
-    
+
     .trip-options-modal-footer {
       @include modal.modal-footer-base;
     }
-  }
+  }  
 }
 
