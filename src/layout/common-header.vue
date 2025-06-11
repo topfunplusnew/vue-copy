@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
-import walletItem from '@/components/wallet-item.vue';
+import { useWalletStore, WALLET_STATUS } from '@/stores/wallet';
 import UserMessage from '@/views/user/user-message.vue';
 import { ElMessage, ElIcon } from 'element-plus';
 import { User } from '@element-plus/icons-vue';
@@ -10,6 +10,7 @@ import { getImageUrl } from '@/utils';
 
 const router = useRouter();
 const userStore = useUserStore();
+const walletStore = useWalletStore();
 
 // 消息弹窗状态
 const showMessageModal = ref(false);
@@ -19,6 +20,12 @@ const navMenuActive = ref(false);
 
 onMounted(() => {
   userStore.getUserInfo();
+  // 初始化钱包
+  try {
+    walletStore.init();
+  } catch (e) {
+    console.log(e);
+  }
   // 添加点击事件监听器
   document.addEventListener('click', handleClickOutside);
 });
@@ -34,12 +41,22 @@ const handleCommand = (command: string) => {
     router.push({ name: 'userpage' });
   } else if (command === 'message') {
     showMessageModal.value = true;
+  } else if (command === 'wallet') {
+    // 处理钱包连接
+    if (walletStore.status === WALLET_STATUS.NO_PROVIDER) {
+      window.open('https://metamask.io/download/', '_blank');
+    } else if (walletStore.status !== WALLET_STATUS.CONNECTED) {
+      walletStore.connect();
+      ElMessage.info('Connecting to wallet...');
+    } else {
+      ElMessage.info(`Wallet connected: ${walletStore.address.slice(0, 6)}...${walletStore.address.slice(-4)}`);
+    }
   } else if (command === 'logout') {
     userStore.logout();
     ElMessage.success('Logged out successfully');
     router.push({ path: '/' });
   }
-  // TODO: 处理其他命令 (wallet, plan, history, cart, orders)
+  // TODO: 处理其他命令 (plan, history, cart, orders)
 };
 
 // 切换导航菜单显示
@@ -93,7 +110,6 @@ const handleClickOutside = (event: Event) => {
 
       <!-- 用户区域 -->
       <nav class="user-nav">
-        <wallet-item class="nav-btn" />
         <div v-if="userStore.user" class="nav-btn user-profile-btn">
           <div class="user-profile-nav">
             <div class="data-flow"></div>

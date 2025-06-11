@@ -401,7 +401,21 @@ const touchCurrentX = ref(0);
 const isSwipingToClose = ref(false);
 const swipeThreshold = 100; // 滑动阈值（像素）
 
-// 窗口大小变化处理函数
+  // 拖拽排序相关的响应式数据
+  const draggedIndex = ref<number | null>(null);
+  const isDragging = ref(false);
+  const draggedElement = ref<HTMLElement | null>(null);
+  const galleryElement = ref<HTMLElement | null>(null);
+
+  // 移动端长按拖拽相关数据
+  const isLongPressing = ref(false);
+  const longPressTimer = ref<number | null>(null);
+  const touchStartPos = ref({ x: 0, y: 0 });
+  const currentTouchPos = ref({ x: 0, y: 0 });
+  const longPressThreshold = 600; // 长按阈值（毫秒）
+  const moveThreshold = 10; // 移动阈值（像素）
+
+  // 窗口大小变化处理函数
 const handleResize = () => {
   isMobileView.value = window.innerWidth <= 768;
 };
@@ -479,6 +493,176 @@ const handleTouchCancel = () => {
   }
 
   isSwipingToClose.value = false;
+};
+
+// 拖拽排序相关函数
+const handleDragStart = (event: DragEvent, index: number) => {
+  if (createData.value.image.length < 2) return;
+
+  draggedIndex.value = index;
+  isDragging.value = true;
+  draggedElement.value = event.target as HTMLElement;
+
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', '');
+  }
+};
+
+const handleDragEnd = () => {
+  isDragging.value = false;
+  draggedIndex.value = null;
+  draggedElement.value = null;
+};
+
+const handleDragOver = (event: DragEvent) => {
+  event.preventDefault();
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move';
+  }
+};
+
+const handleDrop = (event: DragEvent) => {
+  event.preventDefault();
+
+  if (draggedIndex.value === null || !galleryElement.value) {
+    return;
+  }
+
+  // 获取拖拽容器的边界信息
+  const galleryRect = galleryElement.value.getBoundingClientRect();
+  const dropX = event.clientX - galleryRect.left;
+  const dropY = event.clientY - galleryRect.top;
+
+  // 获取所有图片项的位置信息
+  const imageItems = Array.from(galleryElement.value.querySelectorAll('.image-item'));
+  let targetIndex = draggedIndex.value;
+
+  // 计算应该插入的位置
+  for (let i = 0; i < imageItems.length; i++) {
+    if (i === draggedIndex.value) continue;
+
+    const itemRect = (imageItems[i] as HTMLElement).getBoundingClientRect();
+    const itemX = itemRect.left - galleryRect.left;
+    const itemY = itemRect.top - galleryRect.top;
+    const itemCenterX = itemX + itemRect.width / 2;
+    const itemCenterY = itemY + itemRect.height / 2;
+
+    // 如果拖拽点在当前项目之前（考虑网格布局）
+    if (dropY < itemCenterY || (dropY === itemCenterY && dropX < itemCenterX)) {
+      targetIndex = i;
+      break;
+    }
+    // 如果是最后一个元素，放到末尾
+    if (i === imageItems.length - 1) {
+      targetIndex = imageItems.length;
+    }
+  }
+
+  // 如果位置没有改变，不进行移动
+  if (targetIndex === draggedIndex.value) {
+    return;
+  }
+
+  // 重新排列图片数组
+  const images = [...createData.value.image];
+  const draggedImage = images[draggedIndex.value];
+
+  // 移除原位置的图片
+  images.splice(draggedIndex.value, 1);
+
+  // 调整目标位置（如果目标位置在原位置之后，需要减1）
+  const adjustedTargetIndex = targetIndex > draggedIndex.value ? targetIndex - 1 : targetIndex;
+
+  // 在新位置插入图片
+  images.splice(adjustedTargetIndex, 0, draggedImage);
+
+  createData.value.image = images;
+};
+
+// 移动端长按拖拽相关函数
+const handleTouchStartForDrag = (event: TouchEvent, index: number) => {
+  if (!isMobileView.value || createData.value.image.length < 2) return;
+
+  const touch = event.touches[0];
+  touchStartPos.value = { x: touch.clientX, y: touch.clientY };
+  currentTouchPos.value = { x: touch.clientX, y: touch.clientY };
+
+  // 清除之前的定时器
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+  }
+
+  // 设置长按定时器
+  longPressTimer.value = window.setTimeout(() => {
+    // 检查是否在阈值范围内（避免滑动时触发）
+    const deltaX = Math.abs(currentTouchPos.value.x - touchStartPos.value.x);
+    const deltaY = Math.abs(currentTouchPos.value.y - touchStartPos.value.y);
+
+    if (deltaX < moveThreshold && deltaY < moveThreshold) {
+      isLongPressing.value = true;
+      draggedIndex.value = index;
+      isDragging.value = true;
+
+      // 提供触觉反馈（如果支持）
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+
+      // 阻止默认行为
+      event.preventDefault();
+    }
+  }, longPressThreshold);
+};
+
+const handleTouchMoveForDrag = (event: TouchEvent) => {
+  if (!isMobileView.value) return;
+
+  const touch = event.touches[0];
+  currentTouchPos.value = { x: touch.clientX, y: touch.clientY };
+
+  // 如果移动距离超过阈值，取消长按
+  const deltaX = Math.abs(currentTouchPos.value.x - touchStartPos.value.x);
+  const deltaY = Math.abs(currentTouchPos.value.y - touchStartPos.value.y);
+
+  if ((deltaX > moveThreshold || deltaY > moveThreshold) && !isLongPressing.value) {
+    if (longPressTimer.value) {
+      clearTimeout(longPressTimer.value);
+      longPressTimer.value = null;
+    }
+  }
+
+  // 如果正在拖拽，阻止页面滚动
+  if (isLongPressing.value && isDragging.value) {
+    event.preventDefault();
+  }
+};
+
+const handleTouchEndForDrag = (event: TouchEvent) => {
+  if (!isMobileView.value) return;
+
+  // 清除长按定时器
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value);
+    longPressTimer.value = null;
+  }
+
+  // 如果正在拖拽，执行放置逻辑
+  if (isLongPressing.value && isDragging.value && galleryElement.value) {
+    const touch = event.changedTouches[0];
+    const fakeDropEvent = {
+      preventDefault: () => {},
+      clientX: touch.clientX,
+      clientY: touch.clientY
+    } as DragEvent;
+
+    handleDrop(fakeDropEvent);
+  }
+
+  // 重置所有状态
+  isLongPressing.value = false;
+  isDragging.value = false;
+  draggedIndex.value = null;
 };
 
 onMounted(async () => {
@@ -603,9 +787,25 @@ onUnmounted(() => {
         </div>
 
         <!-- 图片展示区域 -->
-        <div class="images-gallery" v-if="createData.image.length">
-          <div v-for="(image, index) in createData.image"
-          :key="index" class="image-item">
+        <div
+          class="images-gallery"
+          v-if="createData.image.length"
+          ref="galleryElement"
+          @dragover="handleDragOver"
+          @drop="handleDrop"
+        >
+          <div
+            v-for="(image, index) in createData.image"
+            :key="index"
+            class="image-item"
+            :class="{ 'long-pressing': isLongPressing && draggedIndex === index }"
+            :draggable="!isMobileView && createData.image.length >= 2"
+            @dragstart="!isMobileView && handleDragStart($event, index)"
+            @dragend="!isMobileView && handleDragEnd"
+            @touchstart="handleTouchStartForDrag($event, index)"
+            @touchmove="handleTouchMoveForDrag"
+            @touchend="handleTouchEndForDrag"
+          >
             <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
             <div class="image-overlay">
               <button class="delete-btn"
@@ -614,7 +814,11 @@ onUnmounted(() => {
               </button>
             </div>
           </div>
-          <div class="images-counter">{{ createData.image.length }}/9 images</div>
+          <div class="images-counter">
+            {{ createData.image.length }}/9 images
+            <span v-if="createData.image.length >= 2 && !isMobileView" class="drag-hint">• Drag to reorder</span>
+            <span v-if="createData.image.length >= 2 && isMobileView" class="drag-hint">• Long press to reorder</span>
+          </div>
         </div>
       </el-form-item>
 
