@@ -6,7 +6,6 @@ $secondary-text: #dee2e6;
 $accent-color: #64b3f4;
 $border-color: rgba(100, 179, 244, 0.2);
 
-
 @use '../utils/mixins' as *; // 混合宏
 @use '../utils/utils' as *; // 工具类
 @use './blog-item' as blog; // 博客模块
@@ -14,8 +13,7 @@ $border-color: rgba(100, 179, 244, 0.2);
 
 @use './home-blog-detail' as detail;
 
-
-@mixin wrapper{
+@mixin wrapper {
   /* 社交帖子模块 */
   .social-feed {
     margin-bottom: rpx(20);
@@ -49,7 +47,7 @@ $border-color: rgba(100, 179, 244, 0.2);
       .social-header-text {
         font-size: rpx(30);
         color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
-        text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
+        text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
         font-weight: bold;
 
         @include screen-pc {
@@ -71,11 +69,11 @@ $border-color: rgba(100, 179, 244, 0.2);
         gap: rpx(10);
         position: relative;
         flex-wrap: wrap;
-        
+
         @include screen-pad {
           justify-content: flex-start;
         }
-        
+
         .search-input-home {
           flex: 1;
           padding: rpx(8) rpx(12) rpx(12) rpx(40); /* 增加左边距为图标留空间 */
@@ -91,7 +89,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           background-repeat: no-repeat;
           background-position: rpx(12) center;
           background-size: rpx(18);
-          
+
           @include screen-pad {
             max-width: calc(100% - 190px); /* 为Post按钮和汉堡菜单预留空间 */
             background-size: rpx(16); /* 小屏幕上稍微缩小图标 */
@@ -125,7 +123,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           align-items: center;
           cursor: pointer;
           margin-left: rpx(8);
-          
+
           @include screen-pc {
             display: none;
             width: rpx(40);
@@ -142,7 +140,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             height: rpx(32);
             padding: rpx(6);
           }
-          
+
           .filter-icon-bar {
             background-color: white;
             border-radius: rpx(2);
@@ -162,19 +160,19 @@ $border-color: rgba(100, 179, 244, 0.2);
               margin: 1px 0;
             }
           }
-          
+
           &:hover {
             background: rgba(255, 255, 255, 0.3);
           }
         }
-        
+
         .social-filter-panel-horizontal {
           display: flex;
           justify-content: center;
           gap: rpx(8);
           flex-wrap: wrap;
           padding-top: rpx(10);
-          
+
           @include screen-pad {
             position: absolute;
             top: 100%;
@@ -191,8 +189,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             box-shadow: 0 rpx(8) rpx(16) rgba(0, 0, 0, 0.2);
             border-top: 0;
             justify-content: flex-start;
-            
-            
+
             &.expanded {
               max-height: rpx(30);
               padding: rpx(12);
@@ -216,15 +213,14 @@ $border-color: rgba(100, 179, 244, 0.2);
             box-shadow: 0 rpx(8) rpx(16) rgba(0, 0, 0, 0.2);
             border-top: 0;
             justify-content: flex-start;
-            
-            
+
             &.expanded {
               max-height: rpx(30);
               padding: rpx(12);
               border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
           }
-  
+
           button {
             padding: rpx(6) rpx(10);
             border-radius: rpx(8);
@@ -238,8 +234,9 @@ $border-color: rgba(100, 179, 244, 0.2);
             margin-left: rpx(6);
             font-weight: bold;
             margin-bottom: rpx(8);
-            
-            &.active, &:hover {
+
+            &.active,
+            &:hover {
               background: linear-gradient(45deg, rgba(86, 180, 233, 0.8), rgba(233, 86, 108, 0.8));
               backdrop-filter: blur(10px);
               color: rgb(2, 2, 2);
@@ -251,7 +248,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             }
           }
         }
-        
+
         .custom-post-button {
           flex: 0 0 auto;
           font-size: rpx(15);
@@ -264,7 +261,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           font-weight: 600;
           letter-spacing: 0.5px;
           box-shadow: 0 rpx(2) rpx(6) rgba(0, 0, 0, 0.1);
-          
+
           @include screen-pc {
             padding: rpx(14) rpx(32);
           }
@@ -274,13 +271,13 @@ $border-color: rgba(100, 179, 244, 0.2);
           @include screen-mobile {
             padding: rpx(8) rpx(16);
           }
-  
+
           &:hover {
             background: linear-gradient(45deg, rgba(86, 180, 233, 0.9), rgba(233, 86, 108, 0.9));
             transform: translateY(-2px);
             box-shadow: 0 rpx(4) rpx(12) rgba(0, 0, 0, 0.15);
           }
-          
+
           &:active {
             transform: translateY(0);
             box-shadow: 0 rpx(2) rpx(2) rgba(0, 0, 0, 0.1);
@@ -299,104 +296,42 @@ $border-color: rgba(100, 179, 244, 0.2);
 
     /* 帖子展示区域 */
     .social-scroll {
-        overflow-y: auto;
+      overflow-y: auto;
       flex: 1;
       padding: rpx(10) rpx(10);
-      
+
       @include screen-pad {
         padding: rpx(8) rpx(8);
       }
-      
+
       @include screen-mobile {
         padding: rpx(5) rpx(5);
       }
-      
+
       .social-posts-panel {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: rpx(15);
         width: 100%;
-        
+
         @include screen-pc {
           grid-template-columns: repeat(4, 1fr);
           gap: rpx(15);
         }
-        
+
         @include screen-pad {
           grid-template-columns: repeat(2, 1fr);
           gap: rpx(15);
         }
-        
+
         @include screen-mobile {
           grid-template-columns: repeat(1, 1fr);
           gap: rpx(12);
         }
-        
+
         // 移除mixin引用，避免样式冲突，手动定义需要的样式
-        
-        .blog-item {
-          height: 330px; /* 固定总高度为348px */
-          display: flex;
-          flex-direction: column;
-          position: relative;
-          overflow: hidden;
-          /* 从mixin中复制的基础样式 */
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          cursor: pointer;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-          backdrop-filter: blur(5px);
-          margin: rpx(5);
-          min-width: 0;
-          
-          &:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-          }
-          
-          @include screen-mobile {
-            height: 348px; /* 移动端也使用相同高度 */
-            margin: rpx(5) rpx(8); /* 移动端边距调整 */
-            border-radius: 12px; /* 移动端圆角调整 */
-          }
-          
-          .post-carousel {
-            height: 200px; /* 图片区域固定高度200px */
-          width: 100%;
-            flex-shrink: 0;
-            
-            @include screen-mobile {
-              height: 200px; /* 移动端也是200px */
-            }
 
-            .post-image {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              display: block;
-            }
-          }
-
-          /* 特别为home页面调整内容区域的样式 */
-          .post-content-userpage {
-            height: 90px; /* 标题和内容区域固定高度90px */
-            padding: 10px 12px;
-            margin: 0; /* 移除所有外边距 */
-            box-sizing: border-box; /* 确保padding计入高度 */
-            overflow: hidden; /* 防止内容溢出 */
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0; /* 防止高度被压缩 */
-            flex: none ; /* 覆盖blog-item.scss中的flex: 1 */
-            
-            @include screen-mobile {
-              height: 80px ; 
-              padding: 10px 12px;
-            }
-
+<<<<<<< HEAD
             .post-title-userpage {
               font-size: rpx(20);
               margin-bottom: 5px;
@@ -479,95 +414,240 @@ $border-color: rgba(100, 179, 244, 0.2);
                 font-weight: normal;
                 color: #2e2e2e;
               }
+=======
+        // .blog-item {
+        //   height: 330px; /* 固定总高度为348px */
+        //   display: flex;
+        //   flex-direction: column;
+        //   position: relative;
+        //   overflow: hidden;
+        //   /* 从mixin中复制的基础样式 */
+        //   background: rgba(255, 255, 255, 0.1);
+        //   border-radius: 10px;
+        //   transition:
+        //     transform 0.3s ease,
+        //     box-shadow 0.3s ease;
+        //   cursor: pointer;
+        //   border: 1px solid rgba(255, 255, 255, 0.2);
+        //   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        //   backdrop-filter: blur(5px);
+        //   margin: rpx(5);
+        //   min-width: 0;
 
-              .follow-btn, .edit-btn {
-                background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
-                color: #555;
-                padding: 4px 10px;
-                border-radius: 4px;
-                font-size: 12px;
-                font-weight: 500;
-                
-                &.following {
-                  background: rgba($accent-color, 0.4);
-                }
-                
-                // 内联按钮样式（紧跟在用户名后面）
-                &.inline-btn {
-                  margin-left: 12px;
-                  margin-right: 0;
-                  height: auto;
-                  align-self: center;
-                  flex-shrink: 0;
-                }
-                
-                // 控制Message按钮的整体尺寸
-                &.massage-btn.inline-btn {
-                  font-size: 11px;
-                  padding: 3px 8px;
-                  line-height: 1.2;
-                  
-                  .massage-icon {
-                    font-size: 10px;
-                    margin-right: 3px;
-                  }
-                }
-                
-                // 控制Edit按钮的整体尺寸
-                &.edit-btn.inline-btn {
-                  font-size: 11px;
-                  padding: 3px 8px;
-                  line-height: 1.2;
-                  
-                  .edit-icon {
-                    font-size: 10px;
-                    margin-right: 3px;
-                  }
-                }
-              }
-            }
-            
-            .post-stats {
-              display: flex;
-              gap: 8px;
-              
-              span {
-                font-size: rpx(12);
-                color: #1a3566;
-                
-                @include screen-mobile {
-                  font-size: rpx(20);
-                }
-              }
-            }
-          }
-          
-          /* NFT 博客的特殊样式 */
-          &.nft-blog {
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 0 rpx(15) rgba(255, 215, 0, 0.2);
-            position: relative;
-            overflow: hidden;
+        //   &:hover {
+        //     transform: translateY(-3px);
+        //     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+        //     border: 1px solid rgba(255, 255, 255, 0.3);
+        //   }
 
-            &::before {
-              content: '';
-              position: absolute;
-              top: -50%;
-              left: -50%;
-              width: 200%;
-              height: 200%;
-              background: linear-gradient(
-                45deg,
-                transparent,
-                rgba(255, 255, 255, 0.1),
-                transparent
-              );
-              transform: rotate(45deg);
-              animation: shine 3s infinite;
-            }
-          }
-        }
-        
+        //   @include screen-mobile {
+        //     height: 348px; /* 移动端也使用相同高度 */
+        //     margin: rpx(5) rpx(8); /* 移动端边距调整 */
+        //     border-radius: 12px; /* 移动端圆角调整 */
+        //   }
+
+        //   .post-carousel {
+        //     height: 200px; /* 图片区域固定高度200px */
+        //     width: 100%;
+        //     flex-shrink: 0;
+
+        //     @include screen-mobile {
+        //       height: 200px; /* 移动端也是200px */
+        //     }
+
+        //     .post-image {
+        //       width: 100%;
+        //       height: 100%;
+        //       object-fit: cover;
+        //       display: block;
+        //     }
+        //   }
+
+        //   /* 特别为home页面调整内容区域的样式 */
+        //   .post-content-userpage {
+        //     height: 90px; /* 标题和内容区域固定高度90px */
+        //     padding: 10px 12px;
+        //     margin: 0; /* 移除所有外边距 */
+        //     box-sizing: border-box; /* 确保padding计入高度 */
+        //     overflow: hidden; /* 防止内容溢出 */
+        //     display: flex;
+        //     flex-direction: column;
+        //     flex-shrink: 0; /* 防止高度被压缩 */
+        //     flex: none; /* 覆盖blog-item.scss中的flex: 1 */
+
+        //     @include screen-mobile {
+        //       height: 80px;
+        //       padding: 10px 12px;
+        //     }
+
+        //     .post-title-userpage {
+        //       font-size: rpx(20);
+        //       margin-bottom: 5px;
+        //       margin-top: 0;
+        //       max-height: 40px; /* 限制标题最大高度 */
+        //       overflow: hidden;
+        //       text-overflow: ellipsis;
+        //       display: -webkit-box;
+        //       -webkit-line-clamp: 1; /* 限制为1行 */
+        //       -webkit-box-orient: vertical;
+        //       color: #1a3566; /* 确保与userpage一致的字体颜色 */
+        //       font-weight: bold;
+
+        //       @include screen-mobile {
+        //         font-size: rpx(30);
+        //         margin-bottom: 5px;
+        //         max-height: 40px; /* 移动端也限制标题最大高度 */
+        //       }
+        //     }
+
+        //     .post-text-userpage {
+        //       font-size: rpx(15);
+        //       line-height: 1.3;
+        //       margin: 0; /* 移除所有外边距 */
+        //       max-height: 35px; /* 限制内容最大高度 */
+        //       overflow: hidden;
+        //       text-overflow: ellipsis;
+        //       display: -webkit-box;
+        //       -webkit-line-clamp: 1; /* 限制为1行 */
+        //       -webkit-box-orient: vertical;
+        //       color: #1a3566; /* 确保与userpage一致的字体颜色 */
+
+        //       @include screen-mobile {
+        //         font-size: rpx(30);
+        //         line-height: 1.4;
+        //         max-height: 35px; /* 移动端也限制内容最大高度 */
+        //       }
+        //     }
+        //   }
+
+        //   /* 特别为home页面调整底部信息栏的样式 */
+        //   .post-footer-userpage {
+        //     height: 58px; /* 底部信息栏固定高度58px */
+        //     width: 100%; /* 确保宽度100% */
+        //     padding: 0 12px; /* 只设置左右内边距，上下由高度控制 */
+        //     display: flex;
+        //     align-items: center; /* 垂直居中内容 */
+        //     justify-content: space-between;
+        //     box-sizing: border-box; /* 确保内边距计入高度 */
+        //     background: rgba(255, 255, 255, 0.2);
+        //     border-top: 1px solid rgba(255, 255, 255, 0.25);
+        //     flex-shrink: 0; /* 防止高度被压缩 */
+        //     /* 使用绝对定位确保信息栏在底部 */
+        //     position: absolute;
+        //     bottom: 0;
+        //     left: 0;
+        //     right: 0;
+        //     z-index: 2;
+
+        //     @include screen-mobile {
+        //       height: 48px; /* 移动端也是58px */
+        //     }
+
+        //     .author-info {
+        //       display: flex;
+        //       align-items: center;
+        //       gap: 10px;
+        //       margin-bottom: 10px;
+
+        //       // 发帖人头像
+        //       .author-avatar {
+        //         width: 40px;
+        //         height: 40px;
+        //         border-radius: 50%;
+        //         object-fit: cover;
+        //       }
+
+        //       .author-name {
+        //         font-size: 18px;
+        //         font-weight: normal;
+        //         color: #2e2e2e;
+        //       }
+
+        //       .follow-btn,
+        //       .edit-btn {
+        //         background: linear-gradient(45deg, #b0d1ec, #f3c9d7);
+        //         color: #555;
+        //         padding: 4px 10px;
+        //         border-radius: 4px;
+        //         font-size: 12px;
+        //         font-weight: 500;
+
+        //         &.following {
+        //           background: rgba($accent-color, 0.4);
+        //         }
+
+        //         // 内联按钮样式（紧跟在用户名后面）
+        //         &.inline-btn {
+        //           margin-left: 12px;
+        //           margin-right: 0;
+        //           height: auto;
+        //           align-self: center;
+        //           flex-shrink: 0;
+        //         }
+
+        //         // 控制Message按钮的整体尺寸
+        //         &.massage-btn.inline-btn {
+        //           font-size: 11px;
+        //           padding: 3px 8px;
+        //           line-height: 1.2;
+
+        //           .massage-icon {
+        //             font-size: 10px;
+        //             margin-right: 3px;
+        //           }
+        //         }
+
+        //         // 控制Edit按钮的整体尺寸
+        //         &.edit-btn.inline-btn {
+        //           font-size: 11px;
+        //           padding: 3px 8px;
+        //           line-height: 1.2;
+
+        //           .edit-icon {
+        //             font-size: 10px;
+        //             margin-right: 3px;
+        //           }
+        //         }
+        //       }
+        //     }
+
+        //     .post-stats {
+        //       display: flex;
+        //       gap: 8px;
+
+        //       span {
+        //         font-size: rpx(12);
+        //         color: #1a3566;
+
+        //         @include screen-mobile {
+        //           font-size: rpx(20);
+        //         }
+        //       }
+        //     }
+        //   }
+
+        //   /* NFT 博客的特殊样式 */
+        //   &.nft-blog {
+        //     border: 1px solid rgba(255, 215, 0, 0.3);
+        //     box-shadow: 0 0 rpx(15) rgba(255, 215, 0, 0.2);
+        //     position: relative;
+        //     overflow: hidden;
+
+        //     &::before {
+        //       content: '';
+        //       position: absolute;
+        //       top: -50%;
+        //       left: -50%;
+        //       width: 200%;
+        //       height: 200%;
+        //       background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        //       transform: rotate(45deg);
+        //       animation: shine 3s infinite;
+        //     }
+        //   }
+        // }
+>>>>>>> a515cb7bf89a8dba8fb7ca2b06d87ed19c0911db
+
         /* NFT闪光动画 */
         @keyframes shine {
           0% {
@@ -580,13 +660,13 @@ $border-color: rgba(100, 179, 244, 0.2);
             left: 100%;
           }
         }
-        
+
         .bottom-load-container {
           grid-column: 1 / -1;
           display: flex;
           justify-content: center;
           padding: rpx(20) 0;
-          
+
           .load-more-btn-home {
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -596,22 +676,22 @@ $border-color: rgba(100, 179, 244, 0.2);
             cursor: pointer;
             transition: all 0.3s ease;
             font-size: rpx(14);
-            
+
             @include screen-mobile {
               font-size: rpx(16);
               padding: rpx(12) rpx(25);
             }
-            
+
             &:hover {
               background: rgba(255, 255, 255, 0.3);
               transform: translateY(-2px);
             }
           }
-          
-        .loading-indicator {
+
+          .loading-indicator {
             color: #3a5683;
-          font-size: rpx(16);
-          
+            font-size: rpx(16);
+
             @include screen-mobile {
               font-size: rpx(18);
             }
@@ -619,9 +699,8 @@ $border-color: rgba(100, 179, 244, 0.2);
         }
       }
     }
-  } 
+  }
 }
-
 
 @mixin popup {
   .blog-detail-overlay-home {
@@ -636,7 +715,7 @@ $border-color: rgba(100, 179, 244, 0.2);
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    
+
     /* 主容器 */
     .blog-detail-container-home {
       overflow-x: auto;
@@ -649,20 +728,23 @@ $border-color: rgba(100, 179, 244, 0.2);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       background: white;
       max-width: none;
-      transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
+      transition:
+        flex-direction 0.3s ease,
+        width 0.3s ease,
+        height 0.3s ease;
       position: relative; /* 确保关闭按钮可以相对于它定位 */
-      
+
       /* 关闭按钮 - 放置在右上角 */
       .close-button-home {
         display: none; /* 隐藏关闭按钮 */
       }
-      
+
       /* 在窄屏幕上调整为垂直布局 */
       @media (max-width: 768px) {
         flex-direction: column;
         height: 90vh;
       }
-      
+
       /* 左侧区域：图片和统计信息 */
       .detail-left-home {
         flex: 5;
@@ -671,26 +753,26 @@ $border-color: rgba(100, 179, 244, 0.2);
         display: flex;
         flex-direction: column;
         transition: height 0.3s ease;
-        
+
         /* 在窄屏幕上调整高度 */
         @media (max-width: 768px) {
           height: 50%;
         }
-        
+
         /* 图片显示区域 */
         .image-section-home {
           flex: 1;
           position: relative;
           overflow: hidden;
           padding-top: 20px;
-          
+
           .image-slider-home {
             width: 100%;
             height: 100%;
             padding: 0; /* 移除左内边距，防止图片位置偏移 */
             position: relative;
             // overflow: hidden; /* 确保隐藏溢出内容 */
-            
+
             .image-wrapper-home {
               width: 100%;
               height: 100%;
@@ -698,7 +780,7 @@ $border-color: rgba(100, 179, 244, 0.2);
               transform-style: preserve-3d; /* 增强3D变换效果 */
               transition: transform 0.3s ease;
               // overflow: hidden; /* 隐藏轮播切换时的其他图片 */
-              
+
               .detail-image-home {
                 width: 100%;
                 height: 100%;
@@ -709,7 +791,7 @@ $border-color: rgba(100, 179, 244, 0.2);
                 background-color: #fff; /* 添加背景色，防止透明 */
               }
             }
-            
+
             /* 导航按钮 */
             .nav-btn-home {
               position: absolute;
@@ -719,7 +801,7 @@ $border-color: rgba(100, 179, 244, 0.2);
               height: 40px;
               background: rgba(0, 0, 0, 0.3);
               color: #3a5683; /* 中蓝色，稍微浅一点但仍有足够对比度 */
-              text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */  
+              text-shadow: 0 rpx(2) rpx(4) rgba(255, 255, 255, 0.4); /* 轻微的白色阴影 */
               border: none;
               border-radius: 50%;
               font-size: 20px;
@@ -729,23 +811,23 @@ $border-color: rgba(100, 179, 244, 0.2);
               justify-content: center;
               transition: all 0.3s ease;
               z-index: 10; /* 确保按钮在图片上方 */
-              
+
               &:hover {
                 background: rgba(0, 0, 0, 0.6);
                 transform: translateY(-50%) scale(1.05); /* 保持垂直位置同时缩放 */
               }
-              
+
               &.prev-home {
                 left: 15px;
               }
-              
+
               &.next-home {
                 right: 15px;
               }
             }
           }
         }
-        
+
         /* 统计信息栏 */
         .stats-bar-home {
           position: sticky;
@@ -755,31 +837,31 @@ $border-color: rgba(100, 179, 244, 0.2);
           height: 40px;
           background: rgba(248, 248, 248, 0.98);
           border-top: 1px solid #eee;
-          box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+          box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
           display: flex;
           justify-content: space-between;
           align-items: center;
           z-index: 10;
           padding: 0 20px;
-            
+
           @media (max-width: 768px) {
             flex-direction: row;
             gap: 10px;
             padding: 0 15px;
             height: 50px;
           }
-          
+
           /* 统计信息 */
           .stats-info-home {
             display: flex;
             align-items: center;
             gap: 20px;
-            
+
             @media (max-width: 768px) {
               width: auto;
               justify-content: flex-start;
             }
-            
+
             span {
               display: flex;
               align-items: center;
@@ -788,40 +870,40 @@ $border-color: rgba(100, 179, 244, 0.2);
               font-weight: 500;
               cursor: pointer;
               transition: all 0.2s;
-              
+
               &:hover {
                 transform: translateY(-2px);
               }
-              
+
               &.liked {
                 .heart-icon {
                   color: #e74c3c;
                 }
               }
             }
-            
+
             /* 为统计数据添加不同颜色 */
             .likes-home {
               color: #e74c3c;
               font-size: 18px;
             }
-            
+
             .comments-home {
               color: #3498db;
               font-size: 18px;
             }
-            
+
             .coins-home {
               color: #f39c12;
               font-size: 18px;
             }
-            
+
             .count {
               font-size: 16px;
               color: #666;
             }
           }
-          
+
           /* 美化评论输入区域 */
           .quick-comment-input {
             display: flex;
@@ -829,13 +911,14 @@ $border-color: rgba(100, 179, 244, 0.2);
             gap: 10px;
             width: 280px;
             position: relative;
-            
+
             @media (max-width: 768px) {
               width: 60%;
               flex-grow: 1;
             }
-            
-            input.comment-input, .comment-input-home {
+
+            input.comment-input,
+            .comment-input-home {
               flex: 1;
               padding: 8px 15px;
               border: 1px solid #eee;
@@ -845,19 +928,19 @@ $border-color: rgba(100, 179, 244, 0.2);
               transition: all 0.3s ease;
               outline: none;
               padding-right: 30px;
-            
+
               &:focus {
                 border-color: #ddd;
                 background-color: #fff;
                 box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
               }
-              
+
               &::placeholder {
                 color: #999;
               }
             }
           }
-          
+
           .submit-quick-comment {
             position: absolute;
             right: 10px;
@@ -873,11 +956,11 @@ $border-color: rgba(100, 179, 244, 0.2);
             cursor: pointer;
             transition: all 0.2s ease;
             font-size: 14px;
-          
+
             &:hover:not(:disabled) {
               color: #666;
             }
-            
+
             &:disabled {
               color: #ddd;
               cursor: default;
@@ -885,7 +968,7 @@ $border-color: rgba(100, 179, 244, 0.2);
           }
         }
       }
-      
+
       /* 右侧内容区域 */
       .detail-right-home {
         flex: 4;
@@ -896,29 +979,29 @@ $border-color: rgba(100, 179, 244, 0.2);
         transition: height 0.3s ease;
         max-height: 100%;
         height: 100%;
-        
+
         /* 在窄屏幕上调整高度 */
         @media (max-width: 768px) {
           height: 50%;
         }
-        
-          /* 滚动条样式 */
-          &::-webkit-scrollbar {
+
+        /* 滚动条样式 */
+        &::-webkit-scrollbar {
           width: 6px;
           background-color: transparent;
-          }
-  
-          &::-webkit-scrollbar-track {
+        }
+
+        &::-webkit-scrollbar-track {
           background: transparent;
-            border-radius: 4px;
-          }
-  
-          &::-webkit-scrollbar-thumb {
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
           background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-          }
-  
-          &::-webkit-scrollbar-thumb:hover {
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
           background-color: rgba(0, 0, 0, 0.3);
         }
 
@@ -926,19 +1009,19 @@ $border-color: rgba(100, 179, 244, 0.2);
           flex: 1;
           overflow-y: auto;
           padding: 30px 30px 0 30px;
-          
+
           @media (max-width: 768px) {
             padding: 20px 20px 0 20px;
           }
-          
+
           // 用户信息区
           .user-header {
-          display: flex;
-          flex-direction: column;
-          margin-bottom: 15px;
-          padding-bottom: 15px;
-          border-bottom: 1px solid #eee;
-          width: 100%;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            width: 100%;
 
             .blog-title {
               font-size: 20px;
@@ -949,39 +1032,40 @@ $border-color: rgba(100, 179, 244, 0.2);
               text-align: center;
               margin-top: 10px;
             }
-            
+
             .author-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 10px;
+
               // 发帖人头像
               .author-avatar {
-              width: 40px;
-              height: 40px;
-              border-radius: 50%;
-              object-fit: cover;
-            }
-            
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+              }
+
               .author-name {
-              font-size: 20px;
-              font-weight: bold;
+                font-size: 20px;
+                font-weight: bold;
                 color: #2e2e2e;
               }
 
-              .follow-btn, .edit-btn {
-                background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
-              color: #555;
+              .follow-btn,
+              .edit-btn {
+                background: linear-gradient(45deg, #b0d1ec, #f3c9d7);
+                color: #555;
                 padding: 4px 10px;
                 border-radius: 4px;
                 font-size: 12px;
                 font-weight: 500;
-                
+
                 &.following {
                   background: rgba($accent-color, 0.4);
                 }
-                
+
                 // 内联按钮样式（紧跟在用户名后面）
                 &.inline-btn {
                   margin-left: 12px;
@@ -990,25 +1074,25 @@ $border-color: rgba(100, 179, 244, 0.2);
                   align-self: center;
                   flex-shrink: 0;
                 }
-                
+
                 // 控制Message按钮的整体尺寸
                 &.massage-btn.inline-btn {
                   font-size: 11px;
                   padding: 3px 8px;
                   line-height: 1.2;
-                  
+
                   .massage-icon {
                     font-size: 10px;
                     margin-right: 3px;
                   }
                 }
-                
+
                 // 控制Edit按钮的整体尺寸
                 &.edit-btn.inline-btn {
                   font-size: 11px;
                   padding: 3px 8px;
                   line-height: 1.2;
-                  
+
                   .edit-icon {
                     font-size: 10px;
                     margin-right: 3px;
@@ -1023,9 +1107,9 @@ $border-color: rgba(100, 179, 244, 0.2);
               flex-wrap: wrap;
               gap: 8px;
               margin: 15px 0 20px 0;
-              
+
               .tag-pref {
-                background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+                background: linear-gradient(45deg, #b0d1ec, #f3c9d7);
                 color: #555;
                 padding: 4px 10px;
                 border-radius: 4px;
@@ -1042,7 +1126,7 @@ $border-color: rgba(100, 179, 244, 0.2);
             gap: 8px;
             margin: 15px 0 20px 0;
             justify-content: left;
-            
+
             .tag {
               background: #f0f0f0;
               color: #555;
@@ -1051,7 +1135,7 @@ $border-color: rgba(100, 179, 244, 0.2);
               font-size: 12px;
               font-weight: 500;
             }
-            
+
             .nft-tag {
               background: linear-gradient(45deg, #ffd700, #ffaa00);
               color: #111;
@@ -1062,9 +1146,9 @@ $border-color: rgba(100, 179, 244, 0.2);
               display: flex;
               align-items: center;
               gap: 4px;
-              
+
               &::before {
-                content: "₿";
+                content: '₿';
                 font-weight: bold;
               }
             }
@@ -1091,6 +1175,1179 @@ $border-color: rgba(100, 179, 244, 0.2);
   }
 }
 
+<<<<<<< HEAD
+=======
+// //弹框
+// .home .blogos-header-title {
+//   margin-top: 3rem;
+//   margin-bottom: 3rem;
+//   font-size: 5rem;
+//   font-weight: 700;
+//   background: linear-gradient(90deg, #64b3f4, #c2e59c);
+//   -webkit-background-clip: text;
+//   background-clip: text;
+//   -webkit-text-fill-color: transparent;
+//   color: #fff;
+// }
+
+// /* 每个帖子卡片 */
+// .blogos-post-item {
+//   background: rgba(255, 255, 255, 0.15);
+//   backdrop-filter: blur(10px);
+//   border-radius: 8px;
+//   padding: 1.5rem;
+//   cursor: pointer;
+//   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+//   transition: transform 0.3s ease, box-shadow 0.3s ease;
+// }
+// .blogos-post-item:hover {
+//   transform: translateY(-5px);
+//   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+// }
+
+// /* 新的博客页面容器 */
+// .blogos-page-container {
+//   max-width: 1200px;
+//   margin: 2rem auto;
+//   padding: 0 1.5rem;
+// }
+
+// /* 博客网格布局 */
+// .blogos-grid {
+//   display: grid;
+//   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+//   gap: 2rem;
+//   margin-bottom: 2rem;
+// }
+
+// .blogos-card {
+//   background: rgba(255, 255, 255, 0.1);
+//   backdrop-filter: blur(10px);
+//   border-radius: 12px;
+//   overflow: hidden;
+//   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+//   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05), 0 0 1px rgba(255, 255, 255, 0.2);
+//   cursor: pointer;
+//   display: flex;
+//   flex-direction: column;
+//   height: 100%;
+//   border: 1px solid rgba(255, 255, 255, 0.08);
+//   position: relative;
+//   isolation: isolate;
+
+//   &:hover {
+//     transform: translateY(-6px) scale(1.02);
+//     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 3px 10px rgba(0, 0, 0, 0.1), 0 0 2px rgba(255, 255, 255, 0.3);
+
+//     .blog-card-image {
+//       transform: scale(1.03);
+//     }
+
+//     &::before {
+//       opacity: 1;
+//     }
+//   }
+
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     inset: 0;
+//     border-radius: 12px;
+//     padding: 1px;
+//     background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05), transparent, transparent);
+//     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+//     -webkit-mask-composite: xor;
+//     mask-composite: exclude;
+//     opacity: 0;
+//     transition: opacity 0.3s ease;
+//     z-index: -1;
+//   }
+// }
+
+// .blogos-card-image {
+//   height: rpx(200);
+//   background-size: cover;
+//   background-position: center;
+//   position: relative;
+//   transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+// }
+
+// .blogos-card-overlay {
+//   position: absolute;
+//   bottom: 0;
+//   left: 0;
+//   right: 0;
+//   padding: 1rem;
+//   background: linear-gradient(transparent, rgba(0, 0, 0, 0.3) 20%, rgba(0, 0, 0, 0.8));
+// }
+
+// .blogos-categories {
+//   display: flex;
+//   flex-wrap: wrap;
+//   gap: 0.5rem;
+// }
+
+// .blogos-category-badge {
+//   background: linear-gradient(135deg, rgba(150, 150, 150, 0.8), rgba(100, 100, 100, 0.7));
+//   color: white;
+//   padding: 0.25rem 0.75rem;
+//   border-radius: 30px;
+//   font-size: 1rem;
+//   backdrop-filter: blur(5px);
+//   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+//   border: 1px solid rgba(255, 255, 255, 0.1);
+//   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+//   transform: translateY(0);
+//   transition: all 0.3s ease;
+
+//   &:hover {
+//     transform: translateY(-2px);
+//     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+//     border-color: rgba(255, 255, 255, 0.2);
+//   }
+// }
+
+// .blogos-card-content {
+//   padding: 1.5rem;
+//   display: flex;
+//   flex-direction: column;
+//   flex: 1;
+//   position: relative;
+//   z-index: 1;
+
+//   &::before {
+//     content: '';
+//     position: absolute;
+//     top: 0;
+//     left: 10%;
+//     right: 10%;
+//     height: rpx(1);
+//     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+//     z-index: -1;
+//   }
+// }
+
+// .blogos-card-meta {
+//   display: flex;
+//   justify-content: space-between;
+//   color: rgba(255, 255, 255, 0.7);
+//   font-size: 1.2rem;
+//   margin-bottom: 0.75rem;
+//   letter-spacing: 0.03em;
+// }
+
+// .blogos-card-title {
+//   font-size: 2rem;
+//   color: white;
+//   margin: 0.5rem 0 1rem;
+//   line-height: 1.3;
+//   font-weight: 600;
+//   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+//   position: relative;
+//   display: inline-block;
+
+//   &::after {
+//     content: '';
+//     position: absolute;
+//     bottom: rpx(-5);
+//     left: 0;
+//     width: 2rem;
+//     height: rpx(2);
+//     background: linear-gradient(90deg, rgba(200, 200, 200, 0.7), transparent);
+//     transition: width 0.3s ease;
+//   }
+
+//   .blogos-card:hover &::after {
+//     width: 50%;
+//   }
+// }
+
+// .blogos-card-excerpt {
+//   color: rgba(255, 255, 255, 0.8);
+//   line-height: 1.65;
+//   margin-bottom: 1.5rem;
+//   flex: 1;
+//   font-size: 1rem;
+// }
+
+// .blogos-card-footer {
+//   display: flex;
+//   justify-content: space-between;
+//   align-items: center;
+//   padding-top: 1rem;
+//   border-top: 1px solid rgba(255, 255, 255, 0.05);
+//   margin-top: auto;
+// }
+
+// .blogos-author-info {
+//   display: flex;
+//   align-items: center;
+//   gap: 0.5rem;
+// }
+
+// .blogos-author-avatar {
+//   width: rpx(30);
+//   height: rpx(30);
+//   border-radius: 50%;
+//   object-fit: cover;
+//   border: 2px solid rgba(255, 255, 255, 0.2);
+//   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+//   transition: all 0.3s ease;
+
+//   .blogos-card:hover & {
+//     border-color: rgba(255, 255, 255, 0.3);
+//     transform: scale(1.05);
+//   }
+// }
+
+// .blogos-author-name {
+//   color: rgba(255, 255, 255, 0.9);
+//   font-size: 0.9rem;
+//   font-weight: 500;
+//   letter-spacing: 0.02em;
+// }
+
+// .blogos-stats {
+//   display: flex;
+//   gap: 1rem;
+// }
+
+// .blogos-stat-item {
+//   color: rgba(255, 255, 255, 0.7);
+//   font-size: 0.9rem;
+//   display: flex;
+//   align-items: center;
+//   gap: 0.25rem;
+// }
+
+// /* 加载更多按钮 */
+// .blogos-load-more-container {
+//   text-align: center;
+//   margin: 2rem 0;
+// }
+
+// .blogos-load-more-button {
+//   background: rgba(114, 137, 218, 0.2);
+//   border: 1px solid rgba(114, 137, 218, 0.4);
+//   color: white;
+//   padding: 0.75rem 2rem;
+//   border-radius: rpx(30);
+//   font-size: 1rem;
+//   cursor: pointer;
+//   transition: all 0.3s ease;
+
+//   &:hover:not(:disabled) {
+//     background: rgba(114, 137, 218, 0.4);
+//     transform: translateY(-2px);
+//   }
+
+//   &:disabled {
+//     opacity: 0.6;
+//     cursor: not-allowed;
+//   }
+// }
+
+// // 博客详情弹窗
+// .blog-detail-dialog {
+//   background-color: transparent !important;
+//   background: transparent !important;
+//   backdrop-filter: none !important;
+//   border-radius: 0 !important;
+//   overflow: visible !important;
+//   max-width: 90%;
+//   width: 90%;
+//   margin: 0 auto;
+//   display: flex;
+//   flex-direction: column;
+//   box-shadow: none !important;
+//   border: none !important;
+//   top: 10px;
+//   padding: 0;
+
+//   .el-dialog__header {
+//     display: none !important;
+//   }
+
+//   .el-dialog__headerbtn {
+//     display: none !important;
+//   }
+
+//   .el-dialog__body {
+//     padding: 0;
+//     color: #e9ecef;
+//     max-height: 90vh;
+//     scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+
+//     &::-webkit-scrollbar {
+//       width: 6px;
+//     }
+
+//     &::-webkit-scrollbar-track {
+//       background: transparent;
+//     }
+
+//     &::-webkit-scrollbar-thumb {
+//       background-color: rgba(0, 0, 0, 0.3);
+//       border-radius: 4px;
+//     }
+//   }
+
+//   @media (max-width: 768px) {
+//     max-width: 95%;
+//     width: 95%;
+//   }
+
+//   @media (max-width: 480px) {
+//     width: 100%;
+//     margin: 0;
+//     border-radius: 0;
+//     height: 100%;
+//     max-height: 100vh;
+//   }
+// }
+
+// // 博客详情容器
+// .blog-detail-container {
+//     width: 100%;
+//     height: 90vh;
+//     display: flex;
+//     border-radius: 16px;
+//     overflow: hidden;
+//     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+//     background: white;
+//     position: relative;
+
+//   &.nft-post {
+//     border: none; // 移除金色边框
+//     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+//   }
+
+//     /* 在窄屏幕上调整为垂直布局 */
+//     @media (max-width: 768px) {
+//       flex-direction: column;
+//       height: 90vh;
+//     }
+
+//     /* 关闭按钮 */
+//     .close-button {
+//       position: absolute;
+//     top: 15px;
+//     right: 15px;
+//     width: 36px;
+//     height: 36px;
+//     background: rgba(0, 0, 0, 0.5);
+//       color: white;
+//       border: none;
+//       border-radius: 50%;
+//       font-size: 20px;
+//       cursor: pointer;
+//       z-index: 1001;
+//       display: flex;
+//       align-items: center;
+//       justify-content: center;
+//       transition: all 0.3s ease;
+
+//       &:hover {
+//       background: rgba(0, 0, 0, 0.7);
+//         transform: rotate(90deg);
+//       }
+//     }
+
+//   // 左侧图片区
+//   .detail-left {
+//     flex: 6;
+//     background: white;
+//     position: relative;
+//     display: flex;
+//     flex-direction: column;
+
+//     /* 在窄屏幕上调整高度 */
+//     @media (max-width: 768px) {
+//       height: 50%;
+//     }
+
+//     .image-section {
+//       flex: 1;
+//       position: relative;
+//       overflow: hidden;
+
+//       .image-slider {
+//         width: 100%;
+//         height: 100%;
+//         display: flex;
+//         position: relative;
+
+//         .image-wrapper {
+//           width: 100%;
+//           height: 100%;
+//           display: flex;
+//           transform-style: preserve-3d;
+
+//           .detail-image {
+//           width: 100%;
+//           height: 100%;
+//           flex-shrink: 0;
+//           object-fit: contain;
+//           box-sizing: border-box;
+//           padding: 0 15px;
+//           background-color: #fff;
+//           }
+//         }
+//       }
+//     }
+//   }
+
+//   // 右侧内容区
+//   .detail-right {
+//     flex: 4;
+//     background: white;
+//     display: flex;
+//     flex-direction: column;
+//     height: 100%;
+//     position: relative;
+
+//     /* 在窄屏幕上调整高度 */
+//     @media (max-width: 768px) {
+//       height: 50%;
+//     }
+
+//     /* 滚动条样式 */
+//     &::-webkit-scrollbar {
+//       width: 6px;
+//       background-color: transparent;
+//     }
+
+//     &::-webkit-scrollbar-track {
+//       background: transparent;
+//       border-radius: 4px;
+//     }
+
+//     &::-webkit-scrollbar-thumb {
+//       background-color: rgba(0, 0, 0, 0.2);
+//       border-radius: 4px;
+//     }
+
+//     &::-webkit-scrollbar-thumb:hover {
+//       background-color: rgba(0, 0, 0, 0.3);
+//     }
+
+//     .detail-right-content {
+//       flex: 1;
+//       overflow-y: auto;
+//       padding: 30px 30px 0 30px;
+
+//       @media (max-width: 768px) {
+//         padding: 20px 20px 0 20px;
+//     }
+
+//     // 用户信息区
+//       .user-header {
+//       display: flex;
+//       flex-direction: column;
+//       margin-bottom: 15px;
+//       padding-bottom: 15px;
+//       border-bottom: 1px solid #eee;
+//         width: 100%;
+
+//         .blog-title {
+//         font-size: 20px;
+//         font-weight: bold;
+//         color: #111;
+//         margin: 0;
+//         line-height: 1.3;
+//           text-align: center;
+//           margin-top: 10px;
+//       }
+
+//         .author-info {
+//         display: flex;
+//         align-items: center;
+//         gap: 10px;
+//         margin-bottom: 10px;
+
+//         // 发帖人头像
+//           .author-avatar {
+//           width: 40px;
+//           height: 40px;
+//           border-radius: 50%;
+//           object-fit: cover;
+//         }
+
+//           .author-name {
+//           font-size: 20px;
+//           font-weight: bold;
+//           color: #2e2e2e;
+//         }
+
+//           .follow-btn, .edit-btn {
+//           background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+//           color: #555;
+//           padding: 4px 10px;
+//           border-radius: 4px;
+//           font-size: 12px;
+//           font-weight: 500;
+//             margin-left: auto;
+
+//           &.following {
+//             background: rgba($accent-color, 0.4);
+//           }
+//         }
+//       }
+
+//       // 分类标签区
+//       .tags-section-pref {
+//         display: flex;
+//         flex-wrap: wrap;
+//         gap: 8px;
+//         margin: 15px 0 20px 0;
+
+//         .tag-pref {
+//           background: linear-gradient(45deg, #B0D1EC, #F3C9D7);
+//           color: #555;
+//           padding: 4px 10px;
+//           border-radius: 4px;
+//           font-size: 12px;
+//           font-weight: 500;
+//         }
+//       }
+//     }
+
+//       // 标签区域
+//       .tags-section {
+//         display: flex;
+//         flex-wrap: wrap;
+//         gap: 8px;
+//         margin: 15px 0 20px 0;
+//         justify-content: left;
+
+//         .tag {
+//           background: #f0f0f0;
+//           color: #555;
+//           padding: 4px 10px;
+//           border-radius: 4px;
+//           font-size: 12px;
+//           font-weight: 500;
+//         }
+
+//         .nft-tag {
+//           background: linear-gradient(45deg, #ffd700, #ffaa00);
+//           color: #111;
+//           padding: 4px 10px;
+//           border-radius: 4px;
+//           font-size: 12px;
+//           font-weight: bold;
+//           display: flex;
+//           align-items: center;
+//           gap: 4px;
+
+//           &::before {
+//             content: "₿";
+//             font-weight: bold;
+//           }
+//         }
+//       }
+
+//       // 博客内容区
+//       .content-section {
+//         margin-bottom: 20px;
+
+//         .blog-content {
+//         font-size: 15px;
+//           line-height: 1.6;
+//           color: #333;
+//           white-space: pre-wrap;
+//           margin: 0;
+//           text-align: justify;
+//       }
+//     }
+
+//       // 评论区
+//       .comments-container {
+//         padding-right: 20px;
+//         padding-bottom: 60px;
+
+//         .comments-header {
+//       display: flex;
+//       justify-content: space-between;
+//       align-items: center;
+//           margin-bottom: 15px;
+
+//           h3 {
+//           font-size: 16px;
+//             margin: 0;
+//             color: #333;
+//           }
+
+//           .comment-count {
+//             background: #eee;
+//             padding: 2px 8px;
+//             border-radius: 12px;
+//             font-size: 12px;
+//             color: #555;
+//           }
+//         }
+
+//         // 添加评论标题区域样式
+//         .comments-title {
+//         display: flex;
+//         justify-content: space-between;
+//         align-items: center;
+//         margin-bottom: 15px;
+//           padding: 0 20px 10px 0;
+//           border-bottom: 1px solid #eee;
+
+//         h3 {
+//             font-size: 18px;
+//           margin: 0;
+//           color: #333;
+//             font-weight: 600;
+//           }
+
+//           .comment-count {
+//             background: #f5f5f5;
+//             padding: 2px 10px;
+//             border-radius: 15px;
+//             font-size: 14px;
+//           color: #555;
+//         }
+//       }
+
+//         // 修改评论样式
+//         .comment-item {
+//           padding: 15px 0;
+//         border-bottom: 1px solid #eee;
+
+//         &:last-child {
+//           border-bottom: none;
+//         }
+
+//           .comment-row {
+//           display: flex;
+//           align-items: flex-start;
+//             gap: 12px;
+//             position: relative;
+
+//           &.long-press-active {
+//             background: rgba($accent-color, 0.1);
+//           }
+
+//             .comment-avatar {
+//               width: 36px;
+//               height: 36px;
+//             border-radius: 50%;
+//             object-fit: cover;
+//             flex-shrink: 0;
+//           }
+
+//           .comment-content-wrapper {
+//             position: relative;
+//             display: flex;
+//             flex-direction: column;
+//               gap: 0.5rem;
+
+//               .comment-username {
+//                 font-weight: 600;
+//                 font-size: 16px;
+//             color: #333;
+//               }
+
+//               .comment-text {
+//                 font-size: 15px;
+//             color: #555;
+//                 line-height: 1.5;
+//             word-break: break-word;
+//             white-space: normal;
+//             overflow-wrap: break-word;
+//             display: block;
+//           }
+//         }
+
+//           // 删除功能样式
+//           .delete-indicator {
+//             position: absolute;
+//             top: 10px;
+//             right: 10px;
+//             background-color: rgba(255, 59, 59, 0.2);
+//             color: #ff3b3b;
+//             border-radius: 50%;
+//             width: 24px;
+//             height: 24px;
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//             opacity: 0;
+//             transition: opacity 0.3s ease;
+//             pointer-events: none;
+
+//             &.visible {
+//               opacity: 1;
+//             }
+//           }
+
+//           .delete-confirm-overlay {
+//             position: absolute;
+//             top: 100%;
+//             left: 0;
+//             right: 0;
+//             background: rgba(0, 0, 0, 0.9);
+//               padding: 15px;
+//               border-radius: 8px;
+//             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+//             opacity: 0;
+//             pointer-events: none;
+//             transform: translateY(10px);
+//             transition: opacity 0.3s ease, transform 0.3s ease;
+//               z-index: 10;
+
+//             &.visible {
+//               opacity: 1;
+//               pointer-events: auto;
+//               transform: translateY(0);
+//             }
+
+//             .delete-message {
+//                 margin-bottom: 10px;
+//               color: #f8f9fa;
+//             }
+
+//             .delete-actions {
+//               display: flex;
+//                 gap: 10px;
+//               justify-content: flex-end;
+
+//               .delete-btn-rp {
+//                 background-color: #ff3b3b;
+//                 color: white;
+//                 border: none;
+//                 padding: 4px 10px;
+//                 border-radius: 4px;
+//                 cursor: pointer;
+//                 font-weight: 600;
+//                 transition: all 0.2s ease;
+//                   font-size: 12px;
+
+//                 &:hover {
+//                   background-color: #ff1f1f;
+//                 }
+//               }
+
+//               .cancel-btn-rp {
+//                 background-color: rgba(255, 255, 255, 0.2);
+//                 color: white;
+//                 border: none;
+//                 padding: 4px 10px;
+//                 border-radius: 4px;
+//                 cursor: pointer;
+//                 font-weight: 600;
+//                 transition: all 0.2s ease;
+//                   font-size: 12px;
+
+//                 &:hover {
+//                   background-color: rgba(255, 255, 255, 0.3);
+//                 }
+//               }
+//             }
+//           }
+//         }
+
+//         // 评论回复区
+//           .comment-replies {
+//             margin-left: 48px;
+//             margin-top: 10px;
+
+//             .reply-item {
+//               margin-bottom: 8px;
+
+//               .reply-row {
+//               display: flex;
+//               align-items: flex-start;
+//               gap: 10px;
+
+//                 .reply-avatar {
+//                   width: 24px;
+//                   height: 24px;
+//                   border-radius: 50%;
+//                   object-fit: cover;
+//                   flex-shrink: 0;
+//                 }
+
+//                 .reply-info {
+//                   flex: 1;
+
+//                   .reply-header-line {
+//                     display: flex;
+//                     align-items: center;
+//                     gap: 5px;
+
+//                     .reply-username {
+//                   font-weight: 500;
+//                   font-size: 14px;
+//                   color: #333;
+//                     }
+
+//                     .target-name-show {
+//                       font-size: 12px;
+//                       color: #999;
+//                     }
+//                   }
+
+//                   .reply-content-wrapper {
+//                     margin-top: 2px;
+
+//                     .reply-text {
+//                   font-size: 14px;
+//                   color: #555;
+//                   line-height: 1.4;
+//                       margin: 0;
+//                     }
+//                   }
+//                 }
+//               }
+//             }
+
+//           .view-more-replies {
+//             display: flex;
+//             align-items: center;
+//             justify-content: center;
+//               padding: 8px 0;
+//             cursor: pointer;
+//             color: $accent-color;
+//               font-size: 13px;
+
+//             &:hover {
+//               background: rgba($accent-color, 0.1);
+//           }
+//         }
+
+//         // 回复输入框
+//             .reply-input-container {
+//               margin-top: 10px;
+//               background: rgba(0, 0, 0, 0.05);
+//               padding: 12px;
+//               border-radius: 8px;
+
+//           .replying-to-label {
+//             display: flex;
+//                 gap: 5px;
+//                 margin-bottom: 8px;
+//                 font-size: 14px;
+//                 color: #666;
+
+//             .target-name {
+//               color: $accent-color;
+//                   font-weight: 500;
+//             }
+//           }
+
+//               .reply-textarea {
+//                 margin: 8px 0;
+//           }
+
+//               .reply-actions {
+//             display: flex;
+//             justify-content: flex-end;
+//                 gap: 10px;
+//                 margin-top: 8px;
+
+//                 .cancel-reply-btn {
+//                   background: #f5f5f5;
+//                   border: 1px solid #ddd;
+//                   color: #666;
+//                 }
+
+//                 .submit-reply-btn {
+//               background: $accent-color;
+//               color: white;
+//         }
+//       }
+//     }
+//   }
+// }
+
+//         // 统计信息栏
+//         // .stats-bar {
+//         //   position: sticky;
+//         //   bottom: 0;
+//         //   left: 0;
+//         //   right: 0;
+//         //   height: 40px;
+//         //   background: rgba(248, 248, 248, 0.98);
+//         //   border-top: 1px solid #eee;
+//         //   box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+//         //   display: flex;
+//         //   justify-content: space-between;
+//         //   align-items: center;
+//         //   z-index: 10;
+//         //   padding: 0 20px;
+
+//         //   @media (max-width: 768px) {
+//         //     flex-direction: row;
+//         //     gap: 10px;
+//         //     padding: 0 15px;
+//         //     height: 50px;
+//         //   }
+
+//         //   /* 统计信息 */
+//         //   .stats-info {
+//         //     display: flex;
+//         //     align-items: center;
+//         //     gap: 20px;
+
+//         //     @media (max-width: 768px) {
+//         //       width: auto;
+//         //       justify-content: flex-start;
+//         //     }
+
+//         //     span {
+//         //       display: flex;
+//         //       align-items: center;
+//         //       gap: 6px;
+//         //       font-size: 16px;
+//         //       font-weight: 500;
+//         //       cursor: pointer;
+//         //       transition: all 0.2s;
+
+//         //       &:hover {
+//         //         transform: translateY(-2px);
+//         //       }
+
+//         //       &.liked {
+//         //         .heart-icon {
+//         //           color: #e74c3c;
+//         //         }
+//         //       }
+//         //     }
+
+//         //     /* 为统计数据添加不同颜色 */
+//         //     .likes {
+//         //       color: #e74c3c;
+//         //       font-size: 18px;
+//         //     }
+
+//         //     .comments {
+//         //       color: #3498db;
+//         //       font-size: 18px;
+//         //     }
+
+//         //     .coins {
+//         //       color: #f39c12;
+//         //       font-size: 18px;
+//         //     }
+
+//         //     .count {
+//         //       font-size: 16px;
+//         //       color: #666;
+//         //     }
+//         //   }
+
+//         //   /* 美化评论输入区域 */
+//         //   .quick-comment-input {
+//         //     display: flex;
+//         //     align-items: center;
+//         //     gap: 10px;
+//         //     width: 280px;
+//         //     position: relative;
+
+//         //     @media (max-width: 768px) {
+//         //       width: 60%;
+//         //       flex-grow: 1;
+//         //     }
+
+//         //     input.comment-input, .comment-input-home {
+//         //       flex: 1;
+//         //       padding: 8px 15px;
+//         //       border: 1px solid #eee;
+//         //       border-radius: 20px;
+//         //       font-size: 14px;
+//         //       background-color: #f8f8f8;
+//         //       transition: all 0.3s ease;
+//         //       outline: none;
+//         //       padding-right: 30px;
+
+//         //       &:focus {
+//         //         border-color: #ddd;
+//         //         background-color: #fff;
+//         //         box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+//         //       }
+
+//         //       &::placeholder {
+//         //         color: #999;
+//         //       }
+//         //     }
+//         //   }
+
+//         //   .submit-quick-comment {
+//         //     position: absolute;
+//         //     right: 10px;
+//         //     background: transparent;
+//         //     color: #999;
+//         //     border: none;
+//         //     border-radius: 50%;
+//         //     width: 24px;
+//         //     height: 24px;
+//         //     display: flex;
+//         //     align-items: center;
+//         //     justify-content: center;
+//         //     cursor: pointer;
+//         //     transition: all 0.2s ease;
+//         //     font-size: 14px;
+
+//         //     &:hover:not(:disabled) {
+//         //       color: #666;
+//         //     }
+
+//         //     &:disabled {
+//         //       color: #ddd;
+//         //       cursor: default;
+//         //     }
+//         //   }
+//         // }
+//       }
+//     }
+// }
+
+//         // 统计信息栏
+//         // .stats-bar {
+//         //   position: sticky;
+//         //   bottom: 0;
+//         //   left: 0;
+//         //   right: 0;
+//         //   height: 40px;
+//         //   background: rgba(248, 248, 248, 0.98);
+//         //   border-top: 1px solid #eee;
+//         //   box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+//         //   display: flex;
+//         //   justify-content: space-between;
+//         //   align-items: center;
+//         //   z-index: 10;
+//         //   padding: 0 20px;
+
+//         //   @media (max-width: 768px) {
+//         //     flex-direction: row;
+//         //     gap: 10px;
+//         //     padding: 0 15px;
+//         //     height: 50px;
+//         //   }
+
+//         //   /* 统计信息 */
+//         //   .stats-info {
+//         //     display: flex;
+//         //     align-items: center;
+//         //     gap: 20px;
+
+//         //     @media (max-width: 768px) {
+//         //       width: auto;
+//         //       justify-content: flex-start;
+//         //     }
+
+//         //     span {
+//         //       display: flex;
+//         //       align-items: center;
+//         //       gap: 6px;
+//         //       font-size: 16px;
+//         //       font-weight: 500;
+//         //       cursor: pointer;
+//         //       transition: all 0.2s;
+
+//         //       &:hover {
+//         //         transform: translateY(-2px);
+//         //       }
+
+//         //       &.liked {
+//         //         .heart-icon {
+//         //           color: #e74c3c;
+//         //         }
+//         //       }
+//         //     }
+
+//         //     /* 为统计数据添加不同颜色 */
+//         //     .likes {
+//         //       color: #e74c3c;
+//         //       font-size: 18px;
+//         //     }
+
+//         //     .comments {
+//         //       color: #3498db;
+//         //       font-size: 18px;
+//         //     }
+
+//         //     .coins {
+//         //       color: #f39c12;
+//         //       font-size: 18px;
+//         //     }
+
+//         //     .count {
+//         //       font-size: 16px;
+//         //       color: #666;
+//         //     }
+//         //   }
+
+//         //   /* 美化评论输入区域 */
+//         //   .quick-comment-input {
+//         //     display: flex;
+//         //     align-items: center;
+//         //     gap: 10px;
+//         //     width: 280px;
+//         //     position: relative;
+
+//         //     @media (max-width: 768px) {
+//         //       width: 60%;
+//         //       flex-grow: 1;
+//         //     }
+
+//         //     input.comment-input, .comment-input-home {
+//         //       flex: 1;
+//         //       padding: 8px 15px;
+//         //       border: 1px solid #eee;
+//         //       border-radius: 20px;
+//         //       font-size: 14px;
+//         //       background-color: #f8f8f8;
+//         //       transition: all 0.3s ease;
+//         //       outline: none;
+//         //       padding-right: 30px;
+
+//         //       &:focus {
+//         //         border-color: #ddd;
+//         //         background-color: #fff;
+//         //         box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+//         //       }
+
+//         //       &::placeholder {
+//         //         color: #999;
+//         //       }
+//         //     }
+//         //   }
+
+//         //   .submit-quick-comment {
+//         //     position: absolute;
+//         //     right: 10px;
+//         //     background: transparent;
+//         //     color: #999;
+//         //     border: none;
+//         //     border-radius: 50%;
+//         //     width: 24px;
+//         //     height: 24px;
+//         //     display: flex;
+//         //     align-items: center;
+//         //     justify-content: center;
+//         //     cursor: pointer;
+//         //     transition: all 0.2s ease;
+//         //     font-size: 14px;
+
+//         //     &:hover:not(:disabled) {
+//         //       color: #666;
+//         //     }
+
+//         //     &:disabled {
+//         //       color: #ddd;
+//         //       cursor: default;
+//         //     }
+//         //   }
+//         // }
+//       }
+//     }
+// }
+>>>>>>> a515cb7bf89a8dba8fb7ca2b06d87ed19c0911db
 
 // 控制Massage按钮中图标的大小
 .el-button.massage-btn.inline-btn .massage-icon {
