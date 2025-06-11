@@ -130,14 +130,14 @@ header.layout {
       .user-profile-nav {
         display: flex;
         align-items: center;
+        line-height: 1;
         gap: rpx(10);
         background: transparent;
-        padding: rpx(4) rpx(5);
+        padding: rpx(7.5) rpx(16);
         border-radius: rpx(20);
         transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
         position: relative;
         overflow: hidden;
-        min-height: rpx(40);
         
         /* 科技感容器样式 */
         &::before {
@@ -321,10 +321,18 @@ header.layout {
           font-size: rpx(18);
         }
         
-        // 桌面端用户信息栏高度调整
+        // PC端用户信息栏样式调整 - 精确匹配nav-btn高度
         .user-profile-nav {
-          padding: rpx(2) rpx(5);
-          min-height: rpx(32);
+          padding: rpx(3) rpx(16);
+          
+          .home-new-username {
+            font-size: rpx(16);
+          }
+          
+          img {
+            width: rpx(28);
+            height: rpx(28);
+          }
         }
       }
       
@@ -360,10 +368,18 @@ header.layout {
           font-size: rpx(16);
         }
         
-        // 平板端用户信息栏高度调整
+        // 平板端用户信息栏样式调整 - 精确匹配nav-btn高度
         .user-profile-nav {
-          padding: rpx(8) rpx(16);
-          min-height: rpx(40);
+          padding: rpx(4) rpx(16);
+          
+          .home-new-username {
+            font-size: rpx(14);
+          }
+          
+          img {
+            width: rpx(26);
+            height: rpx(26);
+          }
         }
       }
       
@@ -409,6 +425,25 @@ header.layout {
         
         .nav-btn {
           font-size: rpx(32);
+        }
+        
+        // 移动端用户信息栏样式调整 - 精确匹配nav-btn高度
+        .user-profile-nav {
+          padding: rpx(6) rpx(16);
+          
+          .home-new-username {
+            font-size: rpx(18);
+          }
+          
+          img {
+            width: rpx(32);
+            height: rpx(32);
+          }
+          
+          .el-dropdown-link {
+            width: rpx(28);
+            height: rpx(28);
+          }
         }
       }
       

@@ -651,6 +651,29 @@
             height: auto;
             min-height: 0;
             
+            /* 拖拽相关样式 - 仅在可拖拽时添加 */
+            &[draggable="true"] {
+                cursor: move;
+                
+                &:active {
+                    opacity: 0.5;
+                    transform: scale(0.95);
+                }
+            }
+            
+            /* 移动端长按状态样式 */
+            &.long-pressing {
+                opacity: 0.7;
+                transform: scale(0.95) rotate(2deg);
+                box-shadow: 0 rpx(12) rpx(24) rgba(0, 0, 0, 0.3);
+                z-index: 10;
+                background: rgba(64, 158, 255, 0.1);
+                border: 2px solid #409EFF;
+                
+                /* 添加动画效果 */
+                animation: longPressShake 0.5s ease-in-out;
+            }
+            
             &:hover {
                 transform: translateY(-4px);
                 box-shadow: 0 rpx(8) rpx(16) rgba(0, 0, 0, 0.15);
@@ -667,6 +690,9 @@
                 object-fit: cover;
                 display: block;
                 transition: transform 0.5s ease;
+                /* 防止拖拽时选中图片 */
+                user-select: none;
+                -webkit-user-drag: none;
             }
             
             /* 覆盖层和删除按钮 */
@@ -735,6 +761,13 @@
             
             @include screen-mobile {
                 bottom: rpx(-25);
+            }
+            
+            /* 拖拽提示样式 */
+            .drag-hint {
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.8);
+                margin-left: 8px;
             }
         }
     }
@@ -1036,6 +1069,14 @@
         overflow: visible !important;
       }
     }
+}
+
+/* 长按震动动画 */
+@keyframes longPressShake {
+    0%, 100% { transform: scale(0.95) rotate(2deg); }
+    25% { transform: scale(0.95) rotate(-1deg); }
+    50% { transform: scale(0.95) rotate(1deg); }
+    75% { transform: scale(0.95) rotate(-0.5deg); }
 }
 
 // 确保调用 detail mixin，使样式生效

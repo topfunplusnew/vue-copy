@@ -123,7 +123,7 @@ const handleSocialLogin = (provider: string) => {
               <input type="checkbox" id="remember" v-model="rememberMe" />
               <label for="remember">Remember me</label>
             </div>
-            <router-link :to="{ name: 'forgetpassword' }" 
+            <router-link :to="{ name: 'forgetpassword' }"
             class="forgot-password">Forgot password ?</router-link>
           </div>
 
@@ -137,16 +137,18 @@ const handleSocialLogin = (provider: string) => {
           </div>
 
           <div class="social-login">
-            <google-sign-in-button
-              @success="handleLoginSuccess"
-              @error="handleLoginError"
-            ></google-sign-in-button>
-            <button type="button" class="social-button" 
+
+            <button type="button" class="social-button"
+            @click="handleSocialLogin('Google')">
+              <img src="@/assets/google-logo.svg" alt="Google" />
+              Google
+            </button>
+            <button type="button" class="social-button"
             @click="handleSocialLogin('Apple')">
               <img src="@/assets/apple-logo.svg" alt="Apple" />
               Apple
             </button>
-            <button type="button" class="social-button" 
+            <button type="button" class="social-button"
             @click="handleSocialLogin('WeChat')">
               <img src="@/assets/wechat-logo.svg" alt="WeChat" />
               WeChat

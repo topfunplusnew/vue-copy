@@ -161,7 +161,7 @@
           max-width: 60px; /* 限制宽度 */
           overflow: hidden;
           text-overflow: ellipsis;
-          color: #fff;
+          color: #000000;
 
           @include screen-mobile {
             font-size: 1.5rem; /* 与userpage一致的字体大小 */
