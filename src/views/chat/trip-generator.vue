@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, reactive, nextTick, onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { tripOptionsData, allCurrencies } from '@/utils/trip-options.ts';
 import { useChatStore } from '@/stores/chat';
 import { useRouter } from 'vue-router';
 
 import commonHeader from '@/layout/common-header.vue';
 import MarkdownIt from 'markdown-it';
+import PlanComponent from '@/views/components/plan-component.vue';
+import HistoryComponent from '@/views/components/history-component.vue';
+import AutopromptComponent from '@/views/components/autoprompt-component.vue';
+import type { Destination, SavedPlanData } from '@/types/base';
 import { 
   ChatDotRound, 
   MagicStick, 
@@ -29,7 +32,6 @@ const md = new MarkdownIt();
 const store = useChatStore();
 const message = computed(()=> store.message);
 const messages = computed(() => store.messages);
-const conversations = computed(() => store.conversations);
 
 const router = useRouter();
 
@@ -50,21 +52,10 @@ watch(() => messages.value.length, () => {
   scrollToBottom();
 });
 
-function loadHistory(id: number | undefined) {
-  if(id) {
-    store.getChatsByConversationID(id)
-      .then(() => {
-        // 加载完成后滚动到底部
-        scrollToBottom();
-      })
-      .catch(e => console.log(e));
-  }
-}
+
 
 const userChatInput = ref('');
-const showHistory = ref(false);
-const showTripOptions = ref(false);
-const editablePrompt = ref('');
+const showAutoprompt = ref(false);
 const isLeftPanelCollapsed = ref(false); // State for collapsing the left panel
 
 function toggleLeftPanel() {
@@ -89,261 +80,52 @@ const finishConversation = () => {
   store.clear()
 };
 
-function toggleTripOptions() {
-  showTripOptions.value = !showTripOptions.value;
+function toggleAutoprompt() {
+  showAutoprompt.value = !showAutoprompt.value;
 }
 
-const tripSelections = reactive({
-  Transportation: [] as string[],
-  TransportationClass: '',
-  Hotel: [] as string[],
-  Tickets: [] as string[],
-  Activities: [] as string[],
-  Budget: {
-    Currency: 0,
-    Total: 0,
-    Transportation: 25,
-    Hotel: 25,
-    Tickets: 25,
-    Activities: 25
-  },
-  Duration: [] as [Date, Date] | [],
-  DurationDays: 0
-});
-
-const availableTransportationClasses = computed(() => {
-  if (tripSelections.Transportation.length === 1) {
-    const t = tripSelections.Transportation[0];
-    if (t === "Flight") {
-      return ["First Class", "Business Class", "Economy"];
-    } else if (t === "Train") {
-      return ["First Class", "Second Class"];
-    } else if (t === "Bus") {
-      return ["Standard"];
-    } else {
-      return ["Economy"];
+// 处理从autoprompt组件插入提示
+function handleInsertPrompt(prompt: string) {
+  userChatInput.value = prompt;
+  showAutoprompt.value = false;
+  
+  // 聚焦到聊天输入框
+  setTimeout(() => {
+    const inputElement = document.querySelector('.chat-input textarea');
+    if (inputElement) {
+      (inputElement as HTMLTextAreaElement).focus();
     }
-  }
-  return [];
-});
-
-const groupedHotels = computed(() => {
-  const groups: { [key: string]: {name:string, icon:string}[] } = {};
-  tripOptionsData.Hotel.forEach(item => {
-    const group = item.group || "Other";
-    if (!groups[group]) {
-      groups[group] = [];
-    }
-    groups[group].push(item);
-  });
-  return Object.keys(groups).map(key => ({ label: key, options: groups[key] }));
-});
-
-// 防止递归更新的标志
-let isUpdatingBudget = false;
-// 修改后的动态预算调整逻辑：按比例调整其他项，使总和为 100%
-const updateBudgetProportions = (changedKey: keyof typeof tripSelections.Budget, newValue: number) => {
-  if (isUpdatingBudget) return;
-  isUpdatingBudget = true;
-
-  const keys: (keyof typeof tripSelections.Budget)[] = ["Transportation", "Hotel", "Tickets", "Activities"];
-  // 先更新当前修改的项
-  tripSelections.Budget[changedKey] = newValue;
-
-  const otherKeys = keys.filter(k => k !== changedKey);
-  const desiredOthersSum = 100 - newValue;
-  const othersCurrentSum = otherKeys.reduce((sum, key) => sum + tripSelections.Budget[key], 0);
-
-  if (othersCurrentSum === 0) {
-    // 如果其他项都为 0，则平分剩余比例
-    const equalShare = desiredOthersSum / otherKeys.length;
-    otherKeys.forEach(key => {
-      tripSelections.Budget[key] = equalShare;
-    });
-  } else {
-    // 按照当前比例调整其他项
-    otherKeys.forEach(key => {
-      const current = tripSelections.Budget[key];
-      const proportion = current / othersCurrentSum;
-      tripSelections.Budget[key] = Math.round(proportion * desiredOthersSum);
-    });
-    // 修正因四舍五入导致的误差
-    const newOthersSum = otherKeys.reduce((sum, key) => sum + tripSelections.Budget[key], 0);
-    const diff = desiredOthersSum - newOthersSum;
-    if (otherKeys.length > 0) {
-      tripSelections.Budget[otherKeys[0]] += diff;
-    }
-  }
-  isUpdatingBudget = false;
-};
-
-watch(() => tripSelections.Budget.Transportation, (val) => { updateBudgetProportions("Transportation", val); });
-watch(() => tripSelections.Budget.Hotel, (val) => { updateBudgetProportions("Hotel", val); });
-watch(() => tripSelections.Budget.Tickets, (val) => { updateBudgetProportions("Tickets", val); });
-watch(() => tripSelections.Budget.Activities, (val) => { updateBudgetProportions("Activities", val); });
-
-// Date Element Plus 组件
-
-const dateShortcuts = [
-  {
-    text: 'Today',
-    value: () => {
-      const start = new Date();
-      const end = new Date();
-      return [start, end];
-    }
-  },
-  {
-    text: 'Next 7 Days',
-    value: () => {
-      const start = new Date();
-      const end = new Date();
-      end.setDate(end.getDate() + 6);
-      return [start, end];
-    }
-  },
-  {
-    text: 'Next 30 Days',
-    value: () => {
-      const start = new Date();
-      const end = new Date();
-      end.setDate(end.getDate() + 29);
-      return [start, end];
-    }
-  },
-  {
-    text: 'Next 90 Days',
-    value: () => {
-      const start = new Date();
-      const end = new Date();
-      end.setDate(end.getDate() + 89);
-      return [start, end];
-    }
-  },
-  {
-    text: 'This Month',
-    value: () => {
-      const start = new Date();
-      start.setDate(1);
-      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-      return [start, end];
-    }
-  },
-  {
-    text: 'Next Month',
-    value: () => {
-      const start = new Date();
-      start.setMonth(start.getMonth() + 1, 1);
-      const end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
-      return [start, end];
-    }
-  }
-];
-
-const calculateDuration = () => {
-  if (tripSelections.Duration.length === 2) {
-    const start = new Date(tripSelections.Duration[0]);
-    const end = new Date(tripSelections.Duration[1]);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 包含起始日
-    tripSelections.DurationDays = diffDays;
-  } else {
-    tripSelections.DurationDays = 0;
-  }
-};
-
-watch(() => tripSelections.Duration, (newDates) => {
-  if (newDates && newDates.length === 2) {
-    calculateDuration();
-  } else {
-    tripSelections.DurationDays = 0;
-  }
-}, { deep: true });
-
-// 根据用户选择生成旅行提示文本
-const tripPrompt = computed(() => {
-  const parts: string[] = [];
-
-  // 旅行时间部分
-  if (tripSelections.Duration.length === 2) {
-    const startDate = tripSelections.Duration[0].toLocaleDateString();
-    const endDate = tripSelections.Duration[1].toLocaleDateString();
-    parts.push(`Plan a ${tripSelections.DurationDays}-day trip from ${startDate} to ${endDate}.`);
-  }
-
-  // 交通方式部分
-  if (tripSelections.Transportation.length > 0) {
-    const transportModes = tripSelections.Transportation.join(", ");
-    parts.push(`Travel by ${transportModes}${tripSelections.TransportationClass ? ` (${tripSelections.TransportationClass})` : ''}.`);
-  }
-
-  // 酒店偏好部分
-  if (tripSelections.Hotel.length > 0) {
-    parts.push(`Stay in ${tripSelections.Hotel.join(", ")}.`);
-  }
-
-  // 门票部分
-  if (tripSelections.Tickets.length > 0) {
-    parts.push(`Include tickets for ${tripSelections.Tickets.join(", ")}.`);
-  }
-
-  // 活动部分
-  if (tripSelections.Activities.length > 0) {
-    parts.push(`Activities should include ${tripSelections.Activities.join(", ")}.`);
-  }
-
-  // 预算部分
-  if (tripSelections.Budget.Total > 0) {
-    const currency = allCurrencies[tripSelections.Budget.Currency]?.name || 'USD';
-    parts.push(`Total budget: ${tripSelections.Budget.Total} ${currency}.`);
-
-    // 预算分配
-    const budgetDetails = [];
-    if (tripSelections.Budget.Transportation > 0) {
-      budgetDetails.push(`${tripSelections.Budget.Transportation}% for transportation`);
-    }
-    if (tripSelections.Budget.Hotel > 0) {
-      budgetDetails.push(`${tripSelections.Budget.Hotel}% for accommodation`);
-    }
-    if (tripSelections.Budget.Tickets > 0) {
-      budgetDetails.push(`${tripSelections.Budget.Tickets}% for tickets`);
-    }
-    if (tripSelections.Budget.Activities > 0) {
-      budgetDetails.push(`${tripSelections.Budget.Activities}% for activities`);
-    }
-
-    if (budgetDetails.length > 0) {
-      parts.push(`Budget allocation: ${budgetDetails.join(", ")}.`);
-    }
-  }
-
-  return parts.length > 0 ? parts.join(" ") : "Please select travel options to generate a prompt.";
-});
-
-// 监视tripPrompt变化，自动更新可编辑内容
-watch(tripPrompt, (newValue) => {
-  editablePrompt.value = newValue;
-});
-
-// 将生成的旅行提示插入到聊天输入框
-function insertTripPrompt() {
-  if (editablePrompt.value) {
-    userChatInput.value = editablePrompt.value;
-    toggleTripOptions(); // 关闭选项弹窗
-    // 可选：自动聚焦到聊天输入框
-    setTimeout(() => {
-      const inputElement = document.querySelector('.chat-input textarea');
-      if (inputElement) {
-        (inputElement as HTMLTextAreaElement).focus();
-      }
-    }, 100);
-  }
+  }, 100);
 }
-
 
 const toggleHistory = () => {
   showHistory.value = !showHistory.value;
+  if (showHistory.value) {
+    // 获取对话历史
+    store.getConversasions().catch((e: any) => {
+      console.error('Failed to load conversations:', e);
+    });
+  }
 };
+
+// 处理历史对话加载
+function handleHistoryLoad(conversationId: number) {
+  // 在trip-generator页面内部，处理来自history组件的加载请求
+  store.getChatsByConversationID(conversationId)
+    .then(() => {
+      scrollToBottom();
+      ElMessage.success('Conversation loaded successfully');
+      
+      // 如果需要的话，可以提取destinations用于My Plan
+      if (showMyPlan.value) {
+        extractDestinationsFromChat();
+      }
+    })
+    .catch((e: any) => {
+      console.error('Failed to load conversation:', e);
+      ElMessage.error('Failed to load conversation');
+    });
+}
 
 // 编辑消息相关
 const editingMessageId = ref(-1);
@@ -558,42 +340,18 @@ function processMessageContent(content: string): string {
 
 // 添加My Plan相关状态
 const showMyPlan = ref(false);
-const myPlan = ref({
-  title: '',
-  content: '',
-  duration: {
-    startDate: '',
-    endDate: ''
-  },
-  people: 1,
-  budget: 0,
-  budgetMin: 0,
-  days: [] as Array<{
-    day: number;
-    attractions: Array<{
-      time: number;
-      timeFormatted: string;
-      budget: number;
-      currency: string;
-      place_id: number;
-      placeName: string;
-    }>;
-  }>
-});
+
+// 添加History相关状态
+const showHistory = ref(false);
 
 // 从聊天中提取的可用景点
-const availableDestinations = ref<Array<{
-  name: string;
-  content: string;
-  messageIndex: number;
-  coordinates?: { lat: number, lng: number };
-}>>([]);
+const availableDestinations = ref<Destination[]>([]);
 
 // Chatbox功能：回到聊天界面并聚焦输入框
 function focusOnChat() {
   // 关闭所有弹窗
   showHistory.value = false;
-  showTripOptions.value = false;
+  showAutoprompt.value = false;
   showMyPlan.value = false;
   
   // 滚动到聊天底部
@@ -624,12 +382,7 @@ function toggleMyPlan() {
 
 // 从聊天消息中提取景点信息
 function extractDestinationsFromChat() {
-  const destinations: Array<{
-    name: string;
-    content: string;
-    messageIndex: number;
-    coordinates?: { lat: number, lng: number };
-  }> = [];
+  const destinations: Destination[] = [];
   
   messages.value.forEach((msg, index) => {
     if (msg.role === 'assistant') {
@@ -653,108 +406,40 @@ function extractDestinationsFromChat() {
   availableDestinations.value = destinations;
 }
 
-// 添加景点到My Plan
-function addDestinationToPlan(destination: any) {
-  // 如果没有天数，先添加第一天
-  if (myPlan.value.days.length === 0) {
-    addNewDay();
-  }
-  
-  // 添加到最后一天
-  const lastDayIndex = myPlan.value.days.length - 1;
-  myPlan.value.days[lastDayIndex].attractions.push({
-    time: 9,
-    timeFormatted: '09:00',
-    budget: 0,
-    currency: 'CNY',
-    place_id: 0,
-    placeName: destination.name
-  });
-  
-  ElMessage.success(`Added ${destination.name} to Day ${myPlan.value.days[lastDayIndex].day}`);
-}
-
-// 添加新的一天
-function addNewDay() {
-  const dayNumber = myPlan.value.days.length + 1;
-  myPlan.value.days.push({
-    day: dayNumber,
-    attractions: []
-  });
-}
-
-// 删除某一天
-function removeDay(dayIndex: number) {
-  myPlan.value.days.splice(dayIndex, 1);
-  // 重新编号剩余的天数
-  myPlan.value.days.forEach((day, index) => {
-    day.day = index + 1;
-  });
-}
-
-// 添加景点到某一天
-function addAttraction(dayIndex: number) {
-  if (myPlan.value.days[dayIndex]) {
-    myPlan.value.days[dayIndex].attractions.push({
-      time: 9, // 默认上午9点
-      timeFormatted: '09:00',
-      budget: 0,
-      currency: 'CNY',
-      place_id: 0,
-      placeName: ''
-    });
-  }
-}
-
-// 删除景点
-function removeAttraction(dayIndex: number, attractionIndex: number) {
-  if (myPlan.value.days[dayIndex]) {
-    myPlan.value.days[dayIndex].attractions.splice(attractionIndex, 1);
-  }
-}
-
-// 更新景点时间
-function updateAttractionTime(dayIndex: number, attractionIndex: number, timeStr: string) {
-  if (myPlan.value.days[dayIndex] && myPlan.value.days[dayIndex].attractions[attractionIndex]) {
-    const [hours, minutes] = timeStr.split(':').map(Number);
-    myPlan.value.days[dayIndex].attractions[attractionIndex].time = hours + (minutes / 60);
-  }
-}
-
-// 保存计划
-function savePlan() {
-  // 构建符合后端格式的数据
-  const planData = {
-    name: myPlan.value.title,
-    content: myPlan.value.content,
-    start_date: myPlan.value.duration.startDate,
-    end_date: myPlan.value.duration.endDate,
-    people: myPlan.value.people,
-    budget: myPlan.value.budget,
-    budget_min: myPlan.value.budgetMin,
-    days: myPlan.value.days.map(day => ({
-      day: day.day,
-      attractions: day.attractions.map(attraction => ({
-        time: attraction.time,
-        budget: attraction.budget,
-        currency: attraction.currency,
-        place_id: attraction.place_id || 1 // 临时使用1，实际需要根据地点获取
-      }))
-    }))
-  };
-  
-  console.log('Saving plan:', planData);
+// 处理计划保存
+function handlePlanSave(plan: SavedPlanData) {
+  console.log('Saving plan:', plan);
+  showMyPlan.value = false;
   ElMessage.success('Plan saved successfully!');
-  toggleMyPlan();
 }
 
 onMounted(async() => {
   const query = router.currentRoute.value.query;
+  
+  // 处理直接发送消息
   if(query && query.prompt && query.prompt.length > 0) {
     await store.chat(query.prompt as string);
   }
-  store.getConversasions()
-  // const {prompt, location, destination} = router.currentRoute.value.query;
+  
+  // 处理从其他页面跳转过来的历史对话加载
+  if(query && query.conversationId) {
+    const conversationId = parseInt(query.conversationId as string);
+    if (!isNaN(conversationId)) {
+      store.getChatsByConversationID(conversationId)
+        .then(() => {
+          scrollToBottom();
+          ElMessage.success('Historical conversation loaded successfully');
+          // 清除URL中的conversationId参数
+          router.replace({ name: 'generator' });
+        })
+        .catch((e: any) => {
+          console.error('Failed to load conversation:', e);
+          ElMessage.error('Failed to load conversation');
+          // 清除URL中的conversationId参数
+          router.replace({ name: 'generator' });
+        });
+    }
+  }
 
   // 为聊天区域添加事件委托
   if (chatBoxRef.value) {
@@ -781,12 +466,9 @@ onMounted(async() => {
 
   // 为地图信息窗口按钮添加全局函数
   window.addLocationToPlan = (name: string, lat: number, lng: number, description: string) => {
-    const destination = {
-      name,
-      coordinates: { lat, lng },
-      content: description || `Location: ${name}`
-    };
-    addDestinationToPlan(destination);
+    // 现在这个功能在 plan 组件中，可以通过事件或其他方式通知
+    console.log('Location to add to plan:', { name, lat, lng, description });
+    ElMessage.info(`Location "${name}" noted. Please use the My Plan panel to add it manually.`);
   };
 });
 
@@ -822,7 +504,7 @@ onUnmounted(() => {
               </el-button>
             </el-tooltip>
             <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
-              <el-button class="nav-item-btn" @click.stop="toggleTripOptions">
+              <el-button class="nav-item-btn" @click.stop="toggleAutoprompt">
                 <el-icon class="nav-icon"><MagicStick /></el-icon>
                 <span v-if="!isLeftPanelCollapsed">Auto Prompt</span>
               </el-button>
@@ -919,589 +601,25 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <!-- 历史记录模态窗口背景遮罩 -->
-  <div class="modal-overlay" v-if="showHistory" @click="toggleHistory"></div>
+  <!-- History组件 -->
+  <HistoryComponent 
+    :visible="showHistory"
+    @close="showHistory = false"
+    @load-history="handleHistoryLoad"
+  />
 
-  <!-- 历史记录模态窗口 -->
-  <transition name="slide-up">
-    <div class="history-modal" v-if="showHistory">
-      <div class="history-modal-content">
-        <div class="history-modal-header">
-          <h3>Conversation History</h3>
-          <button class="close-btn" @click="toggleHistory">&times;</button>
-        </div>
-
-        <div class="history-modal-body">
-          <div v-if="conversations.length === 0" class="empty-history">
-            <i class="el-icon-chat-dot-square"></i>
-            <p>No previous conversations found</p>
-            <p class="empty-hint">Start a new chat to create history</p>
-          </div>
-
-          <ul class="history-list" v-else>
-            <li
-              v-for="(conversation, idx) in conversations"
-              :key="idx"
-              @click="loadHistory(conversation.id); toggleHistory();"
-              class="history-item"
-            >
-              <div class="history-item-content">
-                <span class="history-title">{{ conversation.title || 'Untitled Conversation' }}</span>
-                <span class="history-date">{{ conversation.created_at }}</span>
-              </div>
-              <i class="el-icon-right"></i>
-            </li>
-          </ul>
-        </div>
-
-        <div class="history-modal-footer">
-          <el-button @click="toggleHistory" class="action-btn cancel-btn">Close</el-button>
-        </div>
-      </div>
-    </div>
-  </transition>
-
-  <!-- 旅行选项弹窗背景遮罩 -->
-  <div class="modal-overlay" v-if="showTripOptions" @click="toggleTripOptions"></div>
-
-  <!-- 旅行选项弹窗 -->
-  <transition name="slide-up">
-    <div class="trip-options-modal" v-if="showTripOptions">
-      <div class="trip-options-modal-content">
-        <div class="trip-options-modal-header">
-          <h3>Generate Travel Token</h3>
-          <button class="close-btn" @click="toggleTripOptions">&times;</button>
-        </div>
-
-        <div class="trip-options-modal-body">
-          <div class="trip-options-scrollable">
-            <!-- Duration 模块 -->
-            <div class="trip-option">
-              <label>
-                <i class="el-icon-date" style="margin-right:5px"></i>
-                Trip Duration:
-              </label>
-              <div class="date-picker-container">
-                <el-date-picker
-                  v-model="tripSelections.Duration"
-                  type="daterange"
-                  start-placeholder="Start Date"
-                  end-placeholder="End Date"
-                  
-                  class="futuristic-date-picker"
-                />
-                <!-- <div v-if="tripSelections.DurationDays > 0"
-                  class="duration-display">
-                  {{ tripSelections.DurationDays }} days
-                </div> -->
-              </div>
-            </div>
-
-            <!-- Transportation 模块 -->
-            <div class="trip-option">
-              <label>
-                <i class="el-icon-airplane" style="margin-right:5px"></i>
-                Transportation:
-              </label>
-              <div class="trans-container">
-                <el-select
-                  v-model="tripSelections.Transportation"
-                  multiple
-                  placeholder="Select transportation"
-                  filterable
-                  allow-create
-                  class="futuristic-select"
-                >
-                  <el-option
-                    v-for="item in tripOptionsData.Transportation"
-                    :key="item.name"
-                    :label="item.name"
-                    :value="item.name"
-                  >
-                    <template #default>
-                      <i :class="item.icon" style="margin-right:5px"></i>
-                      {{ item.name }}
-                    </template>
-                  </el-option>
-                </el-select>
-                <!-- 仅当单一交通工具选中时显示 Travel Class -->
-                <div
-                  v-if="tripSelections.Transportation.length === 1"
-                  class="transport-class"
-                >
-                  <label>Class:</label>
-                  <el-select
-                    v-model="tripSelections.TransportationClass"
-                    placeholder="Select travel class"
-                    filterable
-                    class="futuristic-select"
-                  >
-                    <el-option
-                      v-for="option in availableTransportationClasses"
-                      :key="option"
-                      :label="option"
-                      :value="option"
-                    />
-                  </el-select>
-                </div>
-              </div>
-            </div>
-
-            <!-- Hotel 模块 -->
-            <div class="trip-option">
-              <label>
-                <i class="el-icon-star-on" style="margin-right:5px"></i>
-                Hotel:
-              </label>
-              <el-select
-                v-model="tripSelections.Hotel"
-                multiple
-                placeholder="Select hotel options"
-                filterable
-                allow-create
-                class="futuristic-select"
-              >
-                <el-option-group
-                  v-for="group in groupedHotels"
-                  :key="group.label"
-                  :label="group.label"
-                >
-                  <el-option
-                    v-for="item in group.options"
-                    :key="item.name"
-                    :label="item.name"
-                    :value="item.name"
-                  >
-                    <template #default>
-                      <i :class="item.icon" style="margin-right:5px"></i>
-                      {{ item.name }}
-                    </template>
-                  </el-option>
-                </el-option-group>
-              </el-select>
-            </div>
-
-            <!-- Budget 模块 -->
-            <div class="trip-option">
-              <div class="budget-container">
-                <label>
-                  <i class="el-icon-money" style="margin-right:5px"></i>
-                  Budget:
-                </label>
-                <!-- 货币与总预算 -->
-                <div class="budget-row">
-                  <el-select
-                    v-model="tripSelections.Budget.Currency"
-                    placeholder="Currency"
-                    style="width:150px"
-                    filterable
-                    class="futuristic-select"
-                  >
-                    <el-option
-                      v-for="currency in allCurrencies"
-                      :key="currency.name"
-                      :label="currency.flag + ' ' + currency.name"
-                      :value="currency.name"
-                    />
-                  </el-select>
-                  <el-input
-                    v-model="tripSelections.Budget.Total"
-                    placeholder="Enter total amount"
-                    style="width:150px; margin-left:10px;"
-                  />
-                </div>
-                <!-- 预算比例拖动条 -->
-                <div class="budget-row slider-row">
-                  <span>Transportation:</span>
-                  <el-slider
-                    v-model="tripSelections.Budget.Transportation"
-                    :min="0"
-                    :max="100"
-                    show-input
-                    @change="(val) => updateBudgetProportions('Transportation', val as number)"
-                  />
-                </div>
-                <div class="budget-row slider-row">
-                  <span>Hotel:</span>
-                  <el-slider
-                    v-model="tripSelections.Budget.Hotel"
-                    :min="0"
-                    :max="100"
-                    show-input
-                    @change="(val) => updateBudgetProportions('Hotel', val as number)"
-                  />
-                </div>
-                <div class="budget-row slider-row">
-                  <span>Tickets:</span>
-                  <el-slider
-                    v-model="tripSelections.Budget.Tickets"
-                    :min="0"
-                    :max="100"
-                    show-input
-                    @change="(val) => updateBudgetProportions('Tickets', val as number)"
-                  />
-                </div>
-                <div class="budget-row slider-row">
-                  <span>Activities:</span>
-                  <el-slider
-                    v-model="tripSelections.Budget.Activities"
-                    :min="0"
-                    :max="100"
-                    show-input
-                    @change="(val) => updateBudgetProportions('Activities', val as number)"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- Tickets 模块 -->
-            <div class="trip-option">
-              <label>
-                <i class="el-icon-tickets" style="margin-right:5px"></i>
-                Tickets:
-              </label>
-              <el-select
-                v-model="tripSelections.Tickets"
-                multiple
-                placeholder="Select ticket options"
-                filterable
-                allow-create
-                class="futuristic-select"
-              >
-                <el-option
-                  v-for="item in tripOptionsData.Tickets"
-                  :key="item.name"
-                  :label="item.name"
-                  :value="item.name"
-                >
-                  <template #default>
-                    <i :class="item.icon" style="margin-right:5px"></i>
-                    {{ item.name }}
-                  </template>
-                </el-option>
-              </el-select>
-            </div>
-
-            <!-- Activities 模块 -->
-            <div class="trip-option">
-              <label>
-                <i class="el-icon-s-custom" style="margin-right:5px"></i>
-                Activities:
-              </label>
-              <el-select
-                v-model="tripSelections.Activities"
-                multiple
-                placeholder="Select activities"
-                filterable
-                allow-create
-                class="futuristic-select"
-              >
-                <el-option-group
-                  v-for="(group, groupName) in tripOptionsData.Activities"
-                  :key="groupName"
-                  :label="groupName"
-                >
-                  <el-option
-                    v-for="item in group"
-                    :key="item.name"
-                    :label="item.name"
-                    :value="item.name"
-                  >
-                    <template #default>
-                      <i :class="item.icon" style="margin-right:5px"></i>
-                      {{ item.name }}
-                    </template>
-                  </el-option>
-                </el-option-group>
-              </el-select>
-            </div>
-          </div>
-
-          <!-- 旅行提示生成结果 -->
-          <div class="trip-prompt-result">
-            <span>Generated Plan</span>
-            <el-input
-              v-model="editablePrompt"
-              type="textarea"
-              :rows="3"
-              placeholder="Your travel prompt will appear here"
-              resize="none"
-              class="editable-prompt"
-            ></el-input>
-          </div>
-        </div>
-
-        <div class="trip-options-modal-footer">
-          <el-button @click="toggleTripOptions" class="action-btn cancel-btn">Cancel</el-button>
-          <el-button @click="insertTripPrompt" class="action-btn primary-btn" :disabled="!tripPrompt">
-            Insert into Chat
-          </el-button>
-        </div>
-      </div>
-    </div>
-  </transition>
+  <!-- Autoprompt组件 -->
+  <AutopromptComponent 
+    :visible="showAutoprompt"
+    @close="showAutoprompt = false"
+    @insert-prompt="handleInsertPrompt"
+  />
 
   <!-- My Plan弹窗 -->
-  <transition name="slide-from-left">
-    <div v-if="showMyPlan" class="my-plan-overlay">
-      <div class="my-plan-panel">
-        
-        <!-- 弹窗头部 -->
-        <div class="plan-header">
-          <div class="plan-header-left">
-            <h2>
-              <el-icon><StarFilled /></el-icon>
-              My Travel Plan
-            </h2>
-          </div>
-          <div class="plan-header-actions">
-            <el-button 
-              size="small" 
-              @click="toggleMyPlan"
-              class="close-btn"
-            >
-              <el-icon><Right /></el-icon>
-            </el-button>
-          </div>
-        </div>
-
-        <!-- 弹窗内容 -->
-        <div class="plan-content">
-          
-          <!-- 基本信息部分 -->
-          <div class="plan-section">
-            <h3>Basic Information</h3>
-            <div class="form-grid">
-              <div class="form-item">
-                <label>Plan Name</label>
-                <el-input 
-                  v-model="myPlan.title" 
-                  placeholder="Enter your travel plan name"
-                  size="small"
-                />
-              </div>
-              
-              <div class="form-item">
-                <label>Description</label>
-                <el-input 
-                  v-model="myPlan.content" 
-                  type="textarea"
-                  :rows="2"
-                  placeholder="Describe your travel plan"
-                  size="small"
-                />
-              </div>
-
-              <div class="date-range">
-                <div class="form-item">
-                  <label>Start Date</label>
-                  <el-date-picker
-                    v-model="myPlan.duration.startDate"
-                    type="date"
-                    placeholder="Start Date"
-                    format="YYYY-MM-DD"
-                    value-format="YYYY-MM-DD"
-                    size="small"
-                  />
-                </div>
-                <div class="form-item">
-                  <label>End Date</label>
-                  <el-date-picker
-                    v-model="myPlan.duration.endDate"
-                    type="date"
-                    placeholder="End Date"
-                    format="YYYY-MM-DD"
-                    value-format="YYYY-MM-DD"
-                    size="small"
-                  />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-item">
-                  <label>People</label>
-                  <el-input-number 
-                    v-model="myPlan.people" 
-                    :min="1"
-                    :max="20"
-                    size="small"
-                  />
-                </div>
-                <div class="form-item">
-                  <label>Budget (¥)</label>
-                  <el-input-number 
-                    v-model="myPlan.budget" 
-                    :min="0"
-                    :step="100"
-                    size="small"
-                  />
-                </div>
-                <div class="form-item">
-                  <label>Min Budget (¥)</label>
-                  <el-input-number 
-                    v-model="myPlan.budgetMin" 
-                    :min="0"
-                    :step="100"
-                    size="small"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 行程安排部分 -->
-          <div class="plan-section">
-            <div class="section-header">
-              <h3>Itinerary</h3>
-              <el-button 
-                size="small" 
-                type="primary" 
-                @click="addNewDay"
-              >
-                <el-icon><Plus /></el-icon>
-                Add Day
-              </el-button>
-            </div>
-
-            <div v-if="myPlan.days.length === 0" class="empty-state">
-              <p>No days planned yet</p>
-              <p class="hint">Click "Add Day" to start planning your itinerary</p>
-            </div>
-
-            <div v-else class="days-list">
-              <div 
-                v-for="(day, dayIndex) in myPlan.days" 
-                :key="dayIndex"
-                class="day-item"
-              >
-                <div class="day-header">
-                  <h4>Day {{ day.day }}</h4>
-                  <div class="day-actions">
-                    <span class="attractions-count">{{ day.attractions.length }} attractions</span>
-                    <el-button 
-                      size="small" 
-                      type="danger" 
-                      circle
-                      @click="removeDay(dayIndex)"
-                    >
-                      <el-icon><Delete /></el-icon>
-                    </el-button>
-                  </div>
-                </div>
-                
-                <div class="attractions-list">
-                  <div 
-                    v-for="(attraction, attractionIndex) in day.attractions"
-                    :key="attractionIndex" 
-                    class="attraction-item"
-                  >
-                    <div class="attraction-time">
-                      <el-time-select
-                        v-model="attraction.timeFormatted"
-                        start="06:00"
-                        step="00:30"
-                        end="23:30"
-                        placeholder="Time"
-                        size="small"
-                        @change="updateAttractionTime(dayIndex, attractionIndex, $event)"
-                      />
-                    </div>
-                    <div class="attraction-budget">
-                      <el-input-number 
-                        v-model="attraction.budget" 
-                        :min="0"
-                        :step="10"
-                        placeholder="Budget"
-                        size="small"
-                      />
-                      <el-select 
-                        v-model="attraction.currency" 
-                        size="small"
-                        style="width: 70px;"
-                      >
-                        <el-option label="CNY" value="CNY" />
-                        <el-option label="USD" value="USD" />
-                        <el-option label="EUR" value="EUR" />
-                        <el-option label="JPY" value="JPY" />
-                      </el-select>
-                    </div>
-                    <div class="attraction-place">
-                      <el-input 
-                        v-model="attraction.placeName" 
-                        placeholder="Attraction name"
-                        size="small"
-                      />
-                    </div>
-                    <el-button 
-                      size="small" 
-                      type="danger" 
-                      circle
-                      @click="removeAttraction(dayIndex, attractionIndex)"
-                    >
-                      <el-icon><Delete /></el-icon>
-                    </el-button>
-                  </div>
-                  
-                  <div class="add-attraction">
-                    <el-button 
-                      size="small" 
-                      type="primary" 
-                      @click="addAttraction(dayIndex)"
-                    >
-                      <el-icon><Plus /></el-icon>
-                      Add Attraction
-                    </el-button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 可选景点部分 -->
-          <div class="plan-section" v-if="availableDestinations.length > 0">
-            <h3>Available Destinations from Chat</h3>
-            <div class="destinations-list">
-              <div 
-                v-for="(destination, index) in availableDestinations"
-                :key="index" 
-                class="destination-item"
-              >
-                <div class="destination-info">
-                  <h4>{{ destination.name }}</h4>
-                  <p>{{ destination.content }}</p>
-                </div>
-                <div class="destination-actions">
-                  <el-button 
-                    size="small" 
-                    type="primary"
-                    @click="addDestinationToPlan(destination)"
-                  >
-                    <el-icon><Plus /></el-icon>
-                    Add
-                  </el-button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- 弹窗底部操作 -->
-        <div class="plan-footer">
-          <el-button @click="toggleMyPlan">
-            Cancel
-          </el-button>
-          <el-button 
-            type="primary" 
-            @click="savePlan"
-            :disabled="!myPlan.title.trim() || myPlan.days.length === 0"
-          >
-            <el-icon><Check /></el-icon>
-            Save Plan
-          </el-button>
-        </div>
-
-      </div>
-    </div>
-  </transition>
+  <PlanComponent 
+    :visible="showMyPlan"
+    :available-destinations="availableDestinations"
+    @close="showMyPlan = false"
+    @save="handlePlanSave"
+  />
 </template>

@@ -18,6 +18,7 @@ import postView from './post-view.vue';
 
 import postPreview from './post-preview.vue';
 import { ElMessageBox } from 'element-plus';
+
 import MeetingComponent from '@/views/components/meeting-component.vue';
 
 const showPostView = ref(false);
@@ -444,8 +445,8 @@ const selectedTools = ref<string[]>([]);
 const availableTools = ref([
   {
     name: 'Meetings',
-    icon: '📅',
-    description: 'Find and join workshops'
+    icon: '🏛️',
+    description: 'Meetings and Workshops'
   },
 ]);
 
