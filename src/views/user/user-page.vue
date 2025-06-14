@@ -204,22 +204,6 @@ const isWalletConnected = computed(() => {
   return false;
 });
 
-// 添加图片导航相关状态
-// const currentImageIndex = ref(0);
-
-// 添加图片导航方法
-// function prevImage() {
-//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-//     currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
-//   }
-// }
-
-// function nextImage() {
-//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-//     currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
-//   }
-// }
-
 // 添加编辑模式状态
 const isEditMode = ref(false);
 const selectedBlogId = ref<number | null>(null);
@@ -307,7 +291,6 @@ const submitComment = async () => {
 
   newComment.value = '';
 }
-
 
 
 // 评论相关的状态
@@ -414,40 +397,6 @@ const toggleReplyInput = (id: number|undefined, type: string = 'comment', parent
     });
 
     replyContent.value = '';
-  }
-};
-
-// 取消回复
-const cancelReply = () => {
-  replyTarget.value = null;
-  replyContent.value = '';
-};
-// 展开查看所有回复
-const expandReplies = async (commentId: number|undefined) => {
-  // 如果需要调用API加载更多回复，可以在这里添加
-  // await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
-  if (commentId) store.getComments(commentId);
-  // 标记该评论已展开
-  // expandedComments.value.push(commentId);
-};
-// 提交回复
-const submitReply = async () => {
-  if (!replyContent.value.trim()) return;
-
-  isSubmittingReply.value = true;
-  try {
-
-
-    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
-    ElMessage.success('Reply added successfully');
-    if(selectedBlog.value?.id)store.getUserBlogByID(selectedBlog.value?.id);
-    replyTarget.value = null;
-    replyContent.value = '';
-  } catch (error) {
-    console.error('Failed to add reply:', error);
-    ElMessage.error('Failed to add reply. Please try again.');
-  } finally {
-    isSubmittingReply.value = false;
   }
 };
 

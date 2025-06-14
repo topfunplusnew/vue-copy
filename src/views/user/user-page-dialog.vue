@@ -1,10 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user';
-import { ElMessage } from 'element-plus';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IBlogComment } from '@/types/blog';
 import { getImageUrl } from '@/utils';
+import type { IBlog } from '@/types/blog';
 
+// 定义props和emit
+const props = defineProps<{
+  isFollowing: boolean;
+}>();
+
+const emit = defineEmits(['close', 'toggle-follow']);
 
 const store = useUserStore();
 
@@ -187,11 +194,60 @@ const handleMassageClick = (id?: number) => {
   console.log('Message button clicked for user:', id);
 };
 
+// 三个点菜单状态
+const showOptionsMenu = ref(false);
+
+// 删除博客
+const deleteBlog = async (blogId?: number) => {
+  if(!blogId) return;
+  try {
+    await ElMessageBox.confirm(
+      'Are you sure you want to delete this blog post?',
+      'Warning',
+      {
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      }
+    );
+
+    await store.delUserBlogByID(blogId);
+    ElMessage.success('Blog deleted successfully');
+    store.getUserBlogList(true); // 刷新博客列表
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('Failed to delete blog');
+    }
+  }
+};
+
+// 切换选项菜单
+const toggleOptionsMenu = () => {
+  showOptionsMenu.value = !showOptionsMenu.value;
+};
+
+// 关闭选项菜单
+const closeOptionsMenu = () => {
+  showOptionsMenu.value = false;
+};
+
+// 编辑博客 (前端占位函数)
+const handleEditBlog = () => {
+  console.log('Edit blog clicked');
+  showOptionsMenu.value = false;
+};
+
+// 删除博客 (前端占位函数)
+const handleDeleteBlog = () => {
+  console.log('Delete blog clicked');
+  showOptionsMenu.value = false;
+};
+
 </script>
 
 <template>
-  <div class="blog-detail-overlay" @click.self="$emit('close')">
-    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
+  <div class="blog-detail-overlay" @click.self="$emit('close')" @click="closeOptionsMenu">
+    <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }" @click.stop>
       <button class="close-button" @click="$emit('close')">×</button>
 
       <div class="detail-left">
@@ -233,6 +289,30 @@ const handleMassageClick = (id?: number) => {
                   class="author-avatar"
                 />
                 <span class="author-name">{{ selectedBlog?.user?.name }}</span>
+                
+                <!-- 三个点菜单按钮（仅自己的博客显示） -->
+                <div v-if="isOwnPost" class="options-menu-container" @click.stop>
+                  <button 
+                    class="options-menu-trigger"
+                    @click="toggleOptionsMenu"
+                    @blur="closeOptionsMenu"
+                  >
+                    ⋯
+                  </button>
+                  
+                  <!-- 下拉菜单 -->
+                  <div v-if="showOptionsMenu" class="options-dropdown" @click.stop>
+                    <button class="dropdown-item edit-item" @click.prevent.stop="handleEditBlog">
+                      <span class="dropdown-icon">✏️</span>
+                      <span class="dropdown-text">Edit</span>
+                    </button>
+                    <button class="dropdown-item delete-item" @click="handleDeleteBlog">
+                      <span class="dropdown-icon">🗑️</span>
+                      <span class="dropdown-text">Delete</span>
+                    </button>
+                  </div>
+                </div>
+                
                 <!-- Follow按钮直接跟在用户名后面 -->
                 <el-button
                   v-if="!isOwnPost"
@@ -254,16 +334,6 @@ const handleMassageClick = (id?: number) => {
                   <span class="massage-icon">💬</span>
                   <span class="massage-text">Message</span>
                 </el-button>
-                <!-- 编辑按钮已注释掉 -->
-                <!-- <el-button
-                  v-else
-                  class="edit-btn inline-btn"
-                  size="small"
-                  @click="handleEditClick"
-                >
-                  <span class="edit-icon">✏️</span>
-                  <span class="edit-text">Edit</span>
-                </el-button> -->
               </div>
               <div class="tags-section-pref-userpage" v-if="selectedBlog?.social_filters">
                 <span v-for="(item, index) in selectedBlog?.social_filters"
