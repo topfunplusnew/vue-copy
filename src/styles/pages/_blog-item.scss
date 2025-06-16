@@ -62,7 +62,6 @@
       flex: none; /* 禁用flex自动伸缩 */
 
       @include screen-mobile {
-        height: 80px; /* 移动端高度 */
         padding: 12px 15px;
         margin-top: 5px;
         margin-bottom: 35px; /* 增加间距，确保不被底部信息栏遮挡 */
@@ -158,14 +157,15 @@
           font-size: 0.9375rem;
           font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
           font-weight: normal; /* 去掉加粗 */
-          max-width: 60px; /* 限制宽度 */
+          max-width: 100px; /* 限制宽度 */
           overflow: hidden;
           text-overflow: ellipsis;
           color: #000000;
+          text-wrap: nowrap;
 
           @include screen-mobile {
             font-size: 1.5rem; /* 与userpage一致的字体大小 */
-            max-width: 80px;
+            max-width: 100px;
           }
         }
       }
