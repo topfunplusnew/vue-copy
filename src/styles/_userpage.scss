@@ -775,10 +775,12 @@
     max-width: none;
     transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
     
-    /* 在窄屏幕上调整为垂直布局 */
+    /* 在窄屏幕上调整为垂直布局并允许整体滚动 */
     @media (max-width: 768px) {
       flex-direction: column;
       height: 90vh;
+      overflow-y: auto; /* 允许整个容器滚动 */
+      overflow-x: hidden;
     }
 
     /* 关闭按钮 */
@@ -891,17 +893,19 @@
         background: rgba(248, 248, 248, 0.98);
         border-top: 1px solid #eee;
         box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        z-index: 10;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        z-index: 10;
         padding: 0 20px;
         
         @media (max-width: 768px) {
+          position: static; /* 在手机端取消固定定位，跟随内容滚动 */
           flex-direction: row;
           gap: 10px;
           padding: 0 15px;
           height: 50px;
+          margin-top: 10px; /* 添加顶部间距 */
         }
         
         /* 统计信息 */
