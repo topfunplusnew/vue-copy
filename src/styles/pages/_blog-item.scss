@@ -68,7 +68,7 @@
       }
 
       .post-title-userpage {
-        font-size: rpx(15);
+        font-size: rpx(20);
         font-weight: bold;
         color: #1a3566; /* 深蓝色 */
         display: -webkit-box;
@@ -80,7 +80,7 @@
         margin-bottom: 6px;
 
         @include screen-mobile {
-          font-size: rpx(25);
+          font-size: rpx(30);
           margin-bottom: 8px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -91,7 +91,7 @@
       }
 
       .post-text-userpage {
-        font-size: rpx(10);
+        font-size: rpx(15);
         color: #1a3566; /* 深蓝色 */
         display: -webkit-box;
         -webkit-line-clamp: 1; /* 限制内容只显示一行 */
@@ -103,7 +103,7 @@
         margin: 0;
 
         @include screen-mobile {
-          font-size: rpx(22);
+          font-size: rpx(25);
           line-height: 1.4;
           overflow: hidden;
           text-overflow: ellipsis;
