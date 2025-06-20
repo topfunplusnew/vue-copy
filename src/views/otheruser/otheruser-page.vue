@@ -1,801 +1,332 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick} from 'vue';
-import walletItem from '@/components/wallet-item.vue';
-import { VueCropper } from 'vue-cropper';
-import 'vue-cropper/dist/index.css';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { getImageUrl } from '@/utils';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import type { IUser } from '@/types/user';
-import { formatDate } from '@/utils/date';
-import type { IBlogComment } from '@/types/blog';
-import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import type { IBlog } from '@/types/blog';
+import OtherUserPageDialog from '@/views/otheruser/otheruser-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
+import { useBlogStore } from '@/stores/blog';
+import axios from 'axios';
 
-const selectedBlog =ref<IBlog | null>(null); // 当前选中的博客详情
-// 关闭博客详情弹出层
-const closeBlogDetail = () => {
-  store.clearSelectedPost();
-  document.body.style.overflow = '';
-};
 const store = useUserStore();
+const blogStore = useBlogStore();
 const router = useRouter();
+const route = useRoute();
 
-// const userProfile = computed(() => store.user); // user改成这种用法
-
-onMounted(() => {
-  store.getUserInfo().then(({data})=>{
-    editForm.name = data.name;
-    editForm.avatar = data.avatar;
-  });
-  store.getUserBlogList(true);
+// 获取路由参数中的用户ID
+const userId = computed(() => {
+  const id = route.params.id;
+  return typeof id === 'string' ? parseInt(id) : null;
 });
 
-// 添加登出处理函数
-function handleLogout() {
-  store.logout();
-  router.push({ name: 'login' }); // 跳转到登录页
-}
+// 其他用户信息
+const otherUser = ref<IUser | null>(null);
+const otherUserPosts = ref<{items: IBlog[], loading: boolean, has_next: boolean}>({
+  items: [],
+  loading: false,
+  has_next: false
+});
 
-// const user = reactive(userInfo);
-const user = computed(() => store.user);
-
-const uploadfile = ref<HTMLElement | null>(null);
-function onUpload() {
-  showCropper.value = true;
-  if(uploadfile.value) uploadfile.value.click();
-}
-
-// const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
-
-
-const postsContainer = ref<HTMLElement | null>(null);
-
-// 用户博客数据
-const userPosts = computed(() => store.blogs);
-
-
-
+// 关注状态
 const isFollowing = ref(false);
+const followingLoading = ref(false);
 
-const showBlogDetail = (id?: number) => {
-  if(!id) return;
-  store.getUserBlogByID(id).then(() => {
-    if(selectedBlog.value?.user.id) store.isFollowing(selectedBlog.value?.user.id).then(({data}) =>{
-      isFollowing.value = data as boolean;
-    })
-    document.body.style.overflow = 'hidden';
+// 博客详情弹窗相关
+const selectedBlog = ref<IBlog | null>(null);
+const showBlogDialog = ref(false);
+
+// 搜索功能
+const searchKeyword = ref('');
+
+onMounted(async () => {
+  // 确保页面滚动到顶部
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
   });
-};
 
-function gotoEidtPage(id?:number) {
-  if(!id) return;
-  router.push({
-    name:'PostView',
-    params: {id}
-  })
-}
-
-
-function handleScroll() {
-  const container = postsContainer.value;
-  if (!container) return;
-  if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-    // loadPosts();
+  // 加载用户信息和博客列表
+  if (userId.value) {
+    await loadOtherUserData();
+  } else {
+    ElMessage.error('Invalid user ID');
+    router.push('/');
   }
-}
-
-// 头像裁剪相关
-const showCropper = ref(false);
-const cropperRef = ref();
-const cropOption = {
-  autoCrop: true, // 是否默认生成截图框
-  fixedBox: true, // 固定截图框大小
-  outputType: 'png', // 裁剪生成图片的格式
-  centerBox: true, // 截图框是否被限制在图片里面
-  infoTrue: true, // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
-  full: false, // 是否输出原图比例的截图
-  canMoveBox: true, // 截图框能否拖动
-  original: false, // 上传图片按照原始比例渲染
-  canScale: true, // 图片是否允许滚轮缩放
-  fixed: true, // 是否开启截图框宽高固定比例
-  fixedNumber: [1, 1], // 截图框的宽高比例
-};
-const cropImage = ref('');
-
-
-// 修改裁剪完成函数，直接更新头像
-function cropSuccess() {
-  cropperRef.value.getCropBlob((image: Blob) => {
-
-    // const file = new File([image], 'file', {type: image.type});
-    store.uploadImage(image).then(({data}) => {
-      editForm.avatar = data.avatar;
-    })
-    showCropper.value = false;
-  });
-}
-
-
-// 添加编辑个人信息相关状态
-const showEditProfile = ref(false);
-const editForm = reactive({
-  name: user.value?.name,
-  avatar: user.value?.avatar,
 });
 
-// 提交编辑
-function submitProfileEdit() {
-  store
-    .editUserInfo(editForm)
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((e) => console.log(e));
-  showEditProfile.value = false;
-}
+// 加载其他用户的数据
+const loadOtherUserData = async () => {
+  if (!userId.value) return;
 
-// 取消编辑
-function cancelProfileEdit() {
-  editForm.name = user.value?.name;
-  // editForm.id = user.value?.id;
-  editForm.avatar = user.value?.avatar; //恢复原头像
-  showEditProfile.value = false;
-}
-
-// 在编辑页面上传头像
-function handleEditAvatarUpload(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files ? target.files[0] : null;
-  if(file) {
-    console.log(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      cropImage.value = e.target?.result as string;
-    }
-    reader.readAsDataURL(file);
-  }
-}
-
-// 添加拖动相关状态和方法
-const isDragging = ref(false);
-const dragOffset = reactive({ x: 0, y: 0 });
-const editProfilePosition = reactive({ x: 0, y: 0 });
-
-function startDrag(e: MouseEvent) {
-  isDragging.value = true;
-  dragOffset.x = e.clientX - editProfilePosition.x;
-  dragOffset.y = e.clientY - editProfilePosition.y;
-}
-
-function onDrag(e: MouseEvent) {
-  if (isDragging.value) {
-    editProfilePosition.x = e.clientX - dragOffset.x;
-    editProfilePosition.y = e.clientY - dragOffset.y;
-  }
-}
-
-function stopDrag() {
-  isDragging.value = false;
-}
-
-// 修改取消裁剪函数
-function cancelCrop() {
-  showCropper.value = false;
-  // 如果在编辑个人信息中
-  if (showEditProfile.value) {
-    editForm.avatar = user.value?.avatar; // 恢复原头像
-  }
-}
-
-// 添加钱包连接状态（这里假设从某个store或props获取）
-const isWalletConnected = computed(() => {
-  // 根据实际情况返回钱包连接状态
-  // return !!user.value?.walletAddress;
-  return false;
-});
-
-// 添加图片导航相关状态
-// const currentImageIndex = ref(0);
-
-// 添加图片导航方法
-// function prevImage() {
-//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-//     currentImageIndex.value = (currentImageIndex.value - 1 + selectedBlog.value.image.length) % selectedBlog.value.image.length;
-//   }
-// }
-
-// function nextImage() {
-//   if (selectedBlog.value?.image && selectedBlog.value.image.length > 1) {
-//     currentImageIndex.value = (currentImageIndex.value + 1) % selectedBlog.value.image.length;
-//   }
-// }
-
-// 添加编辑模式状态
-const isEditMode = ref(false);
-const selectedBlogId = ref<number | null>(null);
-
-// 切换编辑模式
-const toggleEditMode = () => {
-  isEditMode.value = !isEditMode.value;
-  if (!isEditMode.value) {
-    selectedBlogId.value = null;
-  }
-};
-
-// 删除博客
-const deleteBlog = async (blogId?: number) => {
-  if(!blogId) return;
   try {
-    await ElMessageBox.confirm(
-      'Are you sure you want to delete this blog post?',
-      'Warning',
-      {
-        confirmButtonText: 'Delete',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-      }
-    );
+    // 加载用户基本信息 - 使用后端API
+    const userResponse = await axios.get(`/api/user/id/${userId.value}`);
+    otherUser.value = userResponse.data;
 
-    await store.delUserBlogByID(blogId);
-    ElMessage.success('Blog deleted successfully');
-    store.getUserBlogList(true); // 刷新博客列表
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('Failed to delete blog');
+    // 加载用户的博客列表 - 使用博客API过滤特定用户
+    const blogsResponse = await axios.get('/api/blogs', {
+      params: {
+        user_id: userId.value,
+        page: 1,
+        per_page: 20
+      }
+    });
+    
+    // 过滤出该用户的博客
+    const userBlogs = blogsResponse.data.items.filter((blog: any) => blog.user.id === userId.value);
+    otherUserPosts.value = {
+      items: userBlogs,
+      loading: false,
+      has_next: false
+    };
+
+    // 检查当前用户是否关注了这个用户
+    if (store.isLogin()) {
+      const followResponse = await store.isFollowing(userId.value);
+      isFollowing.value = followResponse.data.is_following;
     }
+  } catch (error) {
+    console.error('Failed to load user data:', error);
+    ElMessage.error('Failed to load user information');
   }
 };
 
-// 编辑博客
-
-// 评论功能
-const newComment = ref('');
-
-const submitComment = async () => {
-  if (!newComment.value.trim()) return;
-  if (!selectedBlog.value?.id) return;
-
-  // 用户已登录不用检查登录状态
-  store.commenttoBlog(selectedBlog.value?.id, newComment.value).then(res=>{
-    console.log(res);
-  }).catch(e=>{
-    console.log(e);
-  }).finally(()=>{
-    // 清空输入
-    newComment.value = '';
-    if(selectedBlog.value?.id) store.getUserBlogByID(selectedBlog.value?.id);
-
-    // 滚动到新评论
-    nextTick(() => {
-      scrollToComments();
-    });
-  });
-
-  // 模拟添加评论
-  ElMessage({
-    message: 'Comment submitted successfully!',
-    type: 'success'
-  });
-
-  newComment.value = '';
-}
-
-
-
-// 评论相关的状态
-
-// 评论长按删除功能
-const longPressTimeout = ref();
-const longPressDuration = 800; // 长按时间阈值，单位为毫秒
-const activeComment = ref();
-
-// 长按开始处理函数
-const handleTouchStart = (comment:IBlogComment) => {
-  console.log(comment);
-  // 检查是否是当前用户的评论
-  const currentUser = store.user;
-
-  // 如果不是当前用户的评论，不允许删除
-  if (!comment || !currentUser || comment.user.id !== currentUser.id) {
+// 处理关注/取消关注
+const handleFollowToggle = async () => {
+  if (!userId.value || !store.isLogin()) {
+    ElMessage.warning('Please login first');
+    router.push('/login');
     return;
   }
 
-  longPressTimeout.value = setTimeout(() => {
-    activeComment.value = comment.id;
-  }, longPressDuration);
-};
-
-// 长按结束处理函数
-const handleTouchEnd = () => {
-  if (longPressTimeout.value) {
-    clearTimeout(longPressTimeout.value);
-    longPressTimeout.value = null;
-  }
-};
-
-// 移动时取消长按
-const handleTouchMove = () => {
-  if (longPressTimeout.value) {
-    clearTimeout(longPressTimeout.value);
-    longPressTimeout.value = null;
-  }
-};
-
-// 确认删除评论
-const confirmDeleteComment = async (commentId?:number) => {
-  if(!commentId) return;
+  followingLoading.value = true;
   try {
-    // 调用删除评论API
-    await store.userDeleteComment(commentId);
-
-    // 刷新博客数据以更新评论列表
-    if(selectedBlog.value?.id) {
-      await store.getUserBlogByID(selectedBlog.value.id);
-    }
-
-    ElMessage.success('Comment deleted successfully');
-  } catch (error) {
-    console.error('Failed to delete comment:', error);
-    ElMessage.error('Failed to delete comment');
-  } finally {
-    activeComment.value = undefined;
-  }
-};
-
-// 取消删除操作
-const cancelDeleteComment = () => {
-  activeComment.value = undefined;
-};
-// const activeCommentId = ref<number | null>(null);
-const replyContent = ref('');
-const isSubmittingReply = ref(false);
-// 展开回复相关的状态
-
-// 添加回复目标状态
-const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
-
-// 切换回复输入框显示状态
-const toggleReplyInput = (id: number|undefined, type: string = 'comment', parentId?: number) => {
-  if (!id) return;
-  // 如果当前已经是在回复这个评论/回复，则关闭回复框
-  if (replyTarget.value &&
-      replyTarget.value.id === id &&
-      replyTarget.value.type === type) {
-    replyTarget.value = null;
-    replyContent.value = '';
-  } else {
-    // 否则打开回复框
-    if (type === 'reply' && !parentId) {
-      console.error('回复需要提供父评论ID');
-      return;
-    }
-
-    replyTarget.value = {
-      id,
-      type,
-      parentId
-    };
-
-    // 添加延迟滚动到回复框，确保DOM已更新
-    nextTick(() => {
-      // 滚动到回复框
-      const replyInputContainer = document.querySelector('.reply-input-container-home');
-      if (replyInputContainer) {
-        replyInputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-
-    replyContent.value = '';
-  }
-};
-
-// 取消回复
-const cancelReply = () => {
-  replyTarget.value = null;
-  replyContent.value = '';
-};
-// 展开查看所有回复
-const expandReplies = async (commentId: number|undefined) => {
-  // 如果需要调用API加载更多回复，可以在这里添加
-  // await store.loadAllRepliesForComment(selectedBlog.value.id, commentId);
-  if (commentId) store.getComments(commentId);
-  // 标记该评论已展开
-  // expandedComments.value.push(commentId);
-};
-// 提交回复
-const submitReply = async () => {
-  if (!replyContent.value.trim()) return;
-
-  isSubmittingReply.value = true;
-  try {
-
-
-    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
-    ElMessage.success('Reply added successfully');
-    if(selectedBlog.value?.id)store.getUserBlogByID(selectedBlog.value?.id);
-    replyTarget.value = null;
-    replyContent.value = '';
-  } catch (error) {
-    console.error('Failed to add reply:', error);
-    ElMessage.error('Failed to add reply. Please try again.');
-  } finally {
-    isSubmittingReply.value = false;
-  }
-};
-
-function scrollToComments() {
-  const commentsSection = document.querySelector('.comments-container') as HTMLElement;
-  const detailRight = document.querySelector('.detail-right');
-
-  if (commentsSection && detailRight) {
-    detailRight.scrollTo({
-      top: commentsSection.offsetTop - 20,
-      behavior: 'smooth'
-    });
-  }
-}
-
-// 添加社交弹窗相关的状态和方法
-const isSocialModalVisible = ref(false);
-const followings = computed(() => store.followings);
-const followers = computed(() => store.followers);
-const loadingFollowings = ref(false);
-const loadingFollowers = ref(false);
-
-// 显示社交弹窗
-function showSocialModal() {
-  isSocialModalVisible.value = true;
-  document.body.style.overflow = 'hidden'; // 防止背景滚动
-
-  // 加载数据
-  store.getFollowings();
-  store.getFollowers();
-}
-
-// 关闭社交弹窗
-function closeSocialModal() {
-  isSocialModalVisible.value = false;
-  document.body.style.overflow = ''; // 恢复背景滚动
-}
-
-// 取消关注用户
-function unfollowUser(following:IUser) {
-  ElMessageBox.confirm(
-    `Are you sure you want to unfollow ${following.name}?`,
-    'Confirm Unfollow',
-    {
-      confirmButtonText: 'Unfollow',
-      cancelButtonText: 'Cancel',
-      type: 'warning'
-    }
-  ).then(() => {
-    // 模拟API调用
-    if(following.id) store.unfollow(following.id).then(() => isFollowing.value = false);
-    ElMessage.success(`You have unfollowed ${following.name}`);
-  });
-}
-
-// 切换关注状态
-function toggleFollowUser(follower:IUser) {
-  store.isFollowing(follower.id||0).then(({data}) =>{
-    if(data) {
-      unfollowUser(follower)
+    if (isFollowing.value) {
+      await store.unfollow(userId.value);
       isFollowing.value = false;
+      ElMessage.success('Unfollowed successfully');
     } else {
-      if(follower.id) store.follow(follower.id).then(() => isFollowing.value = true);
+      await store.follow(userId.value);
+      isFollowing.value = true;
+      ElMessage.success('Following successfully');
     }
-  });
-}
-
-// 添加导航菜单状态管理
-const menuActive = ref(false);
-
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
+  } catch (error) {
+    console.error('Failed to toggle follow status:', error);
+    ElMessage.error('Failed to update following status');
+  } finally {
+    followingLoading.value = false;
+  }
 };
 
+// 显示博客详情
+const showBlogDetail = async (blogId?: number) => {
+  if (!blogId) return;
+  
+  try {
+    // 获取博客详情
+    await blogStore.getBlogByID(blogId);
+    selectedBlog.value = blogStore.blog || null;
+    showBlogDialog.value = true;
+    document.body.style.overflow = 'hidden';
+  } catch (error) {
+    console.error('Failed to load blog details:', error);
+    ElMessage.error('Failed to load blog details');
+  }
+};
 
+// 关闭博客详情弹窗
+const closeBlogDetail = () => {
+  showBlogDialog.value = false;
+  selectedBlog.value = null;
+  document.body.style.overflow = '';
+};
+
+// 搜索功能处理
+const handleSearch = () => {
+  const keyword = searchKeyword.value.toLowerCase().trim();
+  console.log('Search keyword:', keyword);
+  // TODO: 实现搜索功能
+};
+
+// 返回上一页
+const goBack = () => {
+  router.back();
+};
+
+// 检查是否是当前用户自己
+const isCurrentUser = computed(() => {
+  return store.user?.id === otherUser.value?.id;
+});
 </script>
 
 <template>
-<div class="background-layer"></div>
-<div class="about layout-main">
-  <commonHeader />
+  <div class="background-layer"></div>
+  <div class="about layout-main">
+    <commonHeader />
 
-  <div class="user-page">
-    <!-- 编辑模式按钮，直接放在 user-page 容器下 -->
-    <div class="nav-edit">
-      <el-button
-        class="edit-mode-btn"
-        :type="isEditMode ? 'primary' : 'default'"
-        @click="toggleEditMode"
-      >
-        {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
-      </el-button>
-    </div>
+    <div class="otheruser-page">
+      <!-- 主体内容 -->
+      <section class="main-content">
+        <!-- 左侧用户信息面板 -->
+        <aside class="sidebar">
+          <!-- 返回按钮 -->
+          <div class="navigation-buttons">
+            <button class="back-btn" @click="goBack">
+              <i class="el-icon-arrow-left"></i>
+              BACK
+            </button>
+          </div>
 
-    <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
-    <section class="main-content">
-      <!-- 左侧用户信息面板 -->
-      <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
-        <div class="profile-buttons">
-          <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
-          <button class="logout-btn" @click="handleLogout">LOGOUT</button>
-        </div>
-        <div class="user-info">
-          <div class="avatar-section">
-            <div class="avatar-container">
-              <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
-              <!-- <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" /> -->
-              <div class="avatar-upload-icon">
-                <i class="el-icon-camera"></i>
+          <div class="user-info" v-if="otherUser">
+            <div class="avatar-section">
+              <div class="avatar-container">
+                <img :src="getImageUrl(otherUser.avatar)" :alt="`${otherUser.name}'s Avatar`" class="avatar" />
               </div>
             </div>
-          </div>
-          <div class="username">{{ user?.name }}</div>
-          <div class="user-id">ID: {{ user?.id }}</div>
-          <div class="registration-time">Joined: {{ user?.created_at }}</div>
-          <!-- Likes / Coins -->
-          <div class="stats">
-            <div class="stat">
-              <span class="number">{{ user?.likes }}</span>
-              <span class="label">Likes</span>
+            
+            <div class="username">{{ otherUser.name }}</div>
+            <div class="user-id">ID: {{ otherUser.id }}</div>
+            <div class="registration-time">Joined: {{ otherUser.created_at }}</div>
+            
+            <!-- 统计信息 -->
+            <div class="stats">
+              <div class="stat">
+                <span class="number">{{ otherUser.likes || 0 }}</span>
+                <span class="label">Likes</span>
+              </div>
             </div>
-            <!-- <div class="stat">
-              <span class="number">{{ user?.coins }}</span>
-              <span class="label">Coins</span>
-            </div> -->
-          </div>
-          <!-- Following / Followers -->
-          <div class="follow-stats-row">
-            <div class="follow-item">
-              <span class="number">{{ user?.followings }}</span>
-              <span class="follow-link" @click="showSocialModal">
+            
+            <!-- 关注/粉丝统计 -->
+            <div class="follow-stats-row">
+              <div class="follow-item">
+                <span class="number">{{ otherUser.followings || 0 }}</span>
                 <span class="link-text">Following</span>
-              </span>
-            </div>
-            <div class="follower-item">
-              <span class="number">{{ user?.followers }}</span>
-              <span class="follower-link" @click="showSocialModal">
+              </div>
+              <div class="follower-item">
+                <span class="number">{{ otherUser.followers || 0 }}</span>
                 <span class="link-text">Followers</span>
-              </span>
+              </div>
+            </div>
+
+            <!-- 关注按钮（如果不是当前用户自己） -->
+            <div class="follow-actions" v-if="!isCurrentUser && store.isLogin()">
+              <button 
+                class="follow-btn"
+                :class="{ 'following': isFollowing }"
+                :disabled="followingLoading"
+                @click="handleFollowToggle"
+              >
+                <span v-if="followingLoading">...</span>
+                <span v-else>{{ isFollowing ? 'Following' : 'Follow' }}</span>
+              </button>
             </div>
           </div>
-        </div>
-      </aside>
 
-      <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
-      <div class="vertical-divider-us"></div>
+          <!-- 用户信息加载中 -->
+          <div v-else class="user-info-loading">
+            <div class="loading-spinner"></div>
+            <p>Loading user information...</p>
+          </div>
+        </aside>
 
-      <!-- 右侧博客列表区，填满剩余宽度 -->
-      <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
-        <div class="blog-posts">
-          <div
-            v-for="post in userPosts.items"
-            :key="post.id"
-            class="blog-post"
-            :class="{
-              'nft-post': post.isNFT,
-              'edit-mode': isEditMode
-            }"
-            @click="isEditMode ? null : showBlogDetail(post.id)"
-          >
-            <!-- 编辑模式下的操作按钮 -->
-            <div v-if="isEditMode" class="blog-action-buttons">
-              <el-button
-                type="danger"
-                class="delete-blog-btn"
-                @click.prevent.stop="deleteBlog(post.id)"
-              >
-                Delete
-              </el-button>
-              <el-button
-                type="primary"
-                class="edit-blog-btn"
-                @click.prevent.stop="gotoEidtPage(post.id)"
-              >
-                Edit
-              </el-button>
+        <!-- 垂直分割线 -->
+        <div class="vertical-divider-us"></div>
+
+        <!-- 右侧博客列表区 -->
+        <section class="blog-area">
+          <!-- 博客区域顶部 -->
+          <div class="blog-area-header">
+            <!-- 搜索框 -->
+            <input
+              class="blog-search-input"
+              type="text"
+              :placeholder="`Search ${otherUser?.name || 'user'}'s blogs`"
+              v-model="searchKeyword"
+              @input="handleSearch"
+            />
+            <div class="blog-count">
+              {{ otherUserPosts.items.length }} posts
             </div>
+          </div>
 
-            <!-- 原有的博客内容 -->
-            <!-- 使用 el-carousel 代替单张图片显示 -->
-            <el-carousel
-              v-if="post.image && post.image.length > 0"
-              :interval="3000"
-              arrow="hover"
-              height="200px"
-              class="post-carousel"
-              :touchable="true"
-              :loop="true"
-              :autoplay="false"
+          <!-- 博客列表 -->
+          <div class="blog-posts">
+            <div
+              v-for="post in otherUserPosts.items"
+              :key="post.id"
+              class="blog-post"
+              :class="{ 'nft-post': post.isNFT }"
+              @click="showBlogDetail(post.id)"
             >
-              <el-carousel-item
-                v-for="(img, index) in post.image"
-                :key="index"
+              <!-- 博客图片轮播 -->
+              <el-carousel
+                v-if="post.image && post.image.length > 0"
+                :interval="3000"
+                arrow="hover"
+                height="200px"
+                class="post-carousel"
+                :touchable="true"
+                :loop="true"
+                :autoplay="false"
               >
-                <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
-              </el-carousel-item>
-            </el-carousel>
-
-            <!-- 博客内容 -->
-            <div class="post-content-userpage">
-              <h2 class="post-title-userpage">{{ post.title }}</h2>
-              <p class="post-text-userpage">{{ post.content }}</p>
-            </div>
-
-            <!-- 博客底部信息 -->
-            <div class="post-footer-userpage">
-              <!-- 作者信息 -->
-              <div class="author-info">
-                <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
-                <span class="author-name">{{ post.user?.name }}</span>
-              </div>
-
-              <!-- 统计信息 -->
-              <div class="post-stats">
-                <span class="likes">❤️ {{ post.likes }}</span>
-                <span class="comments">💬 {{ post.comments_count }}</span>
-                <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- 底部加载提示 -->
-        <div v-if="userPosts.loading" class="loading">Loading more posts...</div>
-        <div v-if="!userPosts.has_next" class="no-more">No more posts</div>
-      </section>
-    </section>
-
-    <!-- 裁剪弹窗 -->
-    <div v-if="false" class="cropper-modal">
-      <div class="cropper-container">
-        <div class="cropper-buttons">
-          <el-button @click="cropSuccess">Confirm</el-button>
-          <el-button @click="cancelCrop">Cancel</el-button>
-        </div>
-      </div>
-    </div>
-    <el-dialog
-      v-model="showCropper"
-      class="crop-dialog"
-      title="Edit Avatar"
-      :close-on-click-modal="true"
-      :show-close="true"
-      destroy-on-close
-    >
-      <div class="avatar-cut">
-        <vue-cropper
-          ref="cropperRef"
-          :img="cropImage"
-          v-bind="cropOption"
-        />
-
-      </div>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="cropSuccess">Confirm</el-button>
-          <el-button @click="cancelCrop">Cancel</el-button>
-        </div>
-      </template>
-    </el-dialog>
-
-    <!-- 编辑个人信息弹窗 -->
-    <div class="edit-profile-modal" v-if="showEditProfile">
-      <div
-        class="edit-profile-container"
-        :style="{
-          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
-        }"
-        @mousedown="startDrag"
-        @mousemove="onDrag"
-        @mouseup="stopDrag"
-        @mouseleave="stopDrag"
-      >
-        <h2>Edit Profile</h2>
-        <input ref="uploadfile" style="display: none;" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
-        <div class="edit-avatar-section avatar-container">
-          <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
-          <div class="avatar-upload-icon">
-            <i class="el-icon-camera" @click.prevent.stop="onUpload">edit</i>
-          </div>
-        </div>
-        <div class="edit-form">
-          <div class="form-group">
-            <label>Nickname</label>
-            <input v-model="editForm.name" type="text" placeholder="Enter your nickname" />
-          </div>
-        </div>
-        <div class="edit-buttons">
-          <el-button @click="submitProfileEdit">Save Changes</el-button>
-          <el-button @click="cancelProfileEdit">Cancel</el-button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 添加社交关系弹窗 -->
-    <div v-if="isSocialModalVisible" class="social-modal-overlay" @click.self="closeSocialModal">
-      <div class="social-modal-container">
-        <button class="social-modal-close" @click="closeSocialModal">&times;</button>
-
-        <div class="social-modal-content">
-          <!-- 左侧：Following 列表 -->
-          <div class="social-modal-column following-column">
-            <h3 class="social-modal-title">Following ({{ user?.followings || 0 }})</h3>
-
-            <div v-if="loadingFollowings" class="social-loading">
-              <div class="loading-spinner"></div>
-              <p>Loading followings...</p>
-            </div>
-
-            <div v-else-if="followings.length === 0" class="social-empty">
-              <div class="empty-icon">👤</div>
-              <p>Not following anyone yet</p>
-            </div>
-
-            <div v-else class="social-user-list">
-              <div v-for="following in followings" :key="following.id" class="social-user-item">
-                <img :src="`/images/${following.avatar}`" :alt="`${following.name}'s avatar`" class="social-user-avatar">
-                <div class="social-user-info">
-                  <div class="social-user-name">{{ following.name }}</div>
-                  <div class="social-user-meta">Following since {{ formatDate(following.created_at) }}</div>
-                </div>
-                <button class="social-action-btn following" @click="unfollowUser(following)">
-                  Unfollow
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- 右侧：Followers 列表 -->
-          <div class="social-modal-column followers-column">
-            <h3 class="social-modal-title">Followers ({{ user?.followers || 0 }})</h3>
-
-            <div v-if="loadingFollowers" class="social-loading">
-              <div class="loading-spinner"></div>
-              <p>Loading followers...</p>
-            </div>
-
-            <div v-else-if="followers.length === 0" class="social-empty">
-              <div class="empty-icon">👥</div>
-              <p>No followers yet</p>
-            </div>
-
-            <div v-else class="social-user-list">
-              <div v-for="follower in followers" :key="follower.id" class="social-user-item">
-                <img :src="follower.avatar" :alt="`${follower.name}'s avatar`" class="social-user-avatar">
-                <div class="social-user-info">
-                  <div class="social-user-name">{{ follower.name }}</div>
-                  <div class="social-user-meta">Following since {{ formatDate(follower.created_at) }}</div>
-                </div>
-                <button
-                  class="social-action-btn"
-                  :class="{ 'following': isFollowing }"
-                  @click="toggleFollowUser(follower)"
+                <el-carousel-item
+                  v-for="(img, index) in post.image"
+                  :key="index"
                 >
-                  {{ isFollowing ? 'Following' : 'Follow' }}
-                </button>
+                  <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
+                </el-carousel-item>
+              </el-carousel>
+
+              <!-- 博客内容 -->
+              <div class="post-content-userpage">
+                <h2 class="post-title-userpage">{{ post.title }}</h2>
+                <p class="post-text-userpage">{{ post.content }}</p>
+              </div>
+
+              <!-- 博客底部信息 -->
+              <div class="post-footer-userpage">
+                <!-- 作者信息 -->
+                <div class="author-info">
+                  <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
+                  <span class="author-name">{{ post.user?.name }}</span>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="post-stats">
+                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <span class="comments">💬 {{ post.comments_count }}</span>
+                  <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
+                </div>
               </div>
             </div>
+
+            <!-- 空状态 -->
+            <div v-if="otherUserPosts.items.length === 0 && !otherUserPosts.loading" class="empty-posts">
+              <div class="empty-icon">📝</div>
+              <p>{{ otherUser?.name }} hasn't posted anything yet</p>
+            </div>
           </div>
-        </div>
-      </div>
+
+          <!-- 加载状态 -->
+          <div v-if="otherUserPosts.loading" class="loading">Loading posts...</div>
+          <div v-if="!otherUserPosts.has_next && otherUserPosts.items.length > 0" class="no-more">No more posts</div>
+        </section>
+      </section>
     </div>
 
-
-  <!-- 博客详情弹出层 -->
-    <user-page-dialog
-      v-if="store.selectedPost"
+    <!-- 博客详情弹出层 -->
+    <OtherUserPageDialog
+      v-if="showBlogDialog && selectedBlog"
+      :blog="selectedBlog"
       :is-following="isFollowing"
       @close="closeBlogDetail"
-      @toggle-follow="toggleFollowUser"
+      @toggle-follow="handleFollowToggle"
     />
   </div>
-</div>
 </template>
 
 

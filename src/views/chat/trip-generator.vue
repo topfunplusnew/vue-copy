@@ -506,10 +506,10 @@ function focusOnChat() {
   
   // 聚焦到输入框
   nextTick(() => {
-    const inputElement = document.querySelector('.chat-input textarea');
-    if (inputElement) {
-      (inputElement as HTMLTextAreaElement).focus();
-    }
+      const inputElement = document.querySelector('.chat-input textarea');
+      if (inputElement) {
+        (inputElement as HTMLTextAreaElement).focus();
+      }
   });
   
   ElMessage({
@@ -675,17 +675,17 @@ onUnmounted(() => {
               </el-button>
             </el-tooltip>
           </div>
-        </div>
-
+          </div>
+          
         <!-- 中间：Chatbox 模块 -->
         <div class="center-chat-panel">
           <div class="chat-box-placeholder">
             <div class="chat-box" ref="chatBoxRef">
-              <div
-                v-for="(msg, index) in messages"
-                :key="index"
-                class="chat-message"
-                :class="msg.role"
+            <div
+              v-for="(msg, index) in messages"
+              :key="index"
+              class="chat-message"
+              :class="msg.role"
               >
                 <!-- 如果是用户消息且正在编辑 -->
                 <div v-if="msg.role === 'user' && editingMessageId === index">
@@ -721,24 +721,24 @@ onUnmounted(() => {
                   </el-tooltip>
                 </div>
               </div>
-              <div
-                v-if="message.length > 0"
-                class="chat-message ai"
-              >{{ message }}</div>
-            </div>
-            <div class="chat-input">
-              <el-input
-                v-model="userChatInput"
-                placeholder="Type your message..."
-                class="chat-input-box"
-                type="textarea"
-                :rows="2"
-                clearable
-                @keydown.enter.prevent="handleUserInput"
-              />
-            </div>
+            <div
+              v-if="message.length > 0"
+              class="chat-message ai"
+            >{{ message }}</div>
           </div>
-        </div>
+          <div class="chat-input">
+            <el-input
+              v-model="userChatInput"
+              placeholder="Type your message..."
+              class="chat-input-box"
+              type="textarea"
+                :rows="2"
+              clearable
+              @keydown.enter.prevent="handleUserInput"
+            />
+      </div>
+    </div>
+  </div>
 
         <!-- 右侧：地图模块 -->
         <div class="right-map-panel">
@@ -746,7 +746,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-  </div>
+        </div>
 
   <!-- History组件 -->
   <HistoryComponent 

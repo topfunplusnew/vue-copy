@@ -52,8 +52,8 @@ const handleSearch = () => {
 function loadHistory(id: number | undefined) {
   if (id) {
     // 只负责emit事件，具体的加载逻辑由父组件处理
-    emit('loadHistory', id);
-    emit('close');
+        emit('loadHistory', id);
+        emit('close');
   }
 }
 

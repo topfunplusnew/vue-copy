@@ -2,16 +2,26 @@
 import { ref, computed, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { ElMessage } from 'element-plus';
-import type { IBlogComment } from '@/types/blog';
+import type { IBlogComment, IBlog } from '@/types/blog';
 import { getImageUrl } from '@/utils';
 
+// Props 定义
+interface Props {
+  blog: IBlog;
+  isFollowing: boolean;
+}
+
+const props = defineProps<Props>();
+
+// Emits 定义
+const emit = defineEmits<{
+  (e: 'close'): void;
+  (e: 'toggle-follow'): void;
+}>();
 
 const store = useUserStore();
 
-const selectedBlog = computed(() => store.selectedPost);
-
-// 关注状态
-const isFollowing = ref(false);
+const selectedBlog = computed(() => props.blog);
 
 // Comment functionality
 const newComment = ref('');
@@ -22,10 +32,6 @@ const submitComment = async () => {
   try {
     await store.commenttoBlog(selectedBlog.value.id, newComment.value);
     newComment.value = '';
-    if(selectedBlog.value.id) await store.getUserBlogByID(selectedBlog.value.id);
-    nextTick(() => {
-      scrollToComments();
-    });
     ElMessage.success('Comment submitted successfully!');
   } catch (error) {
     console.error(error);
@@ -60,12 +66,12 @@ const handleTouchMove = () => {
     longPressTimeout.value = null;
   }
 };
+
 //删除评论
 const confirmDeleteComment = async (commentId?: number) => {
   if(!commentId) return;
   try {
     await store.userDeleteComment(commentId);
-    if(selectedBlog.value?.id) await store.getUserBlogByID(selectedBlog.value.id);
     ElMessage.success('Comment deleted successfully');
   } catch (error) {
     console.error('Failed to delete comment:', error);
@@ -119,11 +125,15 @@ const cancelReply = () => {
 };
 
 const expandReplies = async (commentId?: number) => {
-  if (commentId) store.getComments(commentId);
+  if (commentId) {
+    console.log('Expand replies for comment:', commentId);
+  }
 };
 
 const collapseComments = async (commentId?: number) => {
-  if (commentId) store.collapseComments(commentId);
+  if (commentId) {
+    console.log('Collapse comments for comment:', commentId);
+  }
 };
 
 const submitReply = async () => {
@@ -131,9 +141,10 @@ const submitReply = async () => {
 
   isSubmittingReply.value = true;
   try {
-    if(replyTarget.value?.id) await store.commenttoComment(replyTarget.value.id, replyContent.value);
+    if(replyTarget.value?.id) {
+      await store.commenttoComment(replyTarget.value.id, replyContent.value);
+    }
     ElMessage.success('Reply added successfully');
-    if(selectedBlog.value?.id) await store.getUserBlogByID(selectedBlog.value.id);
     replyTarget.value = null;
     replyContent.value = '';
   } catch (error) {
@@ -148,7 +159,6 @@ function scrollToComments() {
   const commentsSection = document.querySelector('.comments-container') as HTMLElement;
 
   if (commentsSection) {
-    // 直接使用scrollIntoView方法，将评论区域滚动到视图顶部
     commentsSection.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
@@ -156,22 +166,8 @@ function scrollToComments() {
   }
 }
 
-const handleFollowClick = async (id?: number) => {
-  if (!id) return;
-  try {
-    if (isFollowing.value) {
-      await store.unfollow(id);
-      isFollowing.value = false;
-      ElMessage.success('Unfollowed successfully');
-    } else {
-      await store.follow(id);
-      isFollowing.value = true;
-      ElMessage.success('Following successfully');
-    }
-  } catch (error) {
-    console.log(error);
-    ElMessage.error('Failed to update following status');
-  }
+const handleFollowClick = async () => {
+  emit('toggle-follow');
 };
 
 const isOwnPost = computed(() => {
@@ -179,7 +175,6 @@ const isOwnPost = computed(() => {
   const blogUser = selectedBlog.value?.user;
   return user && blogUser && user.id === blogUser.id;
 });
-
 </script>
 
 <template>
@@ -231,11 +226,11 @@ const isOwnPost = computed(() => {
                   v-if="!isOwnPost"
                   class="follow-btn"
                   size="small"
-                  :class="{ 'following': isFollowing }"
-                  @click.stop="handleFollowClick(selectedBlog?.user?.id)"
+                  :class="{ 'following': props.isFollowing }"
+                  @click.stop="handleFollowClick"
                 >
                   <span class="follow-icon">+</span>
-                  <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
+                  <span class="follow-text">{{ props.isFollowing ? 'Following' : 'Follow' }}</span>
                 </el-button>
                 <!-- 编辑按钮 -->
                 <!-- <el-button

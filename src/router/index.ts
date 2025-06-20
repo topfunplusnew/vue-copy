@@ -79,9 +79,15 @@ const router = createRouter({
       component: () => import('@/views/user/forget-password.vue'),
     },
     {
-      path: '/userpage/:id?',
+      path: '/userpage',
       name: 'userpage',
       component: () => import('@/views/user/user-page.vue'),
+    },
+    {
+      path: '/userpage/:id',
+      name: 'otheruser',
+      component: () => import('@/views/otheruser/otheruser-page.vue'),
+      props: true,
     },
     {
       path: '/generator',

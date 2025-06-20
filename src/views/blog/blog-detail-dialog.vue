@@ -251,77 +251,70 @@ const handleMassageClick = (id?: number) => {
 // 处理头像和用户名点击事件
 const handleUserClick = (event?: Event) => {
   console.log('handleUserClick 被调用');
-  console.log('isOwnPost.value:', isOwnPost.value);
-
+  
   // 阻止事件冒泡，避免其他事件干扰
   if (event) {
     event.preventDefault();
     event.stopPropagation();
   }
 
-  // 只有当前用户发布的博客才能点击跳转
-  if (isOwnPost.value) {
-    console.log('✅ 这是当前用户的博客，可以跳转');
-    console.log('当前用户ID:', userStore.user?.id);
-    console.log('博客作者ID:', selectedBlog.value?.user?.id);
+  // 获取要跳转的用户ID
+  const targetUserId = selectedBlog.value?.user?.id;
+  if (!targetUserId) {
+    console.log('❌ cannot get user id');
+    ElMessage.error('cannot get user info');
+    return;
+  }
 
-    try {
-      // 先关闭当前弹窗
-      console.log('📤 关闭弹窗...');
-      closeDialog();
+  console.log('✅ click user avatar, prepare to jump to user page');
+  console.log('target user id:', targetUserId);
+  console.log('current user id:', userStore.user?.id);
+  console.log('is own post:', isOwnPost.value);
 
-      // 使用setTimeout确保弹窗完全关闭后再跳转
-      setTimeout(() => {
-        console.log('🚀 开始跳转到用户页面...');
+  try {
+    // 先关闭当前弹窗
+    console.log('📤 close dialog...');
+    closeDialog();
 
-        // 尝试两种跳转方式
-        const jumpToUserPage = async () => {
-          try {
-            // 方式1: 使用路由名称
-            console.log('尝试方式1: 使用路由名称');
-            await router.push({ name: 'userpage' });
-            console.log('✅ 方式1成功');
+    // 使用setTimeout确保弹窗完全关闭后再跳转
+    setTimeout(() => {
+      console.log('🚀 start to jump to user page...');
 
-            // 跳转成功后滚动到页面顶部
-            nextTick(() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-              // 也尝试滚动document.body到顶部，以防某些情况下window.scrollTo不生效
-              document.body.scrollTop = 0;
-              document.documentElement.scrollTop = 0;
-            });
+             // 跳转到对应的用户页面
+       const jumpToUserPage = async () => {
+         try {
+           // 如果是当前用户自己的博客，跳转到自己的用户页面
+           if (isOwnPost.value) {
+             console.log('jump to my user page (userpage)');
+             await router.push({ name: 'userpage' });
+             console.log('✅ success to jump to my user page');
+           } else {
+             // 如果是其他用户的博客，跳转到其他用户页面
+             console.log('jump to other user page (otheruser), user id:', targetUserId);
+             await router.push({ name: 'otheruser', params: { id: targetUserId.toString() } });
+             console.log('✅ success to jump to other user page');
+           }
 
-          } catch (error1) {
-            console.error('❌ 方式1失败:', error1);
-            try {
-              // 方式2: 使用路径
-              console.log('尝试方式2: 使用路径');
-              await router.push('/userpage');
-              console.log('✅ 方式2成功');
+          // 跳转成功后滚动到页面顶部
+          nextTick(() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          });
 
-              // 跳转成功后滚动到页面顶部
-              nextTick(() => {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-              });
+        } catch (error) {
+          console.error('❌ jump failed:', error);
+          const errorMessage = error instanceof Error ? error.message : 'unknown error';
+          ElMessage.error(`jump failed: ${errorMessage}`);
+        }
+      };
 
-            } catch (error2) {
-              console.error('❌ 方式2也失败:', error2);
-              const errorMessage = error2 instanceof Error ? error2.message : '未知错误';
-              ElMessage.error(`跳转失败: ${errorMessage}`);
-            }
-          }
-        };
+      jumpToUserPage();
+    }, 100); // 100ms延迟确保弹窗关闭
 
-        jumpToUserPage();
-      }, 100); // 100ms延迟确保弹窗关闭
-
-    } catch (error) {
-      console.error('❌ 处理跳转时发生错误:', error);
-      ElMessage.error('处理跳转时发生错误');
-    }
-  } else {
-    console.log('❌ 这不是当前用户的博客，不能跳转');
+  } catch (error) {
+    console.error('❌ jump failed:', error);
+    ElMessage.error('jump failed');
   }
 };
 </script>
@@ -373,10 +366,9 @@ const handleUserClick = (event?: Event) => {
           <div class="user-header">
             <div class="author-info">
               <div
-                class="user-click-area"
-                :class="{ 'clickable': isOwnPost }"
+                class="user-click-area clickable"
                 @click="handleUserClick($event)"
-                :title="isOwnPost ? 'Click to jump to my user page' : ''"
+                :title="isOwnPost ? 'Click to jump to my user page' : `Click to jump to ${selectedBlog?.user?.name}'s user page`"
               >
                 <img
                   :src="getImageUrl(selectedBlog?.user?.avatar || '')"
