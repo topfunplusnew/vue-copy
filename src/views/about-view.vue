@@ -82,7 +82,12 @@ const faqs = ref([
   }
 ]);
 
-// 切换菜单显示
+// FAQ交互逻辑
+const activeFaqIndex = ref<number | null>(null);
+
+const toggleFaq = (index: number) => {
+  activeFaqIndex.value = activeFaqIndex.value === index ? null : index;
+};
 </script>
 
 <template>
@@ -127,12 +132,40 @@ const faqs = ref([
 
     <!-- FAQ Section -->
     <div class="faq-container-about">
-      <h3>Frequently Asked Questions</h3>
-      <el-collapse accordion class="clean-collapse stable-width-collapse">
-        <el-collapse-item v-for="(faq, index) in faqs" :key="index" :title="faq.question" class="stable-item">
-          <div class="answer-content-about">{{ faq.answer }}</div>
-        </el-collapse-item>
-      </el-collapse>
+      <div class="faq-header">
+        <h3>Frequently Asked Questions</h3>
+        <div class="faq-subtitle">Everything you need to know about iPoloGO</div>
+      </div>
+      
+      <div class="faq-list">
+        <div 
+          v-for="(faq, index) in faqs" 
+          :key="index" 
+          class="faq-item"
+          :class="{ 'active': activeFaqIndex === index }"
+          @click="toggleFaq(index)"
+        >
+          <div class="faq-question">
+            <span class="question-text">{{ faq.question }}</span>
+            <span class="toggle-icon">
+              <svg 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                :class="{ 'rotated': activeFaqIndex === index }"
+              >
+                <path d="M7 10l5 5 5-5z" fill="currentColor"/>
+              </svg>
+            </span>
+          </div>
+          
+          <div class="faq-answer" :class="{ 'open': activeFaqIndex === index }">
+            <div class="answer-content">
+              {{ faq.answer }}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
