@@ -27,13 +27,13 @@
         max-width: none;
         position: relative;
         transition: flex-direction 0.3s ease, width 0.3s ease, height 0.3s ease;
-        overflow-y: auto;
         
-        /* 在窄屏幕上调整为垂直布局 */
+        /* 在窄屏幕上调整为垂直布局并允许整体滚动 */
         @include screen-mobile {
             flex-direction: column;
             height: 95vh;
-    
+            overflow-y: auto; /* 允许整个容器滚动 */
+            overflow-x: hidden;
         }
     
         /* 关闭按钮 */
@@ -65,6 +65,12 @@
             flex-direction: column;
             transition: height 0.3s ease;
             min-height: 280px;
+            
+            /* 在手机端调整图片区域高度，不再固定50% */
+            @include screen-mobile {
+                min-height: 300px; /* 设置最小高度而不是固定高度 */
+                flex-shrink: 0; /* 防止图片区域被压缩 */
+            }
     
             /* 图片显示区域 */
             .image-section {
@@ -131,13 +137,21 @@
             background: white;
             display: flex;
             flex-direction: column;
+            
+            /* 在手机端调整内容区域，不再固定高度 */
+            @include screen-mobile {
+                flex: 1; /* 让内容区域占据剩余空间 */
+                min-height: 0; /* 允许内容区域收缩 */
+            }
     
     
             .detail-right-content {
             flex: 1;
             padding:rpx(20) rpx(20) 0 rpx(20);
-            overflow-y: auto;
+            
+            /* 在手机端移除独立滚动，让整个容器统一滚动 */
             @include screen-pc{
+            overflow-y: auto;
             /* 滚动条样式 */
             &::-webkit-scrollbar {
                 width: 8px;
@@ -156,6 +170,11 @@
             &::-webkit-scrollbar-thumb:hover {
                 background: linear-gradient(45deg, #a0c0dc, #e9b4c4); /* hover 状态更深色 */
             }
+            }
+            
+            @include screen-mobile {
+                overflow-y: visible; /* 移除独立滚动 */
+                padding-bottom: rpx(20); /* 添加底部间距 */
             }
     
             /* 用户信息和标题 */
@@ -467,10 +486,12 @@
             padding: 0 20px;
             
             @media (max-width: 768px) {
+              position: static; /* 在手机端取消固定定位，跟随内容滚动 */
               flex-direction: row;
               gap: 10px;
               padding: 0 15px;
               height: 50px;
+              margin-top: 10px; /* 添加顶部间距 */
             }
             
             /* 统计信息 */

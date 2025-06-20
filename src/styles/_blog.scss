@@ -346,10 +346,12 @@ $border-color: rgba(100, 179, 244, 0.2);
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
   }
   
-  /* 在窄屏幕上调整为垂直布局 */
+  /* 在窄屏幕上调整为垂直布局并允许整体滚动 */
   @media (max-width: 768px) {
     flex-direction: column;
     height: 90vh;
+    overflow-y: auto; /* 允许整个容器滚动 */
+    overflow-x: hidden;
   }
 
   /* 关闭按钮 */
@@ -386,9 +388,10 @@ $border-color: rgba(100, 179, 244, 0.2);
     flex-direction: column;
     transition: height 0.3s ease;
     
-    /* 在窄屏幕上调整高度 */
+    /* 在窄屏幕上调整高度，不再固定50% */
     @media (max-width: 768px) {
-      height: 50%;
+      min-height: 300px; /* 设置最小高度而不是固定高度 */
+      flex-shrink: 0; /* 防止图片区域被压缩 */
     }
 
     .image-section {
@@ -431,9 +434,10 @@ $border-color: rgba(100, 179, 244, 0.2);
     height: 100%;
     position: relative;
     
-    /* 在窄屏幕上调整高度 */
+    /* 在窄屏幕上调整高度，不再固定50% */
     @media (max-width: 768px) {
-      height: 50%;
+      flex: 1; /* 让内容区域占据剩余空间 */
+      min-height: 0; /* 允许内容区域收缩 */
     }
     
     /* 滚动条样式 */
@@ -462,6 +466,8 @@ $border-color: rgba(100, 179, 244, 0.2);
       
       @media (max-width: 768px) {
         padding: 20px 20px 0 20px;
+        overflow-y: visible; /* 移除独立滚动 */
+        padding-bottom: 20px; /* 添加底部间距 */
       }
       
       // 用户信息区
@@ -518,7 +524,7 @@ $border-color: rgba(100, 179, 244, 0.2);
               }
               
               .author-name {
-                color: #1d1d1d;
+                color: #2b2b2b;
                 transition: all 0.3s ease;
               }
               
@@ -528,7 +534,7 @@ $border-color: rgba(100, 179, 244, 0.2);
               }
               
               &:hover .author-name {
-                color: #2d2d2d;
+                color: #282828;
               }
             }
             
@@ -553,7 +559,6 @@ $border-color: rgba(100, 179, 244, 0.2);
           .author-name {
             font-size: 20px;
             font-weight: bold;
-            color: #000000;
           }
 
           .follow-btn, .edit-btn, .massage-btn {
@@ -964,17 +969,19 @@ $border-color: rgba(100, 179, 244, 0.2);
       background: rgba(248, 248, 248, 0.98);
       border-top: 1px solid #eee;
       box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      z-index: 10;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
       padding: 0 20px;
       
       @media (max-width: 768px) {
+        position: static; /* 在手机端取消固定定位，跟随内容滚动 */
         flex-direction: row;
         gap: 10px;
         padding: 0 15px;
         height: 50px;
+        margin-top: 10px; /* 添加顶部间距 */
       }
       
       /* 统计信息 */
@@ -1194,19 +1201,21 @@ $border-color: rgba(100, 179, 244, 0.2);
       box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
     }
     
-    /* 在窄屏幕上调整为垂直布局 */
+    /* 在窄屏幕上调整为垂直布局并允许整体滚动 */
     @media (max-width: 768px) {
       flex-direction: column;
       height: 90vh;
+      overflow-y: auto; /* 允许整个容器滚动 */
+      overflow-x: hidden;
     }
 
     /* 关闭按钮 */
     .close-button {
       position: absolute;
-      top: 5px;
-      right: 7px;
-      width: 30px;
-      height: 30px;
+      top: 15px;
+      right: 15px;
+      width: 36px;
+      height: 36px;
       background: rgba(0, 0, 0, 0.5);
       color: white;
       border: none;
@@ -1234,9 +1243,10 @@ $border-color: rgba(100, 179, 244, 0.2);
       flex-direction: column;
       transition: height 0.3s ease;
       
-      /* 在窄屏幕上调整高度 */
+      /* 在窄屏幕上调整高度，不再固定50% */
       @media (max-width: 768px) {
-        height: 50%;
+        min-height: 300px; /* 设置最小高度而不是固定高度 */
+        flex-shrink: 0; /* 防止图片区域被压缩 */
       }
 
       .image-section {
@@ -1279,9 +1289,10 @@ $border-color: rgba(100, 179, 244, 0.2);
       height: 100%;
       position: relative;
       
-      /* 在窄屏幕上调整高度 */
+      /* 在窄屏幕上调整高度，不再固定50% */
       @media (max-width: 768px) {
-        height: 50%;
+        flex: 1; /* 让内容区域占据剩余空间 */
+        min-height: 0; /* 允许内容区域收缩 */
       }
       
       /* 滚动条样式 */
@@ -1310,6 +1321,8 @@ $border-color: rgba(100, 179, 244, 0.2);
         
         @media (max-width: 768px) {
           padding: 20px 20px 0 20px;
+          overflow-y: visible; /* 移除独立滚动 */
+          padding-bottom: 20px; /* 添加底部间距 */
         }
         
         // 用户信息区
@@ -1377,7 +1390,6 @@ $border-color: rgba(100, 179, 244, 0.2);
                 
                 &:hover .author-name {
                   color: #282828;
-
                 }
               }
               
@@ -1534,17 +1546,19 @@ $border-color: rgba(100, 179, 244, 0.2);
         background: rgba(248, 248, 248, 0.98);
         border-top: 1px solid #eee;
         box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        z-index: 10;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        z-index: 10;
         padding: 0 20px;
         
         @media (max-width: 768px) {
+          position: static; /* 在手机端取消固定定位，跟随内容滚动 */
           flex-direction: row;
           gap: 10px;
           padding: 0 15px;
           height: 50px;
+          margin-top: 10px; /* 添加顶部间距 */
         }
         
         /* 统计信息 */

@@ -373,17 +373,19 @@ $accent-color: #64b3f4 !default;
       background: rgba(248, 248, 248, 0.98);
       border-top: 1px solid #eee;
       box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+      z-index: 10;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
       padding: 0 20px;
-
+      
       @media (max-width: 768px) {
+        position: static; /* 在手机端取消固定定位，跟随内容滚动 */
         flex-direction: row;
         gap: 10px;
         padding: 0 15px;
         height: 50px;
+        margin-top: 10px; /* 添加顶部间距 */
       }
       
       /* 统计信息 */

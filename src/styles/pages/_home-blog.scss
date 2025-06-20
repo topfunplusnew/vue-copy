@@ -428,6 +428,8 @@ $border-color: rgba(100, 179, 244, 0.2);
       @media (max-width: 768px) {
         flex-direction: column;
         height: 90vh;
+        overflow-y: auto; /* 允许整个容器滚动 */
+        overflow-x: hidden;
       }
 
       /* 左侧区域：图片和统计信息 */
@@ -439,9 +441,10 @@ $border-color: rgba(100, 179, 244, 0.2);
         flex-direction: column;
         transition: height 0.3s ease;
 
-        /* 在窄屏幕上调整高度 */
+        /* 在窄屏幕上调整高度，不再固定50% */
         @media (max-width: 768px) {
-          height: 50%;
+          min-height: 300px; /* 设置最小高度而不是固定高度 */
+          flex-shrink: 0; /* 防止图片区域被压缩 */
         }
 
         /* 图片显示区域 */
@@ -530,10 +533,12 @@ $border-color: rgba(100, 179, 244, 0.2);
           padding: 0 20px;
 
           @media (max-width: 768px) {
+            position: static; /* 在手机端取消固定定位，跟随内容滚动 */
             flex-direction: row;
             gap: 10px;
             padding: 0 15px;
             height: 50px;
+            margin-top: 10px; /* 添加顶部间距 */
           }
 
           /* 统计信息 */
@@ -665,9 +670,12 @@ $border-color: rgba(100, 179, 244, 0.2);
         max-height: 100%;
         height: 100%;
 
-        /* 在窄屏幕上调整高度 */
+        /* 在窄屏幕上调整高度，不再固定50% */
         @media (max-width: 768px) {
-          height: 50%;
+          flex: 1; /* 让内容区域占据剩余空间 */
+          min-height: 0; /* 允许内容区域收缩 */
+          overflow-y: visible; /* 移除独立滚动 */
+          padding: 20px 20px 0 20px; /* 调整内边距 */
         }
 
         /* 滚动条样式 */
@@ -697,6 +705,8 @@ $border-color: rgba(100, 179, 244, 0.2);
 
           @media (max-width: 768px) {
             padding: 20px 20px 0 20px;
+            overflow-y: visible; /* 移除独立滚动 */
+            padding-bottom: 20px; /* 添加底部间距 */
           }
 
           // 用户信息区
