@@ -24,16 +24,86 @@
       max-width: 600px;
     }
   
+
+    /* 编辑个人信息按钮和登出按钮的容器 */
+    .profile-buttons {
+      display: flex;
+      flex-direction: row;
+      gap: 12px;
+      position: relative;
+      margin-top: 15px;
+      
+      @include screen-mobile {
+        gap: 10px;
+        margin-top: 12px;
+      }
+      
+      /* 编辑个人信息按钮 */
+      .edit-profile-btn {
+        flex: 1;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #1a3566;
+        font-size: rpx(14);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      
+        @include screen-mobile {
+          font-size: rpx(20);
+        }
+      }
+      
+      /* 登出按钮 */
+      .logout-btn {
+        flex: 1;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #1a3566;
+        font-size: rpx(14);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.25);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        &:active {
+          transform: translateY(0);
+        }
+      
+        @include screen-mobile {
+          font-size: rpx(20);
+        }
+      }
+    }
       /* 用户信息 */
     .user-info {
       text-align: center;
       font-size: rpx(15);
-  
-      /* 编辑个人信息按钮和登出按钮的容器 */
-      .profile-buttons {
-        display: flex;
-        gap: 20px;
-      }
   
       .avatar-section {
         display: flex;
@@ -331,53 +401,6 @@
     /* 在窄屏幕上隐藏垂直分隔线 */
     @media (max-width: 992px) {
       display: none;
-    }
-  }
-
-  /* 编辑个人信息按钮 */
-.edit-profile-btn {
-    flex: 1;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(65, 145, 255, 0.3);
-    border-radius: 8px;
-    color: #1a3566; /* 深蓝色 */
-    font-size:rpx(15);
-    cursor: pointer;
-    transition: all 0.3s ease;
-  
-    &:hover {
-      background: rgba(255, 255, 255, 0.9);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-  
-    @include screen-mobile {
-      font-size: rpx(15);
-    }
-  }
-  
-  /* 登出按钮 */
-  .logout-btn {
-    flex: 1;
-    padding: 8px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(255, 100, 100, 0.2);
-    border-radius: 8px;
-    color: #1a3566; /* 深蓝色 */
-    font-size:rpx(15);
-    cursor: pointer;
-    transition: all 0.3s ease;
-  
-    &:hover {
-      background: rgba(255, 100, 100, 0.1);
-      border-color: rgba(255, 100, 100, 0.3);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    }
-  
-    @include screen-mobile {
-      font-size: rpx(15);
     }
   }
 }

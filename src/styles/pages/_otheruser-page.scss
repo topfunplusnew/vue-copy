@@ -1,412 +1,249 @@
-// Other User Page Styles
-.otheruser-page {
-  min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding-top: 60px;
+@use '../utils/utils' as *; // 工具类
+@use '../utils/mixins' as *; // 混合宏
+@use './user-page-blog' as blog-detail;
+@use './user-sidebar' as sidebar;
+@use './user-blog' as blog-post-user;
 
-  .main-content {
+/* OtherUser Page - 复用User Page样式 */
+// 基本使用user-page的所有样式，只做必要的覆盖和调整
+
+.user-page {
+  @include blog-detail.wrapper;
+  @include sidebar.wrapper;
+  @include blog-post-user.wrapper;
+
+  /* 如果你想要全屏高度背景，可以加下行 */
+    position: relative;
+    width: 100%;
+    height: 100%;
+    
+    z-index: 1;
     display: flex;
-    max-width: 1200px;
-    margin: 0 auto;
-    gap: 0;
-    min-height: calc(100vh - 60px);
-  }
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+    padding-top: rpx(20);
+    box-sizing: border-box;
+    min-height: 100vh;
+    color: #1a3566; /* 改为深蓝色，与 About 页面一致 */
+    font-family: 'Helvetica Neue', sans-serif;
 
-  .sidebar {
-    width: 300px;
-    background: white;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
-    top: 60px;
-    height: calc(100vh - 60px);
-    overflow-y: auto;
-
-    .navigation-buttons {
-      margin-bottom: 20px;
-
-      .back-btn {
-        background: #667eea;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-
-        &:hover {
-          background: #5a6fd8;
-          transform: translateY(-1px);
-        }
-
-        i {
-          font-size: 16px;
-        }
-      }
-    }
-
-    .user-info {
-      text-align: center;
-
-      .avatar-section {
-        margin-bottom: 20px;
-
-        .avatar-container {
-          position: relative;
-          display: inline-block;
-
-          .avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 4px solid #f1f3f4;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-          }
-        }
-      }
-
-      .username {
-        font-size: 24px;
+  /* 特殊覆盖样式 - 针对OtherUser页面的调整 */
+  .profile-buttons {
+    /* 返回按钮样式 */
+    .edit-profile-btn {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(65, 145, 255, 0.3);
+      color: #1a3566;
+      
+      .btn-icon {
+        font-size: rpx(18);
         font-weight: bold;
-        color: #333;
-        margin-bottom: 8px;
       }
-
-      .user-id {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 8px;
-      }
-
-      .registration-time {
-        color: #888;
-        font-size: 12px;
-        margin-bottom: 20px;
-      }
-
-      .stats {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        margin-bottom: 20px;
-
-        .stat {
-          text-align: center;
-
-          .number {
-            display: block;
-            font-size: 20px;
-            font-weight: bold;
-            color: #667eea;
-          }
-
-          .label {
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-          }
-        }
-      }
-
-      .follow-stats-row {
-        display: flex;
-        justify-content: space-around;
-        margin-bottom: 20px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 10px;
-
-        .follow-item,
-        .follower-item {
-          text-align: center;
-
-          .number {
-            display: block;
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-          }
-
-          .link-text {
-            font-size: 12px;
-            color: #666;
-            cursor: default;
-          }
-        }
-      }
-
-      .follow-actions {
-        margin-top: 20px;
-
-        .follow-btn {
-          background: #667eea;
-          color: white;
-          border: none;
-          padding: 12px 30px;
-          border-radius: 25px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          width: 100%;
-
-          &:hover {
-            background: #5a6fd8;
-            transform: translateY(-1px);
-          }
-
-          &.following {
-            background: #28a745;
-
-            &:hover {
-              background: #218838;
-            }
-          }
-
-          &:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-          }
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(65, 145, 255, 0.5);
+        
+        .btn-icon {
+          transform: translateX(-2px);
         }
       }
     }
-
-    .user-info-loading {
-      text-align: center;
-      padding: 40px 20px;
-
-      .loading-spinner {
-        width: 40px;
-        height: 40px;
-        margin: 0 auto 20px;
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #667eea;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      p {
-        color: #666;
-        font-size: 14px;
-      }
-    }
-  }
-
-  .vertical-divider-us {
-    width: 1px;
-    background: linear-gradient(to bottom, transparent, #ddd, transparent);
-    flex-shrink: 0;
-  }
-
-  .blog-area {
-    flex: 1;
-    background: white;
-    padding: 20px;
-    overflow-y: auto;
-    height: calc(100vh - 60px);
-
-    .blog-area-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #eee;
-
-      .blog-search-input {
-        flex: 1;
-        max-width: 400px;
-        padding: 12px 16px;
-        border: 1px solid #ddd;
-        border-radius: 25px;
-        outline: none;
-        font-size: 14px;
-        transition: border-color 0.3s ease;
-
-        &:focus {
-          border-color: #667eea;
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-      }
-
-      .blog-count {
-        color: #666;
-        font-size: 14px;
-        font-weight: 500;
-      }
-    }
-
-    .blog-posts {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 20px;
-
-      .blog-post {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-
+    
+    /* 关注按钮样式 */
+    .logout-btn {
+      /* 当作为关注按钮时的样式 */
+      &.following {
+        background: rgba(46, 125, 50, 0.8);
+        border-color: rgba(46, 125, 50, 0.4);
+        color: white;
+        
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+          background: rgba(46, 125, 50, 1);
+          border-color: rgba(46, 125, 50, 0.6);
         }
-
-        &.nft-post {
-          border: 2px solid #ffd700;
-          
-          &::before {
-            content: 'NFT';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ffd700;
-            color: #333;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: bold;
-            z-index: 1;
-          }
+        
+        .btn-icon {
+          color: white;
+          font-size: rpx(16);
         }
-
-        .post-carousel {
-          height: 200px;
-
-          .post-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-          }
-        }
-
-        .post-content-userpage {
-          padding: 15px;
-
-          .post-title-userpage {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            color: #333;
-          }
-
-          .post-text-userpage {
-            color: #666;
-            font-size: 14px;
-            line-height: 1.5;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-          }
-        }
-
-        .post-footer-userpage {
-          padding: 15px;
-          border-top: 1px solid #f0f0f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-
-          .author-info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            .post-avatar {
-              width: 24px;
-              height: 24px;
-              border-radius: 50%;
-              object-fit: cover;
-            }
-
-            .author-name {
-              font-size: 12px;
-              color: #666;
-              font-weight: 500;
-            }
-          }
-
-          .post-stats {
-            display: flex;
-            gap: 15px;
-            font-size: 12px;
-
-            .likes,
-            .comments,
-            .coins {
-              color: #666;
-              display: flex;
-              align-items: center;
-              gap: 4px;
-            }
-          }
+        
+        .btn-text {
+          color: white;
         }
       }
-
-      .empty-posts {
-        grid-column: 1 / -1;
-        text-align: center;
-        padding: 60px 20px;
-        color: #666;
-
-        .empty-icon {
-          font-size: 48px;
-          margin-bottom: 16px;
+      
+      /* 未关注状态 */
+      &:not(.following) {
+        background: rgba(33, 150, 243, 0.8);
+        border-color: rgba(33, 150, 243, 0.4);
+        color: white;
+        
+        &:hover {
+          background: rgba(33, 150, 243, 1);
+          border-color: rgba(33, 150, 243, 0.6);
         }
-
-        p {
-          font-size: 16px;
+        
+        .btn-icon {
+          color: white;
+          font-size: rpx(18);
+          font-weight: bold;
+        }
+        
+        .btn-text {
+          color: white;
         }
       }
-    }
-
-    .loading,
-    .no-more {
-      text-align: center;
-      padding: 20px;
-      color: #666;
-      font-size: 14px;
+      
+      /* 禁用状态 */
+      &:disabled {
+        background: rgba(128, 128, 128, 0.5);
+        border-color: rgba(128, 128, 128, 0.3);
+        cursor: not-allowed;
+        transform: none;
+        
+        .btn-icon,
+        .btn-text {
+          color: rgba(255, 255, 255, 0.6);
+        }
+      }
     }
   }
+  
+  /* 用户信息加载状态 */
+  .user-info-loading {
+    text-align: center;
+    padding: rpx(40) rpx(20);
+    
+    .loading-spinner {
+      width: rpx(40);
+      height: rpx(40);
+      margin: 0 auto rpx(20);
+      border: rpx(4) solid rgba(26, 53, 102, 0.1);
+      border-top: rpx(4) solid #1a3566;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    p {
+      color: #1a3566;
+      font-size: rpx(14);
+      opacity: 0.8;
+    }
+  }
+  
+  /* 空状态样式 */
+  .empty-posts {
+    text-align: center;
+    padding: rpx(60) rpx(20);
+    color: rgba(26, 53, 102, 0.6);
+    
+    .empty-icon {
+      font-size: rpx(48);
+      margin-bottom: rpx(16);
+      opacity: 0.5;
+    }
+    
+    p {
+      font-size: rpx(16);
+      line-height: 1.6;
+    }
+  }
+  
+     /* 博客数量显示 */
+   .blog-count {
+     color: #1a3566;
+     font-size: rpx(14);
+     font-weight: 500;
+     opacity: 0.8;
+   }
+   
+   /* 其他用户页面特定样式 - 关注统计不可点击 */
+   .follow-stats-row {
+     .follow-link,
+     .follower-link {
+       cursor: default;
+       text-decoration: none;
+       
+       &:hover {
+         color: inherit;
+         transform: none;
+         
+         &::after {
+           display: none;
+         }
+       }
+     }
+   }
 }
 
+/* 动画定义 */
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-// 响应式设计
-@media (max-width: 768px) {
-  .otheruser-page {
-    .main-content {
+/* 响应式设计增强 */
+@include screen-mobile {
+  .user-page {
+    .profile-buttons {
       flex-direction: column;
+      gap: rpx(8);
+      
+      .edit-profile-btn,
+      .logout-btn {
+        width: 100%;
+        justify-content: center;
+        
+        .btn-icon {
+          font-size: rpx(14);
+        }
+        
+        .btn-text {
+          font-size: rpx(12);
+        }
+      }
+      
+      .edit-profile-btn {
+        .btn-icon {
+          font-size: rpx(16);
+        }
+      }
+      
+      .logout-btn {
+        &.following .btn-icon {
+          font-size: rpx(14);
+        }
+        
+        &:not(.following) .btn-icon {
+          font-size: rpx(16);
+        }
+      }
     }
-
-    .sidebar {
-      width: 100%;
-      position: static;
-      height: auto;
+    
+    .user-info-loading {
+      padding: rpx(30) rpx(15);
+      
+      .loading-spinner {
+        width: rpx(30);
+        height: rpx(30);
+      }
+      
+      p {
+        font-size: rpx(12);
+      }
     }
-
-    .vertical-divider-us {
-      display: none;
-    }
-
-    .blog-area {
-      height: auto;
-
-      .blog-posts {
-        grid-template-columns: 1fr;
+    
+    .empty-posts {
+      padding: rpx(40) rpx(15);
+      
+      .empty-icon {
+        font-size: rpx(36);
+      }
+      
+      p {
+        font-size: rpx(14);
       }
     }
   }

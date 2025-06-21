@@ -6,7 +6,7 @@ import { getImageUrl } from '@/utils';
 import { ElMessage } from 'element-plus';
 import type { IUser } from '@/types/user';
 import type { IBlog } from '@/types/blog';
-import OtherUserPageDialog from '@/views/otheruser/otheruser-page-dialog.vue';
+import BlogDetailDialog from '@/views/blog/blog-detail-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
 import { useBlogStore } from '@/stores/blog';
 import axios from 'axios';
@@ -127,11 +127,21 @@ const showBlogDetail = async (blogId?: number) => {
   if (!blogId) return;
   
   try {
-    // 获取博客详情
+    console.log('Showing blog detail for ID:', blogId);
+    
+    // 使用blogStore获取博客详情
     await blogStore.getBlogByID(blogId);
-    selectedBlog.value = blogStore.blog || null;
-    showBlogDialog.value = true;
-    document.body.style.overflow = 'hidden';
+    console.log('BlogStore.blog loaded:', blogStore.blog);
+    
+    if (blogStore.blog) {
+      selectedBlog.value = blogStore.blog;
+      showBlogDialog.value = true;
+      document.body.style.overflow = 'hidden';
+      console.log('Blog dialog should be visible now');
+    } else {
+      console.error('Failed to load blog data');
+      ElMessage.error('Failed to load blog details');
+    }
   } catch (error) {
     console.error('Failed to load blog details:', error);
     ElMessage.error('Failed to load blog details');
@@ -139,7 +149,8 @@ const showBlogDetail = async (blogId?: number) => {
 };
 
 // 关闭博客详情弹窗
-const closeBlogDetail = () => {
+const closeBlogDetail = (visible?: boolean) => {
+  console.log('Closing blog detail dialog, visible:', visible);
   showBlogDialog.value = false;
   selectedBlog.value = null;
   document.body.style.overflow = '';
@@ -168,92 +179,99 @@ const isCurrentUser = computed(() => {
   <div class="about layout-main">
     <commonHeader />
 
-    <div class="otheruser-page">
-      <!-- 主体内容 -->
+    <div class="user-page">
+      <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
       <section class="main-content">
         <!-- 左侧用户信息面板 -->
         <aside class="sidebar">
-          <!-- 返回按钮 -->
-          <div class="navigation-buttons">
-            <button class="back-btn" @click="goBack">
-              <i class="el-icon-arrow-left"></i>
-              BACK
-            </button>
-          </div>
-
-          <div class="user-info" v-if="otherUser">
-            <div class="avatar-section">
-              <div class="avatar-container">
-                <img :src="getImageUrl(otherUser.avatar)" :alt="`${otherUser.name}'s Avatar`" class="avatar" />
-              </div>
-            </div>
-            
-            <div class="username">{{ otherUser.name }}</div>
-            <div class="user-id">ID: {{ otherUser.id }}</div>
-            <div class="registration-time">Joined: {{ otherUser.created_at }}</div>
-            
-            <!-- 统计信息 -->
-            <div class="stats">
-              <div class="stat">
-                <span class="number">{{ otherUser.likes || 0 }}</span>
-                <span class="label">Likes</span>
-              </div>
-            </div>
-            
-            <!-- 关注/粉丝统计 -->
-            <div class="follow-stats-row">
-              <div class="follow-item">
-                <span class="number">{{ otherUser.followings || 0 }}</span>
-                <span class="link-text">Following</span>
-              </div>
-              <div class="follower-item">
-                <span class="number">{{ otherUser.followers || 0 }}</span>
-                <span class="link-text">Followers</span>
-              </div>
-            </div>
-
-            <!-- 关注按钮（如果不是当前用户自己） -->
-            <div class="follow-actions" v-if="!isCurrentUser && store.isLogin()">
+          <div class="user-info">
+            <!-- 返回按钮 -->
+            <div class="profile-buttons">
+              <button class="edit-profile-btn" @click="goBack">
+                <span class="btn-icon">←</span>
+                <span class="btn-text">BACK</span>
+              </button>
+              <!-- 关注按钮（如果不是当前用户自己） -->
               <button 
-                class="follow-btn"
+                v-if="!isCurrentUser && store.isLogin()"
+                class="logout-btn"
                 :class="{ 'following': isFollowing }"
                 :disabled="followingLoading"
                 @click="handleFollowToggle"
               >
-                <span v-if="followingLoading">...</span>
-                <span v-else>{{ isFollowing ? 'Following' : 'Follow' }}</span>
+                <span class="btn-icon">{{ isFollowing ? '✓' : '+' }}</span>
+                <span class="btn-text">{{ isFollowing ? 'FOLLOWING' : 'FOLLOW' }}</span>
               </button>
             </div>
-          </div>
 
-          <!-- 用户信息加载中 -->
-          <div v-else class="user-info-loading">
-            <div class="loading-spinner"></div>
-            <p>Loading user information...</p>
+            <div v-if="otherUser">
+              <div class="avatar-section">
+                <div class="avatar-container">
+                  <img :src="getImageUrl(otherUser.avatar)" :alt="`${otherUser.name}'s Avatar`" class="avatar" />
+                </div>
+              </div>
+              <div class="username">{{ otherUser.name }}</div>
+              <div class="user-id">ID: {{ otherUser.id }}</div>
+              <div class="registration-time">Joined: {{ otherUser.created_at }}</div>
+              
+              <!-- Likes / Coins -->
+              <div class="stats">
+                <div class="stat">
+                  <span class="number">{{ otherUser.likes || 0 }}</span>
+                  <span class="label">Likes</span>
+                </div>
+                <!-- <div class="stat">
+                  <span class="number">{{ otherUser.coins || 0 }}</span>
+                  <span class="label">Coins</span>
+                </div> -->
+              </div>
+              
+              <!-- Following / Followers -->
+              <div class="follow-stats-row">
+                <div class="follow-item">
+                  <span class="number">{{ otherUser.followings || 0 }}</span>
+                  <span class="follow-link">
+                    <span class="link-text">Following</span>
+                  </span>
+                </div>
+                <div class="follower-item">
+                  <span class="number">{{ otherUser.followers || 0 }}</span>
+                  <span class="follower-link">
+                    <span class="link-text">Followers</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 用户信息加载中 -->
+            <div v-else class="user-info-loading">
+              <div class="loading-spinner"></div>
+              <p>Loading user information...</p>
+            </div>
           </div>
         </aside>
 
-        <!-- 垂直分割线 -->
+        <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
         <div class="vertical-divider-us"></div>
 
-        <!-- 右侧博客列表区 -->
+        <!-- 右侧博客列表区，填满剩余宽度 -->
         <section class="blog-area">
-          <!-- 博客区域顶部 -->
+          <!-- 博客区域顶部操作栏 -->
           <div class="blog-area-header">
             <!-- 搜索框 -->
             <input
               class="blog-search-input"
               type="text"
-              :placeholder="`Search ${otherUser?.name || 'user'}'s blogs`"
+              :placeholder="`Search ${otherUser?.name || 'user'}'s blog`"
               v-model="searchKeyword"
               @input="handleSearch"
             />
+            <!-- 博客数量显示 -->
             <div class="blog-count">
               {{ otherUserPosts.items.length }} posts
             </div>
           </div>
 
-          <!-- 博客列表 -->
           <div class="blog-posts">
             <div
               v-for="post in otherUserPosts.items"
@@ -262,7 +280,7 @@ const isCurrentUser = computed(() => {
               :class="{ 'nft-post': post.isNFT }"
               @click="showBlogDetail(post.id)"
             >
-              <!-- 博客图片轮播 -->
+              <!-- 使用 el-carousel 代替单张图片显示 -->
               <el-carousel
                 v-if="post.image && post.image.length > 0"
                 :interval="3000"
@@ -310,21 +328,22 @@ const isCurrentUser = computed(() => {
               <p>{{ otherUser?.name }} hasn't posted anything yet</p>
             </div>
           </div>
-
-          <!-- 加载状态 -->
-          <div v-if="otherUserPosts.loading" class="loading">Loading posts...</div>
+          
+          <!-- 底部加载提示 -->
+          <div v-if="otherUserPosts.loading" class="loading">Loading more posts...</div>
           <div v-if="!otherUserPosts.has_next && otherUserPosts.items.length > 0" class="no-more">No more posts</div>
         </section>
       </section>
     </div>
 
     <!-- 博客详情弹出层 -->
-    <OtherUserPageDialog
-      v-if="showBlogDialog && selectedBlog"
-      :blog="selectedBlog"
-      :is-following="isFollowing"
+    <!-- Debug info: showBlogDialog={{ showBlogDialog }}, selectedBlog={{ selectedBlog?.id }} -->
+    <BlogDetailDialog
+      v-if="showBlogDialog && selectedBlog && selectedBlog.id"
+      :blog-id="selectedBlog.id"
+      :visible="showBlogDialog"
+      @update:visible="closeBlogDetail"
       @close="closeBlogDetail"
-      @toggle-follow="handleFollowToggle"
     />
   </div>
 </template>
