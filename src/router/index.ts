@@ -50,6 +50,11 @@ const router = createRouter({
       component: () => import('@/views/trip/trip-blog.vue'),
     },
     {
+      path: '/news',
+      name: 'news',
+      component: () => import('@/views/trip/trip-news.vue'),
+    },
+    {
       path: '/contact',
       name: 'contact',
       component: () => import('@/views/trip/trip-contact.vue'),
