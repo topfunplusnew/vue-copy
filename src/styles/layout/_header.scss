@@ -5,7 +5,7 @@ header.layout {
   .header-container {
     display: flex;
     justify-content: space-between;
-    gap: rpx(20);
+    gap: rpx(15);
     align-items: center;
     width: 100%;
     max-width: rpx(1000);
@@ -131,9 +131,9 @@ header.layout {
         display: flex;
         align-items: center;
         line-height: 1;
-        gap: rpx(10);
+        // gap: rpx(10);
         background: transparent;
-        padding: rpx(7.5) rpx(16);
+        // padding: rpx(7.5) rpx(16);
         border-radius: rpx(20);
         transition: all 0.3s cubic-bezier(0.17, 0.84, 0.44, 1);
         position: relative;
@@ -323,7 +323,7 @@ header.layout {
         
         // PC端用户信息栏样式调整 - 精确匹配nav-btn高度
         .user-profile-nav {
-          padding: rpx(3) rpx(16);
+          padding: rpx(3) rpx(10);
           
           .home-new-username {
             font-size: rpx(16);
@@ -347,53 +347,7 @@ header.layout {
       }
     }
   }
-  @include screen-pad {
-    .header-container {
-      justify-content: center;
-      
-      .mobile-nav {
-        display: none;
-      }
-      
-      .hamburger-menu {
-        display: none;
-      }
-      
-      .nav-hamburger-menu:not(.embedded) {
-        display: none;
-      }
-      
-      nav.user-nav {
-        .nav-btn {
-          font-size: rpx(16);
-        }
-        
-        // 平板端用户信息栏样式调整 - 精确匹配nav-btn高度
-        .user-profile-nav {
-          padding: rpx(4) rpx(16);
-          
-          .home-new-username {
-            font-size: rpx(14);
-          }
-          
-          img {
-            width: rpx(26);
-            height: rpx(26);
-          }
-        }
-      }
-      
-      nav.pop-nav {
-        position: static;
-        flex-direction: row;
-        display: flex;
-        
-        .desktop-nav {
-          display: inline-flex;
-        }
-      }
-    }    
-  }
+ 
   @include screen-mobile {
     .header-container {
       justify-content: center;
