@@ -2,10 +2,9 @@
 @use '../utils/utils' as *;
 
 .news-hub {
-    width: 100%;
-    max-width: rpx(1200);
-    margin: 0 auto;
-    padding: 0 rpx(20);
+  padding-top: rpx(20);
+  position: relative;
+  z-index: 1;
     
     // News Header
     .news-header {
