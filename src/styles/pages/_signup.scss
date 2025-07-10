@@ -128,7 +128,7 @@
         text-align: left;
         display: block;
         margin-bottom: rpx(10);
-        font-size: rpx(16);
+        font-size: rpx(22);
         font-family: 'Roboto', sans-serif;
         color: #1a3566; /* 深蓝色，适合浅色背景 */
         font-weight: 500;
@@ -137,7 +137,7 @@
         /* 添加小图标 */
         &::before {
             content: '✧';
-            font-size: rpx(12);
+            font-size: rpx(25);
             margin-right: rpx(5);
             color: #1a3566; /* 深蓝色，适合浅色背景 */
         }
@@ -165,7 +165,7 @@
         .el-input__inner {
             height: 45px;
             color: #1a3566; /* 深蓝色，适合浅色背景 */
-            font-size: rpx(16);
+            font-size: rpx(20);
             background: transparent;
             padding: 0 15px;
             
@@ -403,7 +403,7 @@
 
 /* 不同屏幕尺寸的响应式设计 */
 /* 大屏幕样式 */
-@media (min-width: 1200px) {
+@include screen-pc {
     .signup-page-container {
         max-width: 1500px;
     }

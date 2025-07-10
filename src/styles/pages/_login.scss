@@ -139,7 +139,7 @@
     text-align: left;
     display: block;
     margin-bottom: rpx(10);
-    font-size: rpx(16);
+    font-size: rpx(22);
     font-family: 'Roboto', sans-serif;
     color: #1a3566; /* 深蓝色，适合浅色背景 */
     font-weight: 500;
@@ -148,7 +148,7 @@
     /* 添加小图标 */
     &::before {
         content: '✧';
-        font-size: rpx(12);
+        font-size: rpx(25);
         margin-right: rpx(5);
         color: #1a3566; /* 深蓝色，适合浅色背景 */
     }
@@ -176,7 +176,7 @@
       height: 45px;
       color: #1a3566; /* 深蓝色，适合浅色背景 */
 
-      font-size: rpx(16);
+      font-size: rpx(20);
       background: transparent;
       padding: 0 15px;
       
@@ -215,8 +215,8 @@
       appearance: none;
       width: 18px;
       height: 18px;
-      background: rgba(0, 0, 0, 0);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.0);
+      border: 2px solid #1a3566;
       border-radius: 4px;
       position: relative;
       cursor: pointer;
@@ -388,7 +388,7 @@
 
 /* 不同屏幕尺寸的响应式设计 */
 /* 大屏幕样式 */
-@media (min-width: 1200px) {
+@include screen-pc {
   .login-page-container {
     max-width: 1500px;
   }
@@ -399,32 +399,32 @@
   }
 }
 
-/* 响应式设计 - 中等屏幕 */
-@include screen-pad {
-  .login-page-container {
-    padding: 10px;
-    max-width: 100%;
-  }
+// /* 响应式设计 - 中等屏幕 */
+// @include screen-pad {
+//   .login-page-container {
+//     padding: 10px;
+//     max-width: 100%;
+//   }
   
-  .login-hero {
-    padding: 20px 10px;
-  }
+//   .login-hero {
+//     padding: 20px 10px;
+//   }
   
-  .login-container {
-    padding: 20px 15px;
-    max-width: 100%;
-    margin: 0 10px;
-  }
+//   .login-container {
+//     padding: 20px 15px;
+//     max-width: 100%;
+//     margin: 0 10px;
+//   }
   
-  .form-options {
-    flex-direction: column;
-    align-items: flex-start;
+//   .form-options {
+//     flex-direction: column;
+//     align-items: flex-start;
     
-    .remember-me, .forgot-password {
-      margin-bottom: 8px;
-    }
-  }
-}
+//     .remember-me, .forgot-password {
+//       margin-bottom: 8px;
+//     }
+//   }
+// }
 
 /* 超小屏幕适配（iPhone SE等） */
 @include screen-mobile {
