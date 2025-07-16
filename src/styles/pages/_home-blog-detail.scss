@@ -379,7 +379,7 @@ $accent-color: #64b3f4 !default;
       align-items: center;
       padding: 0 20px;
       
-      @media (max-width: 768px) {
+      @include screen-mobile {
         position: static; /* 在手机端取消固定定位，跟随内容滚动 */
         flex-direction: row;
         gap: 10px;
@@ -394,7 +394,7 @@ $accent-color: #64b3f4 !default;
         align-items: center;
         gap: 20px;
 
-        @media (max-width: 768px) {
+        @include screen-mobile {
           width: auto;
           justify-content: flex-start;
         }
@@ -504,5 +504,4 @@ $accent-color: #64b3f4 !default;
       }
     }
   }
-
 }
