@@ -20,6 +20,7 @@ import postPreview from './post-preview.vue';
 import { ElMessageBox } from 'element-plus';
 
 import MeetingComponent from '@/views/components/meeting-component.vue';
+import iPoloGOPlanComponent from '@/views/components/ipologo-plan.vue';
 
 const showPostView = ref(false);
 const showPreview = ref(false);
@@ -447,6 +448,11 @@ const availableTools = ref([
     icon: '🏛️',
     description: 'Meetings and Workshops'
   },
+  {
+    name: 'iPoloGO Planner',
+    icon: '✨',
+    description: ''
+  }
 ]);
 
 // 切换Interests菜单
@@ -468,11 +474,20 @@ const toggleTools = () => {
 // 会议弹窗状态
 const showMeetingDialog = ref(false);
 
+// iPoloGO Planner 弹窗状态
+const showIPoloGOPlanDialog = ref(false);
+
 // 切换工具选择
 const toggleTool = (toolName: string) => {
   if (toolName === 'Meetings') {
     // 对于会议工具，打开弹窗而不是简单的选择
     showMeetingDialog.value = true;
+    toolsExpanded.value = false; // 关闭工具菜单
+    return;
+  }
+
+  if (toolName === 'iPoloGO Planner') {
+    showIPoloGOPlanDialog.value = true;
     toolsExpanded.value = false; // 关闭工具菜单
     return;
   }
@@ -909,6 +924,13 @@ watch(selectedLocation, () => {
   <MeetingComponent
     v-if="showMeetingDialog"
     @close="showMeetingDialog = false"
+  />
+
+  <!-- iPoloGO 自动生成旅行计划 -->
+  <iPoloGOPlanComponent
+    v-if="showIPoloGOPlanDialog"
+    :visible="showIPoloGOPlanDialog"
+    @close="showIPoloGOPlanDialog = false"
   />
 </template>
 

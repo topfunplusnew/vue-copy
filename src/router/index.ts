@@ -99,6 +99,11 @@ const router = createRouter({
       name: 'generator',
       component: () => import('@/views/chat/trip-generator.vue'),
     },
+    {
+      path: '/ipologoai',
+      name: 'ipologoai',
+      component: () => import('@/views/iPoloGO-Generated-Plan/iPoloGO-result.vue'),
+    },
   ],
 });
 

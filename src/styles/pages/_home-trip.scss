@@ -577,6 +577,7 @@
       }
     }
 
+    // ========== 工具选择器 ==========
     .bottom-selectors {
       display: flex;
       justify-content: center;
@@ -705,6 +706,8 @@
                   border: 1px solid rgba(86, 180, 233, 0.2);
                   border-radius: rpx(12);
                   box-shadow: none;
+                  font-size: rpx(16);
+
 
                   &:hover, &.is-focus {
                     border-color: rgba(86, 180, 233, 0.4);
@@ -789,6 +792,10 @@
                 color: #1a3566;
                 font-weight: 600;
                 font-size: rpx(14);
+
+                @include screen-mobile {
+                  font-size: rpx(20);
+                }
               }
             }
 
@@ -797,6 +804,27 @@
               grid-template-columns: repeat(2, 1fr);
               gap: rpx(8);
               padding: rpx(16);
+              max-height: rpx(300);
+              overflow-y: auto;
+              
+              // 自定义滚动条样式
+              &::-webkit-scrollbar {
+                width: rpx(6);
+              }
+              
+              &::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: rpx(3);
+              }
+              
+              &::-webkit-scrollbar-thumb {
+                background: rgba(86, 180, 233, 0.6);
+                border-radius: rpx(3);
+                
+                &:hover {
+                  background: rgba(86, 180, 233, 0.8);
+                }
+              }
 
               .option-item {
                 display: flex;
@@ -811,14 +839,20 @@
                 transition: all 0.2s ease;
                 text-align: center;
 
-          .option-icon {
-            font-size: rpx(18);
-          }
+              .option-icon {
+                font-size: rpx(18);
+                @include screen-mobile {
+                  font-size: rpx(25);
+                }
+              }
 
                 .option-name {
                   font-size: rpx(12);
                   font-weight: 600;
                   color: #1a3566;
+                  @include screen-mobile {
+                    font-size: rpx(20);
+                  }
                 }
 
                 &:hover {
@@ -830,10 +864,6 @@
                   background: rgba(86, 180, 233, 0.2);
                   border-color: rgba(86, 180, 233, 0.4);
                   color: #1a3566;
-
-          .option-name {
-                    color: #1a3566;
-                  }
                 }
               }
             }
@@ -854,22 +884,35 @@
                 border-radius: rpx(12);
                 cursor: pointer;
                 transition: all 0.2s ease;
+                white-space: nowrap;
 
                 .tool-icon {
                   font-size: rpx(18);
                   flex-shrink: 0;
+                  
+                  @include screen-mobile {
+                    font-size: rpx(22);
+                  }
                 }
 
                 .tool-name {
-            font-size: rpx(14);
+                  font-size: rpx(16);
                   font-weight: 600;
                   color: #1a3566;
+
+                  @include screen-mobile {
+                    font-size: rpx(22);
+                  }
                 }
 
                 .tool-desc {
                   font-size: rpx(12);
                   color: #666;
                   margin-left: auto;
+
+                  @include screen-mobile {
+                    font-size: rpx(14);
+                  }
                 }
 
                 &:hover {
@@ -1020,6 +1063,7 @@
       .bottom-selectors {
         gap: rpx(12);
 
+        
         .selector-widget {
           .selector-trigger {
             padding: rpx(10) rpx(16);
@@ -1042,7 +1086,7 @@
 
           .selector-dropdown {
             width: calc(100vw - rpx(32));
-            max-width: rpx(320);
+            max-width: rpx(270);
 
             .dropdown-content {
               .search-section {
@@ -1112,13 +1156,6 @@
                 padding: rpx(12);
                 gap: rpx(12);
 
-                .option-name, .tool-name {
-          font-size: rpx(20);
-        }
-
-                .tool-desc {
-          font-size: rpx(20);
-                }
               }
             }
           }

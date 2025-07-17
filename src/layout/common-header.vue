@@ -144,6 +144,10 @@ const handleClickOutside = (event: Event) => {
   <!-- Header 区域 -->
   <header class="layout">
     <div class="header-container">
+      <!-- 添加 logo -->
+      <div class="logo-container">
+        <img src="@/assets/iPoloGO.png" alt="iPoloGO Logo" class="logo" />
+      </div>
       <!-- 移动端导航区域 -->
       <div class="mobile-nav">
         <!-- HOME按钮带嵌入的汉堡菜单 -->
@@ -151,8 +155,8 @@ const handleClickOutside = (event: Event) => {
           <router-link :to="{ name: 'home' }" class="nav-btn home-btn">HOME</router-link>
           <button class="nav-hamburger-menu embedded" @click="toggleNavMenu">
             <span v-if="navMenuActive">✕</span>
-        <span v-else>☰</span>
-      </button>
+            <span v-else>☰</span>
+          </button>
         </div>
       </div>
 
@@ -219,3 +223,16 @@ const handleClickOutside = (event: Event) => {
     @load-history="handleHistoryLoad"
   />
 </template>
+
+<style scoped>
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: rpx(15);
+}
+
+.logo {
+  height: rpx(40);
+  width: auto;
+}
+</style>

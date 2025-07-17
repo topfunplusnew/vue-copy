@@ -491,3 +491,15 @@ header.layout {
     background: rgba(40, 65, 110, 0.85);
   }
 }
+
+// Add styles for the logo
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: rpx(15);
+}
+
+.logo {
+  height: rpx(30); // Reduce the height to make the logo smaller
+  width: auto;
+}
