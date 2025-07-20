@@ -625,7 +625,7 @@ watch(selectedLocation, () => {
     <common-header />
     <section class="welcome-section">
       <blur-text
-        text="Welcome to iPoloGO"
+        text="Welcome to iPoloGO Beta"
         :delay="180"
         animateBy="words"
         direction="top"

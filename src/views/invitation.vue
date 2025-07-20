@@ -4,7 +4,7 @@ import Captcha from '@/components/captcha-item.vue';
 import { userSignup } from '@/services/api';
 import { useRouter } from 'vue-router';
 import { ElInput, ElMessage } from 'element-plus';
-import { SuccessFilled } from '@element-plus/icons-vue';
+import { SuccessFilled, ArrowDown } from '@element-plus/icons-vue';
 import commonHeader from '@/layout/common-header.vue';
 
 const msg = 'Join the iPoloGO Beta';
@@ -55,7 +55,7 @@ const pageContent = computed(() => {
       };
     case 'invitation':
       return {
-        title: 'Welcome to iPoloGO!',
+        title: 'Welcome to iPoloGO Beta!',
         subtitle: 'Enter your invitation code to continue, or join our waitlist'
       };
     case 'waiting':
@@ -219,6 +219,81 @@ const completeProcess = () => {
   }, 2000);
 };
 
+// 特点数据
+const features = ref([
+  {
+    icon: '🌍',
+    title: 'Personalized Itineraries',
+    description: 'Create custom travel plans tailored to your preferences and interests with AI assistance.',
+    class: 'blue-gradient'
+  },
+  {
+    icon: '💰',
+    title: 'Earn While Traveling',
+    description: 'Earn iPoloCoins by sharing your experiences and knowledge with the community.',
+    class: 'purple-gradient'
+  },
+  {
+    icon: '🔗',
+    title: 'Web3 Integration',
+    description: 'Connect your wallet to create and trade travel experiences as NFTs.',
+    class: 'green-gradient'
+  },
+  {
+    icon: '🤝',
+    title: 'Community Driven',
+    description: 'Join a global community of travelers sharing insights and recommendations.',
+    class: 'orange-gradient'
+  },
+  {
+    icon: '🔒',
+    title: 'Secure & Transparent',
+    description: 'All transactions and interactions are secured by blockchain technology.',
+    class: 'red-gradient'
+  },
+  {
+    icon: '🧠',
+    title: 'AI Powered',
+    description: 'Large language models help optimize your travel planning and experiences.',
+    class: 'teal-gradient'
+  }
+]);
+
+// 统计数据
+const stats = ref([
+  { value: '10K+', label: 'Active Users' },
+  { value: '50K+', label: 'Itineraries Created' },
+  { value: '120+', label: 'Countries Covered' },
+  { value: '1M+', label: 'iPoloCoins Earned' }
+]);
+
+// FAQ 数据
+const faqs = ref([
+  {
+    question: 'How to design my personal itinerary?',
+    answer: 'iPoloGO offers intuitive tools to help you easily create your itinerary. Simply select your destination, travel dates, flights, hotels, and other preferences. iPoloGO will automatically generate a personalized travel plan tailored specifically for you.'
+  },
+  {
+    question: 'What is NFT in iPoloGO?',
+    answer: 'In iPoloGO, an NFT (Non-Fungible Token) is a unique digital collectible representing memorable travel experiences, personalized itineraries, special achievements, or exclusive rewards. These NFTs can be collected, shared, or traded within the iPoloGO community.'
+  },
+  {
+    question: 'How do I make my own NFT in iPoloGO?',
+    answer: 'Every time you connect your wallet and publish a travel blog on iPoloGO, you have the option to turn it into an NFT. Simply select the "Make Your NFT" option when posting your blog. Your blog content will be stored securely on the blockchain.'
+  },
+  {
+    question: 'How do I earn iPoloCoins?',
+    answer: 'You can earn iPoloCoins by sharing your travel experiences, creating helpful itineraries, participating in community activities, and helping other travelers with recommendations and tips.'
+  }
+]);
+
+// FAQ交互逻辑
+const activeFaqIndex = ref<number | null>(null);
+
+const toggleFaq = (index: number) => {
+  activeFaqIndex.value = activeFaqIndex.value === index ? null : index;
+};
+
 // 当成功页面显示时，自动跳转
 if (currentStep.value === 'success') {
   completeProcess();
@@ -253,7 +328,7 @@ if (currentStep.value === 'success') {
 
       <!-- 注册表单 -->
       <form @submit.prevent="handleSignup" v-else-if="currentStep === 'register'">
-        <div class="form-title-invitation">Create Your Beta Account</div>
+        <div class="form-title-invitation">Create Your iPoloGO Beta Account</div>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <div class="form-group-invitation">
@@ -405,6 +480,93 @@ if (currentStep.value === 'success') {
       </div>
 
     </div>
+
+    <!-- iPoloGO 产品介绍部分 -->
+    <div class="product-intro-section">
+      <!-- iPoloGO 介绍段落 -->
+      <div class="ipologo-intro">
+        <h2>Discover iPoloGO</h2>
+        <p>
+          iPoloGO is a revolutionary Decentralized Autonomous Organization (DAO) tourism platform, powered by cutting-edge AI and Web3 technology.
+          Transform the way you travel by creating personalized experiences and earning rewards for sharing your journey with our global community.
+        </p>
+        <p>
+          Whether you're exploring breathtaking landscapes, engaging in educational adventures, business trips, or culinary discoveries, 
+          iPoloGO makes it effortless to plan every aspect of your journey. Our AI-powered platform learns from your preferences 
+          and helps you create unforgettable travel experiences.
+        </p>
+      </div>
+
+      <!-- 交互式特点展示区域 -->
+      <div class="features-container-invitation">
+        <div class="features-title-invitation">Why Choose iPoloGO?</div>
+        <div class="features-grid-invitation">
+          <div class="feature-card-invitation" v-for="(feature, index) in features" :key="index">
+            <div class="feature-icon-invitation" :class="feature.class">
+              <span v-html="feature.icon"></span>
+            </div>
+            <div class="feature-title-invitation">{{ feature.title }}</div>
+            <div class="feature-description-invitation">{{ feature.description }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 统计数据展示 -->
+      <div class="stats-container-invitation">
+        <div class="stats-title">Join Our Growing Community</div>
+        <div class="stats-grid">
+          <div class="stat-item-invitation" v-for="(stat, index) in stats" :key="index">
+            <div class="stat-value-invitation">{{ stat.value }}</div>
+            <div class="stat-label-invitation">{{ stat.label }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="faq-container-invitation">
+        <div class="faq-header-invitation">
+          <h3>Frequently Asked Questions</h3>
+          <div class="faq-subtitle-invitation">Everything you need to know about iPoloGO</div>
+        </div>
+        
+        <div class="faq-list-invitation">
+          <div 
+            v-for="(faq, index) in faqs" 
+            :key="index" 
+            class="faq-item-invitation"
+            :class="{ 'active': activeFaqIndex === index }"
+            @click="toggleFaq(index)"
+          >
+            <div class="faq-question-invitation">
+              <span class="question-text-invitation">{{ faq.question }}</span>
+              <span class="toggle-icon-invitation">
+                <el-icon :class="{ 'rotated': activeFaqIndex === index }">
+                  <ArrowDown />
+                </el-icon>
+              </span>
+            </div>
+            
+            <div class="faq-answer-invitation" :class="{ 'open': activeFaqIndex === index }">
+              <div class="answer-content-invitation">
+                {{ faq.answer }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA 部分 -->
+      <div class="cta-section" v-if="currentStep === 'success'">
+        <div class="cta-content">
+          <h3>Ready to Start Your Journey?</h3>
+          <p>Join thousands of travelers who are already exploring the world with iPoloGO.</p>
+          <el-button @click="completeProcess" type="primary" size="large" class="cta-button">
+            Get Started Now
+          </el-button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 

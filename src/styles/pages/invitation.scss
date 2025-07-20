@@ -527,3 +527,405 @@
     margin-bottom: rpx(15);
   }
 }
+
+/* 产品介绍部分 */
+.product-intro-section {
+  margin-top: rpx(60);
+  padding: rpx(40) rpx(20);
+
+  @include screen-mobile {
+    padding: rpx(30) rpx(15);
+    margin-top: rpx(40);
+  }
+}
+
+/* iPoloGO 介绍 */
+.ipologo-intro {
+  text-align: center;
+  margin-bottom: rpx(60);
+  max-width: rpx(1000);
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: rpx(16);
+  padding: rpx(40) rpx(32);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  @include screen-mobile {
+    padding: rpx(30) rpx(24);
+  }
+
+  h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, #1a3566, #3a5683);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: rpx(20);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: rpx(-10);
+      left: 50%;
+      transform: translateX(-50%);
+      width: rpx(80);
+      height: rpx(3);
+      background: linear-gradient(90deg, rgba(65, 145, 255, 0.6), rgba(28, 58, 113, 0.8));
+      border-radius: rpx(3);
+    }
+  }
+
+  p {
+    font-size: clamp(1.1rem, 3vw, 1.3rem);
+    color: #3a5683;
+    line-height: 1.6;
+    margin-bottom: rpx(20);
+    text-align: justify;
+    text-justify: inter-word;
+
+    @include screen-mobile {
+      text-align: left;
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* 特点展示区域 */
+.features-container-invitation {
+  margin-bottom: rpx(80);
+
+  @include screen-mobile {
+    margin-bottom: rpx(60);
+  }
+
+  .features-title-invitation {
+    text-align: center;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: #1a3566;
+    margin-bottom: rpx(40);
+
+    @include screen-mobile {
+      margin-bottom: rpx(30);
+    }
+  }
+
+  .features-grid-invitation {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: rpx(30);
+    max-width: rpx(1200);
+    margin: 0 auto;
+
+    @include screen-mobile {
+      grid-template-columns: 1fr;
+      gap: rpx(20);
+    }
+  }
+
+  .feature-card-invitation {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: rpx(16);
+    padding: rpx(30) rpx(20);
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    @include screen-mobile {
+      padding: rpx(25) rpx(15);
+    }
+  }
+
+  .feature-icon-invitation {
+    width: rpx(60);
+    height: rpx(60);
+    margin: 0 auto rpx(20);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: rpx(30);
+
+    &.blue-gradient {
+      background: linear-gradient(135deg, #56b4e9, #4a90e2);
+    }
+
+    &.purple-gradient {
+      background: linear-gradient(135deg, #e9566c, #d63384);
+    }
+
+    &.green-gradient {
+      background: linear-gradient(135deg, #28a745, #20c997);
+    }
+
+    &.orange-gradient {
+      background: linear-gradient(135deg, #fd7e14, #e0a800);
+    }
+
+    &.red-gradient {
+      background: linear-gradient(135deg, #dc3545, #e83e8c);
+    }
+
+    &.teal-gradient {
+      background: linear-gradient(135deg, #20c997, #17a2b8);
+    }
+
+    @include screen-mobile {
+      width: rpx(50);
+      height: rpx(50);
+      font-size: rpx(24);
+    }
+  }
+
+  .feature-title-invitation {
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+    font-weight: 600;
+    color: #1a3566;
+    margin-bottom: rpx(12);
+  }
+
+  .feature-description-invitation {
+    font-size: clamp(0.9rem, 2.5vw, 1rem);
+    color: #3a5683;
+    line-height: 1.5;
+  }
+}
+
+/* 统计数据展示 */
+.stats-container-invitation {
+  margin-bottom: rpx(80);
+  text-align: center;
+
+  @include screen-mobile {
+    margin-bottom: rpx(60);
+  }
+
+  .stats-title {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: #1a3566;
+    margin-bottom: rpx(40);
+
+    @include screen-mobile {
+      margin-bottom: rpx(30);
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: rpx(24);
+    max-width: rpx(1000);
+    margin: 0 auto;
+
+    @include screen-mobile {
+      grid-template-columns: repeat(2, 1fr);
+      gap: rpx(16);
+    }
+  }
+
+  .stat-item-invitation {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: rpx(12);
+    padding: rpx(30) rpx(20);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    @include screen-mobile {
+      padding: rpx(20) rpx(15);
+    }
+  }
+
+  .stat-value-invitation {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    background: linear-gradient(90deg, #56b4e9, #e9566c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: rpx(8);
+  }
+
+  .stat-label-invitation {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: #3a5683;
+    font-weight: 500;
+  }
+}
+
+/* FAQ 部分 */
+.faq-container-invitation {
+  max-width: rpx(800);
+  margin: 0 auto rpx(80);
+
+  @include screen-mobile {
+    margin-bottom: rpx(60);
+  }
+
+  .faq-header-invitation {
+    text-align: center;
+    margin-bottom: rpx(40);
+
+    @include screen-mobile {
+      margin-bottom: rpx(30);
+    }
+
+    h3 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #1a3566;
+      margin-bottom: rpx(12);
+    }
+
+    .faq-subtitle-invitation {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      color: #3a5683;
+    }
+  }
+
+  .faq-list-invitation {
+    display: flex;
+    flex-direction: column;
+    gap: rpx(16);
+  }
+
+  .faq-item-invitation {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: rpx(12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    &.active {
+      background: rgba(86, 180, 233, 0.1);
+      border-color: rgba(86, 180, 233, 0.3);
+    }
+  }
+
+  .faq-question-invitation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: rpx(20) rpx(24);
+    font-weight: 600;
+    color: #1a3566;
+
+    @include screen-mobile {
+      padding: rpx(16) rpx(20);
+    }
+
+    .question-text-invitation {
+      font-size: clamp(1rem, 3vw, 1.2rem);
+      line-height: 1.4;
+      flex: 1;
+      margin-right: rpx(16);
+    }
+
+    .toggle-icon-invitation {
+      .el-icon {
+        font-size: rpx(18);
+        transition: transform 0.3s ease;
+        color: #56b4e9;
+
+        &.rotated {
+          transform: rotate(180deg);
+        }
+      }
+    }
+  }
+
+  .faq-answer-invitation {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+
+    &.open {
+      max-height: 200px;
+    }
+
+    .answer-content-invitation {
+      padding: 0 rpx(24) rpx(20) rpx(24);
+      font-size: clamp(0.9rem, 2.5vw, 1rem);
+      color: #3a5683;
+      line-height: 1.6;
+
+      @include screen-mobile {
+        padding: 0 rpx(20) rpx(16) rpx(20);
+      }
+    }
+  }
+}
+
+/* CTA 部分 */
+.cta-section {
+  text-align: center;
+  margin-top: rpx(60);
+  padding: rpx(40) rpx(20);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: rpx(20);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @include screen-mobile {
+    margin-top: rpx(40);
+    padding: rpx(30) rpx(15);
+  }
+
+  .cta-content {
+    max-width: rpx(600);
+    margin: 0 auto;
+
+    h3 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700;
+      color: #1a3566;
+      margin-bottom: rpx(16);
+    }
+
+    p {
+      font-size: clamp(1.1rem, 3vw, 1.3rem);
+      color: #3a5683;
+      margin-bottom: rpx(24);
+      line-height: 1.5;
+    }
+
+    .cta-button {
+      font-size: clamp(1.2rem, 3vw, 1.4rem);
+      padding: rpx(15) rpx(30);
+      border-radius: rpx(10);
+      font-weight: 600;
+      background: linear-gradient(90deg, #56b4e9, #e9566c);
+      border: none;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(86, 180, 233, 0.3);
+      }
+    }
+  }
+}
