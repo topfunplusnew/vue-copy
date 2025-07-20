@@ -104,6 +104,11 @@ const router = createRouter({
       name: 'ipologoai',
       component: () => import('@/views/iPoloGO-Generated-Plan/iPoloGO-result.vue'),
     },
+    {
+      path: '/invitation',
+      name: 'invitation',
+      component: () => import('@/views/invitation.vue'),
+    },
   ],
 });
 

@@ -97,7 +97,7 @@ const toggleFaq = (index: number) => {
 
     <!-- iPoloGO 介绍段落 -->
     <div class="ipologo-intro">
-      <h1>Welcome to iPoloGO</h1>
+      <h1>Welcome to iPoloGO【Beta】</h1>
       <p>
         iPoloGO is a Decentralized Autonomous Organization (DAO) tourism platform, powered by large language models and Web3 technology.
         With iPoloGO, you can personalize your travel experiences and earn rewards by sharing your journey.
