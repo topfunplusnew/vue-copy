@@ -496,10 +496,9 @@ header.layout {
 .logo-container {
   display: flex;
   align-items: center;
-  margin-right: rpx(15);
 }
 
 .logo {
-  height: rpx(30); // Reduce the height to make the logo smaller
+  height: rpx(50); // Reduce the height to make the logo smaller
   width: auto;
 }
