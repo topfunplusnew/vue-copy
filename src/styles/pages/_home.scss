@@ -4,6 +4,7 @@
 @use './home-blog' as blog;
 @use './post' as post; // 发布页
 @use './home-blog-detail' as blogdetail; // 博客详情弹窗
+@use './home-blog-dialog' as dialog; // 新增
 @use './blog-item' as blogitem; // 博客列表项
 @use '../blog' as blogbase; // 博客基础样式
 
@@ -15,23 +16,26 @@
   align-items: center;
   color: #fff;
   text-align: center;
-  
+
   @include welcome.wrapper; //welcome section
 
   .main {
+    // width: 100%;
     padding: rpx(5);
     display: flex;
     flex-direction: column;
     align-items: center;
 
-    
+
     @include trip.wrapper;
     @include blog.wrapper;
 
-    
+
   }
+
   @include post.detail;
-  @include blogbase.detail; // 博客详情弹窗样式
+  @include dialog.detail; // 博客详情弹窗样式
+  // @include blogbase.detail; // 博客详情弹窗样式
   @include blogdetail.wrapper; // 博客详情评论样式
   @include blogitem.list-item; // 博客列表项样式
   // @include blog.popup;

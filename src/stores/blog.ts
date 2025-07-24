@@ -19,7 +19,8 @@ export const useBlogStore = defineStore('blog', () => {
   //点赞
   const likeBlog = async (blogId: number) => {
     const response = await axios.post(
-      `http://127.0.0.1:4523/m1/6157155-5849182-default/api/like`,
+      // `http://127.0.0.1:4523/m1/6157155-5849182-default/api/like`,
+      `/api/blog/collection`,
       { blogId },  // 如果需要传参数
       {
         headers: {

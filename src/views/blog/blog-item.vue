@@ -41,7 +41,7 @@ function onClick() {
     <!-- 博客内容 -->
     <div class="post-content-userpage">
       <h2 class="post-title-userpage" :title="post.title">{{ post.title }}</h2>
-      <p class="post-text-userpage" :title="post.content">{{ post.content }}</p>
+      <!-- <p class="post-text-userpage" :title="post.content">{{ post.content }}</p> -->
     </div>
 
     <!-- 博客底部信息 -->
