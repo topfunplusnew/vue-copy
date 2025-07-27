@@ -355,7 +355,7 @@ if (currentStep.value === 'success') {
         </button>
 
         <div class="login-link">
-          Have not an account? <button @click="currentStep = 'register'">Register</button>
+          Have not an account? <span style="cursor: pointer;" @click="currentStep = 'register'">Register</span>
         </div>
       </form>
       <!-- 注册表单 -->
@@ -424,7 +424,7 @@ if (currentStep.value === 'success') {
         </button>
 
         <div class="login-link">
-          Already have an account? <button @click="currentStep = 'login'">Log in</button>
+          Already have an account? <span style="cursor: pointer;" @click="currentStep = 'login'">Log in</span>
         </div>
       </form>
 
