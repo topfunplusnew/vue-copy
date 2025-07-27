@@ -5,11 +5,11 @@ import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
 import type { IRequest } from '@/types/service';
 
-import type { 
-  IPlanCreateReq, 
-  IPlanUpdateReq, 
+import type {
+  IPlanCreateReq,
+  IPlanUpdateReq,
   IPlanSearchReq,
-  IPlaceCreateReq 
+  IPlaceCreateReq
 } from '@/types/plan';
 
 /**
@@ -79,6 +79,9 @@ export const uploadAvatar = (data: FormData) => http.post('/file/avatar', data, 
     'Content-Type': 'multipart/form-data'
   }
 });
+
+export const invitationAuth = (code:string) => http.post('/user/invitation-auth', {invitation_code:code});
+
 
 // export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
 export const getBlogPost = (id: string) => http.get('/blog', {params:{id}}); // 根据id获取blog

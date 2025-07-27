@@ -20,7 +20,8 @@ const router = createRouter({
     {
       path: '/',
       name: 'main',
-      component: HomeView,
+      redirect: '/invitation',
+      // component: HomeView,
     },
     {
       path: '/home/:id?',

@@ -6,6 +6,9 @@ import { useRouter } from 'vue-router';
 import { ElInput, ElMessage } from 'element-plus';
 import { SuccessFilled, ArrowDown } from '@element-plus/icons-vue';
 import commonHeader from '@/layout/common-header.vue';
+import { useUserStore } from '@/stores/user';
+
+const store = useUserStore();
 
 const msg = 'Join the iPoloGO Beta';
 const router = useRouter();
@@ -130,7 +133,7 @@ const handleSignup = async () => {
       password_confirm: editForm.password_confirm,
       name: editForm.name,
     });
-    
+
     // 注册成功，进入邀请码步骤
     invitationForm.email = editForm.email;
     currentStep.value = 'invitation';
@@ -146,8 +149,19 @@ const handleSignup = async () => {
   }
 };
 
+function handleLogin() {
+  store.login({
+    email: editForm.email,
+    password: editForm.password,
+  }).then(() => {
+    currentStep.value = 'invitation';
+  }).catch((error) => {
+    errorMessage.value = 'Login failed. Please try again.';
+  });
+}
+
 // 处理邀请码提交
-const handleInvitationCode = async () => {
+const handleInvitationCode = () => {
   if (!invitationForm.invitationCode.trim()) {
     errorMessage.value = 'Please enter your invitation code.';
     return;
@@ -156,21 +170,15 @@ const handleInvitationCode = async () => {
   isLoading.value = true;
   errorMessage.value = '';
 
-  try {
-    // 这里应该调用验证邀请码的API
-    // await validateInvitationCode(invitationForm.invitationCode);
-    
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // 验证成功，进入成功页面
+  store.invitation(invitationForm.invitationCode).then(() => {
     currentStep.value = 'success';
-    ElMessage.success('Invitation code verified successfully!');
-  } catch (error) {
-    errorMessage.value = 'Invalid invitation code. Please check and try again.';
-  } finally {
+  }).catch((error) => {
+    console.log(error);
+    errorMessage.value = error.response.data.message ||'Invalid invitation code. Please check and try again.';
+  }).finally(() => {
     isLoading.value = false;
-  }
+  });
+
 };
 
 // 加入等待列表
@@ -186,10 +194,10 @@ const joinWaitlist = async () => {
   try {
     // 这里应该调用加入等待列表的API
     // await joinWaitingList(waitingForm);
-    
+
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     currentStep.value = 'success';
     ElMessage.success('Successfully joined the waitlist!');
   } catch (error) {
@@ -304,14 +312,14 @@ if (currentStep.value === 'success') {
   <div class="background-layer"></div>
   <div class="invitation layout-main">
     <commonHeader />
-    
+
     <div class="invitation-hero">
       <div class="header-title-invitation">{{ pageContent.title }}</div>
       <div class="invitation-subtitle">{{ pageContent.subtitle }}</div>
     </div>
 
     <div class="invitation-container" :class="{ 'success': currentStep === 'success' }">
-      
+
       <!-- 成功页面 -->
       <div v-if="currentStep === 'success'" class="success-message">
         <div class="success-icon">
@@ -326,6 +334,39 @@ if (currentStep.value === 'success') {
         </div>
       </div>
 
+      <form @submit.prevent="handleLogin" v-else-if="currentStep === 'login'">
+        <div class="form-title-invitation">Login Your iPoloGO Beta Account</div>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+        <div class="form-group-invitation">
+          <label for="email">Email</label>
+          <el-input type="email" id="email" v-model="editForm.email"
+          placeholder="example@domain.com" required />
+        </div>
+
+        <div class="form-group-invitation">
+          <label for="password">Password</label>
+          <el-input
+            v-model="editForm.password"
+            id="password"
+            type="password"
+            placeholder="Min 8 characters with letters, numbers & symbols"
+            show-password
+            @input="checkPasswordStrength"
+            required
+          />
+        </div>
+
+
+        <button type="submit" class="invitation-button" :disabled="isLoading">
+          <span v-if="!isLoading">Login</span>
+          <span v-else class="loading-spinner"></span>
+        </button>
+
+        <div class="login-link">
+          Have not an account? <button @click="currentStep = 'register'">Register</button>
+        </div>
+      </form>
       <!-- 注册表单 -->
       <form @submit.prevent="handleSignup" v-else-if="currentStep === 'register'">
         <div class="form-title-invitation">Create Your iPoloGO Beta Account</div>
@@ -355,7 +396,7 @@ if (currentStep.value === 'success') {
             required
           />
         </div>
-        
+
         <div class="password-strength-invitation">
           <div class="strength-meter-invitation">
             <div
@@ -392,7 +433,7 @@ if (currentStep.value === 'success') {
         </button>
 
         <div class="login-link">
-          Already have an account? <router-link :to="{ name: 'login' }">Log in</router-link>
+          Already have an account? <button @click="currentStep = 'login'">Log in</button>
         </div>
       </form>
 
@@ -491,8 +532,8 @@ if (currentStep.value === 'success') {
           Transform the way you travel by creating personalized experiences and earning rewards for sharing your journey with our global community.
         </p>
         <p>
-          Whether you're exploring breathtaking landscapes, engaging in educational adventures, business trips, or culinary discoveries, 
-          iPoloGO makes it effortless to plan every aspect of your journey. Our AI-powered platform learns from your preferences 
+          Whether you're exploring breathtaking landscapes, engaging in educational adventures, business trips, or culinary discoveries,
+          iPoloGO makes it effortless to plan every aspect of your journey. Our AI-powered platform learns from your preferences
           and helps you create unforgettable travel experiences.
         </p>
       </div>
@@ -528,11 +569,11 @@ if (currentStep.value === 'success') {
           <h3>Frequently Asked Questions</h3>
           <div class="faq-subtitle-invitation">Everything you need to know about iPoloGO</div>
         </div>
-        
+
         <div class="faq-list-invitation">
-          <div 
-            v-for="(faq, index) in faqs" 
-            :key="index" 
+          <div
+            v-for="(faq, index) in faqs"
+            :key="index"
             class="faq-item-invitation"
             :class="{ 'active': activeFaqIndex === index }"
             @click="toggleFaq(index)"
@@ -545,7 +586,7 @@ if (currentStep.value === 'success') {
                 </el-icon>
               </span>
             </div>
-            
+
             <div class="faq-answer-invitation" :class="{ 'open': activeFaqIndex === index }">
               <div class="answer-content-invitation">
                 {{ faq.answer }}
