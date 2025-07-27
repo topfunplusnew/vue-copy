@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { userLogin, userProfile, accountActivate, userModify, userLogout, uploadAvatar,
   getMyBlogList, getBlogPost, myblogdelete, userSignup, googleAuthorize,
   comment2Blog,comment2Comment,commentDel,comments,
-  myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth } from '@/services/api';
+  myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth, joinWaitlist } from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
@@ -254,6 +254,9 @@ function invitation(code:string) {
   return invitationAuth(code);
 
 }
+function joinWait(message:string) {
+  return joinWaitlist(message);
+}
 
 
 
@@ -266,6 +269,7 @@ function invitation(code:string) {
     followers,
     // invitation
     invitation,
+    joinWait,
     // Actions
     login,
     isLogin,

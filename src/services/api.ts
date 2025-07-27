@@ -81,6 +81,7 @@ export const uploadAvatar = (data: FormData) => http.post('/file/avatar', data, 
 });
 
 export const invitationAuth = (code:string) => http.post('/user/invitation-auth', {invitation_code:code});
+export const joinWaitlist = (message:string) => http.post('/waitlist', {message});
 
 
 // export const getBlogPost = (id: string) => http.get(`/blog/${id}`);

@@ -155,6 +155,7 @@ function handleLogin() {
     password: editForm.password,
   }).then(() => {
     currentStep.value = 'invitation';
+    invitationForm.email = waitingForm.email = editForm.email;
   }).catch((error) => {
     errorMessage.value = 'Login failed. Please try again.';
   });
@@ -182,29 +183,19 @@ const handleInvitationCode = () => {
 };
 
 // 加入等待列表
-const joinWaitlist = async () => {
-  if (!waitingForm.email.trim()) {
-    errorMessage.value = 'Please enter your email address.';
-    return;
-  }
+const joinWaitlist = () => {
 
   isLoading.value = true;
   errorMessage.value = '';
 
-  try {
-    // 这里应该调用加入等待列表的API
-    // await joinWaitingList(waitingForm);
-
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
+  store.joinWait(waitingForm.reason).then(() => {
     currentStep.value = 'success';
-    ElMessage.success('Successfully joined the waitlist!');
-  } catch (error) {
-    errorMessage.value = 'Failed to join waitlist. Please try again.';
-  } finally {
+  }).catch((error) => {
+    errorMessage.value = error.response.data.message ||'Failed to join waitlist. Please try again.';
+  }).finally(() => {
     isLoading.value = false;
-  }
+  });
+
 };
 
 // 切换到等待列表
