@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '@/views/home-view.vue';
+// import HomeView from '@/views/home-view.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -63,7 +63,8 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/user/Login-view.vue'),
+      redirect: '/invitation',
+      // component: () => import('@/views/user/Login-view.vue'),
     },
     {
       path: '/signup',
