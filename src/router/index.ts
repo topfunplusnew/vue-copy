@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
-// import HomeView from '@/views/home-view.vue';
+import HomeView from '@/views/home-view.vue';
+import { useUserStore } from '@/stores/user';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -20,64 +21,64 @@ const router = createRouter({
     {
       path: '/',
       name: 'main',
-      redirect: '/invitation',
-      // component: HomeView,
+      // redirect: '/invitation',
+      component: HomeView,
     },
     {
       path: '/home/:id?',
       name: 'home',
-      redirect: '/invitation',
-      // component: () => import('@/views/blog/list-view.vue'),
-      // props: true,
+      // redirect: '/invitation',
+      component: () => import('@/views/blog/list-view.vue'),
+      props: true,
     },
     {
       path: '/post-view/:id?', // 路由路径
       name: 'PostView',
-      redirect: '/invitation',
-      // component: () => import('@/views/blog/post-view.vue'),
-      // props: true,
+      // redirect: '/invitation',
+      component: () => import('@/views/blog/post-view.vue'),
+      props: true,
     },
     {
       path: '/map',
       name: 'map',
-      redirect: '/invitation',
-      // component: () => import('@/views/chat/plan-map.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/chat/plan-map.vue'),
     },
     {
       path: '/about',
       name: 'about',
-      redirect: '/invitation',
-      // component: () => import('@/views/about-view.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/about-view.vue'),
     },
     {
       path: '/blog',
       name: 'blog',
-      redirect: '/invitation',
-      // component: () => import('@/views/trip/trip-blog.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/trip/trip-blog.vue'),
     },
     {
       path: '/news',
       name: 'news',
-      redirect: '/invitation',
-      // component: () => import('@/views/trip/trip-news.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/trip/trip-news.vue'),
     },
     {
       path: '/contact',
       name: 'contact',
-      redirect: '/invitation',
-      // component: () => import('@/views/trip/trip-contact.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/trip/trip-contact.vue'),
     },
     {
       path: '/login',
       name: 'login',
-      redirect: '/invitation',
-      // component: () => import('@/views/user/Login-view.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/user/Login-view.vue'),
     },
     {
       path: '/signup',
       name: 'signup',
-      redirect: '/invitation',
-      // component: () => import('@/views/user/Signup-view.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/user/Signup-view.vue'),
     },
     {
       path: '/active',
@@ -96,27 +97,27 @@ const router = createRouter({
     {
       path: '/userpage',
       name: 'userpage',
-      redirect: '/invitation',
-      // component: () => import('@/views/user/user-page.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/user/user-page.vue'),
     },
     {
       path: '/userpage/:id',
       name: 'otheruser',
-      redirect: '/invitation',
-      // component: () => import('@/views/otheruser/otheruser-page.vue'),
-      // props: true,
+      // redirect: '/invitation',
+      component: () => import('@/views/otheruser/otheruser-page.vue'),
+      props: true,
     },
     {
       path: '/generator',
       name: 'generator',
-      redirect: '/invitation',
-      // component: () => import('@/views/chat/trip-generator.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/chat/trip-generator.vue'),
     },
     {
       path: '/ipologoai',
       name: 'ipologoai',
-      redirect: '/invitation',
-      // component: () => import('@/views/iPoloGO-Generated-Plan/iPoloGO-result.vue'),
+      // redirect: '/invitation',
+      component: () => import('@/views/iPoloGO-Generated-Plan/iPoloGO-result.vue'),
     },
     {
       path: '/invitation',
@@ -125,18 +126,20 @@ const router = createRouter({
     },
   ],
 });
-
-// router.beforeEach((to, from, next) => {
-//   const authStore = useAuthStore();
-//   const isAuthenticated = !!authStore.token;
-
-//   if (to.meta.requiresAuth && !isAuthenticated) {
-//     next('/login');
-//   } else if ((to.name === 'login' || to.name === 'signup') && isAuthenticated) {
-//     next('/');
-//   } else {
-//     next();
-//   }
-// });
+const whiteList = ['invitation', 'forgetpassword', 'active'];
+router.beforeEach((to, from, next) => {
+  console.log(from, to);
+  const user = useUserStore().user;
+  const isAuthenticated = user?.id;
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else {
+    if (import.meta.env.IPG_INVITATION && !whiteList.includes(to.name as string)) {
+      next('/invitation');
+    } else {
+      next();
+    }
+  }
+});
 
 export default router;
