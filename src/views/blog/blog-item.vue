@@ -2,39 +2,19 @@
 import type { IBlog } from '@/types/blog';
 import { getImageUrl } from '@/utils';
 
-const props = defineProps<{post:IBlog}>();
-const emits = defineEmits<{detail:[id:number]}>();
+const props = defineProps<{ post: IBlog }>();
+const emits = defineEmits<{ detail: [id: number] }>();
 
 function onClick() {
-  if(props.post.id) emits('detail', props.post.id);
+  if (props.post.id) emits('detail', props.post.id);
 }
-
 </script>
 <template>
-  <div
-    class="blog-item"
-    :class="{ 'nft-blog': post.isNFT }"
-    @click="onClick"
-  >
+  <div class="blog-item" :class="{ 'nft-blog': post.isNFT }" @click="onClick">
     <!-- 博客图片 -->
-    <el-carousel
-      v-if="post.image && post.image.length > 0"
-      indicator-position="outside"
-      class="post-carousel"
-      :autoplay="false"
-      height="200px"
-      :touchable="true"
-      :loop="true"
-    >
-      <el-carousel-item
-        v-for="(img, index) in post.image"
-        :key="index"
-      >
-        <img
-          :src="getImageUrl(img)"
-          alt="Post Image"
-          class="post-image"
-        />
+    <el-carousel v-if="post.files && post.files.length > 0" indicator-position="outside" class="post-carousel" :autoplay="false" height="200px" :touchable="true" :loop="true">
+      <el-carousel-item v-for="(img, index) in post.files" :key="index">
+        <img :src="getImageUrl(img)" alt="Post Image" class="post-image" />
       </el-carousel-item>
     </el-carousel>
 

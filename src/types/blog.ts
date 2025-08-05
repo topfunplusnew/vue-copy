@@ -4,6 +4,7 @@ import type { IUser } from './user';
 
 export interface IBlog extends ICommon {
   image: string[];
+  files: string[];
   user: IUser;
   title: string;
   content: string;
@@ -73,5 +74,5 @@ export const INIT_BLOG_POST = {
   location: [],
   social_filters: [],
   comment_permission: 0,
-  isNFT: false
-}
+  isNFT: false,
+};
