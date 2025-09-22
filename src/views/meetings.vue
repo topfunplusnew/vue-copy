@@ -743,13 +743,19 @@ const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
 
         <!-- 精选 Events：其他会议推荐 -->
         <div class="featured-events">
-          <div class="section-title">Featured Events</div>
+          <div class="section-header">
+            <div class="section-title">Featured Events</div>
+            <button @click="router.push({ name: 'FeaturedEvents' })" class="view-more-btn">
+              View All →
+            </button>
+          </div>
 
           <div v-if="hasFeaturedEvents" class="featured-list">
             <div
               v-for="evt in featuredEvents"
               :key="evt.id"
               class="featured-card"
+              @click="router.push({ name: 'FeaturedEvents' })"
             >
               <div class="featured-header">
                 <div class="featured-name">{{ evt.name }}</div>
