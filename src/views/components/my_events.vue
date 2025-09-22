@@ -363,7 +363,7 @@ function openInNewTab() {
 
         <div v-else-if="activeTab==='additional'" class="tab-content">
           <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
-          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files</button>
+          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
           <div class="file-list" v-if="additionalFiles.length">
             <div class="file-row" v-for="(f, i) in additionalFiles" :key="i">
               <div class="file-info">
