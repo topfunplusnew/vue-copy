@@ -501,6 +501,13 @@ const contactForm = reactive({
 // CV upload
 const cvFile = ref<File | null>(null);
 const cvUploadRef = ref<HTMLElement | null>(null);
+const uploadedCV = ref<{ file: File; uploadDate: string; url: string } | null>(null);
+
+// CV Preview Modal
+const showCVPreviewModal = ref(false);
+const isMobile = computed(() => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+});
 
 // Open contact info modal
 const openContactModal = () => {
@@ -551,11 +558,44 @@ const submitCV = () => {
     return;
   }
   
+  // Store uploaded CV
+  uploadedCV.value = {
+    file: cvFile.value,
+    uploadDate: new Date().toLocaleDateString(),
+    url: URL.createObjectURL(cvFile.value)
+  };
+  
   // TODO: Implement API call to upload CV
   console.log('CV uploaded:', cvFile.value);
   ElMessage.success('CV uploaded successfully!');
   closeCVModal();
   cvFile.value = null;
+};
+
+// Open CV for viewing
+const openCVPreview = () => {
+  if (uploadedCV.value) {
+    showCVPreviewModal.value = true;
+    document.body.style.overflow = 'hidden';
+  }
+};
+
+// Close CV preview modal
+const closeCVPreview = () => {
+  showCVPreviewModal.value = false;
+  document.body.style.overflow = '';
+};
+
+// Get current CV filename
+const getCurrentCVFileName = () => {
+  return uploadedCV.value?.file.name || 'document.pdf';
+};
+
+// Open CV in new tab (for mobile)
+const openCVInNewTab = () => {
+  if (uploadedCV.value?.url) {
+    window.open(uploadedCV.value.url, '_blank');
+  }
 };
 
 // ===== Academic Meetings: current participations (Top section on right) =====
@@ -689,7 +729,8 @@ const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
           <!-- Additional Profile Buttons -->
           <div class="additional-buttons">
             <button class="contact-info-btn" @click="openContactModal">CONTACT INFO</button>
-            <button class="upload-cv-btn" @click="openCVModal">UPLOAD CV</button>
+            <button v-if="!uploadedCV" class="upload-cv-btn" @click="openCVModal">UPLOAD CV</button>
+            <button v-else class="view-cv-btn" @click="openCVPreview">VIEW CV</button>
           </div>
         </div>
       </aside>
@@ -921,8 +962,52 @@ const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
         </div>
       </div>
     </div>
+    </div>
+
+    <!-- CV Preview Modal -->
+    <div v-if="showCVPreviewModal" class="pdf-modal-overlay" @click="closeCVPreview">
+      <div class="pdf-modal" @click.stop>
+        <div class="pdf-modal-header">
+          <h3>{{ getCurrentCVFileName() }}</h3>
+          <button @click="closeCVPreview" class="close-btn">×</button>
+        </div>
+        <div class="pdf-modal-content">
+          <iframe 
+            v-if="uploadedCV?.url && !isMobile" 
+            :src="uploadedCV.url" 
+            class="pdf-viewer"
+            frameborder="0">
+          </iframe>
+          <div v-else-if="uploadedCV?.url && isMobile" class="mobile-pdf-viewer">
+            <!-- Mobile PDF display using object tag -->
+            <object 
+              :data="uploadedCV.url" 
+              type="application/pdf"
+              class="mobile-pdf-iframe">
+              <embed 
+                :src="uploadedCV.url" 
+                type="application/pdf"
+                class="mobile-pdf-iframe">
+              <div class="pdf-fallback-mobile">
+                <div class="pdf-icon">📄</div>
+                <p>{{ getCurrentCVFileName() }}</p>
+              </div>
+            </object>
+            <!-- Mobile action buttons -->
+            <div class="mobile-pdf-actions">
+              <a :href="uploadedCV.url" :download="getCurrentCVFileName()" class="download-btn">
+                Download CV
+              </a>
+              <button @click="openCVInNewTab" class="open-btn">
+                Open in New Tab
+              </button>
+            </div>
+          </div>
+          <div v-else class="pdf-loading">Loading CV...</div>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 </template>
 
 

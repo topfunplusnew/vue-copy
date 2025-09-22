@@ -402,7 +402,7 @@
 
   /* Additional Profile Buttons */
   .additional-buttons {
-    margin-top: 20px;
+    margin-top: 50px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -412,7 +412,7 @@
       margin-top: 15px;
     }
     
-    .contact-info-btn, .upload-cv-btn {
+    .contact-info-btn, .upload-cv-btn, .view-cv-btn {
       width: 100%;
       padding: 10px 12px;
       background: rgba(255, 255, 255, 0.15);
@@ -421,7 +421,7 @@
       border-radius: 12px;
       color: #1a3566;
       font-size: rpx(14);
-      font-weight: 500;
+      font-weight: 800;
       cursor: pointer;
       transition: all 0.3s ease;
       text-align: center;
@@ -439,6 +439,17 @@
     
       @include screen-mobile {
         font-size: rpx(20);
+      }
+    }
+    
+    .view-cv-btn {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.12) 100%);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #065f46;
+      
+      &:hover {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.18) 100%);
+        border-color: rgba(34, 197, 94, 0.4);
       }
     }
   }

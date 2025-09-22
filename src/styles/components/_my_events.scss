@@ -2,6 +2,11 @@
 @use '../utils/mixins' as *;
 
 .my-events-page {
+      /* 确保不干扰header */
+      padding-top: rpx(20);
+      position: relative;
+      z-index: 1;
+
   .main-content {
     display: flex;
     gap: 20px;
