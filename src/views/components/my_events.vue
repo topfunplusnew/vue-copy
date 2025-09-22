@@ -131,6 +131,57 @@ function saveDetails() {
   ElMessage.success('Details saved successfully!');
 }
 
+// PDF Preview Modal
+const pdfModalVisible = ref(false);
+const currentPdfUrl = ref('');
+const currentPdfTitle = ref('');
+const currentPdfFile = ref<File | null>(null);
+
+// Mobile detection
+const isMobile = computed(() => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+});
+
+function openPdfModal(type: 'slides' | 'poster') {
+  let file: File | null = null;
+  let title = '';
+  
+  if (type === 'slides' && slidesFile.value) {
+    file = slidesFile.value;
+    title = `Slides: ${file.name}`;
+  } else if (type === 'poster' && posterFile.value) {
+    file = posterFile.value;
+    title = `Poster: ${file.name}`;
+  }
+  
+  if (file) {
+    currentPdfFile.value = file;
+    currentPdfUrl.value = URL.createObjectURL(file);
+    currentPdfTitle.value = title;
+    pdfModalVisible.value = true;
+  }
+}
+
+function closePdfModal() {
+  if (currentPdfUrl.value) {
+    URL.revokeObjectURL(currentPdfUrl.value);
+  }
+  pdfModalVisible.value = false;
+  currentPdfUrl.value = '';
+  currentPdfTitle.value = '';
+  currentPdfFile.value = null;
+}
+
+function getCurrentFileName() {
+  return currentPdfFile.value?.name || 'document.pdf';
+}
+
+function openInNewTab() {
+  if (currentPdfUrl.value) {
+    window.open(currentPdfUrl.value, '_blank');
+  }
+}
+
 </script>
 
 <template>
@@ -162,9 +213,48 @@ function saveDetails() {
           </div>
           <div class="meta">
             <div class="title">{{ eventMeta.title }}</div>
-            <div class="authors">Author A (Institute X); Author B (University Y)</div>
+            <div class="authors">
+              <span class="author-name">John Smith<sup>1</sup></span>,
+              <span class="author-name">Jane Doe<sup>2</sup></span>,
+              <span class="author-name">Bob Johnson<sup>1,3</sup></span>
+            </div>
+            <div class="affiliations">
+              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
+              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
+              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
+            </div>
+            <div class="session-notice">
+              <div class="session-header">             
+                <div class="notice-title">Important Conference Schedule</div>
+              </div>
+              <div class="session-content">
+                <div class="schedule-details">
+                  <div class="schedule-row">
+                    <span class="schedule-label">📅 Date:</span>
+                    <span class="schedule-value">TUE., June 10, 2025</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">🏢 Room:</span>
+                    <span class="schedule-value">A3</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">🎯 Session:</span>
+                    <span class="schedule-value">RVisual Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">📄 Paper ID:</span>
+                    <span class="schedule-value">#1234</span>
+                  </div>
+                </div>
+                <button class="schedule-action-btn">
+                  <span class="btn-icon">📌</span>
+                  Add to My Schedule
+                </button>
+              </div>
+            </div>
             <div class="dates">Date Created: {{ eventMeta.createdAt }} · Date Edited: {{ eventMeta.updatedAt }}</div>
-          </div>
+
+        </div>
         </header>
 
         <div v-if="activeTab==='details'" class="tab-content">
@@ -234,7 +324,16 @@ function saveDetails() {
             </div>
             <button @click="removeSlides" class="remove-btn">Remove</button>
           </div>
-          <div class="pdf-preview" v-if="slidesFile">PDF uploaded (preview coming soon)</div>
+          <div class="pdf-preview" v-if="slidesFile">
+            <div class="pdf-preview-header">
+              <span class="pdf-title">{{ slidesFile.name }}</span>
+              <button @click="openPdfModal('slides')" class="preview-btn">Preview PDF</button>
+            </div>
+            <div class="pdf-thumbnail" @click="openPdfModal('slides')">
+              <div class="pdf-icon">📄</div>
+              <div class="pdf-info">Click to preview PDF</div>
+            </div>
+          </div>
         </div>
 
         <div v-else-if="activeTab==='poster'" class="tab-content">
@@ -250,7 +349,16 @@ function saveDetails() {
             </div>
             <button @click="removePoster" class="remove-btn">Remove</button>
           </div>
-          <div class="pdf-preview" v-if="posterFile">Poster uploaded (preview coming soon)</div>
+          <div class="pdf-preview" v-if="posterFile">
+            <div class="pdf-preview-header">
+              <span class="pdf-title">{{ posterFile.name }}</span>
+              <button @click="openPdfModal('poster')" class="preview-btn">Preview PDF</button>
+            </div>
+            <div class="pdf-thumbnail" @click="openPdfModal('poster')">
+              <div class="pdf-icon">🖼️</div>
+              <div class="pdf-info">Click to preview poster</div>
+            </div>
+          </div>
         </div>
 
         <div v-else-if="activeTab==='additional'" class="tab-content">
@@ -273,12 +381,6 @@ function saveDetails() {
 
         <div v-else-if="activeTab==='fulltext'" class="tab-content">
           <div class="fulltext-section">
-            <h3>{{ eventMeta.title }}</h3>
-            <div class="authors">Author A (Institute X); Author B (University Y)</div>
-            <div class="session">
-              <div>Schedule: Tue, Jun 10, 2025 · Room A3 · Session: RL-2 · Paper #1234</div>
-              <button class="save-btn">Add to Schedule</button>
-            </div>
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
@@ -297,7 +399,7 @@ function saveDetails() {
                 <div class="status" :class="{ok: !!posterFile}">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
-                <div class="label">Additional Info</div>
+                <div class="label">Additional Info (optional)</div>
                 <div class="status" :class="{ok: additionalFiles.length>0}">{{ additionalFiles.length>0 ? 'Uploaded' : 'Missing' }}</div>
               </div>
             </div>
@@ -305,6 +407,50 @@ function saveDetails() {
         </div>
       </section>
     </section>
+    
+    <!-- PDF Preview Modal -->
+    <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
+      <div class="pdf-modal" @click.stop>
+        <div class="pdf-modal-header">
+          <h3>{{ currentPdfTitle }}</h3>
+          <button @click="closePdfModal" class="close-btn">×</button>
+        </div>
+        <div class="pdf-modal-content">
+          <iframe 
+            v-if="currentPdfUrl && !isMobile" 
+            :src="currentPdfUrl" 
+            class="pdf-viewer"
+            frameborder="0">
+          </iframe>
+          <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
+            <!-- Mobile PDF display using object tag -->
+            <object 
+              :data="currentPdfUrl" 
+              type="application/pdf"
+              class="mobile-pdf-iframe">
+              <embed 
+                :src="currentPdfUrl" 
+                type="application/pdf"
+                class="mobile-pdf-iframe">
+              <div class="pdf-fallback-mobile">
+                <div class="pdf-icon">📄</div>
+                <p>{{ getCurrentFileName() }}</p>
+              </div>
+            </object>
+            <!-- Mobile action buttons -->
+            <div class="mobile-pdf-actions">
+              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn">
+                Download PDF
+              </a>
+              <button @click="openInNewTab" class="open-btn">
+                Open in New Tab
+              </button>
+            </div>
+          </div>
+          <div v-else class="pdf-loading">Loading PDF...</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
