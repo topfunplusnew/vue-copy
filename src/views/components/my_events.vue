@@ -31,7 +31,20 @@ function setActiveTab(tab: TabKey) {
 
 // Mock: load conference & paper meta
 const eventMeta = reactive({
-  logo: '',
+  logo: 'https://nips.cc/static/core/img/NeurIPS-logo.svg',
+  conferenceName: 'NeurIPS 2025',
+  conferenceFullName: 'Neural Information Processing Systems',
+  conferenceDate: 'December 9-15, 2025',
+  location: {
+    city: 'Vancouver',
+    country: 'Canada',
+    venue: 'Vancouver Convention Centre'
+  },
+  websites: {
+    official: 'https://nips.cc',
+    committee: 'https://nips.cc/Conferences/2025/ProgramCommittee',
+    registration: 'https://nips.cc/Conferences/2025/Registration'
+  },
   createdAt: '2025-01-10',
   updatedAt: '2025-02-18',
   title: 'Learning Efficient Policies with Sparse Feedback',
@@ -201,15 +214,49 @@ function openInNewTab() {
       </aside>
 
       <section class="right-panel">
-        <header class="user-summary">
+        <!-- <header class="user-summary">
           <div class="user-avatar" v-if="user?.avatar">
             <img :src="getImageUrl(user?.avatar)" alt="User Avatar" />
           </div>
           <div class="user-name">{{ user?.name }}</div>
-        </header>
+        </header> -->
         <header class="event-header">
-          <div class="logo" v-if="eventMeta.logo">
-            <img :src="eventMeta.logo" alt="Conference Logo" />
+          <div class="conference-header">
+            <div class="logo" v-if="eventMeta.logo">
+              <img :src="eventMeta.logo" alt="Conference Logo" />
+            </div>
+            <div class="conference-info">
+              <div class="conference-name">{{ eventMeta.conferenceName }}</div>
+              <div class="conference-full-name">{{ eventMeta.conferenceFullName }}</div>
+              <div class="conference-details">
+                <div class="detail-row">
+                  <span class="detail-icon">📅</span>
+                  <span class="detail-text">{{ eventMeta.conferenceDate }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">📍</span>
+                  <span class="detail-text">{{ eventMeta.location.city }}, {{ eventMeta.location.country }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">🏢</span>
+                  <span class="detail-text">{{ eventMeta.location.venue }}</span>
+                </div>
+                <div class="conference-links">
+                  <a :href="eventMeta.websites.official" target="_blank" class="conf-link">
+                    <span class="link-icon">🌐</span>
+                    Official Website
+                  </a>
+                  <a :href="eventMeta.websites.committee" target="_blank" class="conf-link">
+                    <span class="link-icon">👥</span>
+                    Committee
+                  </a>
+                  <a :href="eventMeta.websites.registration" target="_blank" class="conf-link">
+                    <span class="link-icon">📝</span>
+                    Registration
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="meta">
             <div class="title">{{ eventMeta.title }}</div>
