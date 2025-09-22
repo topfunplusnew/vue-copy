@@ -14,6 +14,18 @@ import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import type { IBlog } from '@/types/blog';
 import commonHeader from '@/layout/common-header.vue';
 
+// ===== Academic Meetings types (temporary, will be moved to types/) =====
+interface ConferenceSubmission {
+  paperTitle: string;
+  authors: string[];
+}
+
+interface ConferenceParticipation {
+  conferenceId: number;
+  conferenceName: string;
+  submissions: ConferenceSubmission[];
+}
+
 const selectedBlog =ref<IBlog | null>(null); // 当前选中的博客详情
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -472,6 +484,150 @@ const toggleMenu = () => {
   menuActive.value = !menuActive.value;
 };
 
+// ===== Contact Info & CV Upload Modals =====
+const showContactModal = ref(false);
+const showCVModal = ref(false);
+
+// Contact info form
+const contactForm = reactive({
+  email: '',
+  phone: '',
+  website: '',
+  linkedin: '',
+  twitter: '',
+  orcid: ''
+});
+
+// CV upload
+const cvFile = ref<File | null>(null);
+const cvUploadRef = ref<HTMLElement | null>(null);
+
+// Open contact info modal
+const openContactModal = () => {
+  showContactModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+// Close contact info modal
+const closeContactModal = () => {
+  showContactModal.value = false;
+  document.body.style.overflow = '';
+};
+
+// Submit contact info
+const submitContactInfo = () => {
+  // TODO: Implement API call to save contact info
+  console.log('Contact info submitted:', contactForm);
+  ElMessage.success('Contact information saved successfully!');
+  closeContactModal();
+};
+
+// Open CV upload modal
+const openCVModal = () => {
+  showCVModal.value = true;
+  document.body.style.overflow = 'hidden';
+};
+
+// Close CV upload modal
+const closeCVModal = () => {
+  showCVModal.value = false;
+  document.body.style.overflow = '';
+};
+
+// Handle CV file selection
+const handleCVUpload = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const file = target.files ? target.files[0] : null;
+  if (file) {
+    cvFile.value = file;
+    console.log('CV file selected:', file.name);
+  }
+};
+
+// Submit CV
+const submitCV = () => {
+  if (!cvFile.value) {
+    ElMessage.warning('Please select a CV file first');
+    return;
+  }
+  
+  // TODO: Implement API call to upload CV
+  console.log('CV uploaded:', cvFile.value);
+  ElMessage.success('CV uploaded successfully!');
+  closeCVModal();
+  cvFile.value = null;
+};
+
+// ===== Academic Meetings: current participations (Top section on right) =====
+// TODO: Replace mock data with store-driven data
+const currentParticipations = ref<ConferenceParticipation[]>([
+  {
+    conferenceId: 101,
+    conferenceName: 'ICML 2025',
+    submissions: [
+      {
+        paperTitle: 'Learning Efficient Policies with Sparse Feedback',
+        authors: ['Jun Huang', 'Alice Zhang', 'Bob Lee']
+      },
+      {
+        paperTitle: 'Robust Federated Optimization under Heterogeneity',
+        authors: ['Jun Huang', 'Wei Chen']
+      }
+    ]
+  },
+  {
+    conferenceId: 102,
+    conferenceName: 'NeurIPS 2025',
+    submissions: [
+      {
+        paperTitle: 'Graph Contrastive Learning with Causal Augmentations',
+        authors: ['Jun Huang', 'Yue Wang', 'Kai Liu']
+      }
+    ]
+  }
+]);
+
+const hasCurrentParticipations = computed(() => currentParticipations.value.length > 0);
+
+// ===== Featured Events (Other conferences) =====
+interface FeaturedEvent {
+  id: number;
+  name: string;
+  location: string;
+  dateRange: string;
+  website?: string;
+  topics?: string[];
+}
+
+const featuredEvents = ref<FeaturedEvent[]>([
+  {
+    id: 201,
+    name: 'CVPR 2025',
+    location: 'Nashville, USA',
+    dateRange: 'Jun 10–15, 2025',
+    website: 'https://cvpr.thecvf.com',
+    topics: ['Computer Vision', 'Deep Learning']
+  },
+  {
+    id: 202,
+    name: 'AAAI 2026',
+    location: 'Vancouver, Canada',
+    dateRange: 'Feb 8–15, 2026',
+    website: 'https://aaai.org',
+    topics: ['AI', 'Planning', 'NLP']
+  },
+  {
+    id: 203,
+    name: 'KDD 2025',
+    location: 'Barcelona, Spain',
+    dateRange: 'Aug 3–7, 2025',
+    website: 'https://www.kdd.org',
+    topics: ['Data Mining', 'ML', 'Graph']
+  }
+]);
+
+const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
+
 
 </script>
 
@@ -528,114 +684,92 @@ const toggleMenu = () => {
                 <span class="link-text">Followers</span>
               </span>
             </div>
-
-            <!-- <div class="additional-buttons">
-
-            </div> -->
+          </div>
+          
+          <!-- Additional Profile Buttons -->
+          <div class="additional-buttons">
+            <button class="contact-info-btn" @click="openContactModal">CONTACT INFO</button>
+            <button class="upload-cv-btn" @click="openCVModal">UPLOAD CV</button>
           </div>
         </div>
       </aside>
 
       <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
       <div class="vertical-divider-us"></div>
+      <!-- 右侧会议内容区域 -->
+      <section class="events">
+        <!-- 顶部：正在参与的会议 -->
+        <div class="current-participations">
+          <div class="section-title">My Events</div>
 
-      <!-- 右侧博客列表区，填满剩余宽度 -->
-      <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
-        <!-- 博客区域顶部操作栏 -->
-        <div class="blog-area-header">
-          <!-- 搜索框 -->
-          <input
-            class="blog-search-input"
-            type="text"
-            placeholder="Search your blog"
-            v-model="searchKeyword"
-            @input="handleSearch"
-          />
-          <!-- 编辑按钮 -->
-          <el-button
-            class="edit-mode-btn"
-            :type="isEditMode ? 'primary' : 'default'"
-            @click="toggleEditMode"
-          >
-            {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
-          </el-button>
-        </div>
-
-        <div class="blog-posts">
-          <div
-            v-for="post in userPosts.items"
-            :key="post.id"
-            class="blog-post"
-            :class="{
-              'nft-post': post.isNFT,
-              'edit-mode': isEditMode
-            }"
-            @click="isEditMode ? null : showBlogDetail(post.id)"
-          >
-            <!-- 编辑模式下的操作按钮 -->
-            <div v-if="isEditMode" class="blog-action-buttons">
-              <el-button
-                type="danger"
-                class="delete-blog-btn"
-                @click.prevent.stop="deleteBlog(post.id)"
-              >
-                Delete
-              </el-button>
-              <el-button
-                type="primary"
-                class="edit-blog-btn"
-                @click.prevent.stop="gotoEidtPage(post.id)"
-              >
-                Edit
-              </el-button>
-            </div>
-
-            <!-- 原有的博客内容 -->
-            <!-- 使用 el-carousel 代替单张图片显示 -->
-            <el-carousel
-              v-if="post.image && post.image.length > 0"
-              :interval="3000"
-              arrow="hover"
-              height="200px"
-              class="post-carousel"
-              :touchable="true"
-              :loop="true"
-              :autoplay="false"
+          <div v-if="hasCurrentParticipations" class="conference-list">
+            <div
+              v-for="conf in currentParticipations"
+              :key="conf.conferenceId"
+              class="conference-card"
             >
-              <el-carousel-item
-                v-for="(img, index) in post.image"
-                :key="index"
-              >
-                <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
-              </el-carousel-item>
-            </el-carousel>
-
-            <!-- 博客内容 -->
-            <div class="post-content-userpage">
-              <h2 class="post-title-userpage">{{ post.title }}</h2>
-              <p class="post-text-userpage">{{ post.content }}</p>
-            </div>
-
-            <!-- 博客底部信息 -->
-            <div class="post-footer-userpage">
-              <!-- 作者信息 -->
-              <div class="author-info">
-                <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
-                <span class="author-name">{{ post.user?.name }}</span>
+              <div class="conference-header">
+                <div class="conference-name">{{ conf.conferenceName }}</div>
+                <div class="submission-count">{{ conf.submissions.length }} papers</div>
               </div>
 
-              <!-- 统计信息 -->
-              <div class="post-stats">
-                <span class="likes">❤️ {{ post.likes }}</span>
-                <span class="comments">💬 {{ post.comments_count }}</span>
-                <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
+              <div class="submission-list">
+                <div
+                  v-for="(sub, idx) in conf.submissions"
+                  :key="idx"
+                  class="submission-item"
+                  @click="router.push({ name: 'MyEventDetail', params: { conferenceId: conf.conferenceId, paperId: idx } })"
+                >
+                  <div class="paper-title">{{ sub.paperTitle }}</div>
+                  <div class="authors">
+                    <span
+                      v-for="(author, i) in sub.authors"
+                      :key="i"
+                      class="author"
+                    >
+                      {{ author }}<span v-if="i < sub.authors.length - 1">, </span>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
+          <div v-else class="empty-state">
+            <div class="empty-title">No current participations</div>
+            <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+          </div>
         </div>
-        <!-- 底部加载提示 -->
-        <div v-if="userPosts.loading" class="loading">Loading more posts...</div>
-        <div v-if="!userPosts.has_next" class="no-more">No more posts</div>
+
+        <!-- 精选 Events：其他会议推荐 -->
+        <div class="featured-events">
+          <div class="section-title">Featured Events</div>
+
+          <div v-if="hasFeaturedEvents" class="featured-list">
+            <div
+              v-for="evt in featuredEvents"
+              :key="evt.id"
+              class="featured-card"
+            >
+              <div class="featured-header">
+                <div class="featured-name">{{ evt.name }}</div>
+                <div class="featured-date">{{ evt.dateRange }}</div>
+              </div>
+              <div class="featured-meta">
+                <span class="featured-location">{{ evt.location }}</span>
+                <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank" rel="noopener">Website</a>
+              </div>
+              <div v-if="evt.topics?.length" class="featured-topics">
+                <span class="topic-tag" v-for="(t, i) in evt.topics" :key="i">{{ t }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="empty-state">
+            <div class="empty-title">No featured events</div>
+            <div class="empty-desc">We will curate high-quality conferences here soon.</div>
+          </div>
+        </div>
       </section>
     </section>
 
@@ -705,83 +839,82 @@ const toggleMenu = () => {
       </div>
     </div>
 
-    <!-- 添加社交关系弹窗 -->
-    <div v-if="isSocialModalVisible" class="social-modal-overlay" @click.self="closeSocialModal">
-      <div class="social-modal-container">
-        <button class="social-modal-close" @click="closeSocialModal">&times;</button>
-
-        <div class="social-modal-content">
-          <!-- 左侧：Following 列表 -->
-          <div class="social-modal-column following-column">
-            <h3 class="social-modal-title">Following ({{ user?.followings || 0 }})</h3>
-
-            <div v-if="loadingFollowings" class="social-loading">
-              <div class="loading-spinner"></div>
-              <p>Loading followings...</p>
-            </div>
-
-            <div v-else-if="followings.length === 0" class="social-empty">
-              <div class="empty-icon">👤</div>
-              <p>Not following anyone yet</p>
-            </div>
-
-            <div v-else class="social-user-list">
-              <div v-for="following in followings" :key="following.id" class="social-user-item">
-                <img :src="`/images/${following.avatar}`" :alt="`${following.name}'s avatar`" class="social-user-avatar">
-                <div class="social-user-info">
-                  <div class="social-user-name">{{ following.name }}</div>
-                  <div class="social-user-meta">Following since {{ formatDate(following.created_at) }}</div>
-                </div>
-                <button class="social-action-btn following" @click="unfollowUser(following)">
-                  Unfollow
-                </button>
-              </div>
-            </div>
+    <!-- Contact Info Modal -->
+    <div class="contact-modal" v-if="showContactModal">
+      <div class="contact-modal-container">
+        <div class="modal-header">
+          <h2>Contact Information</h2>
+          <button class="close-btn" @click="closeContactModal">×</button>
+        </div>
+        <div class="modal-content">
+          <div class="form-group">
+            <label>Email</label>
+            <input v-model="contactForm.email" type="email" placeholder="your.email@example.com" />
           </div>
-
-          <!-- 右侧：Followers 列表 -->
-          <div class="social-modal-column followers-column">
-            <h3 class="social-modal-title">Followers ({{ user?.followers || 0 }})</h3>
-
-            <div v-if="loadingFollowers" class="social-loading">
-              <div class="loading-spinner"></div>
-              <p>Loading followers...</p>
-            </div>
-
-            <div v-else-if="followers.length === 0" class="social-empty">
-              <div class="empty-icon">👥</div>
-              <p>No followers yet</p>
-            </div>
-
-            <div v-else class="social-user-list">
-              <div v-for="follower in followers" :key="follower.id" class="social-user-item">
-                <img :src="follower.avatar" :alt="`${follower.name}'s avatar`" class="social-user-avatar">
-                <div class="social-user-info">
-                  <div class="social-user-name">{{ follower.name }}</div>
-                  <div class="social-user-meta">Following since {{ formatDate(follower.created_at) }}</div>
-                </div>
-                <button
-                  class="social-action-btn"
-                  :class="{ 'following': isFollowing }"
-                  @click="toggleFollowUser(follower)"
-                >
-                  {{ isFollowing ? 'Following' : 'Follow' }}
-                </button>
-              </div>
-            </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input v-model="contactForm.phone" type="tel" placeholder="+1 (555) 123-4567" />
           </div>
+          <div class="form-group">
+            <label>Website</label>
+            <input v-model="contactForm.website" type="url" placeholder="https://yourwebsite.com" />
+          </div>
+          <div class="form-group">
+            <label>LinkedIn</label>
+            <input v-model="contactForm.linkedin" type="url" placeholder="https://linkedin.com/in/yourprofile" />
+          </div>
+          <div class="form-group">
+            <label>Twitter</label>
+            <input v-model="contactForm.twitter" type="text" placeholder="@yourusername" />
+          </div>
+          <div class="form-group">
+            <label>ORCID</label>
+            <input v-model="contactForm.orcid" type="text" placeholder="0000-0000-0000-0000" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <el-button @click="closeContactModal">Cancel</el-button>
+          <el-button type="primary" @click="submitContactInfo">Save</el-button>
         </div>
       </div>
     </div>
 
-
-  <!-- 博客详情弹出层 -->
-    <user-page-dialog
-      v-if="store.selectedPost"
-      :is-following="isFollowing"
-      @close="closeBlogDetail"
-      @toggle-follow="toggleFollowUser"
-    />
+    <!-- CV Upload Modal -->
+    <div class="cv-modal" v-if="showCVModal">
+      <div class="cv-modal-container">
+        <div class="modal-header">
+          <h2>Upload CV</h2>
+          <button class="close-btn" @click="closeCVModal">×</button>
+        </div>
+        <div class="modal-content">
+          <div class="upload-area">
+            <input 
+              ref="cvUploadRef"
+              type="file" 
+              accept=".pdf,.doc,.docx" 
+              @change="handleCVUpload"
+              style="display: none;"
+            />
+            <div class="upload-zone" @click="cvUploadRef?.click()">
+              <div class="upload-icon">📄</div>
+              <div class="upload-text">
+                <p>Click to select CV file</p>
+                <p class="upload-hint">Supports PDF, DOC, DOCX files</p>
+              </div>
+            </div>
+            <div v-if="cvFile" class="selected-file">
+              <span class="file-icon">📎</span>
+              <span class="file-name">{{ cvFile.name }}</span>
+              <span class="file-size">({{ (cvFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <el-button @click="closeCVModal">Cancel</el-button>
+          <el-button type="primary" @click="submitCV" :disabled="!cvFile">Upload</el-button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 </template>

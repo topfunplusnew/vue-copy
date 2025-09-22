@@ -197,6 +197,17 @@
         font-size: rpx(25);
       }
     }
+
+    .user-institution {
+      font-size: rpx(20);
+      font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+      color: #1a3566;
+      font-weight: bold;
+  
+      @include screen-mobile {
+        font-size: rpx(25);
+      }
+    }
   
     /* Likes & Coins 统计 */
     .stats {
@@ -385,6 +396,49 @@
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.3s ease;
+      }
+    }
+  }
+
+  /* Additional Profile Buttons */
+  .additional-buttons {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    @include screen-mobile {
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .contact-info-btn, .upload-cv-btn {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: #1a3566;
+      font-size: rpx(14);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    
+      @include screen-mobile {
+        font-size: rpx(20);
       }
     }
   }

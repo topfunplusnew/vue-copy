@@ -166,7 +166,8 @@ const handleClickOutside = (event: Event) => {
         <router-link :to="{ name: 'about' }" class="nav-btn toggle-nav">ABOUT</router-link>
         <router-link :to="{ name: 'news' }" class="nav-btn toggle-nav">NEWS</router-link>
         <router-link :to="{ name: 'contact' }" class="nav-btn toggle-nav">CONTACT</router-link>
-        <router-link :to="{ name: 'invitation' }" class="nav-btn toggle-nav">INVITATION</router-link>
+        <!-- <router-link :to="{ name: 'invitation' }" class="nav-btn toggle-nav">INVITATION</router-link> -->
+        <router-link :to="{ name: 'meetings' }" class="nav-btn toggle-nav">EVENTS</router-link>
       </nav>
 
       <!-- 用户区域 -->

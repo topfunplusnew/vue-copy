@@ -124,6 +124,18 @@ const router = createRouter({
       name: 'invitation',
       component: () => import('@/views/invitation.vue'),
     },
+    {
+      path: '/meetings',
+      name: 'meetings',
+      // redirect: '/invitation',
+      component: () => import('@/views/Meetings.vue'),
+    },
+    {
+      path: '/meetings/my-events/:conferenceId/:paperId',
+      name: 'MyEventDetail',
+      component: () => import('@/views/components/my_events.vue'),
+      props: true,
+    },
   ],
 });
 const whiteList = ['invitation', 'forgetpassword', 'active'];
