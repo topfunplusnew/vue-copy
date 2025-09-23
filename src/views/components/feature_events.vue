@@ -148,7 +148,7 @@ function getTierColor(tier: string) {
                 <div class="card-name">{{ conf.conferenceName }}</div>
                 <div class="card-category">{{ conf.category }}</div>
                 <div class="card-date">{{ conf.conferenceDate }}</div>
-                <div class="card-tier" :style="{ color: getTierColor(conf.tier) }">{{ conf.tier }}</div>
+                <!-- <div class="card-tier" :style="{ color: getTierColor(conf.tier) }">{{ conf.tier }}</div> -->
               </div>
             </div>
           </div>
@@ -177,22 +177,24 @@ function getTierColor(tier: string) {
                     <span class="detail-icon">🏢</span>
                     <span class="detail-text">{{ selectedConference.location.venue }}</span>
                   </div>
-                  <div class="conference-links">
-                    <a :href="selectedConference.websites.official" target="_blank" class="conf-link">
-                      <span class="link-icon">🌐</span>
-                      Official Website
-                    </a>
-                    <a :href="selectedConference.websites.committee" target="_blank" class="conf-link">
-                      <span class="link-icon">👥</span>
-                      Committee
-                    </a>
-                    <a :href="selectedConference.websites.registration" target="_blank" class="conf-link">
-                      <span class="link-icon">📝</span>
-                      Registration
-                    </a>
-                  </div>
+                 
                 </div>
               </div>
+            </div>
+
+            <div class="conference-links">
+              <a :href="selectedConference.websites.official" target="_blank" class="conf-link">
+                <span class="link-icon">🌐</span>
+                Official Website
+              </a>
+              <a :href="selectedConference.websites.committee" target="_blank" class="conf-link">
+                <span class="link-icon">👥</span>
+                Committee
+              </a>
+              <a :href="selectedConference.websites.registration" target="_blank" class="conf-link">
+                <span class="link-icon">📝</span>
+                Registration
+              </a>
             </div>
             
             <!-- Conference Statistics & Info -->

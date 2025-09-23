@@ -241,23 +241,23 @@ function openInNewTab() {
                   <span class="detail-icon">🏢</span>
                   <span class="detail-text">{{ eventMeta.location.venue }}</span>
                 </div>
-                <div class="conference-links">
-                  <a :href="eventMeta.websites.official" target="_blank" class="conf-link">
-                    <span class="link-icon">🌐</span>
-                    Official Website
-                  </a>
-                  <a :href="eventMeta.websites.committee" target="_blank" class="conf-link">
-                    <span class="link-icon">👥</span>
-                    Committee
-                  </a>
-                  <a :href="eventMeta.websites.registration" target="_blank" class="conf-link">
-                    <span class="link-icon">📝</span>
-                    Registration
-                  </a>
-                </div>
               </div>
             </div>
           </div>
+          <div class="conference-links">
+              <a :href="eventMeta.websites.official" target="_blank" class="conf-link">
+                <span class="link-icon">🌐</span>
+                Official Website
+              </a>
+              <a :href="eventMeta.websites.committee" target="_blank" class="conf-link">
+                <span class="link-icon">👥</span>
+                Committee
+              </a>
+              <a :href="eventMeta.websites.registration" target="_blank" class="conf-link">
+                <span class="link-icon">📝</span>
+                Registration
+              </a>
+            </div>
           <div class="meta">
             <div class="title">{{ eventMeta.title }}</div>
             <div class="authors">

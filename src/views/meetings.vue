@@ -23,6 +23,7 @@ interface ConferenceSubmission {
 interface ConferenceParticipation {
   conferenceId: number;
   conferenceName: string;
+  conferenceLogoUrl?: string; // 会议logo URL
   submissions: ConferenceSubmission[];
 }
 
@@ -604,6 +605,7 @@ const currentParticipations = ref<ConferenceParticipation[]>([
   {
     conferenceId: 101,
     conferenceName: 'ICML 2025',
+    conferenceLogoUrl: 'https://via.placeholder.com/32x32/4f46e5/ffffff?text=ICML',
     submissions: [
       {
         paperTitle: 'Learning Efficient Policies with Sparse Feedback',
@@ -618,6 +620,7 @@ const currentParticipations = ref<ConferenceParticipation[]>([
   {
     conferenceId: 102,
     conferenceName: 'NeurIPS 2025',
+    conferenceLogoUrl: 'https://via.placeholder.com/32x32/10b981/ffffff?text=NIPS',
     submissions: [
       {
         paperTitle: 'Graph Contrastive Learning with Causal Augmentations',
@@ -635,6 +638,7 @@ interface FeaturedEvent {
   name: string;
   location: string;
   dateRange: string;
+  logoUrl?: string; // 会议logo URL
   website?: string;
   topics?: string[];
 }
@@ -645,6 +649,7 @@ const featuredEvents = ref<FeaturedEvent[]>([
     name: 'CVPR 2025',
     location: 'Nashville, USA',
     dateRange: 'Jun 10–15, 2025',
+    logoUrl: 'https://via.placeholder.com/32x32/ef4444/ffffff?text=CVPR',
     website: 'https://cvpr.thecvf.com',
     topics: ['Computer Vision', 'Deep Learning']
   },
@@ -653,6 +658,7 @@ const featuredEvents = ref<FeaturedEvent[]>([
     name: 'AAAI 2026',
     location: 'Vancouver, Canada',
     dateRange: 'Feb 8–15, 2026',
+    logoUrl: 'https://via.placeholder.com/32x32/8b5cf6/ffffff?text=AAAI',
     website: 'https://aaai.org',
     topics: ['AI', 'Planning', 'NLP']
   },
@@ -661,12 +667,25 @@ const featuredEvents = ref<FeaturedEvent[]>([
     name: 'KDD 2025',
     location: 'Barcelona, Spain',
     dateRange: 'Aug 3–7, 2025',
+    logoUrl: 'https://via.placeholder.com/32x32/f59e0b/ffffff?text=KDD',
     website: 'https://www.kdd.org',
     topics: ['Data Mining', 'ML', 'Graph']
   }
 ]);
 
 const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
+
+// Logo debugging functions
+const handleLogoError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  console.error('Logo failed to load:', img.src);
+  img.style.display = 'none';
+};
+
+const handleLogoLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  console.log('Logo loaded successfully:', img.src);
+};
 
 
 </script>
@@ -750,7 +769,17 @@ const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
               class="conference-card"
             >
               <div class="conference-header">
-                <div class="conference-name">{{ conf.conferenceName }}</div>
+                <div class="conference-name-container">
+                  <img 
+                    v-if="conf.conferenceLogoUrl" 
+                    :src="conf.conferenceLogoUrl" 
+                    :alt="conf.conferenceName + ' logo'"
+                    class="conference-logo"
+                    @error="handleLogoError"
+                    @load="handleLogoLoad"
+                  />
+                  <div class="conference-name">{{ conf.conferenceName }}</div>
+                </div>
                 <div class="submission-count">{{ conf.submissions.length }} papers</div>
               </div>
 
@@ -786,9 +815,6 @@ const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
         <div class="featured-events">
           <div class="section-header">
             <div class="section-title">Featured Events</div>
-            <button @click="router.push({ name: 'FeaturedEvents' })" class="view-more-btn">
-              View All →
-            </button>
           </div>
 
           <div v-if="hasFeaturedEvents" class="featured-list">
@@ -799,7 +825,17 @@ const hasFeaturedEvents = computed(() => featuredEvents.value.length > 0);
               @click="router.push({ name: 'FeaturedEvents' })"
             >
               <div class="featured-header">
-                <div class="featured-name">{{ evt.name }}</div>
+                <div class="featured-name-container">
+                  <img 
+                    v-if="evt.logoUrl" 
+                    :src="evt.logoUrl" 
+                    :alt="evt.name + ' logo'"
+                    class="featured-event-logo"
+                    @error="handleLogoError"
+                    @load="handleLogoLoad"
+                  />
+                  <div class="featured-name">{{ evt.name }}</div>
+                </div>
                 <div class="featured-date">{{ evt.dateRange }}</div>
               </div>
               <div class="featured-meta">

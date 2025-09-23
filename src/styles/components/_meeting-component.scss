@@ -264,6 +264,145 @@
   }
 }
 
+// Conference Header with Logo styles
+.conference-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.conference-name-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  
+  // Debug border to ensure container is visible
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.conference-logo-fallback {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border-radius: 4px;
+  background: rgba(79, 70, 229, 0.1);
+  border: 2px solid rgba(79, 70, 229, 0.2);
+  flex-shrink: 0;
+}
+
+.conference-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(79, 70, 229, 0.2);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  display: block !important;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+    border-color: rgba(79, 70, 229, 0.4);
+  }
+}
+
+.conference-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Featured Events Header with Logo styles
+.featured-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.featured-name-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  
+  // Debug border to ensure container is visible
+  border: 1px solid rgba(0, 255, 0, 0.2);
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.featured-logo-fallback {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+}
+
+.featured-event-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(16, 185, 129, 0.2);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  display: block !important;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+}
+
+.featured-name {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.featured-date {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+  white-space: nowrap;
+  background: rgba(79, 70, 229, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #4f46e5;
+}
+
 // Middle - Workshop List Section
 .workshops-section {
   flex: 1;
@@ -1084,6 +1223,25 @@
     .meeting-location {
       font-size: 12px;
     }
+  }
+  
+  // 移动端会议logo调整
+  .conference-logo {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .featured-event-logo {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .conference-name {
+    font-size: 14px;
+  }
+  
+  .featured-name {
+    font-size: 16px;
   }
   
   // 工作坊卡片优化
