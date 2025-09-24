@@ -188,9 +188,10 @@ const handleClickOutside = (event: Event) => {
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                  <el-dropdown-item command="message">Message</el-dropdown-item>
                   <el-dropdown-item command="wallet">Wallet</el-dropdown-item>
+                  <el-dropdown-item command="wallet">My Schedule</el-dropdown-item>
                   <el-dropdown-item command="plan">My Plan</el-dropdown-item>
+                  <el-dropdown-item command="message">Message</el-dropdown-item>
                   <el-dropdown-item command="history">Chat History</el-dropdown-item>
                   <el-dropdown-item command="cart">Cart</el-dropdown-item>
                   <el-dropdown-item command="orders">Orders</el-dropdown-item>

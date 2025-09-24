@@ -599,6 +599,36 @@ const openCVInNewTab = () => {
   }
 };
 
+// Remove/Withdraw CV
+const withdrawCV = () => {
+  ElMessageBox.confirm(
+    'Are you sure you want to withdraw your CV? This action cannot be undone.',
+    'Withdraw CV',
+    {
+      confirmButtonText: 'Withdraw',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }
+  ).then(() => {
+    // Clean up the blob URL to prevent memory leaks
+    if (uploadedCV.value?.url) {
+      URL.revokeObjectURL(uploadedCV.value.url);
+    }
+    
+    // Clear the uploaded CV
+    uploadedCV.value = null;
+    
+    // TODO: Implement API call to remove CV from server
+    console.log('CV withdrawn');
+    ElMessage.success('CV withdrawn successfully!');
+    
+    // Close the preview modal
+    closeCVPreview();
+  }).catch(() => {
+    // User cancelled the action
+  });
+};
+
 // ===== Academic Meetings: current participations (Top section on right) =====
 // TODO: Replace mock data with store-driven data
 const currentParticipations = ref<ConferenceParticipation[]>([
@@ -1005,7 +1035,10 @@ const handleLogoLoad = (event: Event) => {
       <div class="pdf-modal" @click.stop>
         <div class="pdf-modal-header">
           <h3>{{ getCurrentCVFileName() }}</h3>
-          <button @click="closeCVPreview" class="close-btn">×</button>
+          <div class="header-actions">
+            <button @click="withdrawCV" class="withdraw-btn">Withdraw CV</button>
+            <button @click="closeCVPreview" class="close-btn">×</button>
+          </div>
         </div>
         <div class="pdf-modal-content">
           <iframe 
@@ -1036,6 +1069,9 @@ const handleLogoLoad = (event: Event) => {
               </a>
               <button @click="openCVInNewTab" class="open-btn">
                 Open in New Tab
+              </button>
+              <button @click="withdrawCV" class="withdraw-btn-mobile">
+                Withdraw CV
               </button>
             </div>
           </div>
