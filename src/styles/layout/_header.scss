@@ -33,7 +33,7 @@ header.layout {
         .home-btn {
           display: inline-flex;
           line-height: 1;
-          font-size: rpx(32);
+          font-size: rpx(28);
           text-decoration: none;
           background: transparent;
           color: #fff;
@@ -48,6 +48,7 @@ header.layout {
           &:hover {
             background: transparent;
             transform: translateY(0);
+
           }
         }
         
@@ -59,8 +60,8 @@ header.layout {
           background: transparent;
           border: none;
           color: white;
-          width: rpx(40);
-          height: rpx(40);
+          width: rpx(50);
+          height: rpx(30);
           cursor: pointer;
           transition: all 0.3s ease;
           
@@ -383,7 +384,7 @@ header.layout {
           padding: rpx(6) rpx(16);
           
           .home-new-username {
-            font-size: rpx(18);
+            font-size: rpx(22);
           }
           
           img {

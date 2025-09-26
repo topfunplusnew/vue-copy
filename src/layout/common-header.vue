@@ -5,6 +5,7 @@ import { useWalletStore, WALLET_STATUS } from '@/stores/wallet';
 import UserMessage from '@/views/user/user-message.vue';
 import PlanComponent from '@/views/components/plan-component.vue';
 import HistoryComponent from '@/views/components/history-component.vue';
+import ScheduleComponent from '@/views/components/schedule-component.vue';
 import { ElMessage, ElIcon } from 'element-plus';
 import { User } from '@element-plus/icons-vue';
 import { useUserStore } from '@/stores/user';
@@ -25,6 +26,9 @@ const showPlanModal = ref(false);
 
 // 历史弹窗状态
 const showHistoryModal = ref(false);
+
+// 日历弹窗状态
+const showScheduleModal = ref(false);
 
 // 导航菜单状态
 const navMenuActive = ref(false);
@@ -69,6 +73,8 @@ const handleCommand = (command: string) => {
     showPlanModal.value = true;
   } else if (command === 'history') {
     showHistoryModal.value = true;
+  } else if (command === 'schedule') {
+    showScheduleModal.value = true;
   } else if (command === 'logout') {
     userStore.logout();
     ElMessage.success('Logged out successfully');
@@ -113,6 +119,13 @@ const handleHistoryLoad = (conversationId: number) => {
       ElMessage.error('Failed to navigate to chat page');
     });
   }
+};
+
+// 处理日历事件保存
+const handleScheduleSave = (event: any) => {
+  console.log('Schedule event saved:', event);
+  showScheduleModal.value = false;
+  ElMessage.success('Event added to schedule successfully!');
 };
 
 // 切换导航菜单显示
@@ -189,7 +202,7 @@ const handleClickOutside = (event: Event) => {
                 <el-dropdown-menu>
                   <el-dropdown-item command="profile">My Profile</el-dropdown-item>
                   <el-dropdown-item command="wallet">Wallet</el-dropdown-item>
-                  <el-dropdown-item command="wallet">My Schedule</el-dropdown-item>
+                  <el-dropdown-item command="schedule">My Schedule</el-dropdown-item>
                   <el-dropdown-item command="plan">My Plan</el-dropdown-item>
                   <el-dropdown-item command="message">Message</el-dropdown-item>
                   <el-dropdown-item command="history">Chat History</el-dropdown-item>
@@ -225,6 +238,13 @@ const handleClickOutside = (event: Event) => {
     :visible="showHistoryModal"
     @close="showHistoryModal = false"
     @load-history="handleHistoryLoad"
+  />
+
+  <!-- 日历弹窗组件 -->
+  <ScheduleComponent
+    :visible="showScheduleModal"
+    @close="showScheduleModal = false"
+    @save="handleScheduleSave"
   />
 </template>
 

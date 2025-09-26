@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, inject } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
@@ -195,6 +195,186 @@ function openInNewTab() {
   }
 }
 
+// Schedule functionality - 只添加用户的重要个人日程
+function addToSchedule() {
+  try {
+    const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
+    
+    // 解析用户session日期
+    const userSessionDate = parseUserSessionDate();
+    
+    if (!userSessionDate) {
+      ElMessage.error('Unable to parse session date');
+      return;
+    }
+    
+    // 检查是否已经添加过用户session
+    const existingSession = existingEvents.find((event: any) => event.isUserSession && event.type === 'session');
+    if (existingSession) {
+      ElMessage.warning('Your presentation session is already in your schedule!');
+      return;
+    }
+    
+    // 添加用户的演讲session（重要个人日程）
+    const userSessionEvent = {
+      id: `user-session-${Date.now()}`,
+      title: `${eventMeta.conferenceName} - My Presentation`,
+      date: userSessionDate,
+      time: '14:30',
+      location: `Room ${sessionInfo.room}, ${eventMeta.location.venue}`,
+      description: `My presentation: ${eventMeta.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
+      type: 'session' as const,
+      isUserSession: true,
+      sessionRoom: sessionInfo.room,
+      paperID: sessionInfo.paperID,
+      customColor: '#ff8c00' // 橘色作为默认颜色
+    };
+    
+    existingEvents.push(userSessionEvent);
+    localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
+    
+    ElMessage.success('Your presentation session added to your schedule!');
+  } catch (error) {
+    console.error('Failed to add session to schedule:', error);
+    ElMessage.error('Failed to add session to schedule');
+  }
+}
+
+// 统一的session信息，确保显示和数据的一致性
+const sessionInfo = {
+  dateDisplay: "WED., June 11, 2025", // 显示格式
+  room: "A3",
+  session: "Visual Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing",
+  paperID: "#1234"
+};
+
+// Helper function to parse user session date
+function parseUserSessionDate(): string | null {
+  const sessionDateStr = sessionInfo.dateDisplay;
+  try {
+    const match = sessionDateStr.match(/(\w+)\.,\s+(\w+)\s+(\d+),\s+(\d+)/);
+    if (match) {
+      const [, , month, day, year] = match;
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const monthIndex = monthNames.indexOf(month);
+      if (monthIndex !== -1) {
+        // 使用本地时间避免时区问题
+        const parsedYear = parseInt(year);
+        const parsedMonth = monthIndex + 1; // 月份从1开始
+        const parsedDay = parseInt(day);
+        
+        // 手动构建YYYY-MM-DD格式，避免时区转换
+        const yearStr = parsedYear.toString();
+        const monthStr = parsedMonth.toString().padStart(2, '0');
+        const dayStr = parsedDay.toString().padStart(2, '0');
+        
+        const result = `${yearStr}-${monthStr}-${dayStr}`;
+        return result;
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing session date:', error);
+  }
+  
+  return null;
+}
+
+// Helper function to parse conference date range
+function parseConferenceDateRange(dateStr: string): { startYear: number, startMonth: number, startDay: number, days: number } | null {
+  // Parse "December 9-15, 2025" to get date range
+  try {
+    const match = dateStr.match(/(\w+)\s+(\d+)-(\d+),\s+(\d+)/);
+    if (match) {
+      const [, month, startDay, endDay, year] = match;
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const monthIndex = monthNames.indexOf(month);
+      if (monthIndex !== -1) {
+        return {
+          startYear: parseInt(year),
+          startMonth: monthIndex + 1, // 1-based month
+          startDay: parseInt(startDay),
+          days: parseInt(endDay) - parseInt(startDay) + 1
+        };
+      }
+    }
+    
+    // Handle single day format like "December 9, 2025"
+    const singleMatch = dateStr.match(/(\w+)\s+(\d+),\s+(\d+)/);
+    if (singleMatch) {
+      const [, month, day, year] = singleMatch;
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const monthIndex = monthNames.indexOf(month);
+      if (monthIndex !== -1) {
+        return {
+          startYear: parseInt(year),
+          startMonth: monthIndex + 1,
+          startDay: parseInt(day),
+          days: 1
+        };
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing date range:', error);
+  }
+  
+  return null;
+}
+
+// Helper function to format date object to YYYY-MM-DD string (避免时区问题)
+function formatDateToString(date: Date): string {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Helper function to parse conference date string to proper date format
+function parseConferenceDate(dateStr: string): string {
+  // Parse "December 9-15, 2025" to get the start date
+  try {
+    const match = dateStr.match(/(\w+)\s+(\d+)(?:-\d+)?,\s+(\d+)/);
+    if (match) {
+      const [, month, day, year] = match;
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      const monthIndex = monthNames.indexOf(month);
+      if (monthIndex !== -1) {
+        // 使用本地时间避免时区问题
+        const parsedYear = parseInt(year);
+        const parsedMonth = monthIndex + 1; // 月份从1开始
+        const parsedDay = parseInt(day);
+        
+        // 手动构建YYYY-MM-DD格式，避免时区转换
+        const yearStr = parsedYear.toString();
+        const monthStr = parsedMonth.toString().padStart(2, '0');
+        const dayStr = parsedDay.toString().padStart(2, '0');
+        
+        return `${yearStr}-${monthStr}-${dayStr}`;
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing date:', error);
+  }
+  
+  // Fallback to current date if parsing fails
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 </script>
 
 <template>
@@ -278,22 +458,22 @@ function openInNewTab() {
                 <div class="schedule-details">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">TUE., June 10, 2025</span>
+                    <span class="schedule-value">{{ sessionInfo.dateDisplay }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
-                    <span class="schedule-value">A3</span>
+                    <span class="schedule-value">{{ sessionInfo.room }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🎯 Session:</span>
-                    <span class="schedule-value">RVisual Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing</span>
+                    <span class="schedule-value">{{ sessionInfo.session }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">📄 Paper ID:</span>
-                    <span class="schedule-value">#1234</span>
+                    <span class="schedule-value">{{ sessionInfo.paperID }}</span>
                   </div>
                 </div>
-                <button class="schedule-action-btn">
+                <button class="schedule-action-btn" @click="addToSchedule">
                   <span class="btn-icon">📌</span>
                   Add to My Schedule
                 </button>

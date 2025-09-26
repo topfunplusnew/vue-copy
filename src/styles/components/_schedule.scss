@@ -1,3 +1,880 @@
 @use '../utils/mixins' as *;
 @use '../utils/utils' as *;
 
+// Schedule Modal Styles
+.schedule-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.schedule-modal {
+  background: white;
+  border-radius: 16px;
+  width: 95vw;
+  height: 90vh;
+  max-width: 1400px;
+  max-height: 900px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  
+  @include screen-mobile {
+    width: 98vw;
+    height: 95vh;
+  }
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%);
+  
+  h2 {
+    margin: 0;
+    font-size: rpx(25); // 标题类字体 rpx(25)
+    font-weight: 700;
+    color: #1e293b;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    font-size: rpx(28);
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+  }
+  
+  @include screen-mobile {
+    padding: 16px 20px;
+    
+    h2 {
+      font-size: rpx(20);
+    }
+  }
+}
+
+.schedule-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  
+  @include screen-mobile {
+    flex-direction: column;
+    height: 100%;
+  }
+}
+
+// Calendar Container
+.calendar-container {
+  flex: 1; // 减少日历区域，从flex: 2改为flex: 1
+  padding: 20px;
+  overflow-y: auto;
+  
+  @include screen-mobile {
+    flex: none;
+    padding: 12px;
+    max-height: 35vh; // 减少日历高度，给事件列表更多空间
+  }
+}
+
+.custom-calendar {
+  width: 100%;
+  
+  :deep(.el-calendar__header) {
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.08) 100%);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: nowrap; // 防止换行
+    
+    .el-calendar__title {
+      font-size: rpx(22); // 标题类字体 rpx(22)
+      font-weight: 700;
+      color: #1e293b;
+      flex-shrink: 0; // 防止标题被压缩
+      margin-right: 16px;
+      
+      @include screen-mobile {
+        font-size: rpx(18);
+        margin-right: 8px;
+      }
+    }
+    
+    .el-calendar__button-group {
+      display: flex;
+      gap: 6px;
+      flex-shrink: 0; // 防止按钮组被压缩
+      align-items: center;
+      
+      .el-button {
+        background: transparent; // 透明背景
+        border: 1px solid rgba(156, 163, 175, 0.3); // 灰色边框
+        color: #6b7280; // 灰色文字
+        padding: 4px 8px;
+        min-width: auto;
+        font-size: rpx(20);
+        font-weight: 600;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background: rgba(156, 163, 175, 0.1); // 悬停时浅灰背景
+          border-color: rgba(156, 163, 175, 0.4);
+          color: #4b5563; // 悬停时深一点的灰色
+        }
+        
+        // 自定义按钮文字
+        &:first-child {
+          &::before {
+            content: "<<";
+          }
+          span {
+            display: none; // 隐藏原始文字
+          }
+        }
+        
+        &:nth-child(2) {
+          &::before {
+            content: "Today";
+          }
+          span {
+            display: none; // 隐藏原始文字
+          }
+        }
+        
+        &:last-child {
+          &::before {
+            content: ">>";
+          }
+          span {
+            display: none; // 隐藏原始文字
+          }
+        }
+        
+        @include screen-mobile {
+          padding: 3px 6px;
+          font-size: rpx(16);
+          
+          &:first-child::before {
+            content: "<<";
+          }
+          
+          &:nth-child(2)::before {
+            content: "Today";
+          }
+          
+          &:last-child::before {
+            content: ">>";
+          }
+        }
+      }
+    }
+  }
+  
+  :deep(.el-calendar__body) {
+    padding: 0;
+    
+    .el-calendar-table {
+      .el-calendar-day {
+        padding: 2px; // 减少padding
+        height: auto;
+        min-height: 90px; // 增加最小高度以容纳更多内容
+        max-height: 120px; // 限制最大高度
+        box-sizing: border-box; // 确保padding包含在尺寸内
+        overflow: hidden; // 防止内容溢出
+        
+        @include screen-mobile {
+          min-height: 70px; // 移动端稍微增加高度
+          max-height: 90px;
+          padding: 1px; // 移动端更紧凑
+        }
+      }
+      
+      th {
+        background: rgba(248, 250, 252, 0.8);
+        color: #64748b;
+        font-weight: 600;
+        padding: 12px 4px;
+        border: 1px solid rgba(226, 232, 240, 0.6);
+        text-align: center; // 星期几居中对齐
+        vertical-align: middle; // 垂直居中
+      }
+      
+      td {
+        border: 1px solid rgba(226, 232, 240, 0.6);
+        position: relative;
+        text-align: center; // 日期单元格内容居中对齐
+        vertical-align: top; // 垂直顶部对齐，因为有事件内容
+        
+        &.is-today {
+          background: rgba(99, 102, 241, 0.05);
+        }
+        
+        &.is-selected {
+          background: rgba(99, 102, 241, 0.1);
+        }
+      }
+    }
+  }
+  
+  // 颜色选择器样式
+  .color-picker-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    
+    .predefined-colors {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      
+      .color-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          transform: scale(1.1);
+          border-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        &.active {
+          border-color: rgba(0, 0, 0, 0.4);
+          transform: scale(1.1);
+          box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        @include screen-mobile {
+          width: 36px;
+          height: 36px;
+        }
+      }
+    }
+    
+    .custom-color-input {
+      width: 60px;
+      height: 40px;
+      border: 2px solid rgba(226, 232, 240, 0.8);
+      border-radius: 8px;
+      cursor: pointer;
+      
+      &::-webkit-color-swatch {
+        border: none;
+        border-radius: 6px;
+      }
+      
+      &::-webkit-color-swatch-wrapper {
+        padding: 0;
+        border: none;
+        border-radius: 6px;
+      }
+    }
+  }
+}
+
+.calendar-cell {
+  width: 100%;
+  height: 100%;
+  padding: 2px; // 减少padding给边框留空间
+  position: relative;
+  cursor: pointer;
+  box-sizing: border-box; // 确保边框包含在内
+  display: flex; // 使用flex布局
+  flex-direction: column; // 垂直排列
+  align-items: center; // 水平居中
+  justify-content: flex-start; // 垂直从顶部开始
+  
+  &.has-events {
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.4); // 减少边框宽度从2px到1px
+    border-radius: 4px; // 减少圆角
+    margin: 1px; // 添加小边距防止溢出
+    width: calc(100% - 2px); // 调整宽度适应边距
+    height: calc(100% - 2px); // 调整高度适应边距
+    
+    @include screen-mobile {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.6);
+      border-radius: 3px;
+    }
+  }
+  
+  .date-number {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    font-size: rpx(14);
+    text-align: center; // 日期数字居中
+    width: 100%; // 确保宽度充满
+    display: block; // 块级元素便于居中
+    
+    @include screen-mobile {
+      font-size: rpx(16);
+      font-weight: 700;
+    }
+  }
+  
+  .events-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1px; // 减小间距
+    align-items: center; // 事件列表居中对齐
+    width: 100%; // 确保宽度充满
+    max-height: 60px; // 限制容器最大高度
+    overflow: hidden; // 超出部分隐藏
+    
+    @include screen-mobile {
+      max-height: 45px; // 移动端更紧凑
+    }
+  }
+  
+  .event-item {
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-size: rpx(12); // 减小字体避免溢出
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow: hidden;
+    font-weight: 600;
+    line-height: 1.1;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: 18px;
+    
+    @include screen-mobile {
+      font-size: rpx(10); // 移动端更小
+      padding: 1px 3px;
+      font-weight: 700;
+      min-height: 16px;
+    }
+    
+    &.event-conference {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    
+    &.event-meeting {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    
+    &.event-deadline {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    &.event-personal {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+    
+    &.event-session {
+      background: linear-gradient(135deg, #fb923c 0%, #f97316 100%); // 用户session橘色
+      border: 1px solid rgba(251, 146, 60, 0.4);
+      box-shadow: 0 0 6px rgba(251, 146, 60, 0.5);
+      font-weight: 700;
+    }
+    
+    &.event-custom {
+      // 自定义颜色事件，颜色将通过内联样式设置
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+    
+    .event-title {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      margin-right: 2px;
+    }
+    
+    .event-time {
+      font-size: rpx(9);
+      opacity: 0.9;
+      margin-left: 2px;
+      flex-shrink: 0;
+      white-space: nowrap;
+      
+      @include screen-mobile {
+        font-size: rpx(8);
+      }
+    }
+  }
+  
+  .event-indicator {
+    position: absolute;
+    top: 1px; // 调整位置避免溢出
+    left: 1px;
+    width: 6px; // 减小尺寸
+    height: 6px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    animation: pulse 2s infinite;
+    z-index: 1; // 确保在顶层
+    
+    @include screen-mobile {
+      width: 8px; // 移动端稍大但仍控制在范围内
+      height: 8px;
+      animation: eventPulse 1.5s infinite;
+    }
+  }
+  
+  .today-indicator {
+    position: absolute;
+    top: 1px; // 调整位置避免溢出
+    right: 1px;
+    width: 6px; // 减小尺寸
+    height: 6px;
+    border-radius: 50%;
+    background: #ef4444;
+    animation: pulse 2s infinite;
+    z-index: 1; // 确保在顶层
+    
+    @include screen-mobile {
+      width: 8px; // 移动端稍大但仍控制在范围内
+      height: 8px;
+    }
+  }
+}
+
+// Sidebar
+.schedule-sidebar {
+  flex: 2; // 增加侧边栏空间，从flex: 1改为flex: 2
+  border-left: 1px solid rgba(226, 232, 240, 0.8);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+  @include screen-mobile {
+    flex: 1; // 让侧边栏占据剩余空间
+    border-left: none;
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    min-height: 60vh; // 确保占据大部分空间
+    max-height: none;
+  }
+}
+
+.events-list {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  
+  @include screen-mobile {
+    padding: 16px;
+    flex: 2; // 在移动端给更多空间给事件列表
+  }
+  
+  .events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    
+    h3 {
+      margin: 0;
+      font-size: rpx(22); // 标题类字体 rpx(22)
+      font-weight: 600;
+      color: #1e293b;
+      
+      @include screen-mobile {
+        font-size: rpx(24); // 移动端标题类字体 rpx(24)
+      }
+    }
+    
+    .mobile-events-summary {
+      font-size: rpx(20); // 内容类字体 rpx(20)
+      color: #6366f1;
+      font-weight: 600;
+      background: rgba(99, 102, 241, 0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+      
+      @include screen-mobile {
+        font-size: rpx(22); // 移动端内容类字体 rpx(22)
+      }
+    }
+  }
+  
+  // 保持向后兼容的 h3 样式
+  h3:not(.events-header h3) {
+    margin: 0 0 16px 0;
+    font-size: rpx(22); // 标题类字体 rpx(22)
+    font-weight: 600;
+    color: #1e293b;
+    
+    @include screen-mobile {
+      font-size: rpx(24); // 移动端标题类字体 rpx(24)
+    }
+  }
+}
+
+.no-events {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  padding: 40px 20px;
+  font-size: rpx(20); // 内容类字体 rpx(20)
+  
+  @include screen-mobile {
+    font-size: rpx(22); // 移动端内容类字体 rpx(22)
+  }
+}
+
+.events-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-detail {
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  background: rgba(248, 250, 252, 0.5);
+  
+  @include screen-mobile {
+    padding: 18px;
+    margin-bottom: 8px;
+  }
+  
+  &.event-conference {
+    border-color: rgba(99, 102, 241, 0.3);
+    background: rgba(99, 102, 241, 0.05);
+  }
+  
+  &.event-meeting {
+    border-color: rgba(16, 185, 129, 0.3);
+    background: rgba(16, 185, 129, 0.05);
+  }
+  
+  &.event-deadline {
+    border-color: rgba(239, 68, 68, 0.3);
+    background: rgba(239, 68, 68, 0.05);
+  }
+  
+  &.event-personal {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.05);
+  }
+  
+  &.event-session {
+    border-color: rgba(251, 146, 60, 0.4);
+    background: rgba(251, 146, 60, 0.08);
+    box-shadow: 0 4px 16px rgba(251, 146, 60, 0.2);
+    
+    .event-header h4 {
+      color: #ea580c;
+      font-weight: 700;
+    }
+    
+    .event-time {
+      color: #ea580c !important;
+      font-weight: 700;
+    }
+  }
+  
+  &.event-custom {
+    // 自定义颜色事件详情，具体颜色通过内联样式设置
+    border-width: 2px;
+    
+    .event-header h4 {
+      font-weight: 700;
+    }
+    
+    .event-time {
+      font-weight: 600;
+    }
+  }
+  
+  .event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    
+    h4 {
+      margin: 0;
+      font-size: rpx(22); // 标题类字体 rpx(22)
+      font-weight: 600;
+      color: #1e293b;
+      flex: 1;
+      
+      @include screen-mobile {
+        font-size: rpx(24); // 移动端标题类字体 rpx(24)
+      }
+    }
+    
+    .remove-event-btn {
+      background: rgba(239, 68, 68, 0.1);
+      border: none;
+      color: #ef4444;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: rpx(16);
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgba(239, 68, 68, 0.2);
+        transform: scale(1.1);
+      }
+    }
+  }
+  
+  .event-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    
+    .event-time {
+      font-weight: 600;
+      color: #6366f1;
+      font-size: rpx(20); // 内容类字体 rpx(20)
+      
+      @include screen-mobile {
+        font-size: rpx(22); // 移动端内容类字体 rpx(22)
+      }
+    }
+    
+    .event-location {
+      color: #64748b;
+      font-size: rpx(20); // 内容类字体 rpx(20)
+      
+      @include screen-mobile {
+        font-size: rpx(22); // 移动端内容类字体 rpx(22)
+      }
+    }
+    
+    .event-description {
+      color: #475569;
+      font-size: rpx(20); // 内容类字体 rpx(20)
+      line-height: 1.4;
+      
+      @include screen-mobile {
+        font-size: rpx(22); // 移动端内容类字体 rpx(22)
+        line-height: 1.5;
+      }
+    }
+  }
+}
+
+// Add Event Section
+.add-event-section {
+  padding: 20px;
+  background: rgba(248, 250, 252, 0.5);
+  overflow-y: auto;
+  
+  @include screen-mobile {
+    padding: 16px;
+    flex: none; // 在移动端不要占据太多空间
+  }
+  
+  .add-event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: rgba(99, 102, 241, 0.1); // PC端也添加背景
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: rgba(99, 102, 241, 0.15);
+    }
+    
+    @include screen-mobile {
+      background: rgba(99, 102, 241, 0.12); // 移动端稍微深一点
+      padding: 14px 18px;
+    }
+    
+    h3 {
+      margin: 0;
+      font-size: rpx(22); // 标题类字体 rpx(22)
+      font-weight: 600;
+      color: #1e293b;
+      
+      @include screen-mobile {
+        font-size: rpx(24); // 移动端标题类字体 rpx(24)
+      }
+    }
+    
+    .dropdown-toggle {
+      background: none;
+      border: none;
+      font-size: rpx(22); // PC端也显示按钮，标题类字体 rpx(22)
+      color: #6366f1;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      
+      &.active {
+        transform: rotate(180deg);
+      }
+      
+      @include screen-mobile {
+        font-size: rpx(25); // 移动端标题类字体 rpx(25)
+        font-weight: bold;
+      }
+    }
+  }
+  
+  .add-event-form {
+    animation: slideDown 0.3s ease; // PC端也添加动画
+    overflow: hidden;
+  }
+  
+  // 保持向后兼容的 h3 样式
+  h3:not(.add-event-header h3) {
+    margin: 0 0 16px 0;
+    font-size: rpx(22); // 标题类字体 rpx(22)
+    font-weight: 600;
+    color: #1e293b;
+    
+    @include screen-mobile {
+      font-size: rpx(24); // 移动端标题类字体 rpx(24)
+    }
+  }
+  
+  :deep(.el-form-item) {
+    margin-bottom: 16px;
+    
+    .el-form-item__label {
+      font-weight: 600;
+      color: #374151;
+      font-size: rpx(20); // 内容类字体 rpx(20)
+      
+      @include screen-mobile {
+        font-size: rpx(22); // 移动端内容类字体 rpx(22)
+      }
+    }
+    
+    .el-input,
+    .el-select,
+    .el-date-editor,
+    .el-textarea {
+      .el-input__wrapper {
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        
+        &:hover {
+          box-shadow: 0 2px 6px rgba(99, 102, 241, 0.15);
+        }
+        
+        &.is-focus {
+          box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+      }
+    }
+    
+    .el-button {
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      
+      &.el-button--primary {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        border: none;
+        
+        &:hover {
+          background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+      }
+      
+      &:not(.el-button--primary) {
+        background: rgba(99, 102, 241, 0.1);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        color: #6366f1;
+        
+        &:hover {
+          background: rgba(99, 102, 241, 0.15);
+          border-color: rgba(99, 102, 241, 0.3);
+        }
+      }
+    }
+  }
+
+// Animations
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes eventPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+  }
+  70% {
+    transform: scale(1.1);
+    opacity: 0.8;
+    box-shadow: 0 0 0 8px rgba(99, 102, 241, 0);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    max-height: 500px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+}
+
