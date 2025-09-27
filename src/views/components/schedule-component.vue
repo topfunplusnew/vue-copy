@@ -427,7 +427,7 @@ const cleanup = () => {
             </div>
           </div>
           
-          <div class="add-event-section">
+          <div class="add-event-section" :class="{ expanded: showAddEventForm }">
             <div class="add-event-header" @click="toggleAddEventForm">
               <h3>Add New Event</h3>
               <button class="dropdown-toggle" :class="{ active: showAddEventForm }">
