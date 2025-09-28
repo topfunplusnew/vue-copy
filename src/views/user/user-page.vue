@@ -593,7 +593,7 @@ const toggleMenu = () => {
             <!-- 原有的博客内容 -->
             <!-- 使用 el-carousel 代替单张图片显示 -->
             <el-carousel
-              v-if="post.image && post.image.length > 0"
+              v-if="post.files && post.files.length > 0"
               :interval="3000"
               arrow="hover"
               height="200px"
@@ -603,7 +603,7 @@ const toggleMenu = () => {
               :autoplay="false"
             >
               <el-carousel-item
-                v-for="(img, index) in post.image"
+                v-for="(img, index) in post.files"
                 :key="index"
               >
                 <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
