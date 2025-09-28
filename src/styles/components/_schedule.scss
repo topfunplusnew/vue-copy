@@ -401,6 +401,14 @@
       font-weight: 700;
     }
     
+    &.event-meeting {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); // workshop黄色
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 6px rgba(245, 158, 11, 0.3);
+      color: #92400e;
+      font-weight: 600;
+    }
+    
     &.event-custom {
       // 自定义颜色事件，颜色将通过内联样式设置
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -602,6 +610,26 @@
     .event-time {
       color: #ea580c !important;
       font-weight: 700;
+    }
+  }
+  
+  &.event-meeting {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.08);
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.2);
+    
+    .event-header h4 {
+      color: #92400e;
+      font-weight: 600;
+    }
+    
+    .event-time {
+      color: #92400e !important;
+      font-weight: 600;
+    }
+    
+    .event-location {
+      color: #a3a3a3;
     }
   }
   

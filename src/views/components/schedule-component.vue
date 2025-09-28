@@ -91,6 +91,14 @@ watch(() => props.initialEvent, (initialEvent) => {
   }
 }, { immediate: true });
 
+// 监听 visible 属性变化，每次打开时重新加载数据
+watch(() => props.visible, (isVisible) => {
+  if (isVisible) {
+    console.log('Schedule modal opened, reloading events...');
+    loadEvents();
+  }
+});
+
 // 监听事件类型变化，自动调整默认颜色
 watch(() => newEvent.value.type, (newType) => {
   if (newType === 'session' && newEvent.value.customColor === '#6366f1') {
@@ -260,8 +268,15 @@ const loadEvents = () => {
     // 加载用户个人日程
     const userEvents = loadUserEvents();
     
+    console.log('=== Schedule Component Debug ===');
+    console.log('Default events:', defaultEvents);
+    console.log('User events:', userEvents);
+    console.log('localStorage user-schedule-events:', localStorage.getItem('user-schedule-events'));
+    
     // 合并所有事件
     events.value = [...defaultEvents, ...userEvents];
+    
+    console.log('Final events:', events.value);
     
   } catch (error) {
     console.error('Failed to load events:', error);
@@ -339,18 +354,40 @@ const getEventStyle = (event: ScheduleEvent) => {
       boxShadow: `0 0 6px ${event.customColor}80`
     };
   }
+  
+  // 对于meeting类型的workshop事件，使用黄色主题
+  if (event.type === 'meeting') {
+    return {
+      backgroundColor: '#fef3c7',
+      borderColor: '#f59e0b',
+      color: '#92400e'
+    };
+  }
+  
   return {};
+};
+
+// 监听 localStorage 变化
+const handleStorageChange = () => {
+  console.log('Storage changed, reloading events...');
+  loadEvents();
 };
 
 onMounted(() => {
   loadEvents();
   checkMobile();
   window.addEventListener('resize', checkMobile);
+  window.addEventListener('storage', handleStorageChange);
+  
+  // 添加自定义事件监听，用于同一页面内的数据更新
+  window.addEventListener('scheduleUpdated', handleStorageChange);
 });
 
 // 清理事件监听器
 const cleanup = () => {
   window.removeEventListener('resize', checkMobile);
+  window.removeEventListener('storage', handleStorageChange);
+  window.removeEventListener('scheduleUpdated', handleStorageChange);
 };
 </script>
 

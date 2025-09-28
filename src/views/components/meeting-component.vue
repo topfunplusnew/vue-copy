@@ -197,15 +197,82 @@ const formatDate = (dateString: string) => {
   });
 };
 
+// 将 workshop 转换为 schedule 事件格式
+const convertWorkshopToScheduleEvent = (workshop: Workshop): any => {
+  // 解析日期 - 从 meeting.date 获取
+  const meeting = meetings.value.find(m => m.id === workshop.meetingId);
+  const meetingDate = meeting?.date || '2024-03-15';
+  
+  // 解析时间 - 从 workshop.time 获取开始时间
+  const timeMatch = workshop.time.match(/(\d{2}):(\d{2})/);
+  const startTime = timeMatch ? `${timeMatch[1]}:${timeMatch[2]}` : '09:00';
+  
+  return {
+    id: `workshop-${workshop.id}-${Date.now()}`,
+    title: workshop.title,
+    date: meetingDate,
+    time: startTime,
+    location: meeting?.location || 'Conference Venue',
+    description: `${workshop.description}\n\nSpeaker: ${workshop.speaker}\nMeeting: ${workshop.meetingName}`,
+    type: 'meeting' as const,
+    isUserSession: false,
+    workshopId: workshop.id,
+    meetingId: workshop.meetingId,
+    speaker: workshop.speaker,
+    tags: workshop.tags
+  };
+};
+
 const confirmSelection = () => {
   if (selectedWorkshops.value.length === 0) {
     ElMessage.warning('Please select at least one workshop');
     return;
   }
   
-  ElMessage.success(`${selectedWorkshops.value.length} workshop(s) added to your schedule`);
-  emit('confirm', selectedWorkshops.value);
-  emit('close');
+  try {
+    // 获取现有的用户事件
+    const existingUserEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
+    
+    console.log('=== Meeting Component Debug ===');
+    console.log('Selected workshops:', selectedWorkshops.value);
+    console.log('Existing user events:', existingUserEvents);
+    
+    // 转换 workshops 为 schedule 事件
+    const workshopEvents = selectedWorkshops.value.map(convertWorkshopToScheduleEvent);
+    
+    console.log('Converted workshop events:', workshopEvents);
+    
+    // 检查是否已经添加过相同的 workshop
+    const newEvents = workshopEvents.filter(newEvent => 
+      !existingUserEvents.some((existing: any) => existing.workshopId === newEvent.workshopId)
+    );
+    
+    console.log('New events to add:', newEvents);
+    
+    if (newEvents.length === 0) {
+      ElMessage.warning('All selected workshops are already in your schedule');
+      return;
+    }
+    
+    // 添加新事件到用户日程
+    const updatedEvents = [...existingUserEvents, ...newEvents];
+    
+    console.log('Updated events to save:', updatedEvents);
+    
+    localStorage.setItem('user-schedule-events', JSON.stringify(updatedEvents));
+    
+    console.log('Saved to localStorage successfully');
+    
+    // 触发自定义事件通知其他组件更新
+    window.dispatchEvent(new CustomEvent('scheduleUpdated'));
+    
+    ElMessage.success(`${newEvents.length} workshop(s) added to your schedule`);
+    emit('confirm', selectedWorkshops.value);
+    emit('close');
+  } catch (error) {
+    console.error('Failed to add workshops to schedule:', error);
+    ElMessage.error('Failed to add workshops to schedule');
+  }
 };
 
 // 移动端抽屉控制
@@ -217,13 +284,40 @@ const closeMobileSelected = () => {
   mobileSelectedDrawer.value = false;
 };
 
+// 检查 workshop 是否已在 schedule 中
+const isWorkshopInSchedule = (workshopId: number) => {
+  try {
+    const existingUserEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
+    return existingUserEvents.some((event: any) => event.workshopId === workshopId);
+  } catch (error) {
+    return false;
+  }
+};
+
 // 生命周期
 onMounted(() => {
   // 默认选择第一个会议
   if (meetings.value.length > 0) {
     selectedMeeting.value = meetings.value[0];
   }
+  
+  // 加载已经在 schedule 中的 workshops
+  loadScheduledWorkshops();
 });
+
+// 加载已安排的 workshops
+const loadScheduledWorkshops = () => {
+  try {
+    const existingUserEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
+    const scheduledWorkshopIds = existingUserEvents
+      .filter((event: any) => event.workshopId)
+      .map((event: any) => event.workshopId);
+    
+    console.log('Scheduled workshop IDs:', scheduledWorkshopIds);
+  } catch (error) {
+    console.error('Failed to load scheduled workshops:', error);
+  }
+};
 </script>
 
 <style scoped>
@@ -294,12 +388,20 @@ onMounted(() => {
                 v-for="workshop in selectedMeeting.workshops"
                 :key="workshop.id"
                 class="workshop-card"
-                :class="{ 'selected': isWorkshopSelected(workshop.id) }"
+                :class="{ 
+                  'selected': isWorkshopSelected(workshop.id),
+                  'in-schedule': isWorkshopInSchedule(workshop.id)
+                }"
                 @click="toggleWorkshop(workshop)"
               >
                 <div class="workshop-header">
                   <h4 class="workshop-title">{{ workshop.title }}</h4>
-                  <span class="workshop-time">🕐 {{ workshop.time }}</span>
+                  <div class="workshop-status">
+                    <span class="workshop-time">🕐 {{ workshop.time }}</span>
+                    <span v-if="isWorkshopInSchedule(workshop.id)" class="schedule-badge">
+                      📅 In Schedule
+                    </span>
+                  </div>
                 </div>
                 <p class="workshop-speaker">👤 {{ workshop.speaker }}</p>
                 <p class="workshop-description">{{ workshop.description }}</p>

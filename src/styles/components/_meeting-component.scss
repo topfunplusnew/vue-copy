@@ -1,4 +1,5 @@
-// Meeting Component Styles
+// Meeting Component Styles 弹窗
+
 @use '../utils/mixins' as mixins;
 
 // 显示控制类
@@ -466,6 +467,17 @@
     border-color: #10b981;
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
   }
+  
+  &.in-schedule {
+    background: rgba(99, 102, 241, 0.05);
+    border-color: rgba(99, 102, 241, 0.3);
+    
+    &.selected {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+    }
+  }
 }
 
 .workshop-header {
@@ -474,6 +486,13 @@
   justify-content: space-between;
   margin-bottom: 12px;
   gap: 16px;
+}
+
+.workshop-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
 }
 
 .workshop-title {
@@ -523,6 +542,27 @@
   border-radius: 6px;
   border: 1px solid rgba(99, 102, 241, 0.2);
   font-weight: 500;
+}
+
+.schedule-badge {
+  font-size: 11px;
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.15);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  font-weight: 600;
+  white-space: nowrap;
+  animation: schedulePulse 2s infinite;
+}
+
+@keyframes schedulePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  }
 }
 
 // Right Side - Selected Workshops Section (独立右侧栏)
@@ -1256,12 +1296,25 @@
     gap: 8px;
   }
   
+  .workshop-status {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
   .workshop-title {
     font-size: 16px;
   }
   
   .workshop-time {
     align-self: flex-start;
+  }
+  
+  .schedule-badge {
+    font-size: 10px;
+    padding: 2px 6px;
   }
   
   // 底部操作栏优化
