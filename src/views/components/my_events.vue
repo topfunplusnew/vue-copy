@@ -390,7 +390,7 @@ function parseConferenceDate(dateStr: string): string {
         <button :class="{active: activeTab==='slides'}" @click="setActiveTab('slides')">Slides</button>
         <button :class="{active: activeTab==='poster'}" @click="setActiveTab('poster')">Poster</button>
         <button :class="{active: activeTab==='additional'}" @click="setActiveTab('additional')">Additional Info</button>
-        <button :class="{active: activeTab==='fulltext'}" @click="setActiveTab('fulltext')">Full Text</button>
+        <button :class="{active: activeTab==='fulltext'}" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
 
       <section class="right-panel">
