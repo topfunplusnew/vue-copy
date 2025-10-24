@@ -196,3 +196,12 @@ export const placeGet = (id: number) => http.get('/place', { params: { id } });
  */
 export const placeSearch = (query: IRequest = {}) => http.get('/places', { params: query });
 
+/**
+ * 获取会议列表
+ */
+export  const ConferenceList=(query: IRequest = {})=>http.get('/conference',{ params: query })
+
+/* 
+*获取会议详情
+*/
+export const ConferenceDetails=(id: number|string )=>http.get(`/conference/${id}`)
