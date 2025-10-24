@@ -440,7 +440,7 @@ function prevPage() {
                 @click="selectedPaper?.video && switchTab('videos')"
                 :disabled="!selectedPaper?.video"
               >
-                Videos
+                Video
               </button>
               <button 
                 :class="['tab-btn', { active: activeTab === 'slides', disabled: !selectedPaper?.slides }]"
