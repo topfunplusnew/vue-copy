@@ -86,9 +86,9 @@ const filteredPapers = computed(() => {
   );
 });
 
-function selectConference(conference: any) {
-  selectedConference.value = conference;
-}
+// function selectConference(conference: any) {
+//   selectedConference.value = conference;
+// }
 
 // function selectConference(conference: ConferenceParticipation) {
 //   selectedConference.value= conference;
@@ -96,7 +96,7 @@ function selectConference(conference: any) {
 
 
 function registerInterest(conferenceId: number) {
-  ElMessage.success('Interest registered! You will receive updates about this conference.');
+  ElMessage.success('Interest registered! You will receive updates about this conference.'+conferenceId);
 }
 
 function openPaperModal(paper: Paper) {

@@ -1,11 +1,11 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import {ConferenceList,ConferenceDetails} from '@/services/api'
-import type { ConferenceEvent ,ConferenceParticipation} from '@/types/conference';
+import type { IConferenceEvent ,IConferenceParticipation} from '@/types/conference';
 
 export const useConferenceStore = defineStore('meet', () => {
-  const list =  ref<ConferenceEvent[]>([]);
-  const details = ref<ConferenceParticipation>();
+  const list =  ref<IConferenceEvent[]>([]);
+  const details = ref<IConferenceParticipation>();
 
   // 获取会议列表
   async function  getConferenceList() {
@@ -17,8 +17,8 @@ export const useConferenceStore = defineStore('meet', () => {
   }
 
   //获取会议详情
-  async function getConferenceDetails() {
-      return await ConferenceDetails(4).then((res) =>{           
+  async function getConferenceDetails(id:number) {
+      return await ConferenceDetails(id).then((res) =>{           
         
           
             details.value=res.data

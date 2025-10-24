@@ -42,7 +42,7 @@ onMounted(() => {
     editForm.avatar = data.avatar;
   });
   store.getUserBlogList(true);
-  conferencesStory.getConferenceDetails(); 
+  conferencesStory.getConferenceDetails(4); 
   conferencesStory.getConferenceList();
    
 });

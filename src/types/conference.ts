@@ -1,4 +1,4 @@
-export interface ConferenceEvent {
+export interface IConferenceEvent {
     id: number;
     name: string;
     place_name: string;
@@ -10,15 +10,15 @@ export interface ConferenceEvent {
     conference_type:string;
 }
 
-export interface ConferenceSubmission {
+export interface IConferenceSubmission {
     session_name: string;
     chairperson: string[];
 }
-export interface ConferencePosition {
+export interface IConferencePosition {
     formatted_address:string;
     name:string
 }
-export interface ConferencePaper{
+export interface IConferencePaper{
     id: number,
     title: string,
     authors: string[],
@@ -32,18 +32,18 @@ export interface ConferencePaper{
     poster: string|null,
     additionalInfo: string|null;
 }
-export interface ConferenceParticipation {
+export interface IConferenceParticipation {
     id: number;
     name: string;
     abbreviation:string;//会议简称
     logoUrl?: string; // 会议logo URL
-    sessions: ConferenceSubmission[];
+    sessions: IConferenceSubmission[];
     start_time:string;
     end_time:string;
     registration_fee:number;
     currency:string;
     fullName:string;
-    place_position:ConferencePosition;
+    place_position:IConferencePosition;
     website:string;
     conference_type:string; //会议类型
     created_at:string;
@@ -51,6 +51,6 @@ export interface ConferenceParticipation {
     place_id:string;
     session?:[];
     keywords:string[];
-    papers? :ConferencePaper[];
+    papers? :IConferencePaper[];
     description:string;
 }
