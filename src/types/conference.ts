@@ -21,7 +21,7 @@ export interface ConferencePosition {
 export interface ConferencePaper{
     id: number,
     title: string,
-    authors: string,
+    authors: string[],
     institutions:string[],
     doi: string,
     abstract: string,
