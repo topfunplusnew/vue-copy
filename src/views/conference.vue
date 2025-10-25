@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick} from 'vue';
+import { ref, reactive, onMounted, computed, nextTick } from 'vue';
 // import walletItem from '@/components/wallet-item.vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router';
 import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 // import type { IUser } from '@/types/user';
-import {formatRange } from '@/utils/date';
+import { formatRange } from '@/utils/date';
 // import type { IBlogComment } from '@/types/blog';
 // import UserPageDialog from '@/views/user/user-page-dialog.vue';
 // import type { IBlog } from '@/types/blog';
@@ -26,7 +26,7 @@ import { useConferenceStore } from '@/stores/conference';
 // };
 const store = useUserStore();
 const router = useRouter();
-const conferencesStory=useConferenceStore()
+const conferencesStory = useConferenceStore()
 // const userProfile = computed(() => store.user); // user改成这种用法
 
 onMounted(() => {
@@ -37,14 +37,14 @@ onMounted(() => {
     document.documentElement.scrollTop = 0;
   });
 
-  store.getUserInfo().then(({data})=>{
+  store.getUserInfo().then(({ data }) => {
     editForm.name = data.name;
     editForm.avatar = data.avatar;
   });
   store.getUserBlogList(true);
-  conferencesStory.getConferenceDetails(4); 
+  conferencesStory.getConferenceDetails(4);
   conferencesStory.getConferenceList();
-   
+
 });
 
 // 添加登出处理函数
@@ -59,7 +59,7 @@ const user = computed(() => store.user);
 const uploadfile = ref<HTMLElement | null>(null);
 function onUpload() {
   showCropper.value = true;
-  if(uploadfile.value) uploadfile.value.click();
+  if (uploadfile.value) uploadfile.value.click();
 }
 
 // const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
@@ -125,7 +125,7 @@ function cropSuccess() {
   cropperRef.value.getCropBlob((image: Blob) => {
 
     // const file = new File([image], 'file', {type: image.type});
-    store.uploadImage(image).then(({data}) => {
+    store.uploadImage(image).then(({ data }) => {
       editForm.avatar = data.avatar;
     })
     showCropper.value = false;
@@ -163,7 +163,7 @@ function cancelProfileEdit() {
 function handleEditAvatarUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
-  if(file) {
+  if (file) {
     console.log(file);
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -552,14 +552,14 @@ const submitCV = () => {
     ElMessage.warning('Please select a CV file first');
     return;
   }
-  
+
   // Store uploaded CV
   uploadedCV.value = {
     file: cvFile.value,
     uploadDate: new Date().toLocaleDateString(),
     url: URL.createObjectURL(cvFile.value)
   };
-  
+
   // TODO: Implement API call to upload CV
   console.log('CV uploaded:', cvFile.value);
   ElMessage.success('CV uploaded successfully!');
@@ -608,14 +608,14 @@ const withdrawCV = () => {
     if (uploadedCV.value?.url) {
       URL.revokeObjectURL(uploadedCV.value.url);
     }
-    
+
     // Clear the uploaded CV
     uploadedCV.value = null;
-    
+
     // TODO: Implement API call to remove CV from server
     console.log('CV withdrawn');
     ElMessage.success('CV withdrawn successfully!');
-    
+
     // Close the preview modal
     closeCVPreview();
   }).catch(() => {
@@ -625,12 +625,12 @@ const withdrawCV = () => {
 
 // ===== Academic Meetings: current participations (Top section on right) =====
 // TODO: Replace mock data with store-driven data
-const currentParticipations = computed(()=>conferencesStory.details)//会议详情
+const currentParticipations = computed(() => conferencesStory.details)//会议详情
 
 
 // ===== Featured Events (Other conferences) =====
 
-const featuredEvents = computed(()=>conferencesStory.list);//会议列表
+const featuredEvents = computed(() => conferencesStory.list);//会议列表
 
 
 
@@ -651,311 +651,266 @@ const handleLogoLoad = (event: Event) => {
 </script>
 
 <template>
-<div class="background-layer"></div>
-<div class="about layout-main">
-  <commonHeader />
+  <div class="background-layer"></div>
+  <div class="about layout-main">
+    <commonHeader />
 
-  <div class="user-page">
-    <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
-    <section class="main-content">
-      <!-- 左侧用户信息面板 -->
-      <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
-        <div class="profile-buttons">
-          <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
-          <button class="logout-btn" @click="handleLogout">LOGOUT</button>
-        </div>
-        <div class="user-info">
-          <div class="avatar-section">
-            <div class="avatar-container">
-              <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
-              <!-- <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" /> -->
-              <div class="avatar-upload-icon">
-                <i class="el-icon-camera"></i>
+    <div class="user-page">
+      <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
+      <section class="main-content">
+        <!-- 左侧用户信息面板 -->
+        <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
+          <div class="profile-buttons">
+            <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
+            <button class="logout-btn" @click="handleLogout">LOGOUT</button>
+          </div>
+          <div class="user-info">
+            <div class="avatar-section">
+              <div class="avatar-container">
+                <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
+                <!-- <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" /> -->
+                <div class="avatar-upload-icon">
+                  <i class="el-icon-camera"></i>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="username">{{ user?.name }}</div>
-          <div class="user-id">ID: {{ user?.id }}</div>
-          <div class="user-institution">MUST</div>
-          <!-- <div class="registration-time">Joined: {{ user?.created_at }}</div> -->
-          <!-- Likes / Coins -->
-          <div class="stats">
-            <div class="stat">
-              <span class="number">{{ user?.likes }}</span>
-              <span class="label">Likes</span>
-            </div>
-            <!-- <div class="stat">
+            <div class="username">{{ user?.name }}</div>
+            <div class="user-id">ID: {{ user?.id }}</div>
+            <div class="user-institution">MUST</div>
+            <!-- <div class="registration-time">Joined: {{ user?.created_at }}</div> -->
+            <!-- Likes / Coins -->
+            <div class="stats">
+              <div class="stat">
+                <span class="number">{{ user?.likes }}</span>
+                <span class="label">Likes</span>
+              </div>
+              <!-- <div class="stat">
               <span class="number">{{ user?.coins }}</span>
               <span class="label">Coins</span>
             </div> -->
-          </div>
-          <!-- Following / Followers -->
-          <div class="follow-stats-row">
-            <div class="follow-item">
-              <span class="number">{{ user?.followings }}</span>
-              <span class="follow-link" @click="showSocialModal">
-                <span class="link-text">Following</span>
-              </span>
             </div>
-            <div class="follower-item">
-              <span class="number">{{ user?.followers }}</span>
-              <span class="follower-link" @click="showSocialModal">
-                <span class="link-text">Followers</span>
-              </span>
-            </div>
-          </div>
-          
-          <!-- Additional Profile Buttons -->
-          <div class="additional-buttons">
-            <button class="contact-info-btn" @click="openContactModal">CONTACT INFO</button>
-            <button v-if="!uploadedCV" class="upload-cv-btn" @click="openCVModal">UPLOAD CV</button>
-            <button v-else class="view-cv-btn" @click="openCVPreview">VIEW CV</button>
-          </div>
-        </div>
-      </aside>
-
-      <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
-      <div class="vertical-divider-us"></div>
-      <!-- 右侧会议内容区域 -->
-      <section class="events">
-        <!-- 顶部：正在参与的会议 -->
-        <div class="current-participations">
-          <div class="section-title">My Events</div>
-
-          <div v-if="currentParticipations" class="conference-list">
-            <div
-              class="conference-card"
-            >
-              <div class="conference-header">
-                <div class="conference-name-container">
-                  <img 
-                    v-if="currentParticipations.logoUrl" 
-                    :src="currentParticipations.logoUrl" 
-                    :alt="currentParticipations.name + ' logo'"
-                    class="conference-logo"
-                    @error="handleLogoError"
-                    @load="handleLogoLoad"
-                  />
-                  <div class="conference-name">{{ currentParticipations.name }}</div>
-                </div>
-                <div class="submission-count">{{ currentParticipations.sessions.length }} papers</div>
+            <!-- Following / Followers -->
+            <div class="follow-stats-row">
+              <div class="follow-item">
+                <span class="number">{{ user?.followings }}</span>
+                <span class="follow-link" @click="showSocialModal">
+                  <span class="link-text">Following</span>
+                </span>
               </div>
+              <div class="follower-item">
+                <span class="number">{{ user?.followers }}</span>
+                <span class="follower-link" @click="showSocialModal">
+                  <span class="link-text">Followers</span>
+                </span>
+              </div>
+            </div>
 
-              <div class="submission-list">
-                <div
-                  v-for="(sub, idx) in currentParticipations.sessions"
-                  :key="idx"
-                  class="submission-item"
-                  @click="router.push({ name: 'MyEventDetail', params: { conferenceId: currentParticipations.id, paperId: idx } })"
-                >
-                  <div class="paper-title">{{ sub.session_name }}</div>
-                  <div class="authors">
-                    <span
-                      v-for="(author, i) in sub.chairperson"
-                      :key="i"
-                      class="author"
-                    >
-                      {{ author }}<span v-if="i < sub.chairperson.length - 1">, </span>
-                    </span>
+            <!-- Additional Profile Buttons -->
+            <div class="additional-buttons">
+              <button class="contact-info-btn" @click="openContactModal">CONTACT INFO</button>
+              <button v-if="!uploadedCV" class="upload-cv-btn" @click="openCVModal">UPLOAD CV</button>
+              <button v-else class="view-cv-btn" @click="openCVPreview">VIEW CV</button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
+        <div class="vertical-divider-us"></div>
+        <!-- 右侧会议内容区域 -->
+        <section class="events">
+          <!-- 顶部：正在参与的会议 -->
+          <div class="current-participations">
+            <div class="section-title">My Events</div>
+
+            <div v-if="currentParticipations" class="conference-list">
+              <div class="conference-card">
+                <div class="conference-header">
+                  <div class="conference-name-container">
+                    <img v-if="currentParticipations.logoUrl" :src="currentParticipations.logoUrl"
+                      :alt="currentParticipations.name + ' logo'" class="conference-logo" @error="handleLogoError"
+                      @load="handleLogoLoad" />
+                    <div class="conference-name">{{ currentParticipations.name }}</div>
+                  </div>
+                  <div class="submission-count">{{ currentParticipations.sessions.length }} papers</div>
+                </div>
+
+                <div class="submission-list">
+                  <div v-for="(sub, idx) in currentParticipations.sessions" :key="idx" class="submission-item"
+                    @click="router.push({ name: 'MyEventDetail', params: { conferenceId: currentParticipations.id, paperId: idx } })">
+                    <div class="paper-title">{{ sub.session_name }}</div>
+                    <div class="authors">
+                      <span v-for="(author, i) in sub.chairperson" :key="i" class="author">
+                        {{ author }}<span v-if="i < sub.chairperson.length - 1">, </span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div v-else class="empty-state">
+              <div class="empty-title">No current participations</div>
+              <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+            </div>
           </div>
 
-          <div v-else class="empty-state">
-            <div class="empty-title">No current participations</div>
-            <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
-          </div>
-        </div>
+          <!-- 精选 Events：其他会议推荐 -->
+          <div class="featured-events">
+            <div class="section-header">
+              <div class="section-title">Featured Events</div>
+            </div>
 
-        <!-- 精选 Events：其他会议推荐 -->
-        <div class="featured-events">
-          <div class="section-header">
-            <div class="section-title">Featured Events</div>
-          </div>
-
-          <div v-if="featuredEvents.length>0" class="featured-list">
-            <div
-              v-for="evt in featuredEvents"
-              :key="evt.id"
-              class="featured-card"
-              @click="router.push({ name: 'FeaturedEvents' })"
-            >
-              <div class="featured-header">
-                <div class="featured-name-container">
-                  <img 
-                    v-if="evt.logoUrl" 
-                    :src="evt.logoUrl" 
-                    :alt="evt.name + ' logo'"
-                    class="featured-event-logo"
-                    @error="handleLogoError"
-                    @load="handleLogoLoad"
-                  />
-                  <div class="featured-name">{{ evt.name }}</div>
+            <div v-if="featuredEvents.length > 0" class="featured-list">
+              <div v-for="evt in featuredEvents" :key="evt.id" class="featured-card"
+                @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: evt.id } })">
+                <div class="featured-header">
+                  <div class="featured-name-container">
+                    <img v-if="evt.logoUrl" :src="evt.logoUrl" :alt="evt.name + ' logo'" class="featured-event-logo"
+                      @error="handleLogoError" @load="handleLogoLoad" />
+                    <div class="featured-name">{{ evt.name }}</div>
+                  </div>
+                  <div class="featured-date">{{ formatRange(evt.start_time, evt.end_time) }}</div>
                 </div>
-                <div class="featured-date">{{formatRange(evt.start_time,evt.end_time) }}</div>
-              </div>
-              <div class="featured-meta">
-                <span class="featured-location">{{ evt.place_name }}</span>
-                <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank" rel="noopener">Website</a>
-              </div>
-              <div v-if="evt.keywords?.length" class="featured-topics">
-                <span class="topic-tag" v-for="(t, i) in evt.keywords" :key="i">{{ t }}</span>
+                <div class="featured-meta">
+                  <span class="featured-location">{{ evt.place_name }}</span>
+                  <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank"
+                    rel="noopener">Website</a>
+                </div>
+                <div v-if="evt.keywords?.length" class="featured-topics">
+                  <span class="topic-tag" v-for="(t, i) in evt.keywords" :key="i">{{ t.name }}</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div v-else class="empty-state">
-            <div class="empty-title">No featured events</div>
-            <div class="empty-desc">We will curate high-quality conferences here soon.</div>
+            <div v-else class="empty-state">
+              <div class="empty-title">No featured events</div>
+              <div class="empty-desc">We will curate high-quality conferences here soon.</div>
+            </div>
           </div>
-        </div>
+        </section>
       </section>
-    </section>
 
-    <!-- 裁剪弹窗 -->
-    <div v-if="false" class="cropper-modal">
-      <div class="cropper-container">
-        <div class="cropper-buttons">
-          <el-button @click="cropSuccess">Confirm</el-button>
-          <el-button @click="cancelCrop">Cancel</el-button>
+      <!-- 裁剪弹窗 -->
+      <div v-if="false" class="cropper-modal">
+        <div class="cropper-container">
+          <div class="cropper-buttons">
+            <el-button @click="cropSuccess">Confirm</el-button>
+            <el-button @click="cancelCrop">Cancel</el-button>
+          </div>
         </div>
       </div>
-    </div>
-    <el-dialog
-      v-model="showCropper"
-      class="crop-dialog"
-      title="Edit Avatar"
-      :close-on-click-modal="true"
-      :show-close="true"
-      destroy-on-close
-    >
-      <div class="avatar-cut">
-        <vue-cropper
-          ref="cropperRef"
-          :img="cropImage"
-          v-bind="cropOption"
-        />
+      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true"
+        :show-close="true" destroy-on-close>
+        <div class="avatar-cut">
+          <vue-cropper ref="cropperRef" :img="cropImage" v-bind="cropOption" />
 
-      </div>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="cropSuccess">Confirm</el-button>
-          <el-button @click="cancelCrop">Cancel</el-button>
         </div>
-      </template>
-    </el-dialog>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="cropSuccess">Confirm</el-button>
+            <el-button @click="cancelCrop">Cancel</el-button>
+          </div>
+        </template>
+      </el-dialog>
 
-    <!-- 编辑个人信息弹窗 -->
-    <div class="edit-profile-modal" v-if="showEditProfile">
-      <div
-        class="edit-profile-container"
-        :style="{
+      <!-- 编辑个人信息弹窗 -->
+      <div class="edit-profile-modal" v-if="showEditProfile">
+        <div class="edit-profile-container" :style="{
           transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
-        }"
-        @mousedown="startDrag"
-        @mousemove="onDrag"
-        @mouseup="stopDrag"
-        @mouseleave="stopDrag"
-      >
-        <h2>Edit Profile</h2>
-        <input ref="uploadfile" style="display: none;" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
-        <div class="edit-avatar-section avatar-container">
-          <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
-          <div class="avatar-upload-icon">
-            <i class="el-icon-camera" @click.prevent.stop="onUpload">edit</i>
+        }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+          <h2>Edit Profile</h2>
+          <input ref="uploadfile" style="display: none;" type="file" class="upload-avatar" accept="image/*"
+            @change="handleEditAvatarUpload" />
+          <div class="edit-avatar-section avatar-container">
+            <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
+            <div class="avatar-upload-icon">
+              <i class="el-icon-camera" @click.prevent.stop="onUpload">edit</i>
+            </div>
           </div>
-        </div>
-        <div class="edit-form">
-          <div class="form-group">
-            <label>Nickname</label>
-            <input v-model="editForm.name" type="text" placeholder="Enter your nickname" />
+          <div class="edit-form">
+            <div class="form-group">
+              <label>Nickname</label>
+              <input v-model="editForm.name" type="text" placeholder="Enter your nickname" />
+            </div>
           </div>
-        </div>
-        <div class="edit-buttons">
-          <el-button @click="submitProfileEdit">Save Changes</el-button>
-          <el-button @click="cancelProfileEdit">Cancel</el-button>
+          <div class="edit-buttons">
+            <el-button @click="submitProfileEdit">Save Changes</el-button>
+            <el-button @click="cancelProfileEdit">Cancel</el-button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Contact Info Modal -->
-    <div class="contact-modal" v-if="showContactModal">
-      <div class="contact-modal-container">
-        <div class="modal-header">
-          <h2>Contact Information</h2>
-          <button class="close-btn" @click="closeContactModal">×</button>
-        </div>
-        <div class="modal-content">
-          <div class="form-group">
-            <label>Email</label>
-            <input v-model="contactForm.email" type="email" placeholder="your.email@example.com" />
+      <!-- Contact Info Modal -->
+      <div class="contact-modal" v-if="showContactModal">
+        <div class="contact-modal-container">
+          <div class="modal-header">
+            <h2>Contact Information</h2>
+            <button class="close-btn" @click="closeContactModal">×</button>
           </div>
-          <div class="form-group">
-            <label>Phone</label>
-            <input v-model="contactForm.phone" type="tel" placeholder="+1 (555) 123-4567" />
+          <div class="modal-content">
+            <div class="form-group">
+              <label>Email</label>
+              <input v-model="contactForm.email" type="email" placeholder="your.email@example.com" />
+            </div>
+            <div class="form-group">
+              <label>Phone</label>
+              <input v-model="contactForm.phone" type="tel" placeholder="+1 (555) 123-4567" />
+            </div>
+            <div class="form-group">
+              <label>Website</label>
+              <input v-model="contactForm.website" type="url" placeholder="https://yourwebsite.com" />
+            </div>
+            <div class="form-group">
+              <label>LinkedIn</label>
+              <input v-model="contactForm.linkedin" type="url" placeholder="https://linkedin.com/in/yourprofile" />
+            </div>
+            <div class="form-group">
+              <label>Twitter</label>
+              <input v-model="contactForm.twitter" type="text" placeholder="@yourusername" />
+            </div>
+            <div class="form-group">
+              <label>ORCID</label>
+              <input v-model="contactForm.orcid" type="text" placeholder="0000-0000-0000-0000" />
+            </div>
           </div>
-          <div class="form-group">
-            <label>Website</label>
-            <input v-model="contactForm.website" type="url" placeholder="https://yourwebsite.com" />
+          <div class="modal-footer">
+            <el-button @click="closeContactModal">Cancel</el-button>
+            <el-button type="primary" @click="submitContactInfo">Save</el-button>
           </div>
-          <div class="form-group">
-            <label>LinkedIn</label>
-            <input v-model="contactForm.linkedin" type="url" placeholder="https://linkedin.com/in/yourprofile" />
-          </div>
-          <div class="form-group">
-            <label>Twitter</label>
-            <input v-model="contactForm.twitter" type="text" placeholder="@yourusername" />
-          </div>
-          <div class="form-group">
-            <label>ORCID</label>
-            <input v-model="contactForm.orcid" type="text" placeholder="0000-0000-0000-0000" />
-          </div>
-        </div>
-        <div class="modal-footer">
-          <el-button @click="closeContactModal">Cancel</el-button>
-          <el-button type="primary" @click="submitContactInfo">Save</el-button>
         </div>
       </div>
-    </div>
 
-    <!-- CV Upload Modal -->
-    <div class="cv-modal" v-if="showCVModal">
-      <div class="cv-modal-container">
-        <div class="modal-header">
-          <h2>Upload CV</h2>
-          <button class="close-btn" @click="closeCVModal">×</button>
-        </div>
-        <div class="modal-content">
-          <div class="upload-area">
-            <input 
-              ref="cvUploadRef"
-              type="file" 
-              accept=".pdf,.doc,.docx" 
-              @change="handleCVUpload"
-              style="display: none;"
-            />
-            <div class="upload-zone" @click="cvUploadRef?.click()">
-              <div class="upload-icon">📄</div>
-              <div class="upload-text">
-                <p>Click to select CV file</p>
-                <p class="upload-hint">Supports PDF, DOC, DOCX files</p>
+      <!-- CV Upload Modal -->
+      <div class="cv-modal" v-if="showCVModal">
+        <div class="cv-modal-container">
+          <div class="modal-header">
+            <h2>Upload CV</h2>
+            <button class="close-btn" @click="closeCVModal">×</button>
+          </div>
+          <div class="modal-content">
+            <div class="upload-area">
+              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload"
+                style="display: none;" />
+              <div class="upload-zone" @click="cvUploadRef?.click()">
+                <div class="upload-icon">📄</div>
+                <div class="upload-text">
+                  <p>Click to select CV file</p>
+                  <p class="upload-hint">Supports PDF, DOC, DOCX files</p>
+                </div>
+              </div>
+              <div v-if="cvFile" class="selected-file">
+                <span class="file-icon">📎</span>
+                <span class="file-name">{{ cvFile.name }}</span>
+                <span class="file-size">({{ (cvFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
               </div>
             </div>
-            <div v-if="cvFile" class="selected-file">
-              <span class="file-icon">📎</span>
-              <span class="file-name">{{ cvFile.name }}</span>
-              <span class="file-size">({{ (cvFile.size / 1024 / 1024).toFixed(2) }} MB)</span>
-            </div>
+          </div>
+          <div class="modal-footer">
+            <el-button @click="closeCVModal">Cancel</el-button>
+            <el-button type="primary" @click="submitCV" :disabled="!cvFile">Upload</el-button>
           </div>
         </div>
-        <div class="modal-footer">
-          <el-button @click="closeCVModal">Cancel</el-button>
-          <el-button type="primary" @click="submitCV" :disabled="!cvFile">Upload</el-button>
-        </div>
       </div>
-    </div>
     </div>
 
     <!-- CV Preview Modal -->
@@ -969,22 +924,12 @@ const handleLogoLoad = (event: Event) => {
           </div>
         </div>
         <div class="pdf-modal-content">
-          <iframe 
-            v-if="uploadedCV?.url && !isMobile" 
-            :src="uploadedCV.url" 
-            class="pdf-viewer"
-            frameborder="0">
+          <iframe v-if="uploadedCV?.url && !isMobile" :src="uploadedCV.url" class="pdf-viewer" frameborder="0">
           </iframe>
           <div v-else-if="uploadedCV?.url && isMobile" class="mobile-pdf-viewer">
             <!-- Mobile PDF display using object tag -->
-            <object 
-              :data="uploadedCV.url" 
-              type="application/pdf"
-              class="mobile-pdf-iframe">
-              <embed 
-                :src="uploadedCV.url" 
-                type="application/pdf"
-                class="mobile-pdf-iframe">
+            <object :data="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe">
+              <embed :src="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe">
               <div class="pdf-fallback-mobile">
                 <div class="pdf-icon">📄</div>
                 <p>{{ getCurrentCVFileName() }}</p>
@@ -1009,5 +954,3 @@ const handleLogoLoad = (event: Event) => {
     </div>
   </div>
 </template>
-
-

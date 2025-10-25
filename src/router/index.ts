@@ -137,9 +137,10 @@ const router = createRouter({
       props: true,
     },
     {
-      path: '/conference/featured-events',
+      path: '/conference/featured-events/:conferenceId',
       name: 'FeaturedEvents',
       component: () => import('@/views/components/feature_events.vue'),
+      props:true,
     },
   ],
 });

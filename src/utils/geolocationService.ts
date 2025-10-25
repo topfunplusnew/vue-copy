@@ -29,20 +29,5 @@ export async function getReverseGeocoding(lat: number, lon: number) {
 
 
 
-export function extractCountryAndCity(address:string) {
-  if (!address) return [];
 
-  const cleanStr = address.replace(/\s+/g, '');
-
-  // 匹配“XX国”
-  const countryMatch = cleanStr.match(/[\u4e00-\u9fa5]+国/);
-  const country = countryMatch ? countryMatch[0] : null;
-
-  // 匹配第一个“XX市”，但要在国家之后再找
-  const rest = country ? cleanStr.slice(cleanStr.indexOf(country) + country.length) : cleanStr;
-  const cityMatch = rest.match(/[\u4e00-\u9fa5]+市/);
-  const city = cityMatch ? cityMatch[0] : null;
-
-  return [country, city].filter(Boolean);
-}
 

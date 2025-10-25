@@ -1,3 +1,7 @@
+export interface IConferenceKey {
+    id: number;
+    name: string;
+}
 export interface IConferenceEvent {
     id: number;
     name: string;
@@ -6,51 +10,78 @@ export interface IConferenceEvent {
     end_time: string;
     logoUrl?: string; // 会议logo URL
     website?: string;
-    keywords?: string[];
-    conference_type:string;
+    keywords?: IConferenceKey[];
+    conference_type: string;
 }
 
 export interface IConferenceSubmission {
     session_name: string;
     chairperson: string[];
 }
-export interface IConferencePosition {
-    formatted_address:string;
-    name:string
+export interface IConferencePosition {//会议地点信息
+    formatted_address: string;
+    name: string
 }
-export interface IConferencePaper{
+export interface IConferencePaper {//会议论文
     id: number,
     title: string,
     authors: string[],
-    institutions:string[],
+    institutions: string[],
     doi: string,
     abstract: string,
     keywords: string[],
-    graphicalAbstract: string|null,
-    video:string|null,
-    slides:string|null,
-    poster: string|null,
-    additionalInfo: string|null;
+    graphicalAbstract: string | null,
+    video: string | null,
+    slides: string | null,
+    poster: string | null,
+    additionalInfo: string | null;
 }
-export interface IConferenceParticipation {
+export interface IConferenceParticipation {//会议详情
     id: number;
     name: string;
-    abbreviation:string;//会议简称
+    abbreviation: string;//会议简称
     logoUrl?: string; // 会议logo URL
     sessions: IConferenceSubmission[];
-    start_time:string;
-    end_time:string;
-    registration_fee:number;
-    currency:string;
-    fullName:string;
-    place_position:IConferencePosition;
-    website:string;
-    conference_type:string; //会议类型
-    created_at:string;
-    updated_at:string;
-    place_id:string;
-    session?:[];
-    keywords:string[];
-    papers? :IConferencePaper[];
-    description:string;
+    start_time: string;
+    end_time: string;
+    registration_fee?: number;
+    currency: string;
+    fullName: string;
+    place_position: IConferencePosition;
+    website: string;
+    conference_type: string; //会议类型
+    created_at: string;
+    updated_at: string;
+    place_id: string;
+    keywords: IConferenceKey[];
+    papers?: IConferencePaper[];
+    description: string;
+    city: string;
+    country: string;
+    address: string;//会场
+    submission_deadline: string,
+    notification_date: string,
+    committee_website: string,
+    registration_website: string
+}
+export interface IMyConference {//我的会议
+    id: string;
+    name: string;
+    abbreviation: string;
+    conference_type: string;
+    start_time: string;
+    end_time: string;
+    website: string;
+    logo: string;
+    place_name: string;
+    my_papers_count: number;
+    my_papers: IMyPapers[]
+}
+export interface IMyPapers {
+    paper_id: number;
+    paper_title: string;
+    presentation_type: string;
+    is_accepted: boolean;
+    presentation_time: string;
+    session_name: string;
 }
