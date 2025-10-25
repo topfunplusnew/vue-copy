@@ -5,7 +5,9 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 import commonHeader from '@/layout/common-header.vue';
-
+import { useConferenceStore } from '@/stores/conference'
+import { formatRange } from '@/utils/date'
+import { UploadVideo } from '@/services/api'
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
@@ -30,36 +32,18 @@ function setActiveTab(tab: TabKey) {
 }
 
 // Mock: load conference & paper meta
-const eventMeta = reactive({
-  logo: 'https://nips.cc/static/core/img/NeurIPS-logo.svg',
-  conferenceName: 'NeurIPS 2025',
-  conferenceFullName: 'Neural Information Processing Systems',
-  conferenceDate: 'December 9-15, 2025',
-  location: {
-    city: 'Vancouver',
-    country: 'Canada',
-    venue: 'Vancouver Convention Centre'
-  },
-  websites: {
-    official: 'https://nips.cc',
-    committee: 'https://nips.cc/Conferences/2025/ProgramCommittee',
-    registration: 'https://nips.cc/Conferences/2025/Registration'
-  },
-  createdAt: '2025-01-10',
-  updatedAt: '2025-02-18',
-  title: 'Learning Efficient Policies with Sparse Feedback',
-  authors: [
-    { name: 'Dr. John Smith', affiliation: 'Stanford University' },
-    { name: 'Prof. Jane Doe', affiliation: 'MIT' },
-    { name: 'Dr. Bob Johnson', affiliation: 'University of California' }
-  ]
-});
+const story = useConferenceStore()
+
+story.getMyPapers(2);
+
+const eventMeta = computed(() => story.myPapers)
+console.log(eventMeta);
 
 // Details form
 const detailsForm = reactive({
   doi: '',
   abstract: '',
-  keywords: ['','','','',''] as string[],
+  keywords: ['', '', '', '', ''] as string[],
   graphicalAbstractFile: null as File | null,
   graphicalAbstractPreview: '' as string,
 });
@@ -69,7 +53,7 @@ function onUploadGraphicalAbstract(e: Event) {
   const file = input.files?.[0];
   if (!file) return;
   const valid = (
-    ['image/jpeg','image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024
+    ['image/jpeg', 'image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024
   );
   if (!valid) {
     ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
@@ -83,7 +67,8 @@ function onUploadGraphicalAbstract(e: Event) {
 // Video
 const videoConsent = ref(false);
 const videoFile = ref<File | null>(null);
-const videoSrc = computed(() => {
+const videoSrc = computed(() => {//视频预览
+
   if (!videoFile.value) return '';
   try {
     return URL.createObjectURL(videoFile.value);
@@ -91,7 +76,7 @@ const videoSrc = computed(() => {
     return '';
   }
 });
-function onUploadVideo(e: Event) {
+async function onUploadVideo(e: Event, file_type = 'video') {//处理上传逻辑
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -100,6 +85,18 @@ function onUploadVideo(e: Event) {
     return;
   }
   videoFile.value = file;
+  const formData = new FormData()
+  formData.append('paper_id', '2')
+  formData.append('file_type', file_type)
+  formData.append('file', file)
+
+  try {
+    const res = await UploadVideo(formData)
+    console.log('上传成功！', res);
+    return res
+  } catch (err) {
+    console.error('上传失败：', err.response?.data || err);
+  }
 }
 function removeVideo() { videoFile.value = null; }
 
@@ -158,7 +155,7 @@ const isMobile = computed(() => {
 function openPdfModal(type: 'slides' | 'poster') {
   let file: File | null = null;
   let title = '';
-  
+
   if (type === 'slides' && slidesFile.value) {
     file = slidesFile.value;
     title = `Slides: ${file.name}`;
@@ -166,7 +163,7 @@ function openPdfModal(type: 'slides' | 'poster') {
     file = posterFile.value;
     title = `Poster: ${file.name}`;
   }
-  
+
   if (file) {
     currentPdfFile.value = file;
     currentPdfUrl.value = URL.createObjectURL(file);
@@ -199,40 +196,40 @@ function openInNewTab() {
 function addToSchedule() {
   try {
     const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
-    
+
     // 解析用户session日期
     const userSessionDate = parseUserSessionDate();
-    
+
     if (!userSessionDate) {
       ElMessage.error('Unable to parse session date');
       return;
     }
-    
+
     // 检查是否已经添加过用户session
     const existingSession = existingEvents.find((event: any) => event.isUserSession && event.type === 'session');
     if (existingSession) {
       ElMessage.warning('Your presentation session is already in your schedule!');
       return;
     }
-    
+
     // 添加用户的演讲session（重要个人日程）
     const userSessionEvent = {
       id: `user-session-${Date.now()}`,
-      title: `${eventMeta.conferenceName} - My Presentation`,
+      title: `${eventMeta.value?.title} - My Presentation`,
       date: userSessionDate,
       time: '14:30',
-      location: `Room ${sessionInfo.room}, ${eventMeta.location.venue}`,
-      description: `My presentation: ${eventMeta.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
+      location: `Room ${sessionInfo.room}, ${eventMeta.value?.conference.address}`,
+      description: `My presentation: ${eventMeta.value?.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
       type: 'session' as const,
       isUserSession: true,
       sessionRoom: sessionInfo.room,
       paperID: sessionInfo.paperID,
       customColor: '#ff8c00' // 橘色作为默认颜色
     };
-    
+
     existingEvents.push(userSessionEvent);
     localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
-    
+
     ElMessage.success('Your presentation session added to your schedule!');
   } catch (error) {
     console.error('Failed to add session to schedule:', error);
@@ -265,12 +262,12 @@ function parseUserSessionDate(): string | null {
         const parsedYear = parseInt(year);
         const parsedMonth = monthIndex + 1; // 月份从1开始
         const parsedDay = parseInt(day);
-        
+
         // 手动构建YYYY-MM-DD格式，避免时区转换
         const yearStr = parsedYear.toString();
         const monthStr = parsedMonth.toString().padStart(2, '0');
         const dayStr = parsedDay.toString().padStart(2, '0');
-        
+
         const result = `${yearStr}-${monthStr}-${dayStr}`;
         return result;
       }
@@ -278,7 +275,7 @@ function parseUserSessionDate(): string | null {
   } catch (error) {
     console.error('Error parsing session date:', error);
   }
-  
+
   return null;
 }
 
@@ -303,7 +300,7 @@ function parseConferenceDateRange(dateStr: string): { startYear: number, startMo
         };
       }
     }
-    
+
     // Handle single day format like "December 9, 2025"
     const singleMatch = dateStr.match(/(\w+)\s+(\d+),\s+(\d+)/);
     if (singleMatch) {
@@ -325,7 +322,7 @@ function parseConferenceDateRange(dateStr: string): { startYear: number, startMo
   } catch (error) {
     console.error('Error parsing date range:', error);
   }
-  
+
   return null;
 }
 
@@ -354,19 +351,19 @@ function parseConferenceDate(dateStr: string): string {
         const parsedYear = parseInt(year);
         const parsedMonth = monthIndex + 1; // 月份从1开始
         const parsedDay = parseInt(day);
-        
+
         // 手动构建YYYY-MM-DD格式，避免时区转换
         const yearStr = parsedYear.toString();
         const monthStr = parsedMonth.toString().padStart(2, '0');
         const dayStr = parsedDay.toString().padStart(2, '0');
-        
+
         return `${yearStr}-${monthStr}-${dayStr}`;
       }
     }
   } catch (error) {
     console.error('Error parsing date:', error);
   }
-  
+
   // Fallback to current date if parsing fails
   const now = new Date();
   const year = now.getFullYear();
@@ -379,18 +376,19 @@ function parseConferenceDate(dateStr: string): string {
 
 <template>
   <div class="background-layer"></div>
-    
+
   <div class="my-events-page main">
     <commonHeader />
-    
+
     <section class="main-content">
       <aside class="left-nav">
-        <button :class="{active: activeTab==='details'}" @click="setActiveTab('details')">Details</button>
-        <button :class="{active: activeTab==='video'}" @click="setActiveTab('video')">Video</button>
-        <button :class="{active: activeTab==='slides'}" @click="setActiveTab('slides')">Slides</button>
-        <button :class="{active: activeTab==='poster'}" @click="setActiveTab('poster')">Poster</button>
-        <button :class="{active: activeTab==='additional'}" @click="setActiveTab('additional')">Additional Info</button>
-        <button :class="{active: activeTab==='fulltext'}" @click="setActiveTab('fulltext')">Full Files</button>
+        <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
+        <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
+        <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
+        <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
+        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+          Info</button>
+        <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
 
       <section class="right-panel">
@@ -402,56 +400,59 @@ function parseConferenceDate(dateStr: string): string {
         </header> -->
         <header class="event-header">
           <div class="conference-header">
-            <div class="logo" v-if="eventMeta.logo">
-              <img :src="eventMeta.logo" alt="Conference Logo" />
+            <div class="logo" v-if="eventMeta?.conference.logo">
+              <img :src="eventMeta.conference.logo" alt="Conference Logo" />
             </div>
             <div class="conference-info">
-              <div class="conference-name">{{ eventMeta.conferenceName }}</div>
-              <div class="conference-full-name">{{ eventMeta.conferenceFullName }}</div>
+              <div class="conference-name">{{ eventMeta?.conference.abbreviation }}</div>
+              <div class="conference-full-name">{{ eventMeta?.conference.name }}</div>
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ eventMeta.conferenceDate }}</span>
+                  <span class="detail-text">{{ formatRange(eventMeta!.created_at, eventMeta!.updated_at) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ eventMeta.location.city }}, {{ eventMeta.location.country }}</span>
+                  <span class="detail-text">{{ eventMeta?.conference.city }}, {{ eventMeta?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
-                  <span class="detail-text">{{ eventMeta.location.venue }}</span>
+                  <span class="detail-text">{{ eventMeta?.conference.address }}</span>
                 </div>
               </div>
             </div>
           </div>
           <div class="conference-links">
-              <a :href="eventMeta.websites.official" target="_blank" class="conf-link">
-                <span class="link-icon">🌐</span>
-                Official Website
-              </a>
-              <a :href="eventMeta.websites.committee" target="_blank" class="conf-link">
-                <span class="link-icon">👥</span>
-                Committee
-              </a>
-              <a :href="eventMeta.websites.registration" target="_blank" class="conf-link">
-                <span class="link-icon">📝</span>
-                Registration
-              </a>
-            </div>
+            <a :href="eventMeta?.conference.website" target="_blank" class="conf-link">
+              <span class="link-icon">🌐</span>
+              Official Website
+            </a>
+            <a :href="eventMeta?.conference.committee_website" target="_blank" class="conf-link">
+              <span class="link-icon">👥</span>
+              Committee
+            </a>
+            <a :href="eventMeta?.conference.registration_website" target="_blank" class="conf-link">
+              <span class="link-icon">📝</span>
+              Registration
+            </a>
+          </div>
           <div class="meta">
-            <div class="title">{{ eventMeta.title }}</div>
+            <div class="title">{{ eventMeta?.title }}</div>
             <div class="authors">
               <span class="author-name">John Smith<sup>1</sup></span>,
               <span class="author-name">Jane Doe<sup>2</sup></span>,
               <span class="author-name">Bob Johnson<sup>1,3</sup></span>
             </div>
             <div class="affiliations">
-              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
-              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
-              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
+              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA,
+                USA</div>
+              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory,
+                Cambridge, MA, USA</div>
+              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California,
+                Berkeley, CA, USA</div>
             </div>
             <div class="session-notice">
-              <div class="session-header">             
+              <div class="session-header">
                 <div class="notice-title">Important Conference Schedule</div>
               </div>
               <div class="session-content">
@@ -479,12 +480,13 @@ function parseConferenceDate(dateStr: string): string {
                 </button>
               </div>
             </div>
-            <div class="dates">Date Created: {{ eventMeta.createdAt }} · Date Edited: {{ eventMeta.updatedAt }}</div>
+            <div class="dates">Date Created: {{ eventMeta?.conference.start_time }} · Date Edited: {{
+              eventMeta?.conference.end_time }}</div>
 
-        </div>
+          </div>
         </header>
 
-        <div v-if="activeTab==='details'" class="tab-content">
+        <div v-if="activeTab === 'details'" class="tab-content">
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
@@ -496,7 +498,8 @@ function parseConferenceDate(dateStr: string): string {
             </div>
             <div class="form-item">
               <label>Graphical Abstract</label>
-              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
+              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png"
+                @change="onUploadGraphicalAbstract" style="display: none" />
               <button @click="graphicalAbstractInput?.click()" class="upload-btn">Upload Image</button>
               <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
               <div v-if="detailsForm.graphicalAbstractPreview" class="preview">
@@ -507,7 +510,8 @@ function parseConferenceDate(dateStr: string): string {
             <div class="form-item full">
               <label>Keywords</label>
               <div class="keywords">
-                <input v-for="(k, i) in detailsForm.keywords" :key="i" v-model="detailsForm.keywords[i]" placeholder="Keyword" />
+                <input v-for="(k, i) in detailsForm.keywords" :key="i" v-model="detailsForm.keywords[i]"
+                  placeholder="Keyword" />
               </div>
             </div>
             <div class="form-actions">
@@ -516,7 +520,7 @@ function parseConferenceDate(dateStr: string): string {
           </div>
         </div>
 
-        <div v-else-if="activeTab==='video'" class="tab-content">
+        <div v-else-if="activeTab === 'video'" class="tab-content">
           <div class="video-upload">
             <label class="checkbox">
               <input type="checkbox" v-model="videoConsent" />
@@ -538,8 +542,9 @@ function parseConferenceDate(dateStr: string): string {
           </div>
         </div>
 
-        <div v-else-if="activeTab==='slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
+        <div v-else-if="activeTab === 'slides'" class="tab-content">
+          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides"
+            style="display: none" />
           <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
           <div class="file-row" v-if="slidesFile">
             <div class="file-info">
@@ -563,8 +568,9 @@ function parseConferenceDate(dateStr: string): string {
           </div>
         </div>
 
-        <div v-else-if="activeTab==='poster'" class="tab-content">
-          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
+        <div v-else-if="activeTab === 'poster'" class="tab-content">
+          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster"
+            style="display: none" />
           <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
           <div class="file-row" v-if="posterFile">
             <div class="file-info">
@@ -588,7 +594,7 @@ function parseConferenceDate(dateStr: string): string {
           </div>
         </div>
 
-        <div v-else-if="activeTab==='additional'" class="tab-content">
+        <div v-else-if="activeTab === 'additional'" class="tab-content">
           <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
           <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
           <div class="file-list" v-if="additionalFiles.length">
@@ -606,35 +612,38 @@ function parseConferenceDate(dateStr: string): string {
           </div>
         </div>
 
-        <div v-else-if="activeTab==='fulltext'" class="tab-content">
+        <div v-else-if="activeTab === 'fulltext'" class="tab-content">
           <div class="fulltext-section">
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ok: !!detailsForm.graphicalAbstractFile}">{{ detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!detailsForm.graphicalAbstractFile }">{{
+                  detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ok: !!slidesFile}">{{ slidesFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!slidesFile }">{{ slidesFile ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ok: !!videoFile}">{{ videoFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!videoFile }">{{ videoFile ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ok: !!posterFile}">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!posterFile }">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ok: additionalFiles.length>0}">{{ additionalFiles.length>0 ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: additionalFiles.length > 0 }">{{ additionalFiles.length > 0 ?
+                  'Uploaded' :
+                  'Missing' }}</div>
               </div>
             </div>
           </div>
         </div>
       </section>
     </section>
-    
+
     <!-- PDF Preview Modal -->
     <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
       <div class="pdf-modal" @click.stop>
@@ -643,22 +652,12 @@ function parseConferenceDate(dateStr: string): string {
           <button @click="closePdfModal" class="close-btn">×</button>
         </div>
         <div class="pdf-modal-content">
-          <iframe 
-            v-if="currentPdfUrl && !isMobile" 
-            :src="currentPdfUrl" 
-            class="pdf-viewer"
-            frameborder="0">
+          <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0">
           </iframe>
           <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
             <!-- Mobile PDF display using object tag -->
-            <object 
-              :data="currentPdfUrl" 
-              type="application/pdf"
-              class="mobile-pdf-iframe">
-              <embed 
-                :src="currentPdfUrl" 
-                type="application/pdf"
-                class="mobile-pdf-iframe">
+            <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
+              <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
               <div class="pdf-fallback-mobile">
                 <div class="pdf-icon">📄</div>
                 <p>{{ getCurrentFileName() }}</p>
@@ -680,4 +679,3 @@ function parseConferenceDate(dateStr: string): string {
     </div>
   </div>
 </template>
-

@@ -47,7 +47,7 @@ export interface IConferenceParticipation {//会议详情
     registration_fee?: number;
     currency: string;
     fullName: string;
-    place_position: IConferencePosition;
+    place_position?: IConferencePosition;
     website: string;
     conference_type: string; //会议类型
     created_at: string;
@@ -84,4 +84,52 @@ export interface IMyPapers {
     is_accepted: boolean;
     presentation_time: string;
     session_name: string;
+}
+export interface IAuthor {
+    id: number;
+    name: string;
+    order: number;
+    is_corresponding: boolean;
+    labs: []
+}
+export interface IConference {
+    id: number;
+    name: string;
+    abbreviation: string//会议简称
+    start_time: string;
+    end_time: string;
+    website: string;
+    committee_website: string;
+    registration_website: string;
+    logo: string;
+    city: string,
+    country: string,
+    address: string
+}
+export interface ISession {
+    id: number;
+    session_name: string;
+    session_number: string;
+    topic: string;
+    chairperson: string;
+    start_time: string;
+    end_time: string;
+    room_info: string
+}
+export interface IPapers {
+    id: number;
+    title: string;
+    abstract: string;
+    venue: string;
+    authors: IAuthor[]
+    conference: IConference
+    created_at: string;
+    updated_at: string;
+    session: ISession[]
+}
+
+export interface Ivideo {
+    paper_id: number;
+    file_type: string;
+    file: File
 }

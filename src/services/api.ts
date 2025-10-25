@@ -4,7 +4,7 @@ import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
 import type { IRequest } from '@/types/service';
-
+import type { Ivideo } from '@/types/conference'
 import type {
   IPlanCreateReq,
   IPlanUpdateReq,
@@ -206,3 +206,18 @@ export const ConferenceList = (query: IRequest = {}) => http.get('/conference', 
 */
 export const ConferenceDetails = (id: number | string) => http.get(`/conference/${id}`)
 
+/* 
+我的会议
+*/
+export const MyConferences = () => http.get('/my-conferences')
+
+/* 
+详情论文
+*/
+export const Mypapers = (id: number) => http.get(`/paper/${id}`)
+
+
+/* 
+上传
+*/
+export const UploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
