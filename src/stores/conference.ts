@@ -1,12 +1,12 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { ConferenceList, ConferenceDetails, Mypapers } from '@/services/api'
-import type { IConferenceEvent, IConferenceParticipation, IPapers } from '@/types/conference';
+import { ConferenceList, ConferenceDetails, Mypapers, MyConferences } from '@/services/api'
+import type { IConferenceEvent, IConferenceParticipation, IPapers, IMyConference } from '@/types/conference';
 
 export const useConferenceStore = defineStore('meet', () => {
   const list = ref<IConferenceEvent[]>([]);
   const details = ref<IConferenceParticipation>();
-  // const myConference = ref<IMyConference>()
+  const myConference = ref<IMyConference[]>()
   const myPapers = ref<IPapers>()
   // 获取会议列表
   async function getConferenceList() {
@@ -24,11 +24,15 @@ export const useConferenceStore = defineStore('meet', () => {
     });
   }
   //我的会议
-  // async function getMyConference() {
-  //   return await MyConferences().then((res) => {
-  //     myConference.value = res.data.items
-  //   })
-  // }
+  async function getMyConference() {
+    return await MyConferences().then((res) => {
+
+      myConference.value = res.data.items
+      console.log(myConference.value);
+      console.log(111111111111111111111111111111111);
+
+    })
+  }
 
   //获取论文详情
   async function getMyPapers(id: number) {
@@ -46,8 +50,10 @@ export const useConferenceStore = defineStore('meet', () => {
     list,
     details,
     myPapers,
+    myConference,
     getConferenceDetails,
     getConferenceList,
-    getMyPapers
+    getMyPapers,
+    getMyConference
   };
 });

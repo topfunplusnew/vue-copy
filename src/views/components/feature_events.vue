@@ -215,7 +215,7 @@ function prevPage() {
             :class="['conference-card', { active: selectedConference?.id === conf.id }]"
             @click="selectConference(conf.id)">
             <div class="card-logo">
-              <img :src="conf.logoUrl" :alt="conf.name" />
+              <img :src="conf.logo" :alt="conf.name" />
             </div>
             <div class="card-info">
               <div class="card-name">{{ conf.name }}</div>
@@ -322,7 +322,7 @@ function prevPage() {
                 <div class="date-info">
                   <div class="date-label">Submission Deadline</div>
                   <div class="date-value">{{ formatRange(selectedConference!.submission_deadline)
-                    }}
+                  }}
                   </div>
                 </div>
               </div>
@@ -331,7 +331,7 @@ function prevPage() {
                 <div class="date-info">
                   <div class="date-label">Notification Date</div>
                   <div class="date-value">{{ formatRange(selectedConference!.notification_date)
-                    }}
+                  }}
                   </div>
                 </div>
               </div>
@@ -340,7 +340,7 @@ function prevPage() {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference!.start_time, selectedConference!.end_time)
-                    }}
+                  }}
                   </div>
                 </div>
               </div>

@@ -193,91 +193,86 @@ function openInNewTab() {
 }
 
 // Schedule functionality - 只添加用户的重要个人日程
-function addToSchedule() {
-  try {
-    const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
+// function addToSchedule() {
+//   try {
+//     const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
 
-    // 解析用户session日期
-    const userSessionDate = parseUserSessionDate();
+//     // 解析用户session日期
+//     const userSessionDate = parseUserSessionDate();
 
-    if (!userSessionDate) {
-      ElMessage.error('Unable to parse session date');
-      return;
-    }
+//     if (!userSessionDate) {
+//       ElMessage.error('Unable to parse session date');
+//       return;
+//     }
 
-    // 检查是否已经添加过用户session
-    const existingSession = existingEvents.find((event: any) => event.isUserSession && event.type === 'session');
-    if (existingSession) {
-      ElMessage.warning('Your presentation session is already in your schedule!');
-      return;
-    }
+//     // 检查是否已经添加过用户session
+//     const existingSession = existingEvents.find((event: any) => event.isUserSession && event.type === 'session');
+//     if (existingSession) {
+//       ElMessage.warning('Your presentation session is already in your schedule!');
+//       return;
+//     }
 
-    // 添加用户的演讲session（重要个人日程）
-    const userSessionEvent = {
-      id: `user-session-${Date.now()}`,
-      title: `${eventMeta.value?.title} - My Presentation`,
-      date: userSessionDate,
-      time: '14:30',
-      location: `Room ${sessionInfo.room}, ${eventMeta.value?.conference.address}`,
-      description: `My presentation: ${eventMeta.value?.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
-      type: 'session' as const,
-      isUserSession: true,
-      sessionRoom: sessionInfo.room,
-      paperID: sessionInfo.paperID,
-      customColor: '#ff8c00' // 橘色作为默认颜色
-    };
+//     // 添加用户的演讲session（重要个人日程）
+//     const userSessionEvent = {
+//       id: `user-session-${Date.now()}`,
+//       title: `${eventMeta.value?.title} - My Presentation`,
+//       date: userSessionDate,
+//       time: '14:30',
+//       location: `Room ${sessionInfo.room}, ${eventMeta.value?.conference.address}`,
+//       description: `My presentation: ${eventMeta.value?.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
+//       type: 'session' as const,
+//       isUserSession: true,
+//       sessionRoom: sessionInfo.room,
+//       paperID: sessionInfo.paperID,
+//       customColor: '#ff8c00' // 橘色作为默认颜色
+//     };
 
-    existingEvents.push(userSessionEvent);
-    localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
+//     existingEvents.push(userSessionEvent);
+//     localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
 
-    ElMessage.success('Your presentation session added to your schedule!');
-  } catch (error) {
-    console.error('Failed to add session to schedule:', error);
-    ElMessage.error('Failed to add session to schedule');
-  }
-}
+//     ElMessage.success('Your presentation session added to your schedule!');
+//   } catch (error) {
+//     console.error('Failed to add session to schedule:', error);
+//     ElMessage.error('Failed to add session to schedule');
+//   }
+// }
 
 // 统一的session信息，确保显示和数据的一致性
-const sessionInfo = {
-  dateDisplay: "WED., June 11, 2025", // 显示格式
-  room: "A3",
-  session: "Visual Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing",
-  paperID: "#1234"
-};
+const sessionInfo = eventMeta.value?.session
 
 // Helper function to parse user session date
-function parseUserSessionDate(): string | null {
-  const sessionDateStr = sessionInfo.dateDisplay;
-  try {
-    const match = sessionDateStr.match(/(\w+)\.,\s+(\w+)\s+(\d+),\s+(\d+)/);
-    if (match) {
-      const [, , month, day, year] = match;
-      const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      const monthIndex = monthNames.indexOf(month);
-      if (monthIndex !== -1) {
-        // 使用本地时间避免时区问题
-        const parsedYear = parseInt(year);
-        const parsedMonth = monthIndex + 1; // 月份从1开始
-        const parsedDay = parseInt(day);
+// function parseUserSessionDate(): string | null {
+//   const sessionDateStr = sessionInfo.dateDisplay;
+//   try {
+//     const match = sessionDateStr.match(/(\w+)\.,\s+(\w+)\s+(\d+),\s+(\d+)/);
+//     if (match) {
+//       const [, , month, day, year] = match;
+//       const monthNames = [
+//         'January', 'February', 'March', 'April', 'May', 'June',
+//         'July', 'August', 'September', 'October', 'November', 'December'
+//       ];
+//       const monthIndex = monthNames.indexOf(month);
+//       if (monthIndex !== -1) {
+//         // 使用本地时间避免时区问题
+//         const parsedYear = parseInt(year);
+//         const parsedMonth = monthIndex + 1; // 月份从1开始
+//         const parsedDay = parseInt(day);
 
-        // 手动构建YYYY-MM-DD格式，避免时区转换
-        const yearStr = parsedYear.toString();
-        const monthStr = parsedMonth.toString().padStart(2, '0');
-        const dayStr = parsedDay.toString().padStart(2, '0');
+//         // 手动构建YYYY-MM-DD格式，避免时区转换
+//         const yearStr = parsedYear.toString();
+//         const monthStr = parsedMonth.toString().padStart(2, '0');
+//         const dayStr = parsedDay.toString().padStart(2, '0');
 
-        const result = `${yearStr}-${monthStr}-${dayStr}`;
-        return result;
-      }
-    }
-  } catch (error) {
-    console.error('Error parsing session date:', error);
-  }
+//         const result = `${yearStr}-${monthStr}-${dayStr}`;
+//         return result;
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error parsing session date:', error);
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
 // Helper function to parse conference date range
 function parseConferenceDateRange(dateStr: string): { startYear: number, startMonth: number, startDay: number, days: number } | null {
@@ -459,19 +454,19 @@ function parseConferenceDate(dateStr: string): string {
                 <div class="schedule-details">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">{{ sessionInfo.dateDisplay }}</span>
+                    <span class="schedule-value">{{ formatRange(sessionInfo!.start_time) }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
-                    <span class="schedule-value">{{ sessionInfo.room }}</span>
+                    <span class="schedule-value">{{ sessionInfo?.room_info }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🎯 Session:</span>
-                    <span class="schedule-value">{{ sessionInfo.session }}</span>
+                    <span class="schedule-value">{{ sessionInfo?.session_name }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">📄 Paper ID:</span>
-                    <span class="schedule-value">{{ sessionInfo.paperID }}</span>
+                    <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
                   </div>
                 </div>
                 <button class="schedule-action-btn" @click="addToSchedule">

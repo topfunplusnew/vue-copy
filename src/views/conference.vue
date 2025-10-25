@@ -42,7 +42,7 @@ onMounted(() => {
     editForm.avatar = data.avatar;
   });
   store.getUserBlogList(true);
-  conferencesStory.getConferenceDetails(4);
+  conferencesStory.getMyConference();
   conferencesStory.getConferenceList();
 
 });
@@ -625,7 +625,7 @@ const withdrawCV = () => {
 
 // ===== Academic Meetings: current participations (Top section on right) =====
 // TODO: Replace mock data with store-driven data
-const currentParticipations = computed(() => conferencesStory.details)//会议详情
+const currentParticipations = computed(() => conferencesStory.myConference)//会议详情
 
 
 // ===== Featured Events (Other conferences) =====
@@ -722,26 +722,26 @@ const handleLogoLoad = (event: Event) => {
           <div class="current-participations">
             <div class="section-title">My Events</div>
 
-            <div v-if="currentParticipations" class="conference-list">
+            <div v-if="currentParticipations?.length" class="conference-list" v-for="cur in currentParticipations"
+              :key="cur.id">
               <div class="conference-card">
                 <div class="conference-header">
                   <div class="conference-name-container">
-                    <img v-if="currentParticipations.logoUrl" :src="currentParticipations.logoUrl"
-                      :alt="currentParticipations.name + ' logo'" class="conference-logo" @error="handleLogoError"
-                      @load="handleLogoLoad" />
-                    <div class="conference-name">{{ currentParticipations.name }}</div>
+                    <img v-if="cur.logo" :src="cur.logo" :alt="cur.name + ' logo'" class="conference-logo"
+                      @error="handleLogoError" @load="handleLogoLoad" />
+                    <div class="conference-name">{{ cur.name }}</div>
                   </div>
-                  <div class="submission-count">{{ currentParticipations.sessions.length }} papers</div>
+                  <!-- <div class="submission-count">{{ currentParticipations.my_papers.length }} papers</div> -->
                 </div>
 
                 <div class="submission-list">
-                  <div v-for="(sub, idx) in currentParticipations.sessions" :key="idx" class="submission-item"
-                    @click="router.push({ name: 'MyEventDetail', params: { conferenceId: currentParticipations.id, paperId: idx } })">
+                  <div v-for="(sub, idx) in cur.my_papers" :key="idx" class="submission-item"
+                    @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: idx } })">
                     <div class="paper-title">{{ sub.session_name }}</div>
                     <div class="authors">
-                      <span v-for="(author, i) in sub.chairperson" :key="i" class="author">
+                      <!-- <span v-for="(author, i) in sub.chairperson" :key="i" class="author">
                         {{ author }}<span v-if="i < sub.chairperson.length - 1">, </span>
-                      </span>
+                      </span> -->
                     </div>
                   </div>
                 </div>
@@ -765,7 +765,7 @@ const handleLogoLoad = (event: Event) => {
                 @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: evt.id } })">
                 <div class="featured-header">
                   <div class="featured-name-container">
-                    <img v-if="evt.logoUrl" :src="evt.logoUrl" :alt="evt.name + ' logo'" class="featured-event-logo"
+                    <img v-if="evt.logo" :src="evt.logo" :alt="evt.name + ' logo'" class="featured-event-logo"
                       @error="handleLogoError" @load="handleLogoLoad" />
                     <div class="featured-name">{{ evt.name }}</div>
                   </div>

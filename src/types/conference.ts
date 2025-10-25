@@ -8,7 +8,7 @@ export interface IConferenceEvent {
     place_name: string;
     start_time: string;
     end_time: string;
-    logoUrl?: string; // 会议logo URL
+    logo?: string; // 会议logo URL
     website?: string;
     keywords?: IConferenceKey[];
     conference_type: string;
@@ -125,7 +125,7 @@ export interface IPapers {
     conference: IConference
     created_at: string;
     updated_at: string;
-    session: ISession[]
+    session: ISession
 }
 
 export interface Ivideo {
