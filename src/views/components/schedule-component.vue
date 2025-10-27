@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { IScheduleEvent } from '@/types/schedule.ts';
 import { useScheduleStore } from '@/stores/schedule.ts';
-
 // 定义事件接口
 const scheduleStore = useScheduleStore();
 
-scheduleStore.fetchScheduleData();
+// 在组件挂载时获取数据
+onMounted(async () => {
+  await scheduleStore.fetchScheduleData();
+  // 初始化时加载所有事件
+  loadEvents();
+  // 监听存储变化
+  window.addEventListener('storage', handleStorageChange);
+  window.addEventListener('scheduleUpdated', handleStorageChange);
+});
 
 // 新事件表单接口
 interface INewEventForm {
@@ -20,7 +27,6 @@ interface INewEventForm {
   customColor: string;
 }
 
-// Props
 interface Props {
   visible: boolean;
   initialEvent?: Partial<IScheduleEvent>; // 从my_events传入的初始事件数据
@@ -30,22 +36,55 @@ const props = withDefaults(defineProps<Props>(), {
   visible: false,
   initialEvent: undefined,
 });
-
-// Emits
 const emit = defineEmits<{
   close: [];
   save: [event: IScheduleEvent];
 }>();
-
-// 响应式数据
 const selectedDate = ref(new Date());
 const calendarEvents = computed(() => {
-  return scheduleStore.conferenceEvents;
+  const exampleData = [
+    {
+      id: '3',
+      title: 'CVPR',
+      date: '2025-10-28',
+      time: '09:30',
+      location: 'Macau A201, Casia',
+      description: 'Happy Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing',
+      type: 'session',
+      customColor: null,
+      isUserSession: true,
+    },
+    {
+      id: '5',
+      title: 'ICML 2025',
+      date: '2025-10-30',
+      time: '10:00',
+      location: '会议中心A栋301室',
+      description: '机器学习前沿技术专题（更新版）',
+      type: 'session',
+      customColor: null,
+      isUserSession: true,
+    },
+    {
+      id: '6',
+      title: '同样地逐步拉书挡哈哈',
+      date: '2025-10-31',
+      time: '10:30',
+      location: null,
+      description: '队或月这其值较热用研。通地定团局候。己也至一算代联立。与活准斯此道史也身。',
+      type: 'custom',
+      customColor: null,
+      isUserSession: false,
+    },
+  ];
+  // return scheduleStore.conferenceEvents || exampleData;
+  return exampleData;
 });
+const allCalendarEvents = ref<IScheduleEvent[]>([]);
 
+console.log(`calendarEvents=>`, calendarEvents.value);
 // 移动端UI状态
 const showAddEventForm = ref(false);
-
 // 新事件表单
 const newEvent = ref<INewEventForm>({
   title: '',
@@ -145,8 +184,7 @@ const closeModal = () => {
 };
 
 const getEventsForDate = (dateStr: string) => {
-  const events = calendarEvents.value.filter((event) => event.date === dateStr);
-  return events;
+  return calendarEvents.value.filter((event) => event.date === dateStr);
 };
 
 const isToday = (dateStr: string) => {
@@ -156,11 +194,9 @@ const isToday = (dateStr: string) => {
 
 const addEvent = () => {
   if (!canAddEvent.value) return;
-
   // 确保日期和时间是正确的格式
   const dateValue = newEvent.value.date instanceof Date ? newEvent.value.date : new Date(newEvent.value.date);
   const timeValue = newEvent.value.time instanceof Date ? newEvent.value.time : new Date(`1970-01-01T${newEvent.value.time}:00`);
-
   // 使用统一的日期格式化函数
   const formattedDate = formatLocalDate(dateValue);
   const event: IScheduleEvent = {
@@ -174,17 +210,14 @@ const addEvent = () => {
     customColor: newEvent.value.type === 'custom' || newEvent.value.type === 'session' ? newEvent.value.customColor : undefined,
     isUserSession: newEvent.value.type === 'session',
   };
-
-  calendarEvents.value.push(event);
+  // TODO 这里调用修改接口 而不是直接在前端push一个值
+  // calendarEvents.value.push(event);
   emit('save', event);
-
   ElMessage.success('Event added successfully!');
   resetNewEvent();
-
   // 切换到新添加事件的日期
   const [year, month, day] = event.date.split('-').map(Number);
   selectedDate.value = new Date(year, month - 1, day);
-
   // 触发自定义事件，通知其他组件更新
   window.dispatchEvent(new CustomEvent('scheduleUpdated'));
 };
@@ -195,12 +228,12 @@ const removeEvent = (eventId: string) => {
     ElMessage.warning('Cannot remove default conference events!');
     return;
   }
-
-  const index = calendarEvents.value.findIndex((event) => event.id === eventId);
-  if (index > -1) {
-    calendarEvents.value.splice(index, 1);
-    ElMessage.success('Event removed successfully!');
-  }
+  // TODO 这里同理 应该调用删除接口 而不是前端直接写死
+  // const index = calendarEvents.value.findIndex((event) => event.id === eventId);
+  // if (index > -1) {
+  //   calendarEvents.value.splice(index, 1);
+  //   ElMessage.success('Event removed successfully!');
+  // }
 };
 
 const resetNewEvent = () => {
@@ -223,9 +256,6 @@ const formatTime = (time: Date) => {
   });
 };
 
-// 写死的会议日程数据
-const defaultConferenceEvents: IScheduleEvent[] = [];
-
 // 从localStorage加载用户个人事件
 const loadUserEvents = () => {
   try {
@@ -242,19 +272,15 @@ const loadEvents = () => {
   try {
     // 加载用户个人日程
     const userEvents = loadUserEvents();
-
     // 合并所有事件：默认会议事件 + 用户事件 + 当前组件中的事件
-    const allEvents = [...defaultConferenceEvents, ...userEvents, ...calendarEvents.value.filter((event) => !event.id.startsWith('default-conf-'))];
-
+    const allEvents = [...userEvents, ...calendarEvents.value.filter((event) => !event.id.startsWith('default-conf-'))];
     // 去重：基于事件ID去重
-    const uniqueEvents = allEvents.reduce((acc, event) => {
+    allCalendarEvents.value = allEvents.reduce((acc, event) => {
       if (!acc.find((e: IScheduleEvent) => e.id === event.id)) {
         acc.push(event);
       }
       return acc;
     }, [] as IScheduleEvent[]);
-
-    calendarEvents.value = uniqueEvents;
   } catch (error) {
     console.error('Failed to load events:', error);
   }
@@ -330,26 +356,16 @@ const getEventStyle = (event: IScheduleEvent) => {
       color: '#92400e',
     };
   }
-
-  return {};
+  // 如果是自定义样式 并且没有自定义颜色的话 就默认显示黑色
+  return {
+    backgroundColor: 'black',
+  };
 };
 
 // 监听 localStorage 变化
 const handleStorageChange = () => {
   loadEvents();
 };
-
-onMounted(() => {
-  // 初始化时加载所有事件
-  loadEvents();
-
-  // 调试：打印当前事件数据
-  console.log('Calendar Events:', calendarEvents.value);
-
-  // 监听存储变化
-  window.addEventListener('storage', handleStorageChange);
-  window.addEventListener('scheduleUpdated', handleStorageChange);
-});
 </script>
 
 <style scoped>

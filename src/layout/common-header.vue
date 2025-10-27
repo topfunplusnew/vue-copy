@@ -122,7 +122,7 @@ const handleHistoryLoad = (conversationId: number) => {
 };
 
 // 处理日历事件保存
-const handleScheduleSave = (event: any) => {
+const handleScheduleSave = (event: unknown) => {
   console.log('Schedule event saved:', event);
   showScheduleModal.value = false;
   ElMessage.success('Event added to schedule successfully!');

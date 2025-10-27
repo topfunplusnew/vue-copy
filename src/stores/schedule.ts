@@ -13,11 +13,16 @@ export const useScheduleStore = defineStore('schedule', () => {
       ElMessage.error('failed to get schedule data');
       return;
     }
-    conferenceEvents.value = response.data;
+    conferenceEvents.value = response.data.items || [];
+  }
+
+  function updateScheduleData(scheduleData: IScheduleEvent) {
+    console.log(scheduleData);
   }
 
   return {
     conferenceEvents,
     fetchScheduleData,
+    updateScheduleData,
   };
 });
