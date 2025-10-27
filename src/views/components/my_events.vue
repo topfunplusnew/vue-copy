@@ -5,6 +5,9 @@ import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
 import { UploadVideo } from '@/services/api';
+import { validConfig } from '@/utils/configValidUtils.ts';
+import { getFileIcon } from '@/constants/file';
+
 type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 
 const activeTab = ref<TabKey>('details');
@@ -13,22 +16,22 @@ const videoInput = ref<HTMLInputElement>();
 const slidesInput = ref<HTMLInputElement>();
 const posterInput = ref<HTMLInputElement>();
 const additionalInput = ref<HTMLInputElement>();
-const story = useConferenceStore();
-
+const conferenceStore = useConferenceStore();
+const videoConsent = ref(false);
+const videoFile = ref<File | null>(null);
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
-story.getMyPapers(2);
+
+conferenceStore.getMyPapers(2);
 // 获取论文内容
-const eventMeta = computed(() => story.myPapers);
+const eventMeta = computed(() => conferenceStore.myPapers);
 // 获取机构列表 - 按作者顺序合并去重并重新编号
 const affiliations = computed(() => {
   if (!eventMeta.value?.authors) return [];
-
   // 按作者的order属性排序
   const sortedAuthors = [...eventMeta.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
-
   // 收集所有机构，记录作者ID和原始机构ID
   const allAffiliations: Array<{
     authorId: number;
@@ -44,13 +47,13 @@ const affiliations = computed(() => {
     };
   }> = [];
 
-  sortedAuthors.forEach(author => {
+  sortedAuthors.forEach((author) => {
     if (author.affiliations && author.affiliations.length > 0) {
-      author.affiliations.forEach(affiliation => {
+      author.affiliations.forEach((affiliation) => {
         allAffiliations.push({
           authorId: author.id,
           originalAffiliationId: affiliation.id,
-          affiliation: affiliation
+          affiliation: affiliation,
         });
       });
     }
@@ -70,7 +73,7 @@ const affiliations = computed(() => {
   }> = [];
 
   let newId = 1;
-  allAffiliations.forEach(item => {
+  allAffiliations.forEach((item) => {
     if (!uniqueAffiliations.has(item.originalAffiliationId)) {
       const newAffiliation = {
         id: newId++,
@@ -80,7 +83,7 @@ const affiliations = computed(() => {
         university: item.affiliation.university,
         city: item.affiliation.city,
         state: item.affiliation.state,
-        country: item.affiliation.country
+        country: item.affiliation.country,
       };
       uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
       affiliationList.push(newAffiliation);
@@ -89,11 +92,13 @@ const affiliations = computed(() => {
 
   return affiliationList;
 });
+
 // 根据机构原始ID获取新的编号
 function getAffiliationNumber(originalId: number): number {
-  const affiliation = affiliations.value.find(aff => aff.originalId === originalId);
+  const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
   return affiliation ? affiliation.id : 0;
 }
+
 const detailsForm = reactive({
   doi: '',
   abstract: '',
@@ -116,15 +121,21 @@ function onUploadGraphicalAbstract(e: Event) {
   detailsForm.graphicalAbstractPreview = url;
 }
 
-const videoConsent = ref(false);
-const videoFile = ref<File | null>(null);
+// 视频的地址 proxy会自动处理
 const videoSrc = computed(() => {
-  if (!videoFile.value) return '';
-  try {
-    return URL.createObjectURL(videoFile.value);
-  } catch {
+  validConfig();
+  if (!eventMeta.value || !eventMeta.value?.video) {
     return '';
   }
+  return import.meta.env.IPG_IMAGE_URL + eventMeta.value?.video;
+});
+// pdf的地址
+const pdfSrc = computed(() => {
+  validConfig();
+  if (!eventMeta.value || !eventMeta.value?.slide) {
+    return '';
+  }
+  return import.meta.env.IPG_IMAGE_URL + eventMeta.value?.slide;
 });
 
 async function onUploadVideo(e: Event, file_type = 'video') {
@@ -142,8 +153,7 @@ async function onUploadVideo(e: Event, file_type = 'video') {
   formData.append('file', file);
 
   try {
-    const res = await UploadVideo(formData);
-    return res;
+    return await UploadVideo(formData);
   } catch {
     ElMessage.error('上传失败');
   }
@@ -171,32 +181,112 @@ function removeSlides() {
 }
 
 const posterFile = ref<File | null>(null);
+const posterFiles = ref<Array<{file: File, uploaded: boolean, url?: string}>>([]);
 
-function onUploadPoster(e: Event) {
+// 从API数据获取poster文件列表
+const apiPosterFiles = computed(() => {
+  if (!eventMeta.value?.poster) return [];
+  return [{
+    file: { name: eventMeta.value.poster.split('/').pop() || 'poster', size: 0 } as File,
+    uploaded: true,
+    url: import.meta.env.IPG_IMAGE_URL + eventMeta.value.poster
+  }];
+});
+
+// 从API数据获取additional文件列表
+const apiAdditionalFiles = computed(() => {
+  if (!eventMeta.value?.addition_files || !Array.isArray(eventMeta.value.addition_files)) return [];
+  return eventMeta.value.addition_files.map((filePath: string) => ({
+    file: { name: filePath.split('/').pop() || 'file', size: 0 } as File,
+    uploaded: true,
+    url: import.meta.env.IPG_IMAGE_URL + filePath
+  }));
+});
+
+async function onUploadPoster(e: Event) {
   const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
-    ElMessage.error('Poster must be a single-page PDF up to 10MB.');
-    return;
+  const files = input.files;
+  if (!files || files.length === 0) return;
+  
+  for (const file of Array.from(files)) {
+    if (file.size > 10 * 1024 * 1024) {
+      ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
+      continue;
+    }
+    
+    const formData = new FormData();
+    formData.append('paper_id', '2');
+    formData.append('file_type', 'poster');
+    formData.append('file', file);
+    
+    try {
+      const response = await UploadVideo(formData);
+      posterFiles.value.push({
+        file: file,
+        uploaded: true,
+        url: response.data?.url || ''
+      });
+      ElMessage.success(`${file.name} uploaded successfully!`);
+    } catch {
+      posterFiles.value.push({
+        file: file,
+        uploaded: false
+      });
+      ElMessage.error(`Failed to upload ${file.name}`);
+    }
   }
-  posterFile.value = file;
+  
+  // 清空input
+  input.value = '';
 }
 
-function removePoster() {
-  posterFile.value = null;
+function removePoster(index: number) {
+  posterFiles.value.splice(index, 1);
 }
 
-const additionalFiles = ref<File[]>([]);
+const additionalFiles = ref<Array<{file: File, uploaded: boolean, url?: string}>>([]);
 
-function onUploadAdditional(e: Event) {
+async function onUploadAdditional(e: Event) {
   const input = e.target as HTMLInputElement;
-  additionalFiles.value = input.files ? Array.from(input.files) : [];
+  const files = input.files;
+  if (!files || files.length === 0) return;
+  
+  for (const file of Array.from(files)) {
+    if (file.size > 10 * 1024 * 1024) {
+      ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
+      continue;
+    }
+    
+    const formData = new FormData();
+    formData.append('paper_id', '2');
+    formData.append('file_type', 'additional');
+    formData.append('file', file);
+    
+    try {
+      const response = await UploadVideo(formData);
+      additionalFiles.value.push({
+        file: file,
+        uploaded: true,
+        url: response.data?.url || ''
+      });
+      ElMessage.success(`${file.name} uploaded successfully!`);
+    } catch {
+      additionalFiles.value.push({
+        file: file,
+        uploaded: false
+      });
+      ElMessage.error(`Failed to upload ${file.name}`);
+    }
+  }
+  
+  // 清空input
+  input.value = '';
 }
 
 function clearAdditional() {
   additionalFiles.value = [];
 }
+
 
 function saveDetails() {
   ElMessage.success('Details saved successfully!');
@@ -381,7 +471,10 @@ function parseUserSessionDate(): string | null {
             <div class="authors">
               <div v-if="eventMeta?.authors?.length" class="authors-list">
                 <span class="author-name" v-for="(author, authorIndex) in eventMeta.authors" :key="authorIndex">
-                  {{ author.name }}<template v-if="author?.affiliations?.length"><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template><span v-if="authorIndex < eventMeta.authors.length - 1">, </span>
+                  {{ author.name
+                  }}<template v-if="author?.affiliations?.length"
+                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
+                  ><span v-if="authorIndex < eventMeta.authors.length - 1">, </span>
                 </span>
               </div>
               <!-- 当论文作者为空的时候 渲染一个空状态 -->
@@ -393,7 +486,9 @@ function parseUserSessionDate(): string | null {
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : '' }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                  <sup>{{ affiliation.id }}</sup
+                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
                 </div>
               </div>
               <!-- 当机构列表为空的时候，渲染一个空状态 -->
@@ -468,7 +563,7 @@ function parseUserSessionDate(): string | null {
             </div>
           </div>
         </div>
-
+        <!--        如果左侧选择了视频-->
         <div v-else-if="activeTab === 'video'" class="tab-content">
           <div class="video-upload">
             <label class="checkbox">
@@ -507,36 +602,44 @@ function parseUserSessionDate(): string | null {
           <div class="pdf-preview" v-if="slidesFile">
             <div class="pdf-preview-header">
               <span class="pdf-title">{{ slidesFile.name }}</span>
-              <button @click="openPdfModal('slides')" class="preview-btn">Preview PDF</button>
+              <button @click="openPdfModal('slides')" class="preview-btn">Full Screen</button>
             </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('slides')">
-              <div class="pdf-icon">📄</div>
-              <div class="pdf-info">Click to preview PDF</div>
+            <div class="pdf-viewer-container">
+              <iframe :src="pdfSrc" class="pdf-viewer-iframe" frameborder="0"></iframe>
             </div>
           </div>
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
-          <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
-          <div class="file-row" v-if="posterFile">
-            <div class="file-info">
-              <div class="file-icon">🖼️</div>
-              <div class="file-details">
-                <div class="file-name">{{ posterFile.name }}</div>
-                <div class="file-size">{{ (posterFile.size / 1024 / 1024).toFixed(2) }} MB</div>
+          <input ref="posterInput" type="file" multiple @change="onUploadPoster" style="display: none" />
+          <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster Files</button>
+          
+          <div class="file-list" v-if="apiPosterFiles.length || posterFiles.length">
+            <!-- 显示API数据中的poster文件 -->
+            <div class="file-row" v-for="(fileItem, index) in apiPosterFiles" :key="'api-' + index">
+              <div class="file-info">
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
+                <div class="file-details">
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">API File</div>
+                  <div class="file-status uploaded">✓ From Server</div>
+                </div>
               </div>
+              <a :href="fileItem.url" target="_blank" class="download-btn">Download</a>
             </div>
-            <button @click="removePoster" class="remove-btn">Remove</button>
-          </div>
-          <div class="pdf-preview" v-if="posterFile">
-            <div class="pdf-preview-header">
-              <span class="pdf-title">{{ posterFile.name }}</span>
-              <button @click="openPdfModal('poster')" class="preview-btn">Preview PDF</button>
-            </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('poster')">
-              <div class="pdf-icon">🖼️</div>
-              <div class="pdf-info">Click to preview poster</div>
+            <!-- 显示新上传的文件 -->
+            <div class="file-row" v-for="(fileItem, index) in posterFiles" :key="'new-' + index">
+              <div class="file-info">
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
+                <div class="file-details">
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
+                  <div class="file-status" :class="{ 'uploaded': fileItem.uploaded, 'failed': !fileItem.uploaded }">
+                    {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
+                  </div>
+                </div>
+              </div>
+              <button @click="removePoster(index)" class="remove-btn">Remove</button>
             </div>
           </div>
         </div>
@@ -544,16 +647,32 @@ function parseUserSessionDate(): string | null {
         <div v-else-if="activeTab === 'additional'" class="tab-content">
           <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
           <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
-          <div class="file-list" v-if="additionalFiles.length">
-            <div class="file-row" v-for="(f, i) in additionalFiles" :key="i">
+          <div class="file-list" v-if="apiAdditionalFiles.length || additionalFiles.length">
+            <!-- 显示API数据中的additional文件 -->
+            <div class="file-row" v-for="(fileItem, index) in apiAdditionalFiles" :key="'api-' + index">
               <div class="file-info">
-                <div class="file-icon">📎</div>
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
                 <div class="file-details">
-                  <div class="file-name">{{ f.name }}</div>
-                  <div class="file-size">{{ (f.size / 1024 / 1024).toFixed(2) }} MB</div>
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">API File</div>
+                  <div class="file-status uploaded">✓ From Server</div>
                 </div>
               </div>
-              <button @click="additionalFiles.splice(i, 1)" class="remove-btn">Remove</button>
+              <a :href="fileItem.url" target="_blank" class="download-btn">Download</a>
+            </div>
+            <!-- 显示新上传的文件 -->
+            <div class="file-row" v-for="(fileItem, index) in additionalFiles" :key="'new-' + index">
+              <div class="file-info">
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
+                <div class="file-details">
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
+                  <div class="file-status" :class="{ 'uploaded': fileItem.uploaded, 'failed': !fileItem.uploaded }">
+                    {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
+                  </div>
+                </div>
+              </div>
+              <button @click="additionalFiles.splice(index, 1)" class="remove-btn">Remove</button>
             </div>
             <button @click="clearAdditional" class="clear-btn">Clear All</button>
           </div>
@@ -578,12 +697,14 @@ function parseUserSessionDate(): string | null {
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!posterFile }">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some(f => f.uploaded)) }">
+                  {{ apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some(f => f.uploaded)) ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: additionalFiles.length > 0 }">
-                  {{ additionalFiles.length > 0 ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some(f => f.uploaded)) }">
+                  {{ apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some(f => f.uploaded)) ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>

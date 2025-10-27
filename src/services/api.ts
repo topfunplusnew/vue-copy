@@ -4,7 +4,6 @@ import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
 import type { IRequest } from '@/types/service';
-import type { Ivideo } from '@/types/conference'
 import type {
   IPlanCreateReq,
   IPlanUpdateReq,

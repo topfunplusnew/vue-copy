@@ -3,18 +3,6 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { IScheduleEvent } from '@/types/schedule.ts';
 import { useScheduleStore } from '@/stores/schedule.ts';
-// 定义事件接口
-const scheduleStore = useScheduleStore();
-
-// 在组件挂载时获取数据
-onMounted(async () => {
-  await scheduleStore.fetchScheduleData();
-  // 初始化时加载所有事件
-  loadEvents();
-  // 监听存储变化
-  window.addEventListener('storage', handleStorageChange);
-  window.addEventListener('scheduleUpdated', handleStorageChange);
-});
 
 // 新事件表单接口
 interface INewEventForm {
@@ -32,6 +20,18 @@ interface Props {
   initialEvent?: Partial<IScheduleEvent>; // 从my_events传入的初始事件数据
 }
 
+// 定义事件接口
+const scheduleStore = useScheduleStore();
+// 在组件挂载时获取数据
+onMounted(async () => {
+  await scheduleStore.fetchScheduleData();
+  // 初始化时加载所有事件
+  loadEvents();
+  // 监听存储变化
+  window.addEventListener('storage', handleStorageChange);
+  window.addEventListener('scheduleUpdated', handleStorageChange);
+});
+
 const props = withDefaults(defineProps<Props>(), {
   visible: false,
   initialEvent: undefined,
@@ -42,43 +42,7 @@ const emit = defineEmits<{
 }>();
 const selectedDate = ref(new Date());
 const calendarEvents = computed(() => {
-  const exampleData = [
-    {
-      id: '3',
-      title: 'CVPR',
-      date: '2025-10-28',
-      time: '09:30',
-      location: 'Macau A201, Casia',
-      description: 'Happy Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing',
-      type: 'session',
-      customColor: null,
-      isUserSession: true,
-    },
-    {
-      id: '5',
-      title: 'ICML 2025',
-      date: '2025-10-30',
-      time: '10:00',
-      location: '会议中心A栋301室',
-      description: '机器学习前沿技术专题（更新版）',
-      type: 'session',
-      customColor: null,
-      isUserSession: true,
-    },
-    {
-      id: '6',
-      title: '同样地逐步拉书挡哈哈',
-      date: '2025-10-31',
-      time: '10:30',
-      location: null,
-      description: '队或月这其值较热用研。通地定团局候。己也至一算代联立。与活准斯此道史也身。',
-      type: 'custom',
-      customColor: null,
-      isUserSession: false,
-    },
-  ];
-  return scheduleStore.conferenceEvents || exampleData;
-  // return exampleData;
+  return scheduleStore.conferenceEvents;
 });
 const allCalendarEvents = ref<IScheduleEvent[]>([]);
 

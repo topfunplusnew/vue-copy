@@ -96,12 +96,22 @@ export interface IMyPapers {
   session_name: string;
 }
 
+export interface IAffiliation {
+  id: number;
+  name: string;
+  department?: string;
+  university?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+}
+
 export interface IAuthor {
   id: number;
   name: string;
   order: number;
   is_corresponding: boolean;
-  affiliations: any[];
+  affiliations: IAffiliation[];
 }
 
 export interface IConference {
@@ -140,6 +150,11 @@ export interface IPapers {
   created_at: string;
   updated_at: string;
   session: ISession[];
+  video: string | null;
+  slide: string | null;
+  graphic_abstract: string | null;
+  poster?: string | null;
+  addition_files?: string[];
 }
 
 export interface Ivideo {
