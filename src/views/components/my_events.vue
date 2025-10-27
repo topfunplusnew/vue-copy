@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useRoute } from 'vue-router';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
@@ -16,6 +17,7 @@ const videoInput = ref<HTMLInputElement>();
 const slidesInput = ref<HTMLInputElement>();
 const posterInput = ref<HTMLInputElement>();
 const additionalInput = ref<HTMLInputElement>();
+const route = useRoute();
 const conferenceStore = useConferenceStore();
 const videoConsent = ref(false);
 const videoFile = ref<File | null>(null);
@@ -24,7 +26,15 @@ function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
 
-conferenceStore.getMyPapers(2);
+// 从路由参数获取conferenceId
+const paperId = computed(() => {
+  // const id = route.params.paperId;
+  // return typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 2;
+  // TODO 暂时写死了
+  return 2;
+});
+
+conferenceStore.getMyPapers(paperId.value);
 // 获取论文内容
 const eventMeta = computed(() => conferenceStore.myPapers);
 // 获取机构列表 - 按作者顺序合并去重并重新编号
@@ -148,7 +158,7 @@ async function onUploadVideo(e: Event, file_type = 'video') {
   }
   videoFile.value = file;
   const formData = new FormData();
-  formData.append('paper_id', '2');
+  formData.append('paper_id', paperId.value.toString());
   formData.append('file_type', file_type);
   formData.append('file', file);
 
@@ -181,16 +191,18 @@ function removeSlides() {
 }
 
 const posterFile = ref<File | null>(null);
-const posterFiles = ref<Array<{file: File, uploaded: boolean, url?: string}>>([]);
+const posterFiles = ref<Array<{ file: File; uploaded: boolean; url?: string }>>([]);
 
 // 从API数据获取poster文件列表
 const apiPosterFiles = computed(() => {
   if (!eventMeta.value?.poster) return [];
-  return [{
-    file: { name: eventMeta.value.poster.split('/').pop() || 'poster', size: 0 } as File,
-    uploaded: true,
-    url: import.meta.env.IPG_IMAGE_URL + eventMeta.value.poster
-  }];
+  return [
+    {
+      file: { name: eventMeta.value.poster.split('/').pop() || 'poster', size: 0 } as File,
+      uploaded: true,
+      url: import.meta.env.IPG_IMAGE_URL + eventMeta.value.poster,
+    },
+  ];
 });
 
 // 从API数据获取additional文件列表
@@ -199,7 +211,7 @@ const apiAdditionalFiles = computed(() => {
   return eventMeta.value.addition_files.map((filePath: string) => ({
     file: { name: filePath.split('/').pop() || 'file', size: 0 } as File,
     uploaded: true,
-    url: import.meta.env.IPG_IMAGE_URL + filePath
+    url: import.meta.env.IPG_IMAGE_URL + filePath,
   }));
 });
 
@@ -207,35 +219,35 @@ async function onUploadPoster(e: Event) {
   const input = e.target as HTMLInputElement;
   const files = input.files;
   if (!files || files.length === 0) return;
-  
+
   for (const file of Array.from(files)) {
     if (file.size > 10 * 1024 * 1024) {
       ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
       continue;
     }
-    
+
     const formData = new FormData();
-    formData.append('paper_id', '2');
+    formData.append('paper_id', paperId.value.toString());
     formData.append('file_type', 'poster');
     formData.append('file', file);
-    
+
     try {
       const response = await UploadVideo(formData);
       posterFiles.value.push({
         file: file,
         uploaded: true,
-        url: response.data?.url || ''
+        url: response.data?.url || '',
       });
       ElMessage.success(`${file.name} uploaded successfully!`);
     } catch {
       posterFiles.value.push({
         file: file,
-        uploaded: false
+        uploaded: false,
       });
       ElMessage.error(`Failed to upload ${file.name}`);
     }
   }
-  
+
   // 清空input
   input.value = '';
 }
@@ -244,41 +256,41 @@ function removePoster(index: number) {
   posterFiles.value.splice(index, 1);
 }
 
-const additionalFiles = ref<Array<{file: File, uploaded: boolean, url?: string}>>([]);
+const additionalFiles = ref<Array<{ file: File; uploaded: boolean; url?: string }>>([]);
 
 async function onUploadAdditional(e: Event) {
   const input = e.target as HTMLInputElement;
   const files = input.files;
   if (!files || files.length === 0) return;
-  
+
   for (const file of Array.from(files)) {
     if (file.size > 10 * 1024 * 1024) {
       ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
       continue;
     }
-    
+
     const formData = new FormData();
-    formData.append('paper_id', '2');
+    formData.append('paper_id', paperId.value.toString());
     formData.append('file_type', 'additional');
     formData.append('file', file);
-    
+
     try {
       const response = await UploadVideo(formData);
       additionalFiles.value.push({
         file: file,
         uploaded: true,
-        url: response.data?.url || ''
+        url: response.data?.url || '',
       });
       ElMessage.success(`${file.name} uploaded successfully!`);
     } catch {
       additionalFiles.value.push({
         file: file,
-        uploaded: false
+        uploaded: false,
       });
       ElMessage.error(`Failed to upload ${file.name}`);
     }
   }
-  
+
   // 清空input
   input.value = '';
 }
@@ -286,7 +298,6 @@ async function onUploadAdditional(e: Event) {
 function clearAdditional() {
   additionalFiles.value = [];
 }
-
 
 function saveDetails() {
   ElMessage.success('Details saved successfully!');
@@ -427,107 +438,121 @@ function parseUserSessionDate(): string | null {
 
       <section class="right-panel">
         <header class="event-header">
-          <div class="conference-header">
-            <div class="logo" v-if="eventMeta?.conference.logo">
-              <img :src="eventMeta.conference.logo" alt="Conference Logo" />
+          <!--          如果有eventMeta?.conference信息 就正常展示-->
+          <div v-if="eventMeta?.conference">
+            <div class="conference-header">
+              <div class="logo" v-if="eventMeta?.conference.logo">
+                <img :src="eventMeta.conference.logo" alt="Conference Logo" />
+              </div>
+              <div class="conference-info">
+                <div class="conference-name">{{ eventMeta?.conference.abbreviation }}</div>
+                <div class="conference-full-name">{{ eventMeta?.conference.name }}</div>
+                <div class="conference-details">
+                  <div class="detail-row">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ formatRange(eventMeta!.created_at, eventMeta!.updated_at) }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-icon">📍</span>
+                    <span class="detail-text">{{ eventMeta?.conference.city }}, {{ eventMeta?.conference.country }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-icon">🏢</span>
+                    <span class="detail-text">{{ eventMeta?.conference.address }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="conference-info">
-              <div class="conference-name">{{ eventMeta?.conference.abbreviation }}</div>
-              <div class="conference-full-name">{{ eventMeta?.conference.name }}</div>
-              <div class="conference-details">
-                <div class="detail-row">
-                  <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(eventMeta!.created_at, eventMeta!.updated_at) }}</span>
+            <div class="conference-links">
+              <a :href="eventMeta?.conference.website" target="_blank" class="conf-link">
+                <span class="link-icon">🌐</span>
+                Official Website
+              </a>
+              <a :href="eventMeta?.conference.committee_website" target="_blank" class="conf-link">
+                <span class="link-icon">👥</span>
+                Committee
+              </a>
+              <a :href="eventMeta?.conference.registration_website" target="_blank" class="conf-link">
+                <span class="link-icon">📝</span>
+                Registration
+              </a>
+            </div>
+            <div class="meta">
+              <div class="title">{{ eventMeta?.title }}</div>
+              <!-- 渲染论文作者列表以及下标 -->
+              <div class="authors">
+                <div v-if="eventMeta?.authors?.length" class="authors-list">
+                  <span class="author-name" v-for="(author, authorIndex) in eventMeta.authors" :key="authorIndex">
+                    {{ author.name
+                    }}<template v-if="author?.affiliations?.length"
+                      ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
+                    ><span v-if="authorIndex < eventMeta.authors.length - 1">, </span>
+                  </span>
                 </div>
-                <div class="detail-row">
-                  <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ eventMeta?.conference.city }}, {{ eventMeta?.conference.country }}</span>
+                <!-- 当论文作者为空的时候 渲染一个空状态 -->
+                <div v-else class="empty-state">
+                  <div class="empty-text">No authors information available</div>
                 </div>
-                <div class="detail-row">
-                  <span class="detail-icon">🏢</span>
-                  <span class="detail-text">{{ eventMeta?.conference.address }}</span>
+              </div>
+              <!-- 渲染机构列表以及下标 -->
+              <div class="affiliations">
+                <div v-if="affiliations.length" class="affiliations-list">
+                  <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
+                    <sup>{{ affiliation.id }}</sup
+                    >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                    }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                  </div>
                 </div>
+                <!-- 当机构列表为空的时候，渲染一个空状态 -->
+                <div v-else class="empty-state">
+                  <div class="empty-text">No affiliation information available</div>
+                </div>
+              </div>
+              <div class="session-notice">
+                <div class="session-header">
+                  <div class="notice-title">Important Conference Schedule</div>
+                </div>
+                <div class="session-content">
+                  <div class="schedule-details">
+                    <div class="schedule-row">
+                      <span class="schedule-label">📅 Date:</span>
+                      <span class="schedule-value">{{ sessionInfo.dateDisplay }}</span>
+                    </div>
+                    <div class="schedule-row">
+                      <span class="schedule-label">🏢 Room:</span>
+                      <span class="schedule-value">{{ sessionInfo.room }}</span>
+                    </div>
+                    <div class="schedule-row">
+                      <span class="schedule-label">🎯 Session:</span>
+                      <span class="schedule-value">{{ sessionInfo.session }}</span>
+                    </div>
+                    <div class="schedule-row">
+                      <span class="schedule-label">📄 Paper ID:</span>
+                      <span class="schedule-value">{{ sessionInfo.paperID }}</span>
+                    </div>
+                  </div>
+                  <button class="schedule-action-btn" @click="addToSchedule">
+                    <span class="btn-icon">📌</span>
+                    Add to My Schedule
+                  </button>
+                </div>
+              </div>
+              <div class="dates">
+                Date Created: {{ eventMeta?.conference.start_time }} · Date Edited:
+                {{ eventMeta?.conference.end_time }}
               </div>
             </div>
           </div>
-          <div class="conference-links">
-            <a :href="eventMeta?.conference.website" target="_blank" class="conf-link">
-              <span class="link-icon">🌐</span>
-              Official Website
-            </a>
-            <a :href="eventMeta?.conference.committee_website" target="_blank" class="conf-link">
-              <span class="link-icon">👥</span>
-              Committee
-            </a>
-            <a :href="eventMeta?.conference.registration_website" target="_blank" class="conf-link">
-              <span class="link-icon">📝</span>
-              Registration
-            </a>
-          </div>
-          <div class="meta">
-            <div class="title">{{ eventMeta?.title }}</div>
-
-            <!-- 渲染论文作者列表以及下标 -->
-            <div class="authors">
-              <div v-if="eventMeta?.authors?.length" class="authors-list">
-                <span class="author-name" v-for="(author, authorIndex) in eventMeta.authors" :key="authorIndex">
-                  {{ author.name
-                  }}<template v-if="author?.affiliations?.length"
-                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
-                  ><span v-if="authorIndex < eventMeta.authors.length - 1">, </span>
-                </span>
-              </div>
-              <!-- 当论文作者为空的时候 渲染一个空状态 -->
-              <div v-else class="empty-state">
-                <div class="empty-text">No authors information available</div>
-              </div>
-            </div>
-            <!-- 渲染机构列表以及下标 -->
-            <div class="affiliations">
-              <div v-if="affiliations.length" class="affiliations-list">
-                <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup
-                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
-                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
-                </div>
-              </div>
-              <!-- 当机构列表为空的时候，渲染一个空状态 -->
-              <div v-else class="empty-state">
-                <div class="empty-text">No affiliation information available</div>
-              </div>
-            </div>
-            <div class="session-notice">
-              <div class="session-header">
-                <div class="notice-title">Important Conference Schedule</div>
-              </div>
-              <div class="session-content">
-                <div class="schedule-details">
-                  <div class="schedule-row">
-                    <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">{{ sessionInfo.dateDisplay }}</span>
-                  </div>
-                  <div class="schedule-row">
-                    <span class="schedule-label">🏢 Room:</span>
-                    <span class="schedule-value">{{ sessionInfo.room }}</span>
-                  </div>
-                  <div class="schedule-row">
-                    <span class="schedule-label">🎯 Session:</span>
-                    <span class="schedule-value">{{ sessionInfo.session }}</span>
-                  </div>
-                  <div class="schedule-row">
-                    <span class="schedule-label">📄 Paper ID:</span>
-                    <span class="schedule-value">{{ sessionInfo.paperID }}</span>
-                  </div>
-                </div>
-                <button class="schedule-action-btn" @click="addToSchedule">
-                  <span class="btn-icon">📌</span>
-                  Add to My Schedule
-                </button>
-              </div>
-            </div>
-            <div class="dates">
-              Date Created: {{ eventMeta?.conference.start_time }} · Date Edited:
-              {{ eventMeta?.conference.end_time }}
+          <!--          没有eventMeta?.conference信息的时候 渲染一个空状态-->
+          <div v-else class="empty-conference-state">
+            <div class="empty-content">
+              <div class="empty-icon">📋</div>
+              <div class="empty-title">No Paper Data</div>
+              <div class="empty-description">Unable to load Paper information. Please try refreshing the page.</div>
+              <button @click="() => conferenceStore.getMyPapers(paperId)" class="retry-btn">
+                <span class="btn-icon">🔄</span>
+                Retry
+              </button>
             </div>
           </div>
         </header>
@@ -613,7 +638,7 @@ function parseUserSessionDate(): string | null {
         <div v-else-if="activeTab === 'poster'" class="tab-content">
           <input ref="posterInput" type="file" multiple @change="onUploadPoster" style="display: none" />
           <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster Files</button>
-          
+
           <div class="file-list" v-if="apiPosterFiles.length || posterFiles.length">
             <!-- 显示API数据中的poster文件 -->
             <div class="file-row" v-for="(fileItem, index) in apiPosterFiles" :key="'api-' + index">
@@ -634,7 +659,7 @@ function parseUserSessionDate(): string | null {
                 <div class="file-details">
                   <div class="file-name">{{ fileItem.file.name }}</div>
                   <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
-                  <div class="file-status" :class="{ 'uploaded': fileItem.uploaded, 'failed': !fileItem.uploaded }">
+                  <div class="file-status" :class="{ uploaded: fileItem.uploaded, failed: !fileItem.uploaded }">
                     {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
                   </div>
                 </div>
@@ -667,7 +692,7 @@ function parseUserSessionDate(): string | null {
                 <div class="file-details">
                   <div class="file-name">{{ fileItem.file.name }}</div>
                   <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
-                  <div class="file-status" :class="{ 'uploaded': fileItem.uploaded, 'failed': !fileItem.uploaded }">
+                  <div class="file-status" :class="{ uploaded: fileItem.uploaded, failed: !fileItem.uploaded }">
                     {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
                   </div>
                 </div>
@@ -697,14 +722,14 @@ function parseUserSessionDate(): string | null {
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some(f => f.uploaded)) }">
-                  {{ apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some(f => f.uploaded)) ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some((f) => f.uploaded)) }">
+                  {{ apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some((f) => f.uploaded)) ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some(f => f.uploaded)) }">
-                  {{ apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some(f => f.uploaded)) ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some((f) => f.uploaded)) }">
+                  {{ apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some((f) => f.uploaded)) ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>

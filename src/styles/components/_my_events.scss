@@ -1381,3 +1381,69 @@ button.withdraw-btn-mobile {
   }
 }
 
+// 空状态样式
+.empty-conference-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  
+  .empty-content {
+    text-align: center;
+    max-width: 400px;
+    
+    .empty-icon {
+      font-size: rpx(60);
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+    
+    .empty-title {
+      font-size: rpx(24);
+      font-weight: 600;
+      color: #1a3566;
+      margin-bottom: 8px;
+    }
+    
+    .empty-description {
+      font-size: rpx(18);
+      color: #666;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: rpx(18);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      .btn-icon {
+        font-size: rpx(20);
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, #40a9ff 0%, #69c0ff 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}
+

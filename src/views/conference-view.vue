@@ -351,7 +351,7 @@ const handleLogoLoad = (event: Event) => {
                       v-for="(sub, idx) in currentParticipations.sessions"
                       :key="idx"
                       class="submission-item"
-                      @click="router.push({ name: 'MyEventDetail', params: { conferenceId: currentParticipations.id, paperId: idx } })"
+                      @click="router.push({ name: 'MyEventDetail', params: { conferenceId: currentParticipations.id, paperId: sub.id } })"
                     >
                       <div class="paper-title">{{ sub.session_name }}</div>
                       <div class="authors">

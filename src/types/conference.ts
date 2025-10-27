@@ -16,6 +16,7 @@ export interface IConferenceEvent {
 }
 
 export interface IConferenceSubmission {
+  id: number;
   session_name: string;
   chairperson: string[];
 }
