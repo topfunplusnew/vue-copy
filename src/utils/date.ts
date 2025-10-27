@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 
-export const formatDate = (dateString?:string) => {
+export const formatDate = (dateString?: string) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
@@ -11,7 +11,7 @@ export const formatDate = (dateString?:string) => {
 };
 
 
-export function formatRange(start: string, end?: string): string {
+export function formatRange(start?: string, end?: string): string {
   const s = dayjs(start);
   const e = end ? dayjs(end) : null;
 

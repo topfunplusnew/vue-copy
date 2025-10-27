@@ -211,7 +211,7 @@ export const ConferenceDetails = (id: number | string) => http.get(`/conference/
 export const MyConferences = () => http.get('/my-conferences')
 
 /* 
-详情论文
+我的论文
 */
 export const Mypapers = (id: number) => http.get(`/paper/${id}`)
 

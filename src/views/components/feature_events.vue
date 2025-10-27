@@ -215,7 +215,7 @@ function prevPage() {
             :class="['conference-card', { active: selectedConference?.id === conf.id }]"
             @click="selectConference(conf.id)">
             <div class="card-logo">
-              <img :src="conf.logo" :alt="conf.name" />
+              <img :src="conf.logo" :alt="conf.abbreviation" />
             </div>
             <div class="card-info">
               <div class="card-name">{{ conf.name }}</div>
@@ -232,7 +232,7 @@ function prevPage() {
         <header class="event-header">
           <div class="conference-header">
             <div class="logo">
-              <img :src="selectedConference?.logoUrl" :alt="selectedConference?.name" />
+              <img :src="selectedConference?.logoUrl" :alt="selectedConference?.abbreviation" />
             </div>
             <div class="conference-info">
               <div class="conference-name">{{ selectedConference?.name }}</div>

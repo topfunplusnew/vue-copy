@@ -28,9 +28,6 @@ export const useConferenceStore = defineStore('meet', () => {
     return await MyConferences().then((res) => {
 
       myConference.value = res.data.items
-      console.log(myConference.value);
-      console.log(111111111111111111111111111111111);
-
     })
   }
 

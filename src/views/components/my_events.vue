@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, inject } from 'vue';
+import { ref, reactive, computed, onMounted, inject, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
@@ -7,7 +7,9 @@ import { getImageUrl } from '@/utils';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference'
 import { formatRange } from '@/utils/date'
+import { deepClone } from '@/utils/index'
 import { UploadVideo } from '@/services/api'
+import { IPapersKeyword } from '@/types/conference'
 const route = useRoute();
 const router = useRouter();
 const userStore = useUserStore();
@@ -30,23 +32,43 @@ const activeTab = ref<TabKey>('details');
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
-
-// Mock: load conference & paper meta
 const story = useConferenceStore()
+// Mock: load conference & paper meta
 
-story.getMyPapers(2);
+
+onMounted(() => {
+  story.getMyPapers(2);
+})
+
 
 const eventMeta = computed(() => story.myPapers)
-console.log(eventMeta);
 
 // Details form
-const detailsForm = reactive({
+const detailsForm = computed(() => ({
+  doi: eventMeta.value?.doi ?? '',
+  abstract: eventMeta.value?.abstract ?? '',
+  keywords: eventMeta.value?.keywords ?? [],
+  graphicalAbstractFile: eventMeta.value?.graphic_abstract ?? '',
+  graphicalAbstractPreview: eventMeta.value?.graphic_abstract ?? ''
+}))
+
+const detailFormCopy = reactive({
   doi: '',
   abstract: '',
-  keywords: ['', '', '', '', ''] as string[],
-  graphicalAbstractFile: null as File | null,
-  graphicalAbstractPreview: '' as string,
-});
+  keywords: [],
+  graphicalAbstractFile: '',
+  graphicalAbstractPreview: ''
+})
+
+watch(
+  () => detailsForm.value,
+  (newVal) => {
+    Object.assign(detailFormCopy, deepClone(toRaw(newVal)))
+  },
+  { immediate: true, deep: true }
+)
+
+
 
 function onUploadGraphicalAbstract(e: Event) {
   const input = e.target as HTMLInputElement;
@@ -60,13 +82,14 @@ function onUploadGraphicalAbstract(e: Event) {
     return;
   }
   const url = URL.createObjectURL(file);
-  detailsForm.graphicalAbstractFile = file;
-  detailsForm.graphicalAbstractPreview = url;
+  detailFormCopy.graphicalAbstractFile = file;
+  detailFormCopy.graphicalAbstractPreview = url;
 }
 
 // Video
 const videoConsent = ref(false);
 const videoFile = ref<File | null>(null);
+const videoShow = ref<string | null>(eventMeta.value?.video ?? null)
 const videoSrc = computed(() => {//视频预览
 
   if (!videoFile.value) return '';
@@ -76,6 +99,7 @@ const videoSrc = computed(() => {//视频预览
     return '';
   }
 });
+
 async function onUploadVideo(e: Event, file_type = 'video') {//处理上传逻辑
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -102,6 +126,10 @@ function removeVideo() { videoFile.value = null; }
 
 // Slides (PDF up to 10MB)
 const slidesFile = ref<File | null>(null);
+
+
+
+
 function onUploadSlides(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -238,7 +266,8 @@ function openInNewTab() {
 // }
 
 // 统一的session信息，确保显示和数据的一致性
-const sessionInfo = eventMeta.value?.session
+
+const sessionInfo = computed(() => eventMeta.value?.session)
 
 // Helper function to parse user session date
 // function parseUserSessionDate(): string | null {
@@ -275,97 +304,97 @@ const sessionInfo = eventMeta.value?.session
 // }
 
 // Helper function to parse conference date range
-function parseConferenceDateRange(dateStr: string): { startYear: number, startMonth: number, startDay: number, days: number } | null {
-  // Parse "December 9-15, 2025" to get date range
-  try {
-    const match = dateStr.match(/(\w+)\s+(\d+)-(\d+),\s+(\d+)/);
-    if (match) {
-      const [, month, startDay, endDay, year] = match;
-      const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      const monthIndex = monthNames.indexOf(month);
-      if (monthIndex !== -1) {
-        return {
-          startYear: parseInt(year),
-          startMonth: monthIndex + 1, // 1-based month
-          startDay: parseInt(startDay),
-          days: parseInt(endDay) - parseInt(startDay) + 1
-        };
-      }
-    }
+// function parseConferenceDateRange(dateStr: string): { startYear: number, startMonth: number, startDay: number, days: number } | null {
+//   // Parse "December 9-15, 2025" to get date range
+//   try {
+//     const match = dateStr.match(/(\w+)\s+(\d+)-(\d+),\s+(\d+)/);
+//     if (match) {
+//       const [, month, startDay, endDay, year] = match;
+//       const monthNames = [
+//         'January', 'February', 'March', 'April', 'May', 'June',
+//         'July', 'August', 'September', 'October', 'November', 'December'
+//       ];
+//       const monthIndex = monthNames.indexOf(month);
+//       if (monthIndex !== -1) {
+//         return {
+//           startYear: parseInt(year),
+//           startMonth: monthIndex + 1, // 1-based month
+//           startDay: parseInt(startDay),
+//           days: parseInt(endDay) - parseInt(startDay) + 1
+//         };
+//       }
+//     }
 
-    // Handle single day format like "December 9, 2025"
-    const singleMatch = dateStr.match(/(\w+)\s+(\d+),\s+(\d+)/);
-    if (singleMatch) {
-      const [, month, day, year] = singleMatch;
-      const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      const monthIndex = monthNames.indexOf(month);
-      if (monthIndex !== -1) {
-        return {
-          startYear: parseInt(year),
-          startMonth: monthIndex + 1,
-          startDay: parseInt(day),
-          days: 1
-        };
-      }
-    }
-  } catch (error) {
-    console.error('Error parsing date range:', error);
-  }
+//     // Handle single day format like "December 9, 2025"
+//     const singleMatch = dateStr.match(/(\w+)\s+(\d+),\s+(\d+)/);
+//     if (singleMatch) {
+//       const [, month, day, year] = singleMatch;
+//       const monthNames = [
+//         'January', 'February', 'March', 'April', 'May', 'June',
+//         'July', 'August', 'September', 'October', 'November', 'December'
+//       ];
+//       const monthIndex = monthNames.indexOf(month);
+//       if (monthIndex !== -1) {
+//         return {
+//           startYear: parseInt(year),
+//           startMonth: monthIndex + 1,
+//           startDay: parseInt(day),
+//           days: 1
+//         };
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error parsing date range:', error);
+//   }
 
-  return null;
-}
+//   return null;
+// }
 
 // Helper function to format date object to YYYY-MM-DD string (避免时区问题)
-function formatDateToString(date: Date): string {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+// function formatDateToString(date: Date): string {
+//   const year = date.getFullYear();
+//   const month = (date.getMonth() + 1).toString().padStart(2, '0');
+//   const day = date.getDate().toString().padStart(2, '0');
+//   return `${year}-${month}-${day}`;
+// }
 
 // Helper function to parse conference date string to proper date format
-function parseConferenceDate(dateStr: string): string {
-  // Parse "December 9-15, 2025" to get the start date
-  try {
-    const match = dateStr.match(/(\w+)\s+(\d+)(?:-\d+)?,\s+(\d+)/);
-    if (match) {
-      const [, month, day, year] = match;
-      const monthNames = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-      ];
-      const monthIndex = monthNames.indexOf(month);
-      if (monthIndex !== -1) {
-        // 使用本地时间避免时区问题
-        const parsedYear = parseInt(year);
-        const parsedMonth = monthIndex + 1; // 月份从1开始
-        const parsedDay = parseInt(day);
+// function parseConferenceDate(dateStr: string): string {
+//   // Parse "December 9-15, 2025" to get the start date
+//   try {
+//     const match = dateStr.match(/(\w+)\s+(\d+)(?:-\d+)?,\s+(\d+)/);
+//     if (match) {
+//       const [, month, day, year] = match;
+//       const monthNames = [
+//         'January', 'February', 'March', 'April', 'May', 'June',
+//         'July', 'August', 'September', 'October', 'November', 'December'
+//       ];
+//       const monthIndex = monthNames.indexOf(month);
+//       if (monthIndex !== -1) {
+//         // 使用本地时间避免时区问题
+//         const parsedYear = parseInt(year);
+//         const parsedMonth = monthIndex + 1; // 月份从1开始
+//         const parsedDay = parseInt(day);
 
-        // 手动构建YYYY-MM-DD格式，避免时区转换
-        const yearStr = parsedYear.toString();
-        const monthStr = parsedMonth.toString().padStart(2, '0');
-        const dayStr = parsedDay.toString().padStart(2, '0');
+//         // 手动构建YYYY-MM-DD格式，避免时区转换
+//         const yearStr = parsedYear.toString();
+//         const monthStr = parsedMonth.toString().padStart(2, '0');
+//         const dayStr = parsedDay.toString().padStart(2, '0');
 
-        return `${yearStr}-${monthStr}-${dayStr}`;
-      }
-    }
-  } catch (error) {
-    console.error('Error parsing date:', error);
-  }
+//         return `${yearStr}-${monthStr}-${dayStr}`;
+//       }
+//     }
+//   } catch (error) {
+//     console.error('Error parsing date:', error);
+//   }
 
-  // Fallback to current date if parsing fails
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = (now.getMonth() + 1).toString().padStart(2, '0');
-  const day = now.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+//   // Fallback to current date if parsing fails
+//   const now = new Date();
+//   const year = now.getFullYear();
+//   const month = (now.getMonth() + 1).toString().padStart(2, '0');
+//   const day = now.getDate().toString().padStart(2, '0');
+//   return `${year}-${month}-${day}`;
+// }
 
 </script>
 
@@ -385,7 +414,6 @@ function parseConferenceDate(dateStr: string): string {
           Info</button>
         <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
-
       <section class="right-panel">
         <!-- <header class="user-summary">
           <div class="user-avatar" v-if="user?.avatar">
@@ -404,7 +432,8 @@ function parseConferenceDate(dateStr: string): string {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(eventMeta!.created_at, eventMeta!.updated_at) }}</span>
+                  <span class="detail-text">{{ formatRange(eventMeta?.conference.start_time,
+                    eventMeta?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -454,7 +483,7 @@ function parseConferenceDate(dateStr: string): string {
                 <div class="schedule-details">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">{{ formatRange(sessionInfo!.start_time) }}</span>
+                    <span class="schedule-value">{{ formatRange(sessionInfo?.start_time) }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
@@ -469,10 +498,10 @@ function parseConferenceDate(dateStr: string): string {
                     <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
                   </div>
                 </div>
-                <button class="schedule-action-btn" @click="addToSchedule">
+                <!-- <button class="schedule-action-btn" @click="addToSchedule">
                   <span class="btn-icon">📌</span>
                   Add to My Schedule
-                </button>
+                </button> -->
               </div>
             </div>
             <div class="dates">Date Created: {{ eventMeta?.conference.start_time }} · Date Edited: {{
@@ -485,11 +514,11 @@ function parseConferenceDate(dateStr: string): string {
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
-              <input v-model="detailsForm.doi" placeholder="Enter DOI (e.g., 10.1145/1234567)" />
+              <input v-model="detailFormCopy.doi" :placeholder="`${eventMeta?.doi ?? ''}`" />
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <textarea v-model="detailsForm.abstract" rows="6" placeholder="Enter your abstract..."></textarea>
+              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="eventMeta?.abstract"></textarea>
             </div>
             <div class="form-item">
               <label>Graphical Abstract</label>
@@ -497,16 +526,15 @@ function parseConferenceDate(dateStr: string): string {
                 @change="onUploadGraphicalAbstract" style="display: none" />
               <button @click="graphicalAbstractInput?.click()" class="upload-btn">Upload Image</button>
               <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
-              <div v-if="detailsForm.graphicalAbstractPreview" class="preview">
-                <img :src="detailsForm.graphicalAbstractPreview" alt="Graphical Abstract" />
-                <button @click="detailsForm.graphicalAbstractPreview = ''" class="remove-btn">Remove</button>
+              <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
+                <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" />
+                <button @click="detailFormCopy.graphicalAbstractPreview = ''" class="remove-btn">Remove</button>
               </div>
             </div>
             <div class="form-item full">
               <label>Keywords</label>
               <div class="keywords">
-                <input v-for="(k, i) in detailsForm.keywords" :key="i" v-model="detailsForm.keywords[i]"
-                  placeholder="Keyword" />
+                <input v-for="(k, i) in detailFormCopy?.keywords" :key="i" :placeholder="k.name" />
               </div>
             </div>
             <div class="form-actions">
@@ -533,7 +561,9 @@ function parseConferenceDate(dateStr: string): string {
               </div>
               <button @click="removeVideo" class="remove-btn">Remove</button>
             </div>
-            <video v-if="videoSrc" class="preview-video" controls :src="videoSrc"></video>
+            {{ videoShow }}
+            <video v-if="videoShow || videoSrc" class="preview-video" controls
+              :src="videoSrc ?? videoShow ?? undefined"></video>
           </div>
         </div>
 

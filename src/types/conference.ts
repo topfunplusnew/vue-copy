@@ -1,3 +1,5 @@
+
+
 export interface IConferenceKey {
     id: number;
     name: string;
@@ -5,6 +7,7 @@ export interface IConferenceKey {
 export interface IConferenceEvent {
     id: number;
     name: string;
+    abbreviation: string;
     place_name: string;
     start_time: string;
     end_time: string;
@@ -121,15 +124,28 @@ export interface IPapers {
     title: string;
     abstract: string;
     venue: string;
+    doi: string;
     authors: IAuthor[]
     conference: IConference
     created_at: string;
     updated_at: string;
-    session: ISession
+    session: ISession;
+    url: string;
+    keywords: IPapersKeyword[],
+    graphic_abstract?: string;
+    video?: string;
+    slide?: string;
+    poster?: string;
+    addition_files?: string
 }
 
 export interface Ivideo {
     paper_id: number;
     file_type: string;
     file: File
+}
+export interface IPapersKeyword {
+    id: number,
+    name: string,
+    order: number
 }
