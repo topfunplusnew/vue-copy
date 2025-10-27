@@ -737,11 +737,11 @@ const handleLogoLoad = (event: Event) => {
                 <div class="submission-list">
                   <div v-for="(sub, idx) in cur.my_papers" :key="idx" class="submission-item"
                     @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: idx } })">
-                    <div class="paper-title">{{ sub.session_name }}</div>
+                    <div class="paper-title">{{ sub.paper_title }}</div>
                     <div class="authors">
-                      <!-- <span v-for="(author, i) in sub.chairperson" :key="i" class="author">
-                        {{ author }}<span v-if="i < sub.chairperson.length - 1">, </span>
-                      </span> -->
+                      <span v-for="(author, i) in sub.authors" :key="i" class="author">
+                        {{ author }}<span v-if="i < sub.authors.length - 1">, </span>
+                      </span>
                     </div>
                   </div>
                 </div>

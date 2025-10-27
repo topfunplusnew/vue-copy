@@ -87,6 +87,7 @@ export interface IMyPapers {
     is_accepted: boolean;
     presentation_time: string;
     session_name: string;
+    authors: string[]
 }
 export interface IAuthor {
     id: number;
