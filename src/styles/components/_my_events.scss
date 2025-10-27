@@ -256,6 +256,36 @@
           }
         }
         
+        // 空状态样式 - 当没有作者或机构信息时显示
+        // @author：张明 如有问题 请找我修改
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(248, 250, 252, 0.5);
+          border: 2px dashed rgba(148, 163, 184, 0.3);
+          border-radius: 12px;
+          margin: 8px 0;
+          
+          // 空状态图标
+          .empty-icon {
+            font-size: rpx(32);
+            margin-bottom: 8px;
+            opacity: 0.6;
+          }
+          
+          // 空状态文字
+          .empty-text {
+            font-size: rpx(16);
+            color: #64748b;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.4;
+          }
+        }
+        
         .dates { 
           font-size: rpx(16); 
           color: #64748b; 
