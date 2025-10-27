@@ -77,8 +77,8 @@ const calendarEvents = computed(() => {
       isUserSession: false,
     },
   ];
-  // return scheduleStore.conferenceEvents || exampleData;
-  return exampleData;
+  return scheduleStore.conferenceEvents || exampleData;
+  // return exampleData;
 });
 const allCalendarEvents = ref<IScheduleEvent[]>([]);
 
