@@ -221,3 +221,7 @@ export const Mypapers = (id: number) => http.get(`/paper/${id}`)
 上传
 */
 export const UploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
+
+
+// 获取schedule列表
+export const getScheduleList = () => http.get('/schedule')

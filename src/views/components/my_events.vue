@@ -22,27 +22,76 @@ function setActiveTab(tab: TabKey) {
 story.getMyPapers(2);
 // 获取论文内容
 const eventMeta = computed(() => story.myPapers);
-// 获取机构列表
+// 获取机构列表 - 按作者顺序合并去重并重新编号
 const affiliations = computed(() => {
   if (!eventMeta.value?.authors) return [];
-  const affiliationMap = new Map();
-  let affiliationId = 1;
-  eventMeta.value.authors.forEach(author => {
+
+  // 按作者的order属性排序
+  const sortedAuthors = [...eventMeta.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // 收集所有机构，记录作者ID和原始机构ID
+  const allAffiliations: Array<{
+    authorId: number;
+    originalAffiliationId: number;
+    affiliation: {
+      id: number;
+      name: string;
+      department?: string;
+      university?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+    };
+  }> = [];
+
+  sortedAuthors.forEach(author => {
     if (author.affiliations && author.affiliations.length > 0) {
       author.affiliations.forEach(affiliation => {
-        if (!affiliationMap.has(affiliation.id)) {
-          affiliationMap.set(affiliation.id, {
-            id: affiliationId++,
-            ...affiliation
-          });
-        }
+        allAffiliations.push({
+          authorId: author.id,
+          originalAffiliationId: affiliation.id,
+          affiliation: affiliation
+        });
       });
     }
   });
-  return Array.from(affiliationMap.values());
+
+  // 去重：相同原始机构ID只保留第一次出现的
+  const uniqueAffiliations = new Map();
+  const affiliationList: Array<{
+    id: number;
+    originalId: number;
+    name: string;
+    department?: string;
+    university?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  }> = [];
+
+  let newId = 1;
+  allAffiliations.forEach(item => {
+    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+      const newAffiliation = {
+        id: newId++,
+        originalId: item.originalAffiliationId,
+        name: item.affiliation.name,
+        department: item.affiliation.department,
+        university: item.affiliation.university,
+        city: item.affiliation.city,
+        state: item.affiliation.state,
+        country: item.affiliation.country
+      };
+      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+      affiliationList.push(newAffiliation);
+    }
+  });
+
+  return affiliationList;
 });
-function getAffiliationNumber(affiliationId: number): number {
-  const affiliation = affiliations.value.find(aff => aff.id === affiliationId);
+// 根据机构原始ID获取新的编号
+function getAffiliationNumber(originalId: number): number {
+  const affiliation = affiliations.value.find(aff => aff.originalId === originalId);
   return affiliation ? affiliation.id : 0;
 }
 const detailsForm = reactive({
@@ -205,20 +254,16 @@ function openInNewTab() {
 function addToSchedule() {
   try {
     const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
-
     const userSessionDate = parseUserSessionDate();
-
     if (!userSessionDate) {
       ElMessage.error('Unable to parse session date');
       return;
     }
-
     const existingSession = existingEvents.find((event: { isUserSession?: boolean; type?: string }) => event.isUserSession && event.type === 'session');
     if (existingSession) {
       ElMessage.warning('Your presentation session is already in your schedule!');
       return;
     }
-
     const userSessionEvent = {
       id: `user-session-${Date.now()}`,
       title: `${eventMeta.value?.title} - My Presentation`,
@@ -232,10 +277,8 @@ function addToSchedule() {
       paperID: sessionInfo.paperID,
       customColor: '#ff8c00',
     };
-
     existingEvents.push(userSessionEvent);
     localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
-
     ElMessage.success('Your presentation session added to your schedule!');
   } catch {
     ElMessage.error('Failed to add session to schedule');
@@ -350,7 +393,7 @@ function parseUserSessionDate(): string | null {
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup>{{ affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.university ? ', ' + affiliation.university : '' }}{{ affiliation.city ? ', ' + affiliation.city : '' }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                  <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : '' }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
                 </div>
               </div>
               <!-- 当机构列表为空的时候，渲染一个空状态 -->
