@@ -42,7 +42,7 @@ onMounted(() => {
     editForm.avatar = data.avatar;
   });
   store.getUserBlogList(true);
-  conferencesStory.getMyConference();
+  conferencesStory.getMyConference();//我的会议
   conferencesStory.getConferenceList();
 
 });
