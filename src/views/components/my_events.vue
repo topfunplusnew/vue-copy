@@ -25,6 +25,8 @@ const additionalInput = ref<HTMLInputElement>();
 const conferenceId = computed(() => Number(route.params.conferenceId));
 const paperId = computed(() => Number(route.params.paperId));
 
+
+
 // Left navigation tabs
 type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 const activeTab = ref<TabKey>('details');
