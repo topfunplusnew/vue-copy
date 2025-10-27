@@ -10,7 +10,7 @@ import type {
   IPlanSearchReq,
   IPlaceCreateReq
 } from '@/types/plan';
-
+import type { IModifyPaper } from '@/types/conference'
 /**
  * 用户登录
  * @param credentials 登录信息
@@ -220,3 +220,13 @@ export const Mypapers = (id: number) => http.get(`/paper/${id}`)
 上传
 */
 export const UploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
+
+/* 
+修改我的论文
+*/
+export const putMyPaper = (data: IModifyPaper) => http.put('my-paper', data)
+
+/* 
+删除文件
+*/
+export const deleteFile = (params: { paper_id: number, file_type: string, file_path: string }) => http.delete('paper/upload-file', { params })

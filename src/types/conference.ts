@@ -149,3 +149,10 @@ export interface IPapersKeyword {
     name: string,
     order: number
 }
+
+export interface IModifyPaper {
+    id: number,
+    doi: number,
+    abstract: string,
+    keywords: IPapersKeyword[],
+}

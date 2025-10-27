@@ -8,7 +8,7 @@ import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference'
 import { formatRange } from '@/utils/date'
 import { deepClone } from '@/utils/index'
-import { UploadVideo } from '@/services/api'
+import { UploadVideo, putMyPaper, deleteFile } from '@/services/api'
 import { IPapersKeyword } from '@/types/conference'
 const route = useRoute();
 const router = useRouter();
@@ -32,16 +32,16 @@ const activeTab = ref<TabKey>('details');
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
-const story = useConferenceStore()
+const store = useConferenceStore()
 // Mock: load conference & paper meta
 
 
 onMounted(() => {
-  story.getMyPapers(2);
+  store.getMyPapers(2);
 })
 
 
-const eventMeta = computed(() => story.myPapers)
+const eventMeta = computed(() => store.myPapers)
 
 // Details form
 const detailsForm = computed(() => ({
@@ -53,9 +53,9 @@ const detailsForm = computed(() => ({
 }))
 
 const detailFormCopy = reactive({
-  doi: '',
+  doi: 0,
   abstract: '',
-  keywords: [],
+  keywords: [{ name: '', id: 0, order: 0 }],
   graphicalAbstractFile: '',
   graphicalAbstractPreview: ''
 })
@@ -68,9 +68,9 @@ watch(
   { immediate: true, deep: true }
 )
 
-
-
+const imagePath = ref<string>('')
 function onUploadGraphicalAbstract(e: Event) {
+  graphicalAbstractInput.value?.click()
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -81,10 +81,20 @@ function onUploadGraphicalAbstract(e: Event) {
     ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
     return;
   }
+
+  UploadVideo(uploadFile(file, 'graphic_abstract', '2'))
+
   const url = URL.createObjectURL(file);
-  detailFormCopy.graphicalAbstractFile = file;
+  imagePath.value = url
+  detailFormCopy.graphicalAbstractFile = url;
   detailFormCopy.graphicalAbstractPreview = url;
 }
+function deleteImage() {
+  isMove.value = !isMove.value
+  detailFormCopy.graphicalAbstractPreview = ''
+  deleteFile({ paper_id: 2, file_type: 'graphic_abstract', file_path: imagePath.value })
+}
+
 
 // Video
 const videoConsent = ref(false);
@@ -122,13 +132,22 @@ async function onUploadVideo(e: Event, file_type = 'video') {//处理上传逻�
     console.error('上传失败：', err.response?.data || err);
   }
 }
+
+function uploadFile(file: File, file_type: string, paper_id: string) {
+  const formData = new FormData()
+  formData.append('paper_id', paper_id)
+  formData.append('file_type', file_type)
+  formData.append('file', file)
+  return formData
+}
+
 function removeVideo() { videoFile.value = null; }
 
 // Slides (PDF up to 10MB)
 const slidesFile = ref<File | null>(null);
 
 
-
+const isMove = ref(true)
 
 function onUploadSlides(e: Event) {
   const input = e.target as HTMLInputElement;
@@ -166,7 +185,12 @@ function onUploadAdditional(e: Event) {
 function clearAdditional() { additionalFiles.value = []; }
 
 function saveDetails() {
-  ElMessage.success('Details saved successfully!');
+  putMyPaper({
+    id: 2,
+    doi: Number(detailFormCopy.doi),
+    abstract: detailFormCopy.abstract,
+    keywords: detailFormCopy.keywords,
+  })
 }
 
 // PDF Preview Modal
@@ -521,24 +545,28 @@ const sessionInfo = computed(() => eventMeta.value?.session)
               <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="eventMeta?.abstract"></textarea>
             </div>
             <div class="form-item">
-              <label>Graphical Abstract</label>
+              <label>Graphical Abstract</label>{{
+                detailFormCopy.graphicalAbstractPreview }}
               <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png"
                 @change="onUploadGraphicalAbstract" style="display: none" />
-              <button @click="graphicalAbstractInput?.click()" class="upload-btn">Upload Image</button>
+              <button @click="onUploadGraphicalAbstract(e)" class="upload-btn">Upload Image</button>
               <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
               <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
-                <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" />
-                <button @click="detailFormCopy.graphicalAbstractPreview = ''" class="remove-btn">Remove</button>
+
+                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract"
+                  v-if="isMove" />
+                <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-else />
+                <button @click="deleteImage()" class="remove-btn">Remove</button>
               </div>
             </div>
             <div class="form-item full">
               <label>Keywords</label>
               <div class="keywords">
-                <input v-for="(k, i) in detailFormCopy?.keywords" :key="i" :placeholder="k.name" />
+                <input v-for="(k, i) in detailFormCopy?.keywords" v-model="k.name" :key="i" :placeholder="k.name" />
               </div>
             </div>
             <div class="form-actions">
-              <button @click="saveDetails" class="save-btn">Save Details</button>
+              <button @click="saveDetails()" class="save-btn">Save Details</button>
             </div>
           </div>
         </div>
