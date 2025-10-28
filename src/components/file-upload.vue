@@ -4,7 +4,7 @@ import { Plus, Document } from '@element-plus/icons-vue';
 import { ElMessage, type UploadProps } from 'element-plus';
 import { auth } from '@/services/http.ts';
 import { computed, ref } from 'vue';
-import { getImageUrl, isVideoFile, isPdfFile, isImageFile, downloadFile } from '@/utils';
+import { getImageUrl, isVideoFile, isPdfFile, isImageFile } from '@/utils';
 import type { UploadUserFile } from 'element-plus';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference';
@@ -24,12 +24,14 @@ interface Props {
   tabKey: TabKey;
   paperId: string | number;
   paperDetail?: PaperDetail;
+  limit: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   tabKey: 'details',
   paperId: '',
   paperDetail: () => ({}),
+  limit: 1,
 });
 const tabKey = computed(() => props.tabKey);
 const paperDetailInfo = computed(() => props.paperDetail);
@@ -97,17 +99,6 @@ const shouldShowPdfPreview = computed(() => {
   return posterFileList.value.length === 1 && posterFileList.value[0]?.url && isPdfFile(posterFileList.value[0].url);
 });
 
-// 判断是否应该显示文件表格（既不是图片、PDF，也不是视频）
-const shouldShowFileTable = computed(() => {
-  return (
-    posterFileList.value.length === 1 &&
-    posterFileList.value[0]?.url &&
-    !isVideoFile(posterFileList.value[0].url) &&
-    !isPdfFile(posterFileList.value[0].url) &&
-    !isImageFile(posterFileList.value[0].url)
-  );
-});
-
 // 获取视频URL
 const videoUrl = computed(() => {
   return shouldShowVideoPlayer.value ? posterFileList.value[0].url : null;
@@ -116,22 +107,6 @@ const videoUrl = computed(() => {
 // 获取PDF URL
 const pdfUrl = computed(() => {
   return shouldShowPdfPreview.value ? posterFileList.value[0].url : null;
-});
-
-// 获取文件表格数据
-const fileTableData = computed(() => {
-  if (!shouldShowFileTable.value) {
-    return [];
-  }
-  const file = posterFileList.value[0];
-  return [
-    {
-      name: file.name,
-      url: file.url,
-      size: 'Unknown', // 可以后续从API获取文件大小
-      type: getFileExtension(file.url || ''),
-    },
-  ];
 });
 
 // 获取文件扩展名
@@ -143,7 +118,7 @@ const getFileExtension = (url: string): string => {
 // 根据文件类型获取对应的图标组件
 const getFileIcon = (url: string) => {
   const extension = getFileExtension(url).toLowerCase();
-  
+
   // 优先使用 isPdfFile 函数判断PDF文件
   if (isPdfFile(url)) {
     return PdfIcon;
@@ -156,7 +131,7 @@ const getFileIcon = (url: string) => {
   } else if (extension === 'txt') {
     return TxtIcon;
   }
-  
+
   // 默认返回一个通用的文件图标
   return null;
 };
@@ -164,18 +139,36 @@ const getFileIcon = (url: string) => {
 const serverActionUrl = computed(() => import.meta.env.IPG_API_URL + getFileUploadAddress());
 const dialogImageUrl = ref('');
 const dialogVisible = ref(false);
+const deleteLoading = ref(false);
+const uploadLoading = ref(false);
+const isUploadDisabled = computed(() => {
+  if (props.limit === -1) {
+    return false; // 无限制时不禁用
+  }
+  return posterFileList.value.length >= props.limit;
+});
 const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
   console.log(`uploadFile, uploadFiles`, uploadFile, uploadFiles);
   if (!paperId.value) {
     return;
   }
+
+  deleteLoading.value = true;
   deleteFile({
     paper_id: Number(paperId.value),
     file_type: file_type.value,
     file_path: uploadFile.url || '',
-  }).then(() => {
-    ElMessage.success('删除文件成功~');
-  });
+  })
+    .then(() => {
+      ElMessage.success('删除文件成功~');
+    })
+    .catch((error) => {
+      ElMessage.error('删除文件失败');
+      console.error('Delete file error:', error);
+    })
+    .finally(() => {
+      deleteLoading.value = false;
+    });
 };
 const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
   dialogImageUrl.value = uploadFile.url!;
@@ -183,10 +176,24 @@ const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
 };
 const handleError = () => {
   ElMessage.error('上传失败!');
+  uploadLoading.value = false;
 };
 
 const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   ElMessage.warning(`最多只能上传 ${uploadFiles.length} 个文件，当前选择了 ${files.length} 个文件`);
+};
+
+const handleUploadStart = () => {
+  uploadLoading.value = true;
+};
+
+const handleUploadSuccess = () => {
+  uploadLoading.value = false;
+  ElMessage.success('上传成功!');
+};
+
+const handleUploadProgress = () => {
+  // 上传进度处理，保持loading状态
 };
 </script>
 
@@ -202,12 +209,29 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
       :on-remove="handleRemove"
       :on-error="handleError"
       :on-exceed="handleExceed"
-      :limit="1"
+      :on-progress="handleUploadProgress"
+      :before-upload="handleUploadStart"
+      :on-success="handleUploadSuccess"
+      :limit="props.limit === -1 ? undefined : props.limit"
+      :disabled="isUploadDisabled || uploadLoading"
       class="upload-area"
+      :class="{ 'upload-disabled': isUploadDisabled, 'upload-loading': uploadLoading }"
     >
-      <div class="upload-block">
-        <el-icon class="upload-icon"><Plus /></el-icon>
-        <div class="upload-text">点击上传文件</div>
+      <div class="upload-block" :class="{ 'upload-block-disabled': isUploadDisabled, 'upload-block-loading': uploadLoading }">
+        <!-- Loading状态 -->
+        <div v-if="uploadLoading" class="upload-loading-container">
+          <div class="upload-spinner"></div>
+          <div class="upload-loading-text">上传中...</div>
+        </div>
+        <!-- 正常状态 -->
+        <template v-else>
+          <el-icon class="upload-icon" :class="{ 'upload-icon-disabled': isUploadDisabled }">
+            <Plus />
+          </el-icon>
+          <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
+            {{ isUploadDisabled ? '已达到上传限制' : (props.limit === -1 ? '点击上传文件' : '点击上传文件') }}
+          </div>
+        </template>
       </div>
     </el-upload>
 
@@ -216,35 +240,21 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
-          <img 
-            v-if="isImageFile(file.url || '')" 
-            :src="file.url" 
-            :alt="file.name"
-            class="file-thumbnail"
-            @click="handlePictureCardPreview(file as any)"
-          />
+          <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="file.name" class="file-thumbnail" @click="handlePictureCardPreview(file as any)" />
           <!-- 如果不是图片，显示对应的文件图标 -->
           <div v-else class="file-icon-container">
-            <component 
-              :is="getFileIcon(file.url || '')" 
-              v-if="getFileIcon(file.url || '')"
-              class="file-icon"
-            />
+            <component :is="getFileIcon(file.url || '')" v-if="getFileIcon(file.url || '')" class="file-icon" />
             <div v-else class="default-file-icon">
-              <el-icon><Document /></el-icon>
+              <el-icon>
+                <Document />
+              </el-icon>
             </div>
           </div>
         </div>
         <div class="file-info">
           <div class="file-name" :title="file.name">{{ file.name }}</div>
           <div class="file-actions">
-            <el-button 
-              type="danger" 
-              size="small" 
-              @click="handleRemove(file as any, posterFileList as any)"
-            >
-              删除
-            </el-button>
+            <el-button type="danger" size="small" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
           </div>
         </div>
       </div>
@@ -261,20 +271,6 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
       <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览 </iframe>
-    </div>
-
-    <!-- 文件表格 -->
-    <div v-if="shouldShowFileTable" class="file-table-container">
-      <el-table :data="fileTableData" style="width: 100%">
-        <el-table-column prop="name" label="文件名" width="300" />
-        <el-table-column prop="type" label="文件类型" width="120" />
-        <el-table-column prop="size" label="文件大小" width="120" />
-        <el-table-column label="操作" width="150">
-          <template #default="scope">
-            <el-button type="primary" size="small" @click="downloadFile(scope.row.url, scope.row.name)"> 下载 </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
     </div>
   </div>
 </template>
@@ -302,6 +298,33 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   :deep(.el-upload-list) {
     display: none;
   }
+
+  &.upload-disabled {
+    :deep(.el-upload) {
+      border-color: #e4e7ed;
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+      opacity: 0.6;
+
+      &:hover {
+        border-color: #e4e7ed;
+        background-color: #f5f5f5;
+      }
+    }
+  }
+
+  &.upload-loading {
+    :deep(.el-upload) {
+      border-color: #409eff;
+      background-color: #f0f9ff;
+      cursor: not-allowed;
+
+      &:hover {
+        border-color: #409eff;
+        background-color: #f0f9ff;
+      }
+    }
+  }
 }
 
 .upload-block {
@@ -322,6 +345,50 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
 .upload-text {
   font-size: 14px;
   color: #999;
+}
+
+.upload-block-disabled {
+  opacity: 0.6;
+}
+
+.upload-icon-disabled {
+  color: #c0c4cc !important;
+}
+
+.upload-text-disabled {
+  color: #c0c4cc !important;
+}
+
+.upload-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid #e4e7ed;
+  border-top: 2px solid #409eff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+.upload-loading-text {
+  font-size: 14px;
+  color: #409eff;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .custom-file-list {
@@ -356,7 +423,7 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.2s ease;
-  
+
   &:hover {
     transform: scale(1.05);
   }
@@ -430,21 +497,5 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
   height: 600px;
   border: none;
   background-color: #f5f5f5;
-}
-
-.file-table-container {
-  margin-top: 16px;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.file-table-container .el-table {
-  border: none;
-}
-
-.file-table-container .el-table th,
-.file-table-container .el-table td {
-  border-bottom: 1px solid #e4e7ed;
 }
 </style>
