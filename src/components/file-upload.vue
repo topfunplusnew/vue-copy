@@ -27,12 +27,18 @@ interface Props {
   limit: number;
 }
 
+interface Emits {
+  (e: 'refresh'): void;
+}
+
 const props = withDefaults(defineProps<Props>(), {
   tabKey: 'details',
   paperId: '',
   paperDetail: () => ({}),
   limit: 1,
 });
+
+const emit = defineEmits<Emits>();
 const tabKey = computed(() => props.tabKey);
 const paperDetailInfo = computed(() => props.paperDetail);
 const paperId = computed(() => props.paperId);
@@ -161,6 +167,7 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
   })
     .then(() => {
       ElMessage.success('删除文件成功~');
+      emit('refresh');
     })
     .catch((error) => {
       ElMessage.error('删除文件失败');
@@ -190,6 +197,7 @@ const handleUploadStart = () => {
 const handleUploadSuccess = () => {
   uploadLoading.value = false;
   ElMessage.success('上传成功!');
+  emit('refresh');
 };
 
 const handleUploadProgress = () => {

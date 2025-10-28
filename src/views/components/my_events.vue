@@ -14,8 +14,6 @@ import { getFileTypeByTabKey } from '@/utils/conference.ts';
 
 const route = useRoute();
 const graphicalAbstractInput = ref<HTMLInputElement>();
-const posterInput = ref<HTMLInputElement>();
-const additionalInput = ref<HTMLInputElement>();
 const paperId = computed(() => Number(route.params.paperId));
 const activeTab = ref<TabKey>('details');
 
@@ -45,6 +43,13 @@ function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
   if (myPaperDetailInfo.value) {
     paperContent.fileUrl = myPaperDetailInfo.value[getFileTypeByTabKey(tab)];
+  }
+}
+
+async function refreshPaperData() {
+  await store.getMyPaper(paperId.value);
+  if (myPaperDetailInfo.value) {
+    paperContent.fileUrl = myPaperDetailInfo.value[getFileTypeByTabKey(activeTab.value)];
   }
 }
 
@@ -323,7 +328,7 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             <div class="form-item">
               <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
               <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
-              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" />
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
             </div>
             <div class="form-item full">
               <label>Keywords</label>
@@ -343,20 +348,20 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               <input type="checkbox" v-model="videoConsent" />
               <span>I have read, understood, and accept the video release terms.</span>
             </label>
-            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" />
+            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1" @refresh="refreshPaperData" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
