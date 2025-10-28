@@ -230,3 +230,6 @@ export const putMyPaper = (data: IModifyPaper) => http.put('my-paper', data)
 删除文件
 */
 export const deleteFile = (params: { paper_id: number, file_type: string, file_path: string }) => http.delete('paper/upload-file', { params })
+
+// 获取schedule列表
+export const getScheduleList = () => http.get('/schedule')

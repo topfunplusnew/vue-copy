@@ -26,8 +26,7 @@ import { useConferenceStore } from '@/stores/conference';
 // };
 const store = useUserStore();
 const router = useRouter();
-const conferencesStory = useConferenceStore()
-// const userProfile = computed(() => store.user); // user改成这种用法
+const conferencesStory = useConferenceStore();
 
 onMounted(() => {
   // 确保页面滚动到顶部
@@ -42,7 +41,7 @@ onMounted(() => {
     editForm.avatar = data.avatar;
   });
   store.getUserBlogList(true);
-  conferencesStory.getMyConference();//我的会议111
+  conferencesStory.getMyConference();
   conferencesStory.getConferenceList();
 
 });
@@ -50,13 +49,14 @@ onMounted(() => {
 // 添加登出处理函数
 function handleLogout() {
   store.logout();
-  router.push({ name: 'login' }); // 跳转到登录页
+  router.push({ name: 'login' });
 }
 
 // const user = reactive(userInfo);
 const user = computed(() => store.user);
 
 const uploadfile = ref<HTMLElement | null>(null);
+
 function onUpload() {
   showCropper.value = true;
   if (uploadfile.value) uploadfile.value.click();
@@ -105,17 +105,17 @@ function onUpload() {
 const showCropper = ref(false);
 const cropperRef = ref();
 const cropOption = {
-  autoCrop: true, // 是否默认生成截图框
-  fixedBox: true, // 固定截图框大小
-  outputType: 'png', // 裁剪生成图片的格式
-  centerBox: true, // 截图框是否被限制在图片里面
-  infoTrue: true, // true 为展示真实输出图片宽高 false 展示看到的截图框宽高
-  full: false, // 是否输出原图比例的截图
-  canMoveBox: true, // 截图框能否拖动
-  original: false, // 上传图片按照原始比例渲染
-  canScale: true, // 图片是否允许滚轮缩放
-  fixed: true, // 是否开启截图框宽高固定比例
-  fixedNumber: [1, 1], // 截图框的宽高比例
+  autoCrop: true,
+  fixedBox: true,
+  outputType: 'png',
+  centerBox: true,
+  infoTrue: true,
+  full: false,
+  canMoveBox: true,
+  original: false,
+  canScale: true,
+  fixed: true,
+  fixedNumber: [1, 1],
 };
 const cropImage = ref('');
 
@@ -127,7 +127,7 @@ function cropSuccess() {
     // const file = new File([image], 'file', {type: image.type});
     store.uploadImage(image).then(({ data }) => {
       editForm.avatar = data.avatar;
-    })
+    });
     showCropper.value = false;
   });
 }
@@ -154,8 +154,7 @@ function submitProfileEdit() {
 // 取消编辑
 function cancelProfileEdit() {
   editForm.name = user.value?.name;
-  // editForm.id = user.value?.id;
-  editForm.avatar = user.value?.avatar; //恢复原头像
+  editForm.avatar = user.value?.avatar;
   showEditProfile.value = false;
 }
 
@@ -168,7 +167,7 @@ function handleEditAvatarUpload(event: Event) {
     const reader = new FileReader();
     reader.onload = (e) => {
       cropImage.value = e.target?.result as string;
-    }
+    };
     reader.readAsDataURL(file);
   }
 }
@@ -200,7 +199,7 @@ function cancelCrop() {
   showCropper.value = false;
   // 如果在编辑个人信息中
   if (showEditProfile.value) {
-    editForm.avatar = user.value?.avatar; // 恢复原头像
+    editForm.avatar = user.value?.avatar;
   }
 }
 
@@ -429,7 +428,7 @@ const isSocialModalVisible = ref(false);
 // 显示社交弹窗
 function showSocialModal() {
   isSocialModalVisible.value = true;
-  document.body.style.overflow = 'hidden'; // 防止背景滚动
+  document.body.style.overflow = 'hidden';
 
   // 加载数据
   store.getFollowings();
@@ -490,7 +489,7 @@ const contactForm = reactive({
   website: '',
   linkedin: '',
   twitter: '',
-  orcid: ''
+  orcid: '',
 });
 
 // CV upload
@@ -557,7 +556,7 @@ const submitCV = () => {
   uploadedCV.value = {
     file: cvFile.value,
     uploadDate: new Date().toLocaleDateString(),
-    url: URL.createObjectURL(cvFile.value)
+    url: URL.createObjectURL(cvFile.value),
   };
 
   // TODO: Implement API call to upload CV
@@ -595,47 +594,31 @@ const openCVInNewTab = () => {
 
 // Remove/Withdraw CV
 const withdrawCV = () => {
-  ElMessageBox.confirm(
-    'Are you sure you want to withdraw your CV? This action cannot be undone.',
-    'Withdraw CV',
-    {
-      confirmButtonText: 'Withdraw',
-      cancelButtonText: 'Cancel',
-      type: 'warning',
-    }
-  ).then(() => {
-    // Clean up the blob URL to prevent memory leaks
-    if (uploadedCV.value?.url) {
-      URL.revokeObjectURL(uploadedCV.value.url);
-    }
+  ElMessageBox.confirm('Are you sure you want to withdraw your CV? This action cannot be undone.', 'Withdraw CV', {
+    confirmButtonText: 'Withdraw',
+    cancelButtonText: 'Cancel',
+    type: 'warning',
+  })
+    .then(() => {
+      if (uploadedCV.value?.url) {
+        URL.revokeObjectURL(uploadedCV.value.url);
+      }
 
-    // Clear the uploaded CV
-    uploadedCV.value = null;
+      // Clear the uploaded CV
+      uploadedCV.value = null;
 
-    // TODO: Implement API call to remove CV from server
-    console.log('CV withdrawn');
-    ElMessage.success('CV withdrawn successfully!');
+      // TODO: Implement API call to remove CV from server
+      console.log('CV withdrawn');
+      ElMessage.success('CV withdrawn successfully!');
 
-    // Close the preview modal
-    closeCVPreview();
-  }).catch(() => {
-    // User cancelled the action
-  });
+      // Close the preview modal
+      closeCVPreview();
+    })
 };
 
-// ===== Academic Meetings: current participations (Top section on right) =====
-// TODO: Replace mock data with store-driven data
-const currentParticipations = computed(() => conferencesStory.myConference)//会议详情
+const currentParticipations = computed(() => conferencesStory.details);
+const featuredEvents = computed(() => conferencesStory.list);
 
-
-// ===== Featured Events (Other conferences) =====
-
-const featuredEvents = computed(() => conferencesStory.list);//会议列表
-
-
-
-
-// Logo debugging functions
 const handleLogoError = (event: Event) => {
   const img = event.target as HTMLImageElement;
   console.error('Logo failed to load:', img.src);
@@ -722,35 +705,41 @@ const handleLogoLoad = (event: Event) => {
           <div class="current-participations">
             <div class="section-title">My Events</div>
 
-            <div v-if="currentParticipations?.length" class="conference-list" v-for="cur in currentParticipations"
-              :key="cur.id">
-              <div class="conference-card">
-                <div class="conference-header">
-                  <div class="conference-name-container">
-                    <img v-if="cur.logo" :src="cur.logo" :alt="cur.name + ' logo'" class="conference-logo"
-                      @error="handleLogoError" @load="handleLogoLoad" />
-                    <div class="conference-name">{{ cur.name }}</div>
+            <!-- TODO 这里 如果已经登录，那么就展示My Events  -->
+            <div v-if="store.isLogin()">
+              <div v-if="currentParticipations" class="conference-list" v-for="cur in currentParticipations"
+                :key="cur.id">
+                <div class="conference-card">
+                  <div class="conference-header">
+                    <div class="conference-name-container">
+                      <img v-if="cur.logoUrl" :src="cur.logoUrl" :alt="cur.name + ' logo'" class="conference-logo"
+                        @error="handleLogoError" @load="handleLogoLoad" />
+                      <div class="conference-name">{{ cur.name }}</div>
+                    </div>
+                    <div class="submission-count">{{ cur.sessions.length }} papers</div>
                   </div>
-                  <!-- <div class="submission-count">{{ currentParticipations.my_papers.length }} papers</div> -->
-                </div>
 
-                <div class="submission-list">
-                  <div v-for="(sub, idx) in cur.my_papers" :key="idx" class="submission-item"
-                    @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: idx } })">
-                    <div class="paper-title">{{ sub.paper_title }}</div>
-                    <div class="authors">
-                      <span v-for="(author, i) in sub.authors" :key="i" class="author">
-                        {{ author }}<span v-if="i < sub.authors.length - 1">, </span>
-                      </span>
+                  <div class="submission-list">
+                    <div v-for="(sub, idx) in cur.sessions" :key="idx" class="submission-item"
+                      @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: sub.id } })">
+                      <div class="paper-title">{{ sub.session_name }}</div>
+                      <div class="authors">
+                        <span v-for="(author, i) in sub.chairperson" :key="i" class="author">
+                          {{ author }}<span v-if="i < sub.chairperson.length - 1">, </span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div v-else class="empty-state">
-              <div class="empty-title">No current participations</div>
-              <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+              <div v-else class="empty-state">
+                <div class="empty-title">No current participations</div>
+                <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+              </div>
+            </div>
+            <div v-else>
+              <el-button type="primary" @click="router.push({ name: 'login' })">Login to check detail</el-button>
             </div>
           </div>
 
@@ -790,6 +779,7 @@ const handleLogoLoad = (event: Event) => {
         </section>
       </section>
 
+
       <!-- 裁剪弹窗 -->
       <div v-if="false" class="cropper-modal">
         <div class="cropper-container">
@@ -819,7 +809,7 @@ const handleLogoLoad = (event: Event) => {
           transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
         }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
           <h2>Edit Profile</h2>
-          <input ref="uploadfile" style="display: none;" type="file" class="upload-avatar" accept="image/*"
+          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*"
             @change="handleEditAvatarUpload" />
           <div class="edit-avatar-section avatar-container">
             <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
@@ -890,7 +880,7 @@ const handleLogoLoad = (event: Event) => {
           <div class="modal-content">
             <div class="upload-area">
               <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload"
-                style="display: none;" />
+                style="display: none" />
               <div class="upload-zone" @click="cvUploadRef?.click()">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">
@@ -924,12 +914,11 @@ const handleLogoLoad = (event: Event) => {
           </div>
         </div>
         <div class="pdf-modal-content">
-          <iframe v-if="uploadedCV?.url && !isMobile" :src="uploadedCV.url" class="pdf-viewer" frameborder="0">
-          </iframe>
+          <iframe v-if="uploadedCV?.url && !isMobile" :src="uploadedCV.url" class="pdf-viewer" frameborder="0"></iframe>
           <div v-else-if="uploadedCV?.url && isMobile" class="mobile-pdf-viewer">
             <!-- Mobile PDF display using object tag -->
             <object :data="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe">
-              <embed :src="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe">
+              <embed :src="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe" />
               <div class="pdf-fallback-mobile">
                 <div class="pdf-icon">📄</div>
                 <p>{{ getCurrentCVFileName() }}</p>
@@ -937,15 +926,9 @@ const handleLogoLoad = (event: Event) => {
             </object>
             <!-- Mobile action buttons -->
             <div class="mobile-pdf-actions">
-              <a :href="uploadedCV.url" :download="getCurrentCVFileName()" class="download-btn">
-                Download CV
-              </a>
-              <button @click="openCVInNewTab" class="open-btn">
-                Open in New Tab
-              </button>
-              <button @click="withdrawCV" class="withdraw-btn-mobile">
-                Withdraw CV
-              </button>
+              <a :href="uploadedCV.url" :download="getCurrentCVFileName()" class="download-btn"> Download CV </a>
+              <button @click="openCVInNewTab" class="open-btn">Open in New Tab</button>
+              <button @click="withdrawCV" class="withdraw-btn-mobile">Withdraw CV</button>
             </div>
           </div>
           <div v-else class="pdf-loading">Loading CV...</div>
