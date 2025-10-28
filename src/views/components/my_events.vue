@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, reactive, ref, toRaw, watch } from 'vue';
+import { computed, reactive, ref,  watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
-import { deepClone, getImageUrl } from '@/utils/index';
+import { getImageUrl } from '@/utils/index';
 import { putMyPaper } from '@/services/api';
 import { uploadVideo } from '@/services/common/files.ts';
 import FileUpload from '@/components/file-upload.vue';
@@ -53,14 +53,6 @@ async function refreshPaperData() {
   }
 }
 
-watch(
-  () => detailsForm.value,
-  (newVal) => {
-    Object.assign(detailFormCopy, deepClone(toRaw(newVal)));
-  },
-  { immediate: true, deep: true },
-);
-
 const imagePath = ref<string>('');
 
 function onUploadGraphicalAbstract(e: Event) {
@@ -83,43 +75,17 @@ function onUploadGraphicalAbstract(e: Event) {
 }
 
 // Video
-const videoConsent = ref(false);
+const videoConsent = ref(!!myPaperDetailInfo.value?.video);
 const videoFile = ref<File | null>(null);
-const videoShow = ref<string | null>(myPaperDetailInfo.value?.video ?? null);
-const videoSrc = computed(() => {
-  //视频预览
 
-  if (!videoFile.value) return '';
-  try {
-    return URL.createObjectURL(videoFile.value);
-  } catch {
-    return '';
-  }
-});
-
-async function onUploadVideo(e: Event, file_type = 'video') {
-  //处理上传逻辑
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!videoConsent.value) {
-    ElMessage.warning('Please accept the video release terms first.');
-    return;
-  }
-  videoFile.value = file;
-  const formData = new FormData();
-  formData.append('paper_id', '2');
-  formData.append('file_type', file_type);
-  formData.append('file', file);
-
-  try {
-    const res = await uploadVideo(formData);
-    console.log('上传成功！', res);
-    return res;
-  } catch (err: any) {
-    console.error('上传失败：', err.response?.data || err);
-  }
-}
+// 监听paper数据变化，自动更新video consent状态
+watch(
+  () => myPaperDetailInfo.value?.video,
+  (hasVideo) => {
+    videoConsent.value = !!hasVideo;
+  },
+  { immediate: true }
+);
 
 function uploadFile(file: File, file_type: string, paper_id: string) {
   const formData = new FormData();
@@ -129,28 +95,9 @@ function uploadFile(file: File, file_type: string, paper_id: string) {
   return formData;
 }
 
-function removeVideo() {
-  videoFile.value = null;
-}
 
 // Slides (PDF up to 10MB)
 const slidesFile = ref<File | null>(null);
-
-function onUploadSlides(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
-    ElMessage.error('Slides must be a PDF up to 10MB.');
-    return;
-  }
-  slidesFile.value = file;
-}
-
-function removeSlides() {
-  slidesFile.value = null;
-}
-
 const posterFile = ref<File | null>(null);
 const additionalFiles = ref<File[]>([]);
 
@@ -172,26 +119,6 @@ const currentPdfFile = ref<File | null>(null);
 const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 });
-
-function openPdfModal(type: 'slides' | 'poster') {
-  let file: File | null = null;
-  let title = '';
-
-  if (type === 'slides' && slidesFile.value) {
-    file = slidesFile.value;
-    title = `Slides: ${file.name}`;
-  } else if (type === 'poster' && posterFile.value) {
-    file = posterFile.value;
-    title = `Poster: ${file.name}`;
-  }
-
-  if (file) {
-    currentPdfFile.value = file;
-    currentPdfUrl.value = URL.createObjectURL(file);
-    currentPdfTitle.value = title;
-    pdfModalVisible.value = true;
-  }
-}
 
 function closePdfModal() {
   if (currentPdfUrl.value) {

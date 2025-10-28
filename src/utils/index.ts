@@ -47,6 +47,17 @@ export function isImageFile(url: string): boolean {
   return imageExtensions.some((ext) => lowerUrl.includes(ext));
 }
 
+/**
+ * 判断文件是否为ZIP文件
+ * @param url - 文件URL
+ * @returns 是否为ZIP文件
+ */
+export function isZipFile(url: string): boolean {
+  const zipExtensions = ['.zip', '.rar', '.7z', '.tar', '.gz'];
+  const lowerUrl = url.toLowerCase();
+  return zipExtensions.some((ext) => lowerUrl.includes(ext));
+}
+
 export const downloadFile = (url: string, filename: string) => {
   const link = document.createElement('a');
   link.href = url;

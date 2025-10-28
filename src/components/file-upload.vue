@@ -4,7 +4,7 @@ import { Plus, Document } from '@element-plus/icons-vue';
 import { ElMessage, type UploadProps } from 'element-plus';
 import { auth } from '@/services/http.ts';
 import { computed, ref } from 'vue';
-import { getImageUrl, isVideoFile, isPdfFile, isImageFile } from '@/utils';
+import { getImageUrl, isVideoFile, isPdfFile, isImageFile, isZipFile } from '@/utils';
 import type { UploadUserFile } from 'element-plus';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference';
@@ -13,6 +13,8 @@ import ExcelIcon from './icons/excel-icon.vue';
 import WordIcon from './icons/word-icon.vue';
 import PptIcon from './icons/ppt-icon.vue';
 import TxtIcon from './icons/txt-icon.vue';
+import VideoIcon from './icons/video-icon.vue';
+import ZipIcon from './icons/zip-icon.vue';
 
 interface PaperDetail {
   fileUrl?: string;
@@ -145,9 +147,13 @@ const getFileExtension = (url: string): string => {
 const getFileIcon = (url: string) => {
   const extension = getFileExtension(url).toLowerCase();
 
-  // 优先使用 isPdfFile 函数判断PDF文件
+  // 优先使用文件类型判断函数
   if (isPdfFile(url)) {
     return PdfIcon;
+  } else if (isVideoFile(url)) {
+    return VideoIcon;
+  } else if (isZipFile(url)) {
+    return ZipIcon;
   } else if (extension === 'xlsx' || extension === 'xls') {
     return ExcelIcon;
   } else if (extension === 'docx' || extension === 'doc') {
