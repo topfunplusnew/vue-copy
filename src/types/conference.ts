@@ -157,3 +157,6 @@ export interface IModifyPaper {
     abstract: string,
     keywords: IPapersKeyword[],
 }
+
+export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
+export type FileType = 'graphic_abstract' | 'video' | 'slide' | 'poster' | 'addition_files';

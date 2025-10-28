@@ -1,34 +1,30 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, toRaw, watch } from 'vue';
+import { computed, reactive, ref, toRaw, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
 import { deepClone, getImageUrl } from '@/utils/index';
-import { uploadVideo, putMyPaper, deleteFile } from '@/services/api';
+import { putMyPaper } from '@/services/api';
+import { uploadVideo } from '@/services/common/files.ts';
+import FileUpload from '@/components/file-upload.vue';
+import type { TabKey } from '@/types/conference.ts';
+import { getFileTypeByTabKey } from '@/utils/conference.ts';
 
 const route = useRoute();
 const graphicalAbstractInput = ref<HTMLInputElement>();
-const videoInput = ref<HTMLInputElement>();
-const slidesInput = ref<HTMLInputElement>();
 const posterInput = ref<HTMLInputElement>();
 const additionalInput = ref<HTMLInputElement>();
 const paperId = computed(() => Number(route.params.paperId));
-type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 const activeTab = ref<TabKey>('details');
 
-function setActiveTab(tab: TabKey) {
-  activeTab.value = tab;
-}
-
 const store = useConferenceStore();
-
-onMounted(() => {
-  store.getMyPaper(paperId.value);
-});
-
+store.getMyPaper(paperId.value);
 const myPaperDetailInfo = computed(() => store.myPaperDetail);
+const paperContent = reactive({
+  fileUrl: myPaperDetailInfo.value?.graphic_abstract,
+});
 const detailsForm = computed(() => ({
   doi: myPaperDetailInfo.value?.doi ?? '',
   abstract: myPaperDetailInfo.value?.abstract ?? '',
@@ -44,6 +40,13 @@ const detailFormCopy = reactive({
   graphicalAbstractFile: '',
   graphicalAbstractPreview: '',
 });
+
+function setActiveTab(tab: TabKey) {
+  activeTab.value = tab;
+  if (myPaperDetailInfo.value) {
+    paperContent.fileUrl = myPaperDetailInfo.value[getFileTypeByTabKey(tab)];
+  }
+}
 
 watch(
   () => detailsForm.value,
@@ -74,12 +77,6 @@ function onUploadGraphicalAbstract(e: Event) {
   detailFormCopy.graphicalAbstractPreview = url;
 }
 
-function deleteImage() {
-  isMove.value = !isMove.value;
-  detailFormCopy.graphicalAbstractPreview = '';
-  deleteFile({ paper_id: 2, file_type: 'graphic_abstract', file_path: imagePath.value });
-}
-
 // Video
 const videoConsent = ref(false);
 const videoFile = ref<File | null>(null);
@@ -90,7 +87,7 @@ const videoSrc = computed(() => {
   if (!videoFile.value) return '';
   try {
     return URL.createObjectURL(videoFile.value);
-  } catch (e) {
+  } catch {
     return '';
   }
 });
@@ -114,7 +111,7 @@ async function onUploadVideo(e: Event, file_type = 'video') {
     const res = await uploadVideo(formData);
     console.log('上传成功！', res);
     return res;
-  } catch (err) {
+  } catch (err: any) {
     console.error('上传失败：', err.response?.data || err);
   }
 }
@@ -134,8 +131,6 @@ function removeVideo() {
 // Slides (PDF up to 10MB)
 const slidesFile = ref<File | null>(null);
 
-const isMove = ref(true);
-
 function onUploadSlides(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -151,36 +146,9 @@ function removeSlides() {
   slidesFile.value = null;
 }
 
-// Poster (single-page PDF up to 10MB)
 const posterFile = ref<File | null>(null);
-
-function onUploadPoster(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
-    ElMessage.error('Poster must be a single-page PDF up to 10MB.');
-    return;
-  }
-  posterFile.value = file;
-}
-
-function removePoster() {
-  posterFile.value = null;
-}
-
-// Additional info: any files
 const additionalFiles = ref<File[]>([]);
 
-function onUploadAdditional(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const files = input.files ? Array.from(input.files) : [];
-  additionalFiles.value = files;
-}
-
-function clearAdditional() {
-  additionalFiles.value = [];
-}
 
 function saveDetails() {
   putMyPaper({
@@ -191,7 +159,6 @@ function saveDetails() {
   });
 }
 
-// PDF Preview Modal
 const pdfModalVisible = ref(false);
 const currentPdfUrl = ref('');
 const currentPdfTitle = ref('');
@@ -261,12 +228,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
       <section class="right-panel">
-        <!-- <header class="user-summary">
-          <div class="user-avatar" v-if="user?.avatar">
-            <img :src="getImageUrl(user?.avatar)" alt="User Avatar" />
-          </div>
-          <div class="user-name">{{ user?.name }}</div>
-        </header> -->
         <header class="event-header">
           <div class="conference-header">
             <div class="logo" v-if="myPaperDetailInfo?.conference.logo">
@@ -341,10 +302,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
                     <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
                   </div>
                 </div>
-                <!-- <button class="schedule-action-btn" @click="addToSchedule">
-                  <span class="btn-icon">📌</span>
-                  Add to My Schedule
-                </button> -->
               </div>
             </div>
             <div class="dates">
@@ -367,13 +324,7 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             <div class="form-item">
               <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
               <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
-              <button @click="onUploadGraphicalAbstract(e)" class="upload-btn">Upload Image</button>
-              <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
-              <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
-                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-if="isMove" />
-                <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-else />
-                <button @click="deleteImage()" class="remove-btn">Remove</button>
-              </div>
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" />
             </div>
             <div class="form-item full">
               <label>Keywords</label>
@@ -393,89 +344,20 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               <input type="checkbox" v-model="videoConsent" />
               <span>I have read, understood, and accept the video release terms.</span>
             </label>
-            <input ref="videoInput" type="file" accept="video/*" @change="onUploadVideo" style="display: none" />
-            <button @click="videoInput?.click()" class="file-upload-btn" :disabled="!videoConsent">Upload Video</button>
-            <div class="file-row" v-if="videoFile">
-              <div class="file-info">
-                <div class="file-icon">📹</div>
-                <div class="file-details">
-                  <div class="file-name">{{ videoFile.name }}</div>
-                  <div class="file-size">{{ (videoFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-                </div>
-              </div>
-              <button @click="removeVideo" class="remove-btn">Remove</button>
-            </div>
-            {{ videoShow }}
-            <video v-if="videoShow || videoSrc" class="preview-video" controls :src="videoSrc ?? videoShow ?? undefined"></video>
+            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
-          <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
-          <div class="file-row" v-if="slidesFile">
-            <div class="file-info">
-              <div class="file-icon">📄</div>
-              <div class="file-details">
-                <div class="file-name">{{ slidesFile.name }}</div>
-                <div class="file-size">{{ (slidesFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-              </div>
-            </div>
-            <button @click="removeSlides" class="remove-btn">Remove</button>
-          </div>
-          <div class="pdf-preview" v-if="slidesFile">
-            <div class="pdf-preview-header">
-              <span class="pdf-title">{{ slidesFile.name }}</span>
-              <button @click="openPdfModal('slides')" class="preview-btn">Preview PDF</button>
-            </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('slides')">
-              <div class="pdf-icon">📄</div>
-              <div class="pdf-info">Click to preview PDF</div>
-            </div>
-          </div>
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
-          <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
-          <div class="file-row" v-if="posterFile">
-            <div class="file-info">
-              <div class="file-icon">🖼️</div>
-              <div class="file-details">
-                <div class="file-name">{{ posterFile.name }}</div>
-                <div class="file-size">{{ (posterFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-              </div>
-            </div>
-            <button @click="removePoster" class="remove-btn">Remove</button>
-          </div>
-          <div class="pdf-preview" v-if="posterFile">
-            <div class="pdf-preview-header">
-              <span class="pdf-title">{{ posterFile.name }}</span>
-              <button @click="openPdfModal('poster')" class="preview-btn">Preview PDF</button>
-            </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('poster')">
-              <div class="pdf-icon">🖼️</div>
-              <div class="pdf-info">Click to preview poster</div>
-            </div>
-          </div>
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
-          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
-          <div class="file-list" v-if="additionalFiles.length">
-            <div class="file-row" v-for="(f, i) in additionalFiles" :key="i">
-              <div class="file-info">
-                <div class="file-icon">📎</div>
-                <div class="file-details">
-                  <div class="file-name">{{ f.name }}</div>
-                  <div class="file-size">{{ (f.size / 1024 / 1024).toFixed(2) }} MB</div>
-                </div>
-              </div>
-              <button @click="additionalFiles.splice(i, 1)" class="remove-btn">Remove</button>
-            </div>
-            <button @click="clearAdditional" class="clear-btn">Clear All</button>
-          </div>
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -510,8 +392,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         </div>
       </section>
     </section>
-
-    <!-- PDF Preview Modal -->
     <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
       <div class="pdf-modal" @click.stop>
         <div class="pdf-modal-header">
@@ -521,7 +401,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         <div class="pdf-modal-content">
           <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0"></iframe>
           <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
-            <!-- Mobile PDF display using object tag -->
             <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
               <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe" />
               <div class="pdf-fallback-mobile">
@@ -529,7 +408,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
                 <p>{{ getCurrentFileName() }}</p>
               </div>
             </object>
-            <!-- Mobile action buttons -->
             <div class="mobile-pdf-actions">
               <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
               <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
@@ -541,3 +419,92 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.pdf-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: auto;
+}
+
+.pdf-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+.pdf-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4e7ed;
+  flex-shrink: 0;
+}
+
+.pdf-modal-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.mobile-pdf-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-pdf-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
+.mobile-pdf-actions {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #e4e7ed;
+  flex-shrink: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+</style>

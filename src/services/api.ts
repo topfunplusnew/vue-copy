@@ -1,16 +1,11 @@
-import type { IBlogReq } from '@/types/blog';
-import type { IPairToken, ILogin, IUserEdit, IUserSignup } from '@/types/user.ts';
-import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
+import type { IBlogEdit, IBlogPostCreate, IBlogPostimage, IBlogReq } from '@/types/blog';
+import type { ILogin, IPairToken, IUserEdit, IUserSignup } from '@/types/user.ts';
 import type { IChatReq } from '@/types/chat';
-import { http, auth } from './http';
+import { auth, http } from './http';
 import type { IRequest } from '@/types/service';
-import type {
-  IPlanCreateReq,
-  IPlanUpdateReq,
-  IPlanSearchReq,
-  IPlaceCreateReq
-} from '@/types/plan';
-import type { IModifyPaper } from '@/types/conference'
+import type { IPlaceCreateReq, IPlanCreateReq, IPlanSearchReq, IPlanUpdateReq } from '@/types/plan';
+import type { IModifyPaper } from '@/types/conference';
+
 /**
  * 用户登录
  * @param credentials 登录信息
@@ -42,11 +37,12 @@ export const userLogout = () =>
 export const accountActivate = (token: string) => http.put('/user/active', { token });
 // export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
 
-export const googleAuthorize = (token: string) => http.post('/oauth/google', { token }).then(res => {
-  const data = res.data as IPairToken;
-  auth.set(data.access_token);
-  return res;
-});
+export const googleAuthorize = (token: string) =>
+  http.post('/oauth/google', { token }).then((res) => {
+    const data = res.data as IPairToken;
+    auth.set(data.access_token);
+    return res;
+  });
 
 /**
  * 注册
@@ -67,21 +63,22 @@ export const myblogdelete = (id: number) => http.delete('/blog', { params: { id:
 
 export const myblogedit = (data: IBlogEdit) => http.put('/blog', data);
 
-export const Postimage = (data: IBlogPostimage) => http.post('/file/blog', data.image, {
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  }
-});
+export const Postimage = (data: IBlogPostimage) =>
+  http.post('/file/blog', data.image, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
-export const uploadAvatar = (data: FormData) => http.post('/file/avatar', data, {
-  headers: {
-    'Content-Type': 'multipart/form-data'
-  }
-});
+export const uploadAvatar = (data: FormData) =>
+  http.post('/file/avatar', data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
 
 export const invitationAuth = (code: string) => http.post('/user/invitation-auth', { invitation_code: code });
 export const joinWaitlist = (message: string) => http.post('/waitlist', { message });
-
 
 // export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
 export const getBlogPost = (id: string) => http.get('/blog', { params: { id } }); // 根据id获取blog
@@ -90,13 +87,21 @@ export const getMyBlogList = (req: IBlogReq = {}) => http.get('/my_blogs', { par
 export const getAllBlogList = (req: IBlogReq = {}) => http.get('/blogs', { params: req }); // 我的blog，blog列表一样的搜索和分页
 export const getOsBlogList = (req: IBlogReq = {}) => http.get('/blogs/official', { params: req }); // 官方blog，可以分页
 
-export const comment2Blog = (blogId: number, content: string) => http.post('/comment', { id: blogId, blog: true, content });
-export const comment2Comment = (commentId: number, content: string) => http.post('/comment', { id: commentId, content });
+export const comment2Blog = (blogId: number, content: string) =>
+  http.post('/comment', {
+    id: blogId,
+    blog: true,
+    content,
+  });
+export const comment2Comment = (commentId: number, content: string) =>
+  http.post('/comment', {
+    id: commentId,
+    content,
+  });
 export const commentDel = (id: number) => http.delete('/comment', { params: { id } }); // 删除评论
 export const comments = (commentId: number) => http.get(`/comments/${commentId}`);
 
 export const homeviewweather = (city: string) => http.get('/weather', { params: { city } });
-
 
 /**
  * 关注
@@ -107,22 +112,20 @@ export const userIsFollowing = (id: number) => http.get('user/follow', { params:
 export const userFollowings = (id: number, req: IRequest = {}) => http.get(`/user/followings/${id}`, { params: req });
 export const userFollowers = (id: number, req: IRequest = {}) => http.get(`/user/followers/${id}`, { params: req });
 
-
 /**
  * chat
  */
-export const chatStream = (req: IChatReq) => http.post('/chatz', req, {
-  headers: {
-    'Accept': 'text/event-stream'
-  },
-  responseType: 'stream',
-  adapter: 'fetch'
-}); // chat 流试显示
+export const chatStream = (req: IChatReq) =>
+  http.post('/chatz', req, {
+    headers: {
+      Accept: 'text/event-stream',
+    },
+    responseType: 'stream',
+    adapter: 'fetch',
+  }); // chat 流试显示
 
 export const chatConversations = () => http.get('/chat/history'); // 主题列表
 export const chatRestore = (conversationID: number) => http.get(`/chat/restore/${conversationID}`); //根据主题返回本主题下的所有历史记录
-
-
 
 /**
  * plan
@@ -198,38 +201,27 @@ export const placeSearch = (query: IRequest = {}) => http.get('/places', { param
 /**
  * 获取会议列表
  */
-export const getConferenceList = (query: IRequest = {}) => http.get('/conference', { params: query })
+export const getConferenceList = (query: IRequest = {}) => http.get('/conference', { params: query });
 
 /*
-*获取会议详情
-*/
-export const getConferenceDetail = (id: number | string) => http.get(`/conference/${id}`)
+ *获取会议详情
+ */
+export const getConferenceDetail = (id: number | string) => http.get(`/conference/${id}`);
 
 /*
 我的会议
 */
-export const getMyConferenceList = () => http.get('/my-conferences')
+export const getMyConferenceList = () => http.get('/my-conferences');
 
 /*
 我的论文
 */
-export const getMyPaperDetail = (id: number) => http.get(`/paper/${id}`)
-
-
-/*
-上传
-*/
-export const uploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
+export const getMyPaperDetail = (id: number) => http.get(`/paper/${id}`);
 
 /*
 修改我的论文
 */
-export const putMyPaper = (data: IModifyPaper) => http.put('my-paper', data)
-
-/*
-删除文件
-*/
-export const deleteFile = (params: { paper_id: number, file_type: string, file_path: string }) => http.delete('paper/upload-file', { params })
+export const putMyPaper = (data: IModifyPaper) => http.put('my-paper', data);
 
 // 获取schedule列表
-export const getScheduleList = () => http.get('/schedule')
+export const getScheduleList = () => http.get('/schedule');
