@@ -37,8 +37,48 @@ const detailsForm = computed(() => ({
   graphicalAbstractPreview: myPaperDetailInfo.value?.graphic_abstract ?? '',
 }));
 
-const detailFormCopy = reactive({
-  doi: 0,
+//   // 去重：相同原始机构ID只保留第一次出现的
+//   const uniqueAffiliations = new Map();
+//   const affiliationList: Array<{
+//     id: number;
+//     originalId: number;
+//     name: string;
+//     department?: string;
+//     university?: string;
+//     city?: string;
+//     state?: string;
+//     country?: string;
+//   }> = [];
+
+//   let newId = 1;
+//   allAffiliations.forEach((item) => {
+//     if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+//       const newAffiliation = {
+//         id: newId++,
+//         originalId: item.originalAffiliationId,
+//         name: item.affiliation.name,
+//         department: item.affiliation.department,
+//         university: item.affiliation.university,
+//         city: item.affiliation.city,
+//         state: item.affiliation.state,
+//         country: item.affiliation.country,
+//       };
+//       uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+//       affiliationList.push(newAffiliation);
+//     }
+//   });
+
+//   return affiliationList;
+// });
+
+// // 根据机构原始ID获取新的编号
+// function getAffiliationNumber(originalId: number): number {
+//   const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
+//   return affiliation ? affiliation.id : 0;
+// }
+
+const detailsForm = reactive({
+  doi: '',
   abstract: '',
   keywords: [{ name: '', id: 0, order: 0 }],
   graphicalAbstractFile: '',
@@ -151,7 +191,10 @@ function removeSlides() {
   slidesFile.value = null;
 }
 
-// Poster (single-page PDF up to 10MB)
+function removeSlides() {
+  slidesFile.value = null;
+}
+
 const posterFile = ref<File | null>(null);
 
 function onUploadPoster(e: Event) {
@@ -172,10 +215,41 @@ function removePoster() {
 // Additional info: any files
 const additionalFiles = ref<File[]>([]);
 
-function onUploadAdditional(e: Event) {
+async function onUploadAdditional(e: Event) {
   const input = e.target as HTMLInputElement;
-  const files = input.files ? Array.from(input.files) : [];
-  additionalFiles.value = files;
+  const files = input.files;
+  if (!files || files.length === 0) return;
+
+  for (const file of Array.from(files)) {
+    if (file.size > 10 * 1024 * 1024) {
+      ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
+      continue;
+    }
+
+    const formData = new FormData();
+    formData.append('paper_id', paperId.value.toString());
+    formData.append('file_type', 'poster');
+    formData.append('file', file);
+
+    try {
+      const response = await UploadVideo(formData);
+      posterFiles.value.push({
+        file: file,
+        uploaded: true,
+        url: response.data?.url || '',
+      });
+      ElMessage.success(`${file.name} uploaded successfully!`);
+    } catch {
+      posterFiles.value.push({
+        file: file,
+        uploaded: false,
+      });
+      ElMessage.error(`Failed to upload ${file.name}`);
+    }
+  }
+
+  // 清空input
+  input.value = '';
 }
 
 function clearAdditional() {
@@ -191,13 +265,11 @@ function saveDetails() {
   });
 }
 
-// PDF Preview Modal
 const pdfModalVisible = ref(false);
 const currentPdfUrl = ref('');
 const currentPdfTitle = ref('');
 const currentPdfFile = ref<File | null>(null);
 
-// Mobile detection
 const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 });
@@ -257,16 +329,12 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
         <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
         <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
+        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+          Info</button>
         <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
+
       <section class="right-panel">
-        <!-- <header class="user-summary">
-          <div class="user-avatar" v-if="user?.avatar">
-            <img :src="getImageUrl(user?.avatar)" alt="User Avatar" />
-          </div>
-          <div class="user-name">{{ user?.name }}</div>
-        </header> -->
         <header class="event-header">
           <div class="conference-header">
             <div class="logo" v-if="myPaperDetailInfo?.conference.logo">
@@ -278,11 +346,13 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
+                    myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
+                    myPaperDetailInfo?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
@@ -308,15 +378,17 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           <div class="meta">
             <div class="title">{{ myPaperDetailInfo?.title }}</div>
             <div class="authors">
-              <span class="author-name">John Smith<sup>1</sup></span
-              >, <span class="author-name">Jane Doe<sup>2</sup></span
-              >,
+              <span class="author-name">John Smith<sup>1</sup></span>, <span class="author-name">Jane
+                Doe<sup>2</sup></span>,
               <span class="author-name">Bob Johnson<sup>1,3</sup></span>
             </div>
             <div class="affiliations">
-              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
-              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
-              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
+              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA,
+                USA</div>
+              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory,
+                Cambridge, MA, USA</div>
+              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California,
+                Berkeley, CA, USA</div>
             </div>
             <div class="session-notice">
               <div class="session-header">
@@ -341,17 +413,50 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
                     <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
                   </div>
                 </div>
-                <!-- <button class="schedule-action-btn" @click="addToSchedule">
-                  <span class="btn-icon">📌</span>
-                  Add to My Schedule
-                </button> -->
+                当机构列表为空的时候，渲染一个空状态 -->
+                <!-- <div v-else class="empty-state">
+                  <div class="empty-text">No affiliation information available</div>
+                </div>
+              </div>  -->
+                <div class="session-notice">
+                  <div class="session-header">
+                    <div class="notice-title">Important Conference Schedule</div>
+                  </div>
+                  <div class="session-content">
+                    <div class="schedule-details">
+                      <div class="schedule-row">
+                        <span class="schedule-label">📅 Date:</span>
+                        <span class="schedule-value">{{ sessionInfo.dateDisplay }}</span>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="schedule-label">🏢 Room:</span>
+                        <span class="schedule-value">{{ sessionInfo.room }}</span>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="schedule-label">🎯 Session:</span>
+                        <span class="schedule-value">{{ sessionInfo.session }}</span>
+                      </div>
+                      <div class="schedule-row">
+                        <span class="schedule-label">📄 Paper ID:</span>
+                        <span class="schedule-value">{{ sessionInfo.paperID }}</span>
+                      </div>
+                    </div>
+                    <!-- <button class="schedule-action-btn" @click="addToSchedule"> -->
+                    <span class="btn-icon">📌</span>
+                    Add to My Schedule
+                    <!-- </button> -->
+                  </div>
+                </div>
+                <div class="dates">
+                  Date Created: {{ eventMeta?.conference.start_time }} · Date Edited:
+                  {{ eventMeta?.conference.end_time }}
+                </div>
+              </div>
+              <div class="dates">
+                Date Created: {{ myPaperDetailInfo?.conference.start_time }} · Date Edited:
+                {{ myPaperDetailInfo?.conference.end_time }}
               </div>
             </div>
-            <div class="dates">
-              Date Created: {{ myPaperDetailInfo?.conference.start_time }} · Date Edited:
-              {{ myPaperDetailInfo?.conference.end_time }}
-            </div>
-          </div>
         </header>
 
         <div v-if="activeTab === 'details'" class="tab-content">
@@ -362,15 +467,18 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="myPaperDetailInfo?.abstract"></textarea>
+              <textarea v-model="detailFormCopy.abstract" rows="6"
+                :placeholder="myPaperDetailInfo?.abstract"></textarea>
             </div>
             <div class="form-item">
               <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
-              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
+              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png"
+                @change="onUploadGraphicalAbstract" style="display: none" />
               <button @click="onUploadGraphicalAbstract(e)" class="upload-btn">Upload Image</button>
               <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
               <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
-                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-if="isMove" />
+                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract"
+                  v-if="isMove" />
                 <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-else />
                 <button @click="deleteImage()" class="remove-btn">Remove</button>
               </div>
@@ -378,15 +486,16 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             <div class="form-item full">
               <label>Keywords</label>
               <div class="keywords">
-                <input v-for="(k, i) in detailFormCopy?.keywords" v-model="k.name" :key="i" :placeholder="k.name" />
+                <input v-for="(k, i) in detailsForm.keywords" :key="i" v-model="detailsForm.keywords[i]"
+                  placeholder="Keyword" />
               </div>
             </div>
             <div class="form-actions">
-              <button @click="saveDetails()" class="save-btn">Save Details</button>
+              <button @click="saveDetails" class="save-btn">Save Details</button>
             </div>
           </div>
         </div>
-
+        <!--        如果左侧选择了视频-->
         <div v-else-if="activeTab === 'video'" class="tab-content">
           <div class="video-upload">
             <label class="checkbox">
@@ -406,12 +515,14 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               <button @click="removeVideo" class="remove-btn">Remove</button>
             </div>
             {{ videoShow }}
-            <video v-if="videoShow || videoSrc" class="preview-video" controls :src="videoSrc ?? videoShow ?? undefined"></video>
+            <video v-if="videoShow || videoSrc" class="preview-video" controls
+              :src="videoSrc ?? videoShow ?? undefined"></video>
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
+          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides"
+            style="display: none" />
           <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
           <div class="file-row" v-if="slidesFile">
             <div class="file-info">
@@ -426,17 +537,17 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           <div class="pdf-preview" v-if="slidesFile">
             <div class="pdf-preview-header">
               <span class="pdf-title">{{ slidesFile.name }}</span>
-              <button @click="openPdfModal('slides')" class="preview-btn">Preview PDF</button>
+              <button @click="openPdfModal('slides')" class="preview-btn">Full Screen</button>
             </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('slides')">
-              <div class="pdf-icon">📄</div>
-              <div class="pdf-info">Click to preview PDF</div>
+            <div class="pdf-viewer-container">
+              <!-- <iframe :src="pdfSrc" class="pdf-viewer-iframe" frameborder="0"></iframe> -->
             </div>
           </div>
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
+          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster"
+            style="display: none" />
           <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
           <div class="file-row" v-if="posterFile">
             <div class="file-info">
@@ -460,25 +571,74 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           </div>
         </div>
 
-        <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
-          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
-          <div class="file-list" v-if="additionalFiles.length">
-            <div class="file-row" v-for="(f, i) in additionalFiles" :key="i">
+        <!-- <div class="file-list" v-if="apiPosterFiles.length || posterFiles.length"> -->
+        <!-- 显示API数据中的poster文件 -->
+        <!-- <div class="file-row" v-for="(fileItem, index) in apiPosterFiles" :key="'api-' + index">
               <div class="file-info">
-                <div class="file-icon">📎</div>
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
                 <div class="file-details">
-                  <div class="file-name">{{ f.name }}</div>
-                  <div class="file-size">{{ (f.size / 1024 / 1024).toFixed(2) }} MB</div>
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">API File</div>
+                  <div class="file-status uploaded">✓ From Server</div>
                 </div>
               </div>
-              <button @click="additionalFiles.splice(i, 1)" class="remove-btn">Remove</button>
+              <a :href="fileItem.url" target="_blank" class="download-btn">Download</a>
+            </div> -->
+        <!-- 显示新上传的文件 -->
+        <div class="file-row" v-for="(fileItem, index) in posterFiles" :key="'new-' + index">
+          <div class="file-info">
+            <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
+            <div class="file-details">
+              <div class="file-name">{{ fileItem.file.name }}</div>
+              <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
+              <div class="file-status" :class="{ uploaded: fileItem.uploaded, failed: !fileItem.uploaded }">
+                {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
+              </div>
+            </div>
+          </div>
+          <button @click="removePoster(index)" class="remove-btn">Remove</button>
+        </div>
+  </div>
+  </section>
+  </section>
+
+  </div>
+
+  <!-- <div v-else-if="activeTab === 'additional'" class="tab-content">
+          <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
+          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
+          <div class="file-list" v-if="apiAdditionalFiles.length || additionalFiles.length">
+             显示API数据中的additional文件 -->
+  <!-- <div class="file-row" v-for="(fileItem, index) in apiAdditionalFiles" :key="'api-' + index">
+              <div class="file-info">
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
+                <div class="file-details">
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">API File</div>
+                  <div class="file-status uploaded">✓ From Server</div>
+                </div>
+              </div>
+              <a :href="fileItem.url" target="_blank" class="download-btn">Download</a>
+            </div>
+            显示新上传的文件 -->
+  <!-- <div class="file-row" v-for="(fileItem, index) in additionalFiles" :key="'new-' + index">
+              <div class="file-info">
+                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
+                <div class="file-details">
+                  <div class="file-name">{{ fileItem.file.name }}</div>
+                  <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
+                  <div class="file-status" :class="{ uploaded: fileItem.uploaded, failed: !fileItem.uploaded }">
+                    {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
+                  </div>
+                </div>
+              </div>
+              <button @click="additionalFiles.splice(index, 1)" class="remove-btn">Remove</button>
             </div>
             <button @click="clearAdditional" class="clear-btn">Clear All</button>
           </div>
-        </div>
+        </div> -->
 
-        <div v-else-if="activeTab === 'fulltext'" class="tab-content">
+  <!-- <div v-else-if="activeTab === 'fulltext'" class="tab-content">
           <div class="fulltext-section">
             <div class="checklist">
               <div class="item">
@@ -497,7 +657,12 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!posterFile }">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status"
+                  :class="{ ok: apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some((f) => f.uploaded)) }">
+                  {{apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some((f) => f.uploaded)) ?
+                    'Uploaded' :
+                    'Missing'}}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
@@ -507,37 +672,40 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               </div>
             </div>
           </div>
-        </div>
-      </section>
-    </section>
+        </div> -->
 
-    <!-- PDF Preview Modal -->
-    <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
-      <div class="pdf-modal" @click.stop>
-        <div class="pdf-modal-header">
-          <h3>{{ currentPdfTitle }}</h3>
-          <button @click="closePdfModal" class="close-btn">×</button>
-        </div>
-        <div class="pdf-modal-content">
-          <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0"></iframe>
-          <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
-            <!-- Mobile PDF display using object tag -->
-            <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
-              <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe" />
-              <div class="pdf-fallback-mobile">
-                <div class="pdf-icon">📄</div>
-                <p>{{ getCurrentFileName() }}</p>
-              </div>
-            </object>
-            <!-- Mobile action buttons -->
-            <div class="mobile-pdf-actions">
-              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
-              <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
+  <!-- PDF Preview Modal -->
+  <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
+    <div class="pdf-modal" @click.stop>
+      <div class="pdf-modal-header">
+        <h3>{{ currentPdfTitle }}</h3>
+        <button @click="closePdfModal" class="close-btn">×</button>
+      </div>
+      <div class="pdf-modal-content">
+        <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0"></iframe>
+        <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
+          <!-- Mobile PDF display using object tag -->
+          <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
+            <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe" />
+            <div class="pdf-fallback-mobile">
+              <div class="pdf-icon">📄</div>
+              <p>{{ getCurrentFileName() }}</p>
             </div>
+          </object>
+          <!-- Mobile action buttons -->
+          <div class="mobile-pdf-actions">
+            <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
+            <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
           </div>
-          <div v-else class="pdf-loading">Loading PDF...</div>
+          </object>
+          <div class="mobile-pdf-actions">
+            <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
+            <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
+          </div>
         </div>
+        <div v-else class="pdf-loading">Loading PDF...</div>
       </div>
     </div>
   </div>
+
 </template>

@@ -256,6 +256,36 @@
           }
         }
         
+        // 空状态样式 - 当没有作者或机构信息时显示
+        // @author：张明 如有问题 请找我修改
+        .empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          background: rgba(248, 250, 252, 0.5);
+          border: 2px dashed rgba(148, 163, 184, 0.3);
+          border-radius: 12px;
+          margin: 8px 0;
+          
+          // 空状态图标
+          .empty-icon {
+            font-size: rpx(32);
+            margin-bottom: 8px;
+            opacity: 0.6;
+          }
+          
+          // 空状态文字
+          .empty-text {
+            font-size: rpx(16);
+            color: #64748b;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.4;
+          }
+        }
+        
         .dates { 
           font-size: rpx(16); 
           color: #64748b; 
@@ -1212,6 +1242,28 @@
       }
     }
     
+    // PDF预览容器样式
+    .pdf-viewer-container {
+      width: 100%;
+      height: 500px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f8fafc;
+      margin-top: 12px;
+      
+      .pdf-viewer-iframe {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: white;
+      }
+      
+      @include screen-mobile {
+        height: 400px;
+      }
+    }
+    
     @include screen-mobile {
       padding: 12px;
       width: 100%;
@@ -1294,6 +1346,104 @@ button.withdraw-btn-mobile {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
     transform: translateY(-1px) !important;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+  }
+}
+
+// 文件状态样式
+.file-status {
+  font-size: rpx(20);
+  margin-top: 4px;
+  
+  &.uploaded {
+    color: #52c41a;
+    font-weight: 500;
+  }
+  
+  &.failed {
+    color: #ff4d4f;
+    font-weight: 500;
+  }
+}
+
+// 下载按钮样式
+.download-btn {
+  padding: 6px 12px;
+  background: #1890ff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: rpx(20);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #40a9ff;
+    color: white;
+  }
+}
+
+// 空状态样式
+.empty-conference-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 40px 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  
+  .empty-content {
+    text-align: center;
+    max-width: 400px;
+    
+    .empty-icon {
+      font-size: rpx(60);
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+    
+    .empty-title {
+      font-size: rpx(24);
+      font-weight: 600;
+      color: #1a3566;
+      margin-bottom: 8px;
+    }
+    
+    .empty-description {
+      font-size: rpx(18);
+      color: #666;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .retry-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: rpx(18);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      
+      .btn-icon {
+        font-size: rpx(20);
+      }
+      
+      &:hover {
+        background: linear-gradient(135deg, #40a9ff 0%, #69c0ff 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.3);
+      }
+      
+      &:active {
+        transform: translateY(0);
+      }
+    }
   }
 }
 

@@ -128,7 +128,7 @@ const router = createRouter({
       path: '/conference',
       name: 'conference',
       // redirect: '/invitation',
-      component: () => import('@/views/conference.vue'),
+      component: () => import('@/views/conference-view.vue'),
     },
     {
       path: '/conference/my-events/:conferenceId/:paperId',
@@ -140,7 +140,7 @@ const router = createRouter({
       path: '/conference/featured-events/:conferenceId',
       name: 'FeaturedEvents',
       component: () => import('@/views/components/feature_events.vue'),
-      props:true,
+      props: true,
     },
   ],
 });

@@ -35,3 +35,7 @@ auto-imports.d.ts
 components.d.ts
 dist.tar.gz
 dist.*
+pnpm-lock.yaml
+.cursor/
+/.cursor/rules/
+vite.config.ts
