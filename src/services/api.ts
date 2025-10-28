@@ -233,3 +233,12 @@ export const deleteFile = (params: { paper_id: number, file_type: string, file_p
 
 // 获取schedule列表
 export const getScheduleList = () => http.get('/schedule')
+
+
+/* 
+
+根据会议ID查询论文
+*/
+export const getConferenceIdPaper = (id: string, search?: string | null) => http.get(`/conference/${id}/papers`, {
+  params: { search }
+})

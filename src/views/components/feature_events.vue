@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
-import type { IConferenceParticipation } from '@/types/conference';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 
 interface IPaper {
   id: number;
@@ -22,26 +21,28 @@ interface IPaper {
   poster: string | null;
   additionalInfo: string | null;
 }
-const route = useRoute();
 const router = useRouter();
-const conferenceId = computed(() => Number(route.params.conferenceId));
 const conferenceStore = useConferenceStore();
+const props = defineProps({
+  conferenceId: {
+    type: String,
+    required: true
+  }
+})
+onMounted(() => {
+  conferenceStore.getConferencesList();
+})
 
-
-conferenceStore.getConferencesList()
+watch(() => props.conferenceId, (val, old) => {
+  if (val !== old) {
+    conferenceStore.getConferenceDetails(val);
+    conferenceStore.getConferencePaper(val);
+  }
+}, { immediate: true });
 
 const featuredConferences = computed(() => conferenceStore.conferenceList);
-const conferenceDetail = ref<IConferenceParticipation | null | undefined>(null);
+const conferenceDetail = computed(() => conferenceStore.conferenceDetail);
 
-watch(conferenceId, async (newId) => {
-  if (!newId) {
-    if (!newId) return
-  }
-  await conferenceStore.getConferenceDetails(newId);
-  conferenceDetail.value = conferenceStore.conferenceDetail
-},
-  { immediate: true }
-)
 
 
 const selectedConference = computed({
@@ -49,52 +50,39 @@ const selectedConference = computed({
   set: (val) => (conferenceDetail.value = val),
 });
 
-const searchQuery = ref('');
-const selectedPaper = ref<IPaper | null>(null);
-const showPaperModal = ref(false);
-const activeTab = ref('details');
-const currentPage = ref(1);
-const papersPerPage = ref(12);
-const totalPages = computed(() => {
-  return Math.ceil(filteredPapers.value.length / papersPerPage.value);
-});
-const paginatedPapers = computed(() => {
-  const start = (currentPage.value - 1) * papersPerPage.value;
-  const end = start + papersPerPage.value;
-  return filteredPapers.value.slice(start, end);
-});
-watch(searchQuery, () => {
-  currentPage.value = 1;
-});
-const conferenceStats = computed(() => ({
+const searchQuery = ref('');//搜索框绑定的输入值
+const selectedPaper = ref<IPaper | null>(null);//当前选中的论文对象
+const showPaperModal = ref(false);//控制论文详情弹窗是否显示
+const activeTab = ref('details');//当前激活的 Tab
+// const currentPage = ref(1);//当前分页页码
+// const papersPerPage = ref(20);//每页显示论文数量（默认 12）
+
+// const filteredPapers = selectedConference.value?.papers
+
+const conferencePapers = computed(() => conferenceStore.conferencePaper);
+
+
+
+
+
+// watch(searchQuery, () => {
+//   currentPage.value = 1;
+// });
+
+const conferenceStats = computed(() => ({//统计会议数量和类别
   totalConferences: featuredConferences.value?.length,
   categories: [...new Set(featuredConferences.value?.map((c) => c.conference_type))],
 }));
-const filteredPapers = computed(() => {
-  if (!selectedConference.value?.papers) return [];
 
-  if (!searchQuery.value.trim()) {
-    return selectedConference.value.papers;
-  }
-
-  const query = searchQuery.value.toLowerCase();
-  return selectedConference.value.papers.filter(
-    (paper) =>
-      paper.title.toLowerCase().includes(query) ||
-      paper.authors.some((author) => author.toLowerCase().includes(query)) ||
-      paper.institutions.some((institution) => institution.toLowerCase().includes(query)) ||
-      paper.keywords.some((keyword) => keyword.toLowerCase().includes(query)),
-  );
-});
 
 //点击请求新会议
-async function selectConference(id: number) {
+// async function selectConference(id: number) {
 
-  router.push({ name: 'FeaturedEvents', params: { conferenceId: id } })
-  await conferenceStore.getConferenceDetails(id);
-  conferenceDetail.value = conferenceStore.conferenceDetail;
+//   router.push({ name: 'FeaturedEvents', params: { conferenceId: id } })
+//   await conferenceStore.getConferenceDetails(id);
+//   conferenceDetail.value = conferenceStore.conferenceDetail;
 
-}
+// }
 
 function registerInterest(conferenceId: number) {
   ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
@@ -122,27 +110,16 @@ function getAuthorAffiliations(authorIndex: number, paper: IPaper): string {
   return (institutionIndex + 1).toString();
 }
 
-function goToPage(page: number) {
-  if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page;
-  }
+
+function seachPaper() {
+  conferenceStore.getConferencePaper(props.conferenceId, searchQuery.value);
 }
 
-function nextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-}
-
-function prevPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-}
 </script>
 
 <template>
   <div class="background-layer"></div>
+
   <div class="featured-events-page main">
     <commonHeader />
 
@@ -156,20 +133,22 @@ function prevPage() {
             <span class="stat-item">{{ conferenceStats.categories.length }} Categories</span>
           </div>
         </div>
+
         <div class="conference-list">
-          <div v-for="conf in featuredConferences" :key="conf.id"
-            :class="['conference-card', { active: selectedConference?.id === conf.id }]"
-            @click="selectConference(conf.id)">
+          <router-link v-for="conf in featuredConferences" :key="conf.id"
+            :class="['conference-card', { active: selectedConference?.id === conf.id }]" :to="{
+              name: 'FeaturedEvents',
+              params: { conferenceId: conf.id }
+            }">
             <div class="card-logo">
               <img :src="getImageUrl(conf.logo)" :alt="conf.abbreviation" />
             </div>
             <div class="card-info">
-              <div class="card-name">{{ conf.name }}</div>
+              <div class="card-name">{{ conf.abbreviation }}</div>
               <div class="card-category">{{ conf.conference_type }}</div>
               <div class="card-date">{{ formatRange(conf.start_time, conf.end_time) }}</div>
-              <!-- <div class="card-tier" :style="{ color: getTierColor(conf.tier) }">{{ conf.tier }}</div> -->
             </div>
-          </div>
+          </router-link>
         </div>
       </aside>
 
@@ -183,15 +162,16 @@ function prevPage() {
             <div class="conference-info">
               <div class="conference-name">{{ selectedConference?.name }}</div>
               <div class="conference-full-name">{{ selectedConference?.abbreviation }}</div>
+
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</span>
+                    }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ selectedConference?.city }},{{ selectedConference?.country }}</span>
+                  <span class="detail-text">{{ selectedConference?.city }}, {{ selectedConference?.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
@@ -203,44 +183,15 @@ function prevPage() {
 
           <div class="conference-links">
             <a :href="selectedConference?.website" target="_blank" class="conf-link">
-              <span class="link-icon">🌐</span>
-              Official Website
+              <span class="link-icon">🌐</span> Official Website
             </a>
             <a :href="selectedConference?.committee_website" target="_blank" class="conf-link">
-              <span class="link-icon">👥</span>
-              Committee
+              <span class="link-icon">👥</span> Committee
             </a>
             <a :href="selectedConference?.registration_website" target="_blank" class="conf-link">
-              <span class="link-icon">📝</span>
-              Registration
+              <span class="link-icon">📝</span> Registration
             </a>
           </div>
-
-          <!-- Conference Statistics & Info -->
-          <!-- <div class="conference-stats">
-              <div class="stats-grid">
-                <div class="stat-card">
-                  <div class="stat-icon">⭐</div>
-                  <div class="stat-value">{{ selectedConference.tier }}</div>
-                  <div class="stat-label">Conference Tier</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-icon">📊</div>
-                  <div class="stat-value">{{ selectedConference.acceptanceRate }}</div>
-                  <div class="stat-label">Acceptance Rate</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-icon">👥</div>
-                  <div class="stat-value">{{ selectedConference.expectedAttendees }}</div>
-                  <div class="stat-label">Expected Attendees</div>
-                </div>
-                <div class="stat-card">
-                  <div class="stat-icon">🏷️</div>
-                  <div class="stat-value">{{ selectedConference.category }}</div>
-                  <div class="stat-label">Research Area</div>
-                </div>
-              </div>
-            </div> -->
 
           <!-- Conference Description -->
           <div class="conference-description">
@@ -281,7 +232,7 @@ function prevPage() {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</div>
+                    }}</div>
                 </div>
               </div>
             </div>
@@ -290,16 +241,13 @@ function prevPage() {
           <!-- Action Buttons -->
           <div class="action-buttons">
             <button @click="registerInterest(selectedConference!.id)" class="interest-btn">
-              <span class="btn-icon">💡</span>
-              Add to Favourite
+              <span class="btn-icon">💡</span> Add to Favourite
             </button>
             <a :href="selectedConference?.website" target="_blank" class="visit-btn">
-              <span class="btn-icon">🔗</span>
-              Visit Website
+              <span class="btn-icon">🔗</span> Visit Website
             </a>
             <a :href="selectedConference?.registration_website" target="_blank" class="register-btn">
-              <span class="btn-icon">📝</span>
-              Register Now
+              <span class="btn-icon">📝</span> Register Now
             </a>
           </div>
         </header>
@@ -311,15 +259,17 @@ function prevPage() {
             <div class="search-container">
               <input v-model="searchQuery" type="text"
                 placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" />
-              <el-button icon="Search" class="search-btn" />
+              <el-button icon="Search" class="search-btn" @click="seachPaper()" />
             </div>
           </div>
 
           <div class="papers-list">
-            <div v-for="paper in paginatedPapers" :key="paper.id" class="paper-card" @click="openPaperModal(paper)">
-              <div class="paper-title">{{ paper.title }}</div>
-              <div class="paper-authors">{{ paper.authors.join(', ') }}</div>
-              <div class="paper-institutions">{{ paper.institutions.join(', ') }}</div>
+            <div v-for="paper in conferencePapers" :key="paper.id" class="paper-card" @click="openPaperModal(paper)">
+              <div class="paper-title">{{ paper.paper_title }}</div>
+              <template v-for="authors in paper.paper_authors" :key="authors.id">
+                <div class="paper-authors">{{ authors.name }}</div>
+                <div class="paper-institutions">{{ authors.affiliation }}</div>
+              </template>
               <div class="paper-keywords">
                 <span v-for="keyword in paper.keywords" :key="keyword" class="keyword-tag">
                   {{ keyword }}
@@ -327,35 +277,9 @@ function prevPage() {
               </div>
             </div>
 
-            <div v-if="filteredPapers.length === 0" class="no-papers">
+            <div v-if="conferencePapers?.length === 0" class="no-papers">
               <p>No papers found matching your search criteria.</p>
             </div>
-          </div>
-
-          <!-- Pagination -->
-          <div v-if="totalPages > 1" class="pagination">
-            <button @click="prevPage" :disabled="currentPage === 1" class="page-btn prev-btn">← Previous</button>
-
-            <div class="page-numbers">
-              <button v-for="page in Math.min(5, totalPages)" :key="page" @click="goToPage(page)"
-                :class="['page-btn', { active: currentPage === page }]">
-                {{ page }}
-              </button>
-
-              <span v-if="totalPages > 5" class="page-ellipsis">...</span>
-
-              <button v-if="totalPages > 5" @click="goToPage(totalPages)"
-                :class="['page-btn', { active: currentPage === totalPages }]">
-                {{ totalPages }}
-              </button>
-            </div>
-
-            <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn next-btn">Next →</button>
-          </div>
-
-          <div class="papers-info">
-            <p>Showing {{ (currentPage - 1) * papersPerPage + 1 }} - {{ Math.min(currentPage * papersPerPage,
-              filteredPapers.length) }} of {{ filteredPapers.length }} papers</p>
           </div>
         </div>
       </section>
@@ -375,10 +299,12 @@ function prevPage() {
               <h4>Authors</h4>
               <div class="authors-list">
                 <span v-for="(author, index) in selectedPaper?.authors" :key="index" class="author-name">
-                  {{ author }}<sup>{{ selectedPaper ? getAuthorAffiliations(index, selectedPaper) : '' }}</sup>{{ index
-                    < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                  {{ author }}
+                  <sup>{{ selectedPaper ? getAuthorAffiliations(index, selectedPaper) : '' }}</sup>
+                  {{ index < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
               </div>
             </div>
+
             <div class="info-section">
               <h4>Affiliations</h4>
               <div class="affiliations-list">
@@ -438,8 +364,9 @@ function prevPage() {
             </div>
 
             <div v-if="activeTab === 'videos'" class="videos-content">
-              <video v-if="selectedPaper?.video" :src="selectedPaper.video" controls class="paper-video">Your browser
-                does not support the video tag.</video>
+              <video v-if="selectedPaper?.video" :src="selectedPaper.video" controls class="paper-video">
+                Your browser does not support the video tag.
+              </video>
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
