@@ -105,6 +105,26 @@ const shouldShowPdfPreview = computed(() => {
   return posterFileList.value.length === 1 && posterFileList.value[0]?.url && isPdfFile(posterFileList.value[0].url);
 });
 
+// 判断是否应该显示图片预览
+const shouldShowImagePreview = computed(() => {
+  return posterFileList.value.length === 1 && posterFileList.value[0]?.url && isImageFile(posterFileList.value[0].url);
+});
+
+// 获取图片URL
+const imageUrl = computed(() => {
+  return shouldShowImagePreview.value ? posterFileList.value[0].url : null;
+});
+
+// 动态计算上传块高度
+const uploadBlockHeight = computed(() => {
+  if (shouldShowImagePreview.value && imageUrl.value) {
+    // 如果有图片预览，返回动态高度，最大600px
+    return 'auto';
+  }
+  // 默认高度
+  return '120px';
+});
+
 // 获取视频URL
 const videoUrl = computed(() => {
   return shouldShowVideoPlayer.value ? posterFileList.value[0].url : null;
@@ -223,13 +243,32 @@ const handleUploadProgress = () => {
       :limit="props.limit === -1 ? undefined : props.limit"
       :disabled="isUploadDisabled || uploadLoading"
       class="upload-area"
-      :class="{ 'upload-disabled': isUploadDisabled, 'upload-loading': uploadLoading }"
+      :class="{ 
+        'upload-disabled': isUploadDisabled && !shouldShowImagePreview, 
+        'upload-loading': uploadLoading,
+        'upload-image-preview': shouldShowImagePreview
+      }"
     >
-      <div class="upload-block" :class="{ 'upload-block-disabled': isUploadDisabled, 'upload-block-loading': uploadLoading }">
+      <div 
+        class="upload-block" 
+        :class="{ 
+          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview, 
+          'upload-block-loading': uploadLoading,
+          'upload-block-image-preview': shouldShowImagePreview
+        }"
+        :style="{ height: uploadBlockHeight }"
+      >
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
           <div class="upload-loading-text">上传中...</div>
+        </div>
+        <!-- 图片预览状态 -->
+        <div v-else-if="shouldShowImagePreview" class="image-preview-container" @click="handlePictureCardPreview(posterFileList[0] as any)">
+          <img :src="imageUrl || ''" :alt="posterFileList[0]?.name" class="preview-image" />
+          <div class="image-overlay">
+            <div class="image-overlay-text">点击预览</div>
+          </div>
         </div>
         <!-- 正常状态 -->
         <template v-else>
@@ -296,10 +335,23 @@ const handleUploadProgress = () => {
     background-color: #fafafa;
     transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 
     &:hover {
       border-color: #409eff;
       background-color: #f0f9ff;
+    }
+  }
+
+  &.upload-image-preview {
+    :deep(.el-upload) {
+      height: auto;
+      min-height: 120px;
+      max-height: 600px;
+      align-items: stretch;
+      background-color: #fff;
+      opacity: 1;
     }
   }
 
@@ -342,6 +394,15 @@ const handleUploadProgress = () => {
   justify-content: center;
   color: #666;
   font-size: 14px;
+}
+
+.upload-block-image-preview {
+  display: block;
+  height: auto;
+  max-height: 600px;
+  min-height: 120px;
+  background-color: #fff;
+  opacity: 1 !important;
 }
 
 .upload-icon {
@@ -505,5 +566,58 @@ const handleUploadProgress = () => {
   height: 600px;
   border: none;
   background-color: #f5f5f5;
+}
+
+.image-preview-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  border: none;
+  display: block;
+  opacity: 1 !important;
+
+  &:hover {
+    .image-overlay {
+      opacity: 1;
+    }
+  }
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  object-fit: contain;
+  display: block;
+  background-color: #fff;
+  opacity: 1 !important;
+  position: relative;
+  z-index: 1;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.image-overlay-text {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
 }
 </style>

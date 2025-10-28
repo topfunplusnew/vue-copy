@@ -326,7 +326,7 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
               <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="myPaperDetailInfo?.abstract"></textarea>
             </div>
             <div class="form-item">
-              <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
+              <label>Graphical Abstract</label>
               <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
               <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
             </div>
