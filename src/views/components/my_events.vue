@@ -28,10 +28,8 @@ function setActiveTab(tab: TabKey) {
 
 // 从路由参数获取conferenceId
 const paperId = computed(() => {
-  // const id = route.params.paperId;
-  // return typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 2;
-  // TODO 暂时写死了
-  return 2;
+  const id = route.params.paperId;
+  return typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 2;
 });
 
 conferenceStore.getMyPapers(paperId.value);

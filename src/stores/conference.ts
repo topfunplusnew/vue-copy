@@ -12,10 +12,12 @@ export const useConferenceStore = defineStore('meet', () => {
 
   // 获取会议列表
   async function getConferenceList() {
-    return await ConferenceList().then((res) => {
-      list.value = res.data.items;
-      return res;
-    });
+    const response = await ConferenceList();
+    if (response.status !== 200) {
+      ElMessage.error(response.data.message);
+      return;
+    }
+    list.value = response.data.items;
   }
 
   //获取会议详情

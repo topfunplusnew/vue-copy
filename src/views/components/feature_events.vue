@@ -7,45 +7,12 @@ import type { IConferenceParticipation } from '@/types/conference';
 import { formatRange } from '@/utils/date';
 
 const props = defineProps<{ conferenceId: number }>();
-const story = useConferenceStore();
-
-// Featured conference data - multiple conferences
-const featuredConferences = computed(() => story.list);
-
-// Current selected conference
-const conferenceDetail = ref<IConferenceParticipation | null>({
-  id: 0,
-  name: '',
-  abbreviation: '',
-  logoUrl: '',
-  sessions: [],
-  start_time: '',
-  end_time: '',
-  registration_fee: 0,
-  currency: '',
-  fullName: '',
-  place_position: {
-    // 根据你的 IConferencePosition 类型来补充
-    formatted_address: '',
-    name: '',
-  },
-  website: '',
-  conference_type: '',
-  created_at: '',
-  updated_at: '',
-  place_id: '',
-  keywords: [],
-  papers: [],
-  description: '',
-  city: '',
-  country: '',
-  address: '',
-  submission_deadline: '',
-  notification_date: '',
-});
+const conferenceStore = useConferenceStore();
+const featuredConferences = computed(() => conferenceStore.list);
+const conferenceDetail = ref<IConferenceParticipation | null>(null);
 
 onMounted(async () => {
-  const { data } = await story.getConferenceDetails(props.conferenceId);
+  const { data } = await conferenceStore.getConferenceDetails(props.conferenceId);
   conferenceDetail.value = data;
 });
 
@@ -121,7 +88,7 @@ const filteredPapers = computed(() => {
 
 //点击请求新会议
 async function selectConference(id: number) {
-  const { data } = await story.getConferenceDetails(id);
+  const { data } = await conferenceStore.getConferenceDetails(id);
   conferenceDetail.value = data;
 }
 
@@ -220,7 +187,7 @@ function prevPage() {
         <header class="event-header">
           <div class="conference-header">
             <div class="logo">
-              <img :src="selectedConference?.logoUrl" :alt="selectedConference?.name" />
+              <img :src="selectedConference?.logo" :alt="selectedConference?.abbreviation" />
             </div>
             <div class="conference-info">
               <div class="conference-name">{{ selectedConference?.name }}</div>
