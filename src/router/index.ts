@@ -131,7 +131,7 @@ const router = createRouter({
       component: () => import('@/views/conference-view.vue'),
     },
     {
-      path: '/conference/my-events/:conferenceId/:paperId',
+      path: '/conference/my-events/:paperId',
       name: 'MyEventDetail',
       component: () => import('@/views/components/my_events.vue'),
       props: true,

@@ -184,7 +184,6 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
   if (!paperId.value) {
     return;
   }
-
   deleteLoading.value = true;
   deleteFile({
     paper_id: Number(paperId.value),
@@ -249,18 +248,18 @@ const handleUploadProgress = () => {
       :limit="props.limit === -1 ? undefined : props.limit"
       :disabled="isUploadDisabled || uploadLoading"
       class="upload-area"
-      :class="{ 
-        'upload-disabled': isUploadDisabled && !shouldShowImagePreview, 
+      :class="{
+        'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
-        'upload-image-preview': shouldShowImagePreview
+        'upload-image-preview': shouldShowImagePreview,
       }"
     >
-      <div 
-        class="upload-block" 
-        :class="{ 
-          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview, 
+      <div
+        class="upload-block"
+        :class="{
+          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
           'upload-block-loading': uploadLoading,
-          'upload-block-image-preview': shouldShowImagePreview
+          'upload-block-image-preview': shouldShowImagePreview,
         }"
         :style="{ height: uploadBlockHeight }"
       >
@@ -282,7 +281,7 @@ const handleUploadProgress = () => {
             <Plus />
           </el-icon>
           <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
-            {{ isUploadDisabled ? '已达到上传限制' : (props.limit === -1 ? '点击上传文件' : '点击上传文件') }}
+            {{ isUploadDisabled ? '已达到上传限制' : props.limit === -1 ? '点击上传文件' : '点击上传文件' }}
           </div>
         </template>
       </div>

@@ -1,26 +1,24 @@
 <script setup lang="ts">
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
-import { getImageUrl } from '@/utils/index';
+import { getImageUrl } from '@/utils';
 import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/services/api';
-import { uploadVideo } from '@/services/common/files.ts';
 import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
-
+const store = useConferenceStore();
 const route = useRoute();
-const graphicalAbstractInput = ref<HTMLInputElement>();
 const paperId = computed(() => Number(route.params.paperId));
 const activeTab = ref<TabKey>('details');
-
-const store = useConferenceStore();
-store.getMyPaper(paperId.value);
 const myPaperDetailInfo = computed(() => store.myPaperDetail);
-
+onMounted(async () => {
+  await store.getMyPaper(paperId.value);
+  console.log(`myPaperDetailInfo.value`, myPaperDetailInfo.value);
+});
 // 创建基于myPaperDetailInfo的reactive表单对象
 const formData = reactive({
   doi: '',
@@ -39,9 +37,7 @@ const initializeFormData = () => {
     formData.doi = String(myPaperDetailInfo.value.doi ?? '');
     formData.abstract = myPaperDetailInfo.value.abstract ?? '';
     // 将keywords从对象数组转换为字符串数组
-    formData.keywords = myPaperDetailInfo.value.keywords?.map(k => 
-      typeof k === 'string' ? k : k.name || ''
-    ).filter(Boolean) || [];
+    formData.keywords = myPaperDetailInfo.value.keywords?.map((k) => k.name || '').filter(Boolean) || [];
     formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
     formData.video = myPaperDetailInfo.value.video ?? '';
     formData.slide = myPaperDetailInfo.value.slide ?? '';
@@ -56,70 +52,32 @@ watch(
   () => {
     initializeFormData();
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
-const paperContent = reactive({
-  fileUrl: myPaperDetailInfo.value?.graphic_abstract,
-});
+const paperContent = computed(() => ({
+  fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
+}));
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
-  if (myPaperDetailInfo.value) {
-    paperContent.fileUrl = myPaperDetailInfo.value[getFileTypeByTabKey(tab)];
-  }
 }
 
 async function refreshPaperData() {
   await store.getMyPaper(paperId.value);
-  if (myPaperDetailInfo.value) {
-    paperContent.fileUrl = myPaperDetailInfo.value[getFileTypeByTabKey(activeTab.value)];
-    // 刷新后重新初始化表单数据
-    initializeFormData();
-  }
+  // 刷新后重新初始化表单数据
+  initializeFormData();
 }
 
-const imagePath = ref<string>('');
-
-function onUploadGraphicalAbstract(e: Event) {
-  graphicalAbstractInput.value?.click();
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  const valid = ['image/jpeg', 'image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024;
-  if (!valid) {
-    ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
-    return;
-  }
-
-  uploadVideo(uploadFile(file, 'graphic_abstract', '2'));
-
-  const url = URL.createObjectURL(file);
-  imagePath.value = url;
-  formData.graphic_abstract = url;
-}
-
-// Video
 const videoConsent = ref(!!myPaperDetailInfo.value?.video);
-
 // 监听paper数据变化，自动更新video consent状态
 watch(
   () => myPaperDetailInfo.value?.video,
   (hasVideo) => {
     videoConsent.value = !!hasVideo;
   },
-  { immediate: true }
+  { immediate: true },
 );
-
-function uploadFile(file: File, file_type: string, paper_id: string) {
-  const formData = new FormData();
-  formData.append('paper_id', paper_id);
-  formData.append('file_type', file_type);
-  formData.append('file', file);
-  return formData;
-}
-
-
 // 关键词搜索相关
 const keywordInput = ref('');
 let searchTimeout: NodeJS.Timeout | null = null;
@@ -130,25 +88,27 @@ const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) =>
   if (searchTimeout) {
     clearTimeout(searchTimeout);
   }
-  
+
   if (!queryString.trim()) {
     cb([]);
     return;
   }
-  
+
   // 添加防抖，避免频繁请求
   searchTimeout = setTimeout(() => {
     searchKeywordsAPI(queryString)
-      .then(response => {
+      .then((response) => {
         // 从响应中提取items数组，并获取关键词名称
         const items = response.data?.items || [];
-        const suggestions = items.map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
-          value: item.name || item.keyword || String(item)
-        })).filter((item: { value: string }) => item.value);
-        
+        const suggestions = items
+          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+            value: item.name || item.keyword || String(item),
+          }))
+          .filter((item: { value: string }) => item.value);
+
         cb(suggestions);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('搜索关键词失败:', error);
         cb([]);
       });
@@ -182,12 +142,12 @@ async function saveDetails() {
     const keywordsForBackend = formData.keywords.map((keyword, index) => ({
       name: keyword,
       id: index + 1,
-      order: index + 1
+      order: index + 1,
     }));
-    
+
     const updateData = {
       id: paperId.value,
-      doi: Number(formData.doi) || 0,
+      doi: formData.doi || '',
       abstract: formData.abstract,
       keywords: keywordsForBackend,
       graphic_abstract: formData.graphic_abstract,
@@ -196,10 +156,10 @@ async function saveDetails() {
       poster: formData.poster,
       addition_files: formData.addition_files,
     };
-    
+
     await updateMyPaperDetail(updateData);
     ElMessage.success('保存成功！');
-    
+
     // 保存成功后刷新数据
     await refreshPaperData();
   } catch (error) {
@@ -238,7 +198,79 @@ function openInNewTab() {
   }
 }
 
-const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
+// 获取机构列表 - 按作者顺序合并去重并重新编号
+const affiliations = computed(() => {
+  if (!myPaperDetailInfo.value?.authors) return [];
+
+  // 按作者的order属性排序
+  const sortedAuthors = [...myPaperDetailInfo.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // 收集所有机构，记录作者ID和原始机构ID
+  const allAffiliations: Array<{
+    authorId: number;
+    originalAffiliationId: number;
+    affiliation: {
+      id: number;
+      name: string;
+      department?: string;
+      university?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+    };
+  }> = [];
+
+  sortedAuthors.forEach((author) => {
+    if (author.affiliations && author.affiliations.length > 0) {
+      author.affiliations.forEach((affiliation) => {
+        allAffiliations.push({
+          authorId: author.id,
+          originalAffiliationId: affiliation.id,
+          affiliation: affiliation,
+        });
+      });
+    }
+  });
+
+  // 去重：相同原始机构ID只保留第一次出现的
+  const uniqueAffiliations = new Map();
+  const affiliationList: Array<{
+    id: number;
+    originalId: number;
+    name: string;
+    department?: string;
+    university?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  }> = [];
+
+  let newId = 1;
+  allAffiliations.forEach((item) => {
+    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+      const newAffiliation = {
+        id: newId++,
+        originalId: item.originalAffiliationId,
+        name: item.affiliation.name,
+        department: item.affiliation.department,
+        university: item.affiliation.university,
+        city: item.affiliation.city,
+        state: item.affiliation.state,
+        country: item.affiliation.country,
+      };
+      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+      affiliationList.push(newAffiliation);
+    }
+  });
+
+  return affiliationList;
+});
+
+// 根据机构原始ID获取新的编号
+function getAffiliationNumber(originalId: number): number {
+  const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
+  return affiliation ? affiliation.id : 0;
+}
 </script>
 
 <template>
@@ -297,40 +329,63 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           </div>
           <div class="meta">
             <div class="title">{{ myPaperDetailInfo?.title }}</div>
+
+            <!-- 渲染论文作者列表以及下标 -->
             <div class="authors">
-              <span class="author-name">John Smith<sup>1</sup></span
-              >, <span class="author-name">Jane Doe<sup>2</sup></span
-              >,
-              <span class="author-name">Bob Johnson<sup>1,3</sup></span>
+              <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
+                <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
+                  {{ author.name
+                  }}<template v-if="author?.affiliations?.length"
+                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
+                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                </span>
+              </div>
+              <!-- 当论文作者为空的时候 渲染一个空状态 -->
+              <div v-else class="empty-state">
+                <div class="empty-text">No authors information available</div>
+              </div>
             </div>
+            <!-- 渲染机构列表以及下标 -->
             <div class="affiliations">
-              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
-              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
-              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
+              <div v-if="affiliations.length" class="affiliations-list">
+                <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
+                  <sup>{{ affiliation.id }}</sup
+                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                </div>
+              </div>
+              <!-- 当机构列表为空的时候，渲染一个空状态 -->
+              <div v-else class="empty-state">
+                <div class="empty-text">No affiliation information available</div>
+              </div>
             </div>
             <div class="session-notice">
               <div class="session-header">
                 <div class="notice-title">Important Conference Schedule</div>
               </div>
               <div class="session-content">
-                <div class="schedule-details">
+                <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">{{ formatRange(sessionInfo?.start_time) }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.start_time }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
-                    <span class="schedule-value">{{ sessionInfo?.room_info }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.room_info }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🎯 Session:</span>
-                    <span class="schedule-value">{{ sessionInfo?.session_name }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.session_name }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">📄 Paper ID:</span>
-                    <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.id }}</span>
                   </div>
                 </div>
+                <!-- <button class="schedule-action-btn">
+                  <span class="btn-icon">📌</span>
+                  Add to My Schedule
+                </button> -->
               </div>
             </div>
             <div class="dates">
@@ -344,46 +399,34 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
-              <el-input 
-                v-model="formData.doi" 
-                :placeholder="`${myPaperDetailInfo?.doi ?? ''}`"
-                clearable
-              />
+              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <el-input 
-                v-model="formData.abstract" 
-                type="textarea" 
-                :rows="6" 
-                :placeholder="myPaperDetailInfo?.abstract"
-                resize="vertical"
-              />
+              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract" resize="vertical" />
             </div>
             <div class="form-item">
               <label>Graphical Abstract</label>
-              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
               <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
             </div>
             <div class="form-item full">
               <label>Keywords</label>
               <div class="keywords-container">
-                <el-tag
-                  v-for="(keyword, index) in formData.keywords"
-                  :key="index"
-                  closable
-                  @close="removeKeyword(index)"
-                >
-                  {{ keyword }}
-                </el-tag>
-                <el-autocomplete
-                  v-model="keywordInput"
-                  :fetch-suggestions="querySearchAsync"
-                  placeholder="请输入关键词..."
-                  style="width: 50%;"
-                  @select="handleSelect"
-                  @keyup.enter="addKeyword"
-                />
+                <div class="keywords-input-row">
+                  <el-row>
+                    <el-col :span="18">
+                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync" placeholder="请输入关键词..." @select="handleSelect" @keyup.enter="addKeyword" />
+                    </el-col>
+                    <el-col :span="6">
+                      <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim()" type="primary">添加 </el-button>
+                    </el-col>
+                  </el-row>
+                </div>
+                <div class="keywords-tags" v-if="formData.keywords.length > 0">
+                  <el-tag v-for="(keyword, index) in formData.keywords" :key="index" closable @close="removeKeyword(index)">
+                    {{ keyword }}
+                  </el-tag>
+                </div>
               </div>
             </div>
             <div class="form-actions">
@@ -581,13 +624,25 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
   color: #333;
 }
 
-.checkbox input[type="checkbox"] {
+.checkbox input[type='checkbox'] {
   width: 16px;
   height: 16px;
   cursor: pointer;
 }
 
 .keywords-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keywords-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.keywords-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;

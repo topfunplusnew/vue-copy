@@ -50,10 +50,10 @@ export const useConferenceStore = defineStore('meet', () => {
     if (!id || id <= 0) {
       throw new Error('无效的会议ID');
     }
-
     try {
       const res = await getMyPaperDetail(id);
       myPaperDetail.value = res.data;
+      console.log('数据获取完毕', myPaperDetail.value);
       return res;
     } catch (error) {
       console.error('获取论文详情失败:', error);
