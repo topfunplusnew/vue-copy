@@ -69,7 +69,7 @@ const isMobile = computed(() => {
 });
 
 const currentMyConferenceList = computed(() => conferencesStore.myConferenceList);
-const featuredEvents = computed(() => conferencesStore.list);
+const featuredConferenceList = computed(() => conferencesStore.conferenceList);
 
 onMounted(() => {
   nextTick(() => {
@@ -331,7 +331,7 @@ function handleLogoLoad(event: Event) {
                 <div class="conference-card">
                   <div class="conference-header">
                     <div class="conference-name-container">
-                      <img v-if="cur.logo" :src="cur.logo" :alt="cur.name + ' logo'" class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
+                      <img v-if="cur.logo" :src="getImageUrl(cur.logo)" :alt="cur.name + ' logo'" class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
                       <div class="conference-name">{{ cur.name }}</div>
                     </div>
                   </div>
@@ -364,21 +364,33 @@ function handleLogoLoad(event: Event) {
               <div class="section-title">Featured Events</div>
             </div>
 
-            <div v-if="featuredEvents.length > 0" class="featured-list">
-              <div v-for="evt in featuredEvents" :key="evt.id" class="featured-card" @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: evt.id } })">
+            <div v-if="featuredConferenceList.length > 0" class="featured-list">
+              <div
+                v-for="featuredConference in featuredConferenceList"
+                :key="featuredConference.id"
+                class="featured-card"
+                @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } })"
+              >
                 <div class="featured-header">
                   <div class="featured-name-container">
-                    <img v-if="evt.logo" :src="evt.logo" :alt="evt.name + ' logo'" class="featured-event-logo" @error="handleLogoError" @load="handleLogoLoad" />
-                    <div class="featured-name">{{ evt.name }}</div>
+                    <img
+                      v-if="featuredConference.logo"
+                      :src="getImageUrl(featuredConference.logo)"
+                      :alt="featuredConference.name + ' logo'"
+                      class="featured-event-logo"
+                      @error="handleLogoError"
+                      @load="handleLogoLoad"
+                    />
+                    <div class="featured-name">{{ featuredConference.name }}</div>
                   </div>
-                  <div class="featured-date">{{ formatRange(evt.start_time, evt.end_time) }}</div>
+                  <div class="featured-date">{{ formatRange(featuredConference.start_time, featuredConference.end_time) }}</div>
                 </div>
                 <div class="featured-meta">
-                  <span class="featured-location">{{ evt.place_name }}</span>
-                  <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank" rel="noopener"> Website </a>
+                  <span class="featured-location">{{ featuredConference.place_name }}</span>
+                  <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website" target="_blank" rel="noopener"> Website </a>
                 </div>
-                <div v-if="evt.keywords?.length" class="featured-topics">
-                  <span class="topic-tag" v-for="(t, i) in evt.keywords" :key="i">
+                <div v-if="featuredConference.keywords?.length" class="featured-topics">
+                  <span class="topic-tag" v-for="(t, i) in featuredConference.keywords" :key="i">
                     {{ t.name }}
                   </span>
                 </div>

@@ -1,69 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-// import { useRoute, useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
-import type { IConferenceParticipation } from '@/types/conference'
-import { formatRange } from '@/utils/date'
-// import { extractCountryAndCity } from '@/utils/geolocationService'
-// const route = useRoute();
-// const router = useRouter();
-const props = defineProps<{ conferenceId: number }>()
-const story = useConferenceStore();
+import type { IConferenceParticipation } from '@/types/conference';
+import { formatRange } from '@/utils/date';
+import { getImageUrl } from '@/utils';
+import { useRoute } from 'vue-router';
 
-
-
-// Featured conference data - multiple conferences
-const featuredConferences = computed(() => story.list)
-
-
-// Current selected conference
-const conferenceDetail = ref<IConferenceParticipation | null>({
-  id: 0,
-  name: '',
-  abbreviation: '',
-  logoUrl: '',
-  sessions: [],
-  start_time: '',
-  end_time: '',
-  registration_fee: 0,
-  currency: '',
-  fullName: '',
-  place_position: {
-    // 根据你的 IConferencePosition 类型来补充
-    formatted_address: '',
-    name: ''
-  },
-  website: '',
-  conference_type: '',
-  created_at: '',
-  updated_at: '',
-  place_id: '',
-  keywords: [],
-  papers: [],
-  description: '',
-  city: '',
-  country: '',
-  address: '',
-  submission_deadline: '',
-  notification_date: '',
-})
-
-onMounted(async () => {
-
-  const { data } = await story.getConferenceDetails(props.conferenceId)
-  conferenceDetail.value = data
-
-})
-
-const selectedConference = computed({
-  get: () => conferenceDetail.value,
-  set: val => conferenceDetail.value = val
-})
-
-// Paper interface
-interface Paper {
+interface IPaper {
   id: number;
   title: string;
   authors: string[];
@@ -78,38 +23,39 @@ interface Paper {
   additionalInfo: string | null;
 }
 
-// Paper search and modal state
+conferenceStore.getConferenceDetails(conferenceId.value);
+const route = useRoute();
+const conferenceStore = useConferenceStore();
+const featuredConferences = computed(() => conferenceStore.conferenceList);
+const conferenceDetail = ref<IConferenceParticipation | null>(null);
+const conferenceId = computed(() => Number(route.params.conferenceId));
+
+const selectedConference = computed({
+  get: () => conferenceDetail.value,
+  set: (val) => (conferenceDetail.value = val),
+});
+
 const searchQuery = ref('');
-const selectedPaper = ref<Paper | null>(null);
+const selectedPaper = ref<IPaper | null>(null);
 const showPaperModal = ref(false);
 const activeTab = ref('details');
-
-// Pagination for papers
 const currentPage = ref(1);
 const papersPerPage = ref(12);
 const totalPages = computed(() => {
   return Math.ceil(filteredPapers.value.length / papersPerPage.value);
 });
-
-// Paginated papers
 const paginatedPapers = computed(() => {
   const start = (currentPage.value - 1) * papersPerPage.value;
   const end = start + papersPerPage.value;
   return filteredPapers.value.slice(start, end);
 });
-
-// Reset pagination when search changes
 watch(searchQuery, () => {
   currentPage.value = 1;
 });
-
-// Conference statistics
 const conferenceStats = computed(() => ({
   totalConferences: featuredConferences.value?.length,
-  categories: [...new Set(featuredConferences.value?.map(c => c.conference_type))]
+  categories: [...new Set(featuredConferences.value?.map((c) => c.conference_type))],
 }));
-
-// Filtered papers based on search query
 const filteredPapers = computed(() => {
   if (!selectedConference.value?.papers) return [];
 
@@ -118,31 +64,26 @@ const filteredPapers = computed(() => {
   }
 
   const query = searchQuery.value.toLowerCase();
-  return selectedConference.value.papers.filter(paper =>
-    paper.title.toLowerCase().includes(query) ||
-    paper.authors.some(author => author.toLowerCase().includes(query)) ||
-    paper.institutions.some(institution => institution.toLowerCase().includes(query)) ||
-    paper.keywords.some(keyword => keyword.toLowerCase().includes(query))
+  return selectedConference.value.papers.filter(
+    (paper) =>
+      paper.title.toLowerCase().includes(query) ||
+      paper.authors.some((author) => author.toLowerCase().includes(query)) ||
+      paper.institutions.some((institution) => institution.toLowerCase().includes(query)) ||
+      paper.keywords.some((keyword) => keyword.toLowerCase().includes(query)),
   );
 });
 
 //点击请求新会议
 async function selectConference(id: number) {
-
-  const { data } = await story.getConferenceDetails(id)
-  conferenceDetail.value = data
+  const { data } = await conferenceStore.getConferenceDetails(id);
+  conferenceDetail.value = data;
 }
-
-// function selectConference(conference: ConferenceParticipation) {
-//   selectedConference.value= conference;
-// }
-
 
 function registerInterest(conferenceId: number) {
   ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
 }
 
-function openPaperModal(paper: Paper) {
+function openPaperModal(paper: IPaper) {
   selectedPaper.value = paper;
   showPaperModal.value = true;
   activeTab.value = 'details';
@@ -157,7 +98,7 @@ function switchTab(tab: string) {
   activeTab.value = tab;
 }
 
-function getAuthorAffiliations(authorIndex: number, paper: Paper): string {
+function getAuthorAffiliations(authorIndex: number, paper: IPaper): string {
   // Simple mapping: first author -> institution 1, second author -> institution 2, etc.
   // In a real application, this would be more complex based on actual author-institution relationships
   const institutionIndex = authorIndex % paper.institutions.length;
@@ -181,17 +122,6 @@ function prevPage() {
     currentPage.value--;
   }
 }
-
-// Get tier color
-// function getTierColor(tier: string) {
-//   switch (tier) {
-//     case 'Tier 1': return '#d97706';
-//     case 'Tier 2': return '#dc2626'; 
-//     case 'Tier 3': return '#7c3aed';
-//     default: return '#6b7280';
-//   }
-// }
-
 </script>
 
 <template>
@@ -211,11 +141,9 @@ function prevPage() {
           </div>
         </div>
         <div class="conference-list">
-          <div v-for="conf in featuredConferences" :key="conf.id"
-            :class="['conference-card', { active: selectedConference?.id === conf.id }]"
-            @click="selectConference(conf.id)">
+          <div v-for="conf in featuredConferences" :key="conf.id" :class="['conference-card', { active: selectedConference?.id === conf.id }]" @click="selectConference(conf.id)">
             <div class="card-logo">
-              <img :src="conf.logo" :alt="conf.abbreviation" />
+              <img :src="getImageUrl(conf.logo)" :alt="conf.abbreviation" />
             </div>
             <div class="card-info">
               <div class="card-name">{{ conf.name }}</div>
@@ -232,7 +160,7 @@ function prevPage() {
         <header class="event-header">
           <div class="conference-header">
             <div class="logo">
-              <img :src="selectedConference?.logoUrl" :alt="selectedConference?.abbreviation" />
+              <img :src="getImageUrl(selectedConference?.logo)" :alt="selectedConference?.abbreviation" />
             </div>
             <div class="conference-info">
               <div class="conference-name">{{ selectedConference?.name }}</div>
@@ -240,8 +168,7 @@ function prevPage() {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(
-                    selectedConference!.start_time, selectedConference!.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(selectedConference!.start_time, selectedConference!.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -251,7 +178,6 @@ function prevPage() {
                   <span class="detail-icon">🏢</span>
                   <span class="detail-text">{{ selectedConference!.address }}</span>
                 </div>
-
               </div>
             </div>
           </div>
@@ -321,27 +247,21 @@ function prevPage() {
                 <div class="date-icon">📝</div>
                 <div class="date-info">
                   <div class="date-label">Submission Deadline</div>
-                  <div class="date-value">{{ formatRange(selectedConference!.submission_deadline)
-                  }}
-                  </div>
+                  <div class="date-value">{{ formatRange(selectedConference!.submission_deadline) }}</div>
                 </div>
               </div>
               <div class="date-item">
                 <div class="date-icon">📧</div>
                 <div class="date-info">
                   <div class="date-label">Notification Date</div>
-                  <div class="date-value">{{ formatRange(selectedConference!.notification_date)
-                  }}
-                  </div>
+                  <div class="date-value">{{ formatRange(selectedConference!.notification_date) }}</div>
                 </div>
               </div>
               <div class="date-item">
                 <div class="date-icon">🎯</div>
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
-                  <div class="date-value">{{ formatRange(selectedConference!.start_time, selectedConference!.end_time)
-                  }}
-                  </div>
+                  <div class="date-value">{{ formatRange(selectedConference!.start_time, selectedConference!.end_time) }}</div>
                 </div>
               </div>
             </div>
@@ -369,8 +289,7 @@ function prevPage() {
           <div class="papers-header">
             <h3>Conference Papers</h3>
             <div class="search-container">
-              <input v-model="searchQuery" type="text"
-                placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" />
+              <input v-model="searchQuery" type="text" placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" />
               <span class="search-icon">🔍</span>
             </div>
           </div>
@@ -394,32 +313,25 @@ function prevPage() {
 
           <!-- Pagination -->
           <div v-if="totalPages > 1" class="pagination">
-            <button @click="prevPage" :disabled="currentPage === 1" class="page-btn prev-btn">
-              ← Previous
-            </button>
+            <button @click="prevPage" :disabled="currentPage === 1" class="page-btn prev-btn">← Previous</button>
 
             <div class="page-numbers">
-              <button v-for="page in Math.min(5, totalPages)" :key="page" @click="goToPage(page)"
-                :class="['page-btn', { active: currentPage === page }]">
+              <button v-for="page in Math.min(5, totalPages)" :key="page" @click="goToPage(page)" :class="['page-btn', { active: currentPage === page }]">
                 {{ page }}
               </button>
 
               <span v-if="totalPages > 5" class="page-ellipsis">...</span>
 
-              <button v-if="totalPages > 5" @click="goToPage(totalPages)"
-                :class="['page-btn', { active: currentPage === totalPages }]">
+              <button v-if="totalPages > 5" @click="goToPage(totalPages)" :class="['page-btn', { active: currentPage === totalPages }]">
                 {{ totalPages }}
               </button>
             </div>
 
-            <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn next-btn">
-              Next →
-            </button>
+            <button @click="nextPage" :disabled="currentPage === totalPages" class="page-btn next-btn">Next →</button>
           </div>
 
           <div class="papers-info">
-            <p>Showing {{ (currentPage - 1) * papersPerPage + 1 }} - {{ Math.min(currentPage * papersPerPage,
-              filteredPapers.length) }} of {{ filteredPapers.length }} papers</p>
+            <p>Showing {{ (currentPage - 1) * papersPerPage + 1 }} - {{ Math.min(currentPage * papersPerPage, filteredPapers.length) }} of {{ filteredPapers.length }} papers</p>
           </div>
         </div>
       </section>
@@ -439,40 +351,38 @@ function prevPage() {
               <h4>Authors</h4>
               <div class="authors-list">
                 <span v-for="(author, index) in selectedPaper?.authors" :key="index" class="author-name">
-                  {{ author }}<sup>{{ selectedPaper ? getAuthorAffiliations(index, selectedPaper) : '' }}</sup>{{ index
-                    < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                  {{ author }}<sup>{{ selectedPaper ? getAuthorAffiliations(index, selectedPaper) : '' }}</sup
+                  >{{ index < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }}
+                </span>
               </div>
             </div>
             <div class="info-section">
               <h4>Affiliations</h4>
               <div class="affiliations-list">
                 <div v-for="(institution, index) in selectedPaper?.institutions" :key="index" class="affiliation">
-                  <sup>{{ index + 1 }}</sup>{{ institution }}
+                  <sup>{{ index + 1 }}</sup
+                  >{{ institution }}
                 </div>
               </div>
             </div>
           </div>
 
           <div class="tab-navigation">
-            <button :class="['tab-btn', { active: activeTab === 'details' }]" @click="switchTab('details')">
-              Details
-            </button>
-            <button :class="['tab-btn', { active: activeTab === 'videos', disabled: !selectedPaper?.video }]"
-              @click="selectedPaper?.video && switchTab('videos')" :disabled="!selectedPaper?.video">
+            <button :class="['tab-btn', { active: activeTab === 'details' }]" @click="switchTab('details')">Details</button>
+            <button :class="['tab-btn', { active: activeTab === 'videos', disabled: !selectedPaper?.video }]" @click="selectedPaper?.video && switchTab('videos')" :disabled="!selectedPaper?.video">
               Video
             </button>
-            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !selectedPaper?.slides }]"
-              @click="selectedPaper?.slides && switchTab('slides')" :disabled="!selectedPaper?.slides">
+            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !selectedPaper?.slides }]" @click="selectedPaper?.slides && switchTab('slides')" :disabled="!selectedPaper?.slides">
               Slides
             </button>
-            <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !selectedPaper?.poster }]"
-              @click="selectedPaper?.poster && switchTab('poster')" :disabled="!selectedPaper?.poster">
+            <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !selectedPaper?.poster }]" @click="selectedPaper?.poster && switchTab('poster')" :disabled="!selectedPaper?.poster">
               Poster
             </button>
             <button
               :class="['tab-btn', { active: activeTab === 'additional', disabled: !selectedPaper?.additionalInfo }]"
               @click="selectedPaper?.additionalInfo && switchTab('additional')"
-              :disabled="!selectedPaper?.additionalInfo">
+              :disabled="!selectedPaper?.additionalInfo"
+            >
               Additional Info
             </button>
           </div>
@@ -489,8 +399,7 @@ function prevPage() {
               </div>
               <div class="detail-item">
                 <h5>Graphical Abstract</h5>
-                <img v-if="selectedPaper?.graphicalAbstract" :src="selectedPaper.graphicalAbstract"
-                  alt="Graphical Abstract" class="graphical-abstract" />
+                <img v-if="selectedPaper?.graphicalAbstract" :src="selectedPaper.graphicalAbstract" alt="Graphical Abstract" class="graphical-abstract" />
               </div>
               <div class="detail-item">
                 <h5>Keywords</h5>
@@ -503,9 +412,7 @@ function prevPage() {
             </div>
 
             <div v-if="activeTab === 'videos'" class="videos-content">
-              <video v-if="selectedPaper?.video" :src="selectedPaper.video" controls class="paper-video">
-                Your browser does not support the video tag.
-              </video>
+              <video v-if="selectedPaper?.video" :src="selectedPaper.video" controls class="paper-video">Your browser does not support the video tag.</video>
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
@@ -517,8 +424,7 @@ function prevPage() {
             </div>
 
             <div v-if="activeTab === 'additional'" class="additional-content">
-              <iframe v-if="selectedPaper?.additionalInfo" :src="selectedPaper.additionalInfo"
-                class="additional-iframe"></iframe>
+              <iframe v-if="selectedPaper?.additionalInfo" :src="selectedPaper.additionalInfo" class="additional-iframe"></iframe>
             </div>
           </div>
         </div>

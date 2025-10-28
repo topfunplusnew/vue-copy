@@ -2,7 +2,6 @@
 import { ref, reactive, computed, onMounted, toRaw, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
@@ -10,13 +9,11 @@ import { deepClone, getImageUrl } from '@/utils/index';
 import { uploadVideo, putMyPaper, deleteFile } from '@/services/api';
 
 const route = useRoute();
-const userStore = useUserStore();
 const graphicalAbstractInput = ref<HTMLInputElement>();
 const videoInput = ref<HTMLInputElement>();
 const slidesInput = ref<HTMLInputElement>();
 const posterInput = ref<HTMLInputElement>();
 const additionalInput = ref<HTMLInputElement>();
-const conferenceId = computed(() => Number(route.params.conferenceId));
 const paperId = computed(() => Number(route.params.paperId));
 type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 const activeTab = ref<TabKey>('details');

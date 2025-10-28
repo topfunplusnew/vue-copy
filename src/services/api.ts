@@ -203,7 +203,7 @@ export const getConferenceList = (query: IRequest = {}) => http.get('/conference
 /*
 *获取会议详情
 */
-export const ConferenceDetails = (id: number | string) => http.get(`/conference/${id}`)
+export const getConferenceDetail = (id: number | string) => http.get(`/conference/${id}`)
 
 /*
 我的会议

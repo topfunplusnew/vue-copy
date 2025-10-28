@@ -1,18 +1,18 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getConferenceList, ConferenceDetails, getMyPaperDetail, getMyConferenceList } from '@/services/api';
+import { getConferenceList, getConferenceDetail, getMyPaperDetail, getMyConferenceList } from '@/services/api';
 import type { IConferenceEvent, IConferenceParticipation, IPapers, IMyConference } from '@/types/conference';
 
 export const useConferenceStore = defineStore('meet', () => {
-  const list = ref<IConferenceEvent[]>([]);
-  const details = ref<IConferenceParticipation>();
+  const conferenceList = ref<IConferenceEvent[]>([]);
+  const conferenceDetail = ref<IConferenceParticipation>();
   const myConferenceList = ref<IMyConference[]>([]);
   const myPaperDetail = ref<IPapers>();
 
   async function getConferencesList() {
     try {
       const res = await getConferenceList();
-      list.value = res.data.items || [];
+      conferenceList.value = res.data.items || [];
       return res;
     } catch (error) {
       console.error('获取会议列表失败:', error);
@@ -26,8 +26,8 @@ export const useConferenceStore = defineStore('meet', () => {
     }
 
     try {
-      const res = await ConferenceDetails(id);
-      details.value = res.data;
+      const res = await getConferenceDetail(id);
+      conferenceDetail.value = res.data;
       return res;
     } catch (error) {
       console.error('获取会议详情失败:', error);
@@ -62,8 +62,8 @@ export const useConferenceStore = defineStore('meet', () => {
   }
 
   return {
-    list,
-    details,
+    conferenceList,
+    conferenceDetail,
     myPaperDetail,
     myConferenceList,
     getConferenceDetails,

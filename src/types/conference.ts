@@ -43,7 +43,7 @@ export interface IConferenceParticipation {//会议详情
     id: number;
     name: string;
     abbreviation: string;//会议简称
-    logoUrl?: string; // 会议logo URL
+    logo?: string; // 会议logo URL
     sessions: IConferenceSubmission[];
     start_time: string;
     end_time: string;
