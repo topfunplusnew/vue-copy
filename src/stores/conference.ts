@@ -41,6 +41,7 @@ export const useConferenceStore = defineStore('meet', () => {
 
     return getMyPaperDetail(id).then((res) => {
       myPaperDetail.value = res.data;
+      console.log('数据获取完毕', myPaperDetail.value);
       return res;
     });
   }

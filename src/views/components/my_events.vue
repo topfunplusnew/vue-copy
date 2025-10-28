@@ -1,197 +1,173 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, toRaw, watch } from 'vue';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
-import { deepClone, getImageUrl } from '@/utils/index';
-import { uploadVideo, putMyPaper, deleteFile } from '@/services/api';
-
+import { getImageUrl } from '@/utils';
+import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/services/api';
+import FileUpload from '@/components/file-upload.vue';
+import type { TabKey } from '@/types/conference.ts';
+import { getFileTypeByTabKey } from '@/utils/conference.ts';
+const store = useConferenceStore();
 const route = useRoute();
-const graphicalAbstractInput = ref<HTMLInputElement>();
-const videoInput = ref<HTMLInputElement>();
-const slidesInput = ref<HTMLInputElement>();
-const posterInput = ref<HTMLInputElement>();
-const additionalInput = ref<HTMLInputElement>();
 const paperId = computed(() => Number(route.params.paperId));
-type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 const activeTab = ref<TabKey>('details');
+const myPaperDetailInfo = computed(() => store.myPaperDetail);
+onMounted(async () => {
+  await store.getMyPaper(paperId.value);
+  console.log(`myPaperDetailInfo.value`, myPaperDetailInfo.value);
+});
+// 创建基于myPaperDetailInfo的reactive表单对象
+const formData = reactive({
+  doi: '',
+  abstract: '',
+  keywords: [] as string[],
+  graphic_abstract: '',
+  video: '',
+  slide: '',
+  poster: '',
+  addition_files: '',
+});
+
+// 初始化表单数据
+const initializeFormData = () => {
+  if (myPaperDetailInfo.value) {
+    formData.doi = String(myPaperDetailInfo.value.doi ?? '');
+    formData.abstract = myPaperDetailInfo.value.abstract ?? '';
+    // 将keywords从对象数组转换为字符串数组
+    formData.keywords = myPaperDetailInfo.value.keywords?.map((k) => k.name || '').filter(Boolean) || [];
+    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
+    formData.video = myPaperDetailInfo.value.video ?? '';
+    formData.slide = myPaperDetailInfo.value.slide ?? '';
+    formData.poster = myPaperDetailInfo.value.poster ?? '';
+    formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
+  }
+};
+
+// 监听myPaperDetailInfo变化，更新表单数据
+watch(
+  () => myPaperDetailInfo.value,
+  () => {
+    initializeFormData();
+  },
+  { immediate: true, deep: true },
+);
+
+const paperContent = computed(() => ({
+  fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
+}));
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
 
-const store = useConferenceStore();
+async function refreshPaperData() {
+  await store.getMyPaper(paperId.value);
+  // 刷新后重新初始化表单数据
+  initializeFormData();
+}
 
-onMounted(() => {
-  store.getMyPaper(paperId.value);
-});
-
-const myPaperDetailInfo = computed(() => store.myPaperDetail);
-const detailsForm = computed(() => ({
-  doi: myPaperDetailInfo.value?.doi ?? '',
-  abstract: myPaperDetailInfo.value?.abstract ?? '',
-  keywords: myPaperDetailInfo.value?.keywords ?? [],
-  graphicalAbstractFile: myPaperDetailInfo.value?.graphic_abstract ?? '',
-  graphicalAbstractPreview: myPaperDetailInfo.value?.graphic_abstract ?? '',
-}));
-
-const detailFormCopy = reactive({
-  doi: 0,
-  abstract: '',
-  keywords: [{ name: '', id: 0, order: 0 }],
-  graphicalAbstractFile: '',
-  graphicalAbstractPreview: '',
-});
-
+const videoConsent = ref(!!myPaperDetailInfo.value?.video);
+// 监听paper数据变化，自动更新video consent状态
 watch(
-  () => detailsForm.value,
-  (newVal) => {
-    Object.assign(detailFormCopy, deepClone(toRaw(newVal)));
+  () => myPaperDetailInfo.value?.video,
+  (hasVideo) => {
+    videoConsent.value = !!hasVideo;
   },
-  { immediate: true, deep: true },
+  { immediate: true },
 );
+// 关键词搜索相关
+const keywordInput = ref('');
+let searchTimeout: NodeJS.Timeout | null = null;
 
-const imagePath = ref<string>('');
+// 搜索关键词的异步函数
+const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) => void) => {
+  // 清除之前的定时器
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
 
-function onUploadGraphicalAbstract(e: Event) {
-  graphicalAbstractInput.value?.click();
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  const valid = ['image/jpeg', 'image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024;
-  if (!valid) {
-    ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
+  if (!queryString.trim()) {
+    cb([]);
     return;
   }
 
-  uploadVideo(uploadFile(file, 'graphic_abstract', '2'));
+  // 添加防抖，避免频繁请求
+  searchTimeout = setTimeout(() => {
+    searchKeywordsAPI(queryString)
+      .then((response) => {
+        // 从响应中提取items数组，并获取关键词名称
+        const items = response.data?.items || [];
+        const suggestions = items
+          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+            value: item.name || item.keyword || String(item),
+          }))
+          .filter((item: { value: string }) => item.value);
 
-  const url = URL.createObjectURL(file);
-  imagePath.value = url;
-  detailFormCopy.graphicalAbstractFile = url;
-  detailFormCopy.graphicalAbstractPreview = url;
-}
+        cb(suggestions);
+      })
+      .catch((error) => {
+        console.error('搜索关键词失败:', error);
+        cb([]);
+      });
+  }, 200); // 300ms防抖
+};
 
-function deleteImage() {
-  isMove.value = !isMove.value;
-  detailFormCopy.graphicalAbstractPreview = '';
-  deleteFile({ paper_id: 2, file_type: 'graphic_abstract', file_path: imagePath.value });
-}
+// 选择建议项
+const handleSelect = (item: Record<string, unknown>) => {
+  if (item.value && typeof item.value === 'string') {
+    addKeyword(item.value);
+  }
+};
 
-// Video
-const videoConsent = ref(false);
-const videoFile = ref<File | null>(null);
-const videoShow = ref<string | null>(myPaperDetailInfo.value?.video ?? null);
-const videoSrc = computed(() => {
-  //视频预览
+// 添加关键词
+const addKeyword = (keyword?: string) => {
+  const keywordToAdd = keyword || keywordInput.value.trim();
+  if (keywordToAdd && !formData.keywords.includes(keywordToAdd)) {
+    formData.keywords.push(keywordToAdd);
+    keywordInput.value = '';
+  }
+};
 
-  if (!videoFile.value) return '';
+// 删除关键词
+const removeKeyword = (index: number) => {
+  formData.keywords.splice(index, 1);
+};
+
+async function saveDetails() {
   try {
-    return URL.createObjectURL(videoFile.value);
-  } catch (e) {
-    return '';
+    // 将keywords字符串数组转换为后端期望的对象数组格式
+    const keywordsForBackend = formData.keywords.map((keyword, index) => ({
+      name: keyword,
+      id: index + 1,
+      order: index + 1,
+    }));
+
+    const updateData = {
+      id: paperId.value,
+      doi: formData.doi || '',
+      abstract: formData.abstract,
+      keywords: keywordsForBackend,
+      graphic_abstract: formData.graphic_abstract,
+      video: formData.video,
+      slide: formData.slide,
+      poster: formData.poster,
+      addition_files: formData.addition_files,
+    };
+
+    await updateMyPaperDetail(updateData);
+    ElMessage.success('保存成功！');
+
+    // 保存成功后刷新数据
+    await refreshPaperData();
+  } catch (error) {
+    console.error('保存失败：', error);
+    ElMessage.error('保存失败，请重试');
   }
-});
-
-async function onUploadVideo(e: Event, file_type = 'video') {
-  //处理上传逻辑
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!videoConsent.value) {
-    ElMessage.warning('Please accept the video release terms first.');
-    return;
-  }
-  videoFile.value = file;
-  const formData = new FormData();
-  formData.append('paper_id', '2');
-  formData.append('file_type', file_type);
-  formData.append('file', file);
-
-  try {
-    const res = await uploadVideo(formData);
-    console.log('上传成功！', res);
-    return res;
-  } catch (err) {
-    console.error('上传失败：', err.response?.data || err);
-  }
 }
 
-function uploadFile(file: File, file_type: string, paper_id: string) {
-  const formData = new FormData();
-  formData.append('paper_id', paper_id);
-  formData.append('file_type', file_type);
-  formData.append('file', file);
-  return formData;
-}
-
-function removeVideo() {
-  videoFile.value = null;
-}
-
-// Slides (PDF up to 10MB)
-const slidesFile = ref<File | null>(null);
-
-const isMove = ref(true);
-
-function onUploadSlides(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
-    ElMessage.error('Slides must be a PDF up to 10MB.');
-    return;
-  }
-  slidesFile.value = file;
-}
-
-function removeSlides() {
-  slidesFile.value = null;
-}
-
-// Poster (single-page PDF up to 10MB)
-const posterFile = ref<File | null>(null);
-
-function onUploadPoster(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
-    ElMessage.error('Poster must be a single-page PDF up to 10MB.');
-    return;
-  }
-  posterFile.value = file;
-}
-
-function removePoster() {
-  posterFile.value = null;
-}
-
-// Additional info: any files
-const additionalFiles = ref<File[]>([]);
-
-function onUploadAdditional(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const files = input.files ? Array.from(input.files) : [];
-  additionalFiles.value = files;
-}
-
-function clearAdditional() {
-  additionalFiles.value = [];
-}
-
-function saveDetails() {
-  putMyPaper({
-    id: 2,
-    doi: Number(detailFormCopy.doi),
-    abstract: detailFormCopy.abstract,
-    keywords: detailFormCopy.keywords,
-  });
-}
-
-// PDF Preview Modal
 const pdfModalVisible = ref(false);
 const currentPdfUrl = ref('');
 const currentPdfTitle = ref('');
@@ -201,26 +177,6 @@ const currentPdfFile = ref<File | null>(null);
 const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 });
-
-function openPdfModal(type: 'slides' | 'poster') {
-  let file: File | null = null;
-  let title = '';
-
-  if (type === 'slides' && slidesFile.value) {
-    file = slidesFile.value;
-    title = `Slides: ${file.name}`;
-  } else if (type === 'poster' && posterFile.value) {
-    file = posterFile.value;
-    title = `Poster: ${file.name}`;
-  }
-
-  if (file) {
-    currentPdfFile.value = file;
-    currentPdfUrl.value = URL.createObjectURL(file);
-    currentPdfTitle.value = title;
-    pdfModalVisible.value = true;
-  }
-}
 
 function closePdfModal() {
   if (currentPdfUrl.value) {
@@ -242,7 +198,79 @@ function openInNewTab() {
   }
 }
 
-const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
+// 获取机构列表 - 按作者顺序合并去重并重新编号
+const affiliations = computed(() => {
+  if (!myPaperDetailInfo.value?.authors) return [];
+
+  // 按作者的order属性排序
+  const sortedAuthors = [...myPaperDetailInfo.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  // 收集所有机构，记录作者ID和原始机构ID
+  const allAffiliations: Array<{
+    authorId: number;
+    originalAffiliationId: number;
+    affiliation: {
+      id: number;
+      name: string;
+      department?: string;
+      university?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+    };
+  }> = [];
+
+  sortedAuthors.forEach((author) => {
+    if (author.affiliations && author.affiliations.length > 0) {
+      author.affiliations.forEach((affiliation) => {
+        allAffiliations.push({
+          authorId: author.id,
+          originalAffiliationId: affiliation.id,
+          affiliation: affiliation,
+        });
+      });
+    }
+  });
+
+  // 去重：相同原始机构ID只保留第一次出现的
+  const uniqueAffiliations = new Map();
+  const affiliationList: Array<{
+    id: number;
+    originalId: number;
+    name: string;
+    department?: string;
+    university?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  }> = [];
+
+  let newId = 1;
+  allAffiliations.forEach((item) => {
+    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+      const newAffiliation = {
+        id: newId++,
+        originalId: item.originalAffiliationId,
+        name: item.affiliation.name,
+        department: item.affiliation.department,
+        university: item.affiliation.university,
+        city: item.affiliation.city,
+        state: item.affiliation.state,
+        country: item.affiliation.country,
+      };
+      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+      affiliationList.push(newAffiliation);
+    }
+  });
+
+  return affiliationList;
+});
+
+// 根据机构原始ID获取新的编号
+function getAffiliationNumber(originalId: number): number {
+  const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
+  return affiliation ? affiliation.id : 0;
+}
 </script>
 
 <template>
@@ -261,12 +289,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
       <section class="right-panel">
-        <!-- <header class="user-summary">
-          <div class="user-avatar" v-if="user?.avatar">
-            <img :src="getImageUrl(user?.avatar)" alt="User Avatar" />
-          </div>
-          <div class="user-name">{{ user?.name }}</div>
-        </header> -->
         <header class="event-header">
           <div class="conference-header">
             <div class="logo" v-if="myPaperDetailInfo?.conference.logo">
@@ -307,41 +329,60 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           </div>
           <div class="meta">
             <div class="title">{{ myPaperDetailInfo?.title }}</div>
+
+            <!-- 渲染论文作者列表以及下标 -->
             <div class="authors">
-              <span class="author-name">John Smith<sup>1</sup></span
-              >, <span class="author-name">Jane Doe<sup>2</sup></span
-              >,
-              <span class="author-name">Bob Johnson<sup>1,3</sup></span>
+              <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
+                <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
+                  {{ author.name
+                  }}<template v-if="author?.affiliations?.length"
+                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
+                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                </span>
+              </div>
+              <!-- 当论文作者为空的时候 渲染一个空状态 -->
+              <div v-else class="empty-state">
+                <div class="empty-text">No authors information available</div>
+              </div>
             </div>
+            <!-- 渲染机构列表以及下标 -->
             <div class="affiliations">
-              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
-              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
-              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
+              <div v-if="affiliations.length" class="affiliations-list">
+                <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
+                  <sup>{{ affiliation.id }}</sup
+                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                </div>
+              </div>
+              <!-- 当机构列表为空的时候，渲染一个空状态 -->
+              <div v-else class="empty-state">
+                <div class="empty-text">No affiliation information available</div>
+              </div>
             </div>
             <div class="session-notice">
               <div class="session-header">
                 <div class="notice-title">Important Conference Schedule</div>
               </div>
               <div class="session-content">
-                <div class="schedule-details">
+                <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">{{ formatRange(sessionInfo?.start_time) }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.start_time }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
-                    <span class="schedule-value">{{ sessionInfo?.room_info }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.room_info }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🎯 Session:</span>
-                    <span class="schedule-value">{{ sessionInfo?.session_name }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.session_name }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">📄 Paper ID:</span>
-                    <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.id }}</span>
                   </div>
                 </div>
-                <!-- <button class="schedule-action-btn" @click="addToSchedule">
+                <!-- <button class="schedule-action-btn">
                   <span class="btn-icon">📌</span>
                   Add to My Schedule
                 </button> -->
@@ -358,27 +399,34 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
-              <input v-model="detailFormCopy.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" />
+              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="myPaperDetailInfo?.abstract"></textarea>
+              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract" resize="vertical" />
             </div>
             <div class="form-item">
-              <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
-              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
-              <button @click="onUploadGraphicalAbstract(e)" class="upload-btn">Upload Image</button>
-              <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
-              <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
-                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-if="isMove" />
-                <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-else />
-                <button @click="deleteImage()" class="remove-btn">Remove</button>
-              </div>
+              <label>Graphical Abstract</label>
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
             </div>
             <div class="form-item full">
               <label>Keywords</label>
-              <div class="keywords">
-                <input v-for="(k, i) in detailFormCopy?.keywords" v-model="k.name" :key="i" :placeholder="k.name" />
+              <div class="keywords-container">
+                <div class="keywords-input-row">
+                  <el-row>
+                    <el-col :span="18">
+                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync" placeholder="请输入关键词..." @select="handleSelect" @keyup.enter="addKeyword" />
+                    </el-col>
+                    <el-col :span="6">
+                      <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim()" type="primary">添加 </el-button>
+                    </el-col>
+                  </el-row>
+                </div>
+                <div class="keywords-tags" v-if="formData.keywords.length > 0">
+                  <el-tag v-for="(keyword, index) in formData.keywords" :key="index" closable @close="removeKeyword(index)">
+                    {{ keyword }}
+                  </el-tag>
+                </div>
               </div>
             </div>
             <div class="form-actions">
@@ -388,94 +436,27 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         </div>
 
         <div v-else-if="activeTab === 'video'" class="tab-content">
-          <div class="video-upload">
+          <div class="consent-section">
             <label class="checkbox">
               <input type="checkbox" v-model="videoConsent" />
               <span>I have read, understood, and accept the video release terms.</span>
             </label>
-            <input ref="videoInput" type="file" accept="video/*" @change="onUploadVideo" style="display: none" />
-            <button @click="videoInput?.click()" class="file-upload-btn" :disabled="!videoConsent">Upload Video</button>
-            <div class="file-row" v-if="videoFile">
-              <div class="file-info">
-                <div class="file-icon">📹</div>
-                <div class="file-details">
-                  <div class="file-name">{{ videoFile.name }}</div>
-                  <div class="file-size">{{ (videoFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-                </div>
-              </div>
-              <button @click="removeVideo" class="remove-btn">Remove</button>
-            </div>
-            {{ videoShow }}
-            <video v-if="videoShow || videoSrc" class="preview-video" controls :src="videoSrc ?? videoShow ?? undefined"></video>
+          </div>
+          <div v-if="videoConsent" class="video-upload">
+            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
-          <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
-          <div class="file-row" v-if="slidesFile">
-            <div class="file-info">
-              <div class="file-icon">📄</div>
-              <div class="file-details">
-                <div class="file-name">{{ slidesFile.name }}</div>
-                <div class="file-size">{{ (slidesFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-              </div>
-            </div>
-            <button @click="removeSlides" class="remove-btn">Remove</button>
-          </div>
-          <div class="pdf-preview" v-if="slidesFile">
-            <div class="pdf-preview-header">
-              <span class="pdf-title">{{ slidesFile.name }}</span>
-              <button @click="openPdfModal('slides')" class="preview-btn">Preview PDF</button>
-            </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('slides')">
-              <div class="pdf-icon">📄</div>
-              <div class="pdf-info">Click to preview PDF</div>
-            </div>
-          </div>
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
-          <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
-          <div class="file-row" v-if="posterFile">
-            <div class="file-info">
-              <div class="file-icon">🖼️</div>
-              <div class="file-details">
-                <div class="file-name">{{ posterFile.name }}</div>
-                <div class="file-size">{{ (posterFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-              </div>
-            </div>
-            <button @click="removePoster" class="remove-btn">Remove</button>
-          </div>
-          <div class="pdf-preview" v-if="posterFile">
-            <div class="pdf-preview-header">
-              <span class="pdf-title">{{ posterFile.name }}</span>
-              <button @click="openPdfModal('poster')" class="preview-btn">Preview PDF</button>
-            </div>
-            <div class="pdf-thumbnail" @click="openPdfModal('poster')">
-              <div class="pdf-icon">🖼️</div>
-              <div class="pdf-info">Click to preview poster</div>
-            </div>
-          </div>
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
-          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
-          <div class="file-list" v-if="additionalFiles.length">
-            <div class="file-row" v-for="(f, i) in additionalFiles" :key="i">
-              <div class="file-info">
-                <div class="file-icon">📎</div>
-                <div class="file-details">
-                  <div class="file-name">{{ f.name }}</div>
-                  <div class="file-size">{{ (f.size / 1024 / 1024).toFixed(2) }} MB</div>
-                </div>
-              </div>
-              <button @click="additionalFiles.splice(i, 1)" class="remove-btn">Remove</button>
-            </div>
-            <button @click="clearAdditional" class="clear-btn">Clear All</button>
-          </div>
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1" @refresh="refreshPaperData" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -483,26 +464,26 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!detailsForm.graphicalAbstractFile }">
-                  {{ detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.graphic_abstract }">
+                  {{ formData.graphic_abstract ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!slidesFile }">{{ slidesFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!videoFile }">{{ videoFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!posterFile }">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: additionalFiles.length > 0 }">
-                  {{ additionalFiles.length > 0 ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.addition_files }">
+                  {{ formData.addition_files ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>
@@ -510,8 +491,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         </div>
       </section>
     </section>
-
-    <!-- PDF Preview Modal -->
     <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
       <div class="pdf-modal" @click.stop>
         <div class="pdf-modal-header">
@@ -521,7 +500,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         <div class="pdf-modal-content">
           <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0"></iframe>
           <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
-            <!-- Mobile PDF display using object tag -->
             <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
               <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe" />
               <div class="pdf-fallback-mobile">
@@ -529,7 +507,6 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
                 <p>{{ getCurrentFileName() }}</p>
               </div>
             </object>
-            <!-- Mobile action buttons -->
             <div class="mobile-pdf-actions">
               <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
               <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
@@ -541,3 +518,134 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.pdf-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: auto;
+}
+
+.pdf-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+.pdf-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4e7ed;
+  flex-shrink: 0;
+}
+
+.pdf-modal-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.mobile-pdf-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-pdf-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
+.mobile-pdf-actions {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #e4e7ed;
+  flex-shrink: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.consent-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.keywords-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keywords-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.keywords-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+</style>
