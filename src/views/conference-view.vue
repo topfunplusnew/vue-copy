@@ -253,7 +253,7 @@ function withdrawCV() {
       ElMessage.success('CV withdrawn successfully!');
       closeCVPreview();
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 function handleLogoError(event: Event) {
@@ -326,36 +326,40 @@ function handleLogoLoad(event: Event) {
           <div class="current-participations">
             <div class="section-title">My Events</div>
 
-            <template v-if="currentMyConferenceList?.length">
-              <div class="conference-list" v-for="cur in currentMyConferenceList" :key="cur.id">
-                <div class="conference-card">
-                  <div class="conference-header">
-                    <div class="conference-name-container">
-                      <img v-if="cur.logo" :src="getImageUrl(cur.logo)" :alt="cur.name + ' logo'" class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
-                      <div class="conference-name">{{ cur.name }}</div>
+            <div v-if="store.isLogin()">
+              <template v-if="currentMyConferenceList?.length">
+                <div class="conference-list" v-for="cur in currentMyConferenceList" :key="cur.id">
+                  <div class="conference-card">
+                    <div class="conference-header">
+                      <div class="conference-name-container">
+                        <img v-if="cur.logo" :src="getImageUrl(cur.logo)" :alt="cur.name + ' logo'"
+                          class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
+                        <div class="conference-name">{{ cur.name }}</div>
+                      </div>
                     </div>
-                  </div>
 
-                  <div class="submission-list">
-                    <div
-                      v-for="sub in cur.my_papers"
-                      :key="sub.paper_id"
-                      class="submission-item"
-                      @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: sub.paper_id } })"
-                    >
-                      <div class="paper-title">{{ sub.paper_title }}</div>
-                      <div class="authors">
-                        <span v-for="(author, i) in sub.authors" :key="i" class="author"> {{ author }}<span v-if="i < sub.authors.length - 1">, </span> </span>
+                    <div class="submission-list">
+                      <div v-for="sub in cur.my_papers" :key="sub.paper_id" class="submission-item"
+                        @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: sub.paper_id } })">
+                        <div class="paper-title">{{ sub.paper_title }}</div>
+                        <div class="authors">
+                          <span v-for="(author, i) in sub.authors" :key="i" class="author"> {{ author }}<span
+                              v-if="i < sub.authors.length - 1">, </span> </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </template>
+              </template>
 
-            <div v-else class="empty-state">
-              <div class="empty-title">No current participations</div>
-              <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+
+              <div v-else class="empty-state">
+                <div class="empty-title">No current participations</div>
+                <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+              </div>
+            </div>
+            <div v-else>
+              <el-button type="primary" @click="router.push({ name: 'login' })">Login to check detail</el-button>
             </div>
           </div>
 
@@ -365,29 +369,23 @@ function handleLogoLoad(event: Event) {
             </div>
 
             <div v-if="featuredConferenceList.length > 0" class="featured-list">
-              <div
-                v-for="featuredConference in featuredConferenceList"
-                :key="featuredConference.id"
+              <div v-for="featuredConference in featuredConferenceList" :key="featuredConference.id"
                 class="featured-card"
-                @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } })"
-              >
+                @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } })">
                 <div class="featured-header">
                   <div class="featured-name-container">
-                    <img
-                      v-if="featuredConference.logo"
-                      :src="getImageUrl(featuredConference.logo)"
-                      :alt="featuredConference.name + ' logo'"
-                      class="featured-event-logo"
-                      @error="handleLogoError"
-                      @load="handleLogoLoad"
-                    />
+                    <img v-if="featuredConference.logo" :src="getImageUrl(featuredConference.logo)"
+                      :alt="featuredConference.name + ' logo'" class="featured-event-logo" @error="handleLogoError"
+                      @load="handleLogoLoad" />
                     <div class="featured-name">{{ featuredConference.name }}</div>
                   </div>
-                  <div class="featured-date">{{ formatRange(featuredConference.start_time, featuredConference.end_time) }}</div>
+                  <div class="featured-date">{{ formatRange(featuredConference.start_time, featuredConference.end_time)
+                  }}</div>
                 </div>
                 <div class="featured-meta">
                   <span class="featured-location">{{ featuredConference.place_name }}</span>
-                  <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website" target="_blank" rel="noopener"> Website </a>
+                  <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website"
+                    target="_blank" rel="noopener"> Website </a>
                 </div>
                 <div v-if="featuredConference.keywords?.length" class="featured-topics">
                   <span class="topic-tag" v-for="(t, i) in featuredConference.keywords" :key="i">
@@ -405,7 +403,8 @@ function handleLogoLoad(event: Event) {
         </section>
       </section>
 
-      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true" :show-close="true" destroy-on-close>
+      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true"
+        :show-close="true" destroy-on-close>
         <div class="avatar-cut">
           <vue-cropper ref="cropperRef" :img="cropImage" v-bind="cropOption" />
         </div>
@@ -418,18 +417,12 @@ function handleLogoLoad(event: Event) {
       </el-dialog>
 
       <div class="edit-profile-modal" v-if="showEditProfile">
-        <div
-          class="edit-profile-container"
-          :style="{
-            transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
-          }"
-          @mousedown="startDrag"
-          @mousemove="onDrag"
-          @mouseup="stopDrag"
-          @mouseleave="stopDrag"
-        >
+        <div class="edit-profile-container" :style="{
+          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
+        }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
           <h2>Edit Profile</h2>
-          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
+          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*"
+            @change="handleEditAvatarUpload" />
           <div class="edit-avatar-section avatar-container">
             <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
             <div class="avatar-upload-icon">
@@ -496,7 +489,8 @@ function handleLogoLoad(event: Event) {
           </div>
           <div class="modal-content">
             <div class="upload-area">
-              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload" style="display: none" />
+              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload"
+                style="display: none" />
               <div class="upload-zone" @click="cvUploadRef?.click()">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">
