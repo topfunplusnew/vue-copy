@@ -343,11 +343,13 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
         </div>
 
         <div v-else-if="activeTab === 'video'" class="tab-content">
-          <div class="video-upload">
+          <div class="consent-section">
             <label class="checkbox">
               <input type="checkbox" v-model="videoConsent" />
               <span>I have read, understood, and accept the video release terms.</span>
             </label>
+          </div>
+          <div v-if="videoConsent" class="video-upload">
             <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
           </div>
         </div>
@@ -510,5 +512,28 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
 
 .close-btn:hover {
   color: #333;
+}
+
+.consent-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }
 </style>
