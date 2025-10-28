@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed, reactive, ref,  watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils/index';
-import { putMyPaper } from '@/services/api';
+import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/services/api';
 import { uploadVideo } from '@/services/common/files.ts';
 import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
@@ -20,23 +20,47 @@ const activeTab = ref<TabKey>('details');
 const store = useConferenceStore();
 store.getMyPaper(paperId.value);
 const myPaperDetailInfo = computed(() => store.myPaperDetail);
+
+// 创建基于myPaperDetailInfo的reactive表单对象
+const formData = reactive({
+  doi: '',
+  abstract: '',
+  keywords: [] as string[],
+  graphic_abstract: '',
+  video: '',
+  slide: '',
+  poster: '',
+  addition_files: '',
+});
+
+// 初始化表单数据
+const initializeFormData = () => {
+  if (myPaperDetailInfo.value) {
+    formData.doi = String(myPaperDetailInfo.value.doi ?? '');
+    formData.abstract = myPaperDetailInfo.value.abstract ?? '';
+    // 将keywords从对象数组转换为字符串数组
+    formData.keywords = myPaperDetailInfo.value.keywords?.map(k => 
+      typeof k === 'string' ? k : k.name || ''
+    ).filter(Boolean) || [];
+    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
+    formData.video = myPaperDetailInfo.value.video ?? '';
+    formData.slide = myPaperDetailInfo.value.slide ?? '';
+    formData.poster = myPaperDetailInfo.value.poster ?? '';
+    formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
+  }
+};
+
+// 监听myPaperDetailInfo变化，更新表单数据
+watch(
+  () => myPaperDetailInfo.value,
+  () => {
+    initializeFormData();
+  },
+  { immediate: true, deep: true }
+);
+
 const paperContent = reactive({
   fileUrl: myPaperDetailInfo.value?.graphic_abstract,
-});
-const detailsForm = computed(() => ({
-  doi: myPaperDetailInfo.value?.doi ?? '',
-  abstract: myPaperDetailInfo.value?.abstract ?? '',
-  keywords: myPaperDetailInfo.value?.keywords ?? [],
-  graphicalAbstractFile: myPaperDetailInfo.value?.graphic_abstract ?? '',
-  graphicalAbstractPreview: myPaperDetailInfo.value?.graphic_abstract ?? '',
-}));
-
-const detailFormCopy = reactive({
-  doi: 0,
-  abstract: '',
-  keywords: [{ name: '', id: 0, order: 0 }],
-  graphicalAbstractFile: '',
-  graphicalAbstractPreview: '',
 });
 
 function setActiveTab(tab: TabKey) {
@@ -50,6 +74,8 @@ async function refreshPaperData() {
   await store.getMyPaper(paperId.value);
   if (myPaperDetailInfo.value) {
     paperContent.fileUrl = myPaperDetailInfo.value[getFileTypeByTabKey(activeTab.value)];
+    // 刷新后重新初始化表单数据
+    initializeFormData();
   }
 }
 
@@ -70,13 +96,11 @@ function onUploadGraphicalAbstract(e: Event) {
 
   const url = URL.createObjectURL(file);
   imagePath.value = url;
-  detailFormCopy.graphicalAbstractFile = url;
-  detailFormCopy.graphicalAbstractPreview = url;
+  formData.graphic_abstract = url;
 }
 
 // Video
 const videoConsent = ref(!!myPaperDetailInfo.value?.video);
-const videoFile = ref<File | null>(null);
 
 // 监听paper数据变化，自动更新video consent状态
 watch(
@@ -96,18 +120,92 @@ function uploadFile(file: File, file_type: string, paper_id: string) {
 }
 
 
-// Slides (PDF up to 10MB)
-const slidesFile = ref<File | null>(null);
-const posterFile = ref<File | null>(null);
-const additionalFiles = ref<File[]>([]);
+// 关键词搜索相关
+const keywordInput = ref('');
+let searchTimeout: NodeJS.Timeout | null = null;
 
-function saveDetails() {
-  putMyPaper({
-    id: 2,
-    doi: Number(detailFormCopy.doi),
-    abstract: detailFormCopy.abstract,
-    keywords: detailFormCopy.keywords,
-  });
+// 搜索关键词的异步函数
+const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) => void) => {
+  // 清除之前的定时器
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+  
+  if (!queryString.trim()) {
+    cb([]);
+    return;
+  }
+  
+  // 添加防抖，避免频繁请求
+  searchTimeout = setTimeout(() => {
+    searchKeywordsAPI(queryString)
+      .then(response => {
+        // 从响应中提取items数组，并获取关键词名称
+        const items = response.data?.items || [];
+        const suggestions = items.map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+          value: item.name || item.keyword || String(item)
+        })).filter((item: { value: string }) => item.value);
+        
+        cb(suggestions);
+      })
+      .catch(error => {
+        console.error('搜索关键词失败:', error);
+        cb([]);
+      });
+  }, 200); // 300ms防抖
+};
+
+// 选择建议项
+const handleSelect = (item: Record<string, unknown>) => {
+  if (item.value && typeof item.value === 'string') {
+    addKeyword(item.value);
+  }
+};
+
+// 添加关键词
+const addKeyword = (keyword?: string) => {
+  const keywordToAdd = keyword || keywordInput.value.trim();
+  if (keywordToAdd && !formData.keywords.includes(keywordToAdd)) {
+    formData.keywords.push(keywordToAdd);
+    keywordInput.value = '';
+  }
+};
+
+// 删除关键词
+const removeKeyword = (index: number) => {
+  formData.keywords.splice(index, 1);
+};
+
+async function saveDetails() {
+  try {
+    // 将keywords字符串数组转换为后端期望的对象数组格式
+    const keywordsForBackend = formData.keywords.map((keyword, index) => ({
+      name: keyword,
+      id: index + 1,
+      order: index + 1
+    }));
+    
+    const updateData = {
+      id: paperId.value,
+      doi: Number(formData.doi) || 0,
+      abstract: formData.abstract,
+      keywords: keywordsForBackend,
+      graphic_abstract: formData.graphic_abstract,
+      video: formData.video,
+      slide: formData.slide,
+      poster: formData.poster,
+      addition_files: formData.addition_files,
+    };
+    
+    await updateMyPaperDetail(updateData);
+    ElMessage.success('保存成功！');
+    
+    // 保存成功后刷新数据
+    await refreshPaperData();
+  } catch (error) {
+    console.error('保存失败：', error);
+    ElMessage.error('保存失败，请重试');
+  }
 }
 
 const pdfModalVisible = ref(false);
@@ -246,11 +344,21 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
-              <input v-model="detailFormCopy.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" />
+              <el-input 
+                v-model="formData.doi" 
+                :placeholder="`${myPaperDetailInfo?.doi ?? ''}`"
+                clearable
+              />
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="myPaperDetailInfo?.abstract"></textarea>
+              <el-input 
+                v-model="formData.abstract" 
+                type="textarea" 
+                :rows="6" 
+                :placeholder="myPaperDetailInfo?.abstract"
+                resize="vertical"
+              />
             </div>
             <div class="form-item">
               <label>Graphical Abstract</label>
@@ -259,8 +367,23 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             </div>
             <div class="form-item full">
               <label>Keywords</label>
-              <div class="keywords">
-                <input v-for="(k, i) in detailFormCopy?.keywords" v-model="k.name" :key="i" :placeholder="k.name" />
+              <div class="keywords-container">
+                <el-tag
+                  v-for="(keyword, index) in formData.keywords"
+                  :key="index"
+                  closable
+                  @close="removeKeyword(index)"
+                >
+                  {{ keyword }}
+                </el-tag>
+                <el-autocomplete
+                  v-model="keywordInput"
+                  :fetch-suggestions="querySearchAsync"
+                  placeholder="请输入关键词..."
+                  style="width: 50%;"
+                  @select="handleSelect"
+                  @keyup.enter="addKeyword"
+                />
               </div>
             </div>
             <div class="form-actions">
@@ -298,26 +421,26 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!detailsForm.graphicalAbstractFile }">
-                  {{ detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.graphic_abstract }">
+                  {{ formData.graphic_abstract ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!slidesFile }">{{ slidesFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!videoFile }">{{ videoFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!posterFile }">{{ posterFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: additionalFiles.length > 0 }">
-                  {{ additionalFiles.length > 0 ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.addition_files }">
+                  {{ formData.addition_files ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>
@@ -462,5 +585,12 @@ const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
   width: 16px;
   height: 16px;
   cursor: pointer;
+}
+
+.keywords-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 </style>

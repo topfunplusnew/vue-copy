@@ -221,7 +221,10 @@ export const getMyPaperDetail = (id: number) => http.get(`/paper/${id}`);
 /*
 修改我的论文
 */
-export const putMyPaper = (data: IModifyPaper) => http.put('my-paper', data);
+export const updateMyPaperDetail = (data: IModifyPaper) => http.put('my-paper', data);
 
 // 获取schedule列表
 export const getScheduleList = () => http.get('/schedule');
+
+// 关键词搜索API
+export const searchKeywords = (query: string) => http.get(`/keyword?search=${encodeURIComponent(query)}`);
