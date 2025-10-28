@@ -198,38 +198,41 @@ export const placeSearch = (query: IRequest = {}) => http.get('/places', { param
 /**
  * 获取会议列表
  */
-export const ConferenceList = (query: IRequest = {}) => http.get('/conference', { params: query })
+export const getConferenceList = (query: IRequest = {}) => http.get('/conference', { params: query })
 
-/* 
+/*
 *获取会议详情
 */
 export const ConferenceDetails = (id: number | string) => http.get(`/conference/${id}`)
 
-/* 
+/*
 我的会议
 */
-export const MyConferences = () => http.get('/my-conferences')
+export const getMyConferenceList = () => http.get('/my-conferences')
 
-/* 
+/*
 我的论文
 */
-export const Mypapers = (id: number) => http.get(`/paper/${id}`)
+export const getMyPaperDetail = (id: number) => http.get(`/paper/${id}`)
 
 
-/* 
+/*
 上传
 */
-export const UploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
+export const uploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
 
-/* 
+/*
 修改我的论文
 */
 export const putMyPaper = (data: IModifyPaper) => http.put('my-paper', data)
 
-/* 
+/*
 删除文件
 */
 export const deleteFile = (params: { paper_id: number, file_type: string, file_path: string }) => http.delete('paper/upload-file', { params })
+<<<<<<< HEAD
 
 // 获取schedule列表
 export const getScheduleList = () => http.get('/schedule')
+=======
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc

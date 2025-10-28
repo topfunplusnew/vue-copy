@@ -1,4 +1,5 @@
 <script setup lang="ts">
+<<<<<<< HEAD
 import { computed, reactive, ref } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRoute } from 'vue-router';
@@ -12,26 +13,53 @@ import { getFileIcon } from '@/constants/file';
 type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 
 const activeTab = ref<TabKey>('details');
+=======
+import { ref, reactive, computed, onMounted, toRaw, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import { useUserStore } from '@/stores/user';
+import commonHeader from '@/layout/common-header.vue';
+import { useConferenceStore } from '@/stores/conference';
+import { formatRange } from '@/utils/date';
+import { deepClone, getImageUrl } from '@/utils/index';
+import { uploadVideo, putMyPaper, deleteFile } from '@/services/api';
+
+const route = useRoute();
+const userStore = useUserStore();
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 const graphicalAbstractInput = ref<HTMLInputElement>();
 const videoInput = ref<HTMLInputElement>();
 const slidesInput = ref<HTMLInputElement>();
 const posterInput = ref<HTMLInputElement>();
+<<<<<<< HEAD
 // const additionalInput = ref<HTMLInputElement>();
 const route = useRoute();
 const conferenceStore = useConferenceStore();
 const videoConsent = ref(false);
 const videoFile = ref<File | null>(null);
+=======
+const additionalInput = ref<HTMLInputElement>();
+const conferenceId = computed(() => Number(route.params.conferenceId));
+const paperId = computed(() => Number(route.params.paperId));
+type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
+const activeTab = ref<TabKey>('details');
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
+<<<<<<< HEAD
 
 const paperId = computed(() => Number(route.params.paperId));
 conferenceStore.getMyPapers(paperId.value);
 // // 获取论文内容
 const eventMeta = computed(() => conferenceStore.myPapers);
+=======
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 
+const store = useConferenceStore();
 
+<<<<<<< HEAD
 // 从路由参数获取conferenceId
 // const paperId = computed(() => {
 //   // const id = route.params.paperId;
@@ -72,6 +100,20 @@ const eventMeta = computed(() => conferenceStore.myPapers);
 //       });
 //     }
 //   });
+=======
+onMounted(() => {
+  store.getMyPaper(paperId.value);
+});
+
+const myPaperDetailInfo = computed(() => store.myPaperDetail);
+const detailsForm = computed(() => ({
+  doi: myPaperDetailInfo.value?.doi ?? '',
+  abstract: myPaperDetailInfo.value?.abstract ?? '',
+  keywords: myPaperDetailInfo.value?.keywords ?? [],
+  graphicalAbstractFile: myPaperDetailInfo.value?.graphic_abstract ?? '',
+  graphicalAbstractPreview: myPaperDetailInfo.value?.graphic_abstract ?? '',
+}));
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 
 //   // 去重：相同原始机构ID只保留第一次出现的
 //   const uniqueAffiliations = new Map();
@@ -116,12 +158,32 @@ const eventMeta = computed(() => conferenceStore.myPapers);
 const detailsForm = reactive({
   doi: '',
   abstract: '',
+<<<<<<< HEAD
   keywords: ['', '', '', '', ''] as string[],
   graphicalAbstractFile: null as File | null,
   graphicalAbstractPreview: '' as string,
 });
 
 function onUploadGraphicalAbstract(e: Event) {
+=======
+  keywords: [{ name: '', id: 0, order: 0 }],
+  graphicalAbstractFile: '',
+  graphicalAbstractPreview: '',
+});
+
+watch(
+  () => detailsForm.value,
+  (newVal) => {
+    Object.assign(detailFormCopy, deepClone(toRaw(newVal)));
+  },
+  { immediate: true, deep: true },
+);
+
+const imagePath = ref<string>('');
+
+function onUploadGraphicalAbstract(e: Event) {
+  graphicalAbstractInput.value?.click();
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -130,6 +192,7 @@ function onUploadGraphicalAbstract(e: Event) {
     ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
     return;
   }
+<<<<<<< HEAD
   const url = URL.createObjectURL(file);
   detailsForm.graphicalAbstractFile = file;
   detailsForm.graphicalAbstractPreview = url;
@@ -153,6 +216,40 @@ function onUploadGraphicalAbstract(e: Event) {
 // });
 
 async function onUploadVideo(e: Event, file_type = 'video') {
+=======
+
+  uploadVideo(uploadFile(file, 'graphic_abstract', '2'));
+
+  const url = URL.createObjectURL(file);
+  imagePath.value = url;
+  detailFormCopy.graphicalAbstractFile = url;
+  detailFormCopy.graphicalAbstractPreview = url;
+}
+
+function deleteImage() {
+  isMove.value = !isMove.value;
+  detailFormCopy.graphicalAbstractPreview = '';
+  deleteFile({ paper_id: 2, file_type: 'graphic_abstract', file_path: imagePath.value });
+}
+
+// Video
+const videoConsent = ref(false);
+const videoFile = ref<File | null>(null);
+const videoShow = ref<string | null>(myPaperDetailInfo.value?.video ?? null);
+const videoSrc = computed(() => {
+  //视频预览
+
+  if (!videoFile.value) return '';
+  try {
+    return URL.createObjectURL(videoFile.value);
+  } catch (e) {
+    return '';
+  }
+});
+
+async function onUploadVideo(e: Event, file_type = 'video') {
+  //处理上传逻辑
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -162,11 +259,16 @@ async function onUploadVideo(e: Event, file_type = 'video') {
   }
   videoFile.value = file;
   const formData = new FormData();
+<<<<<<< HEAD
   formData.append('paper_id', paperId.value.toString());
+=======
+  formData.append('paper_id', '2');
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
   formData.append('file_type', file_type);
   formData.append('file', file);
 
   try {
+<<<<<<< HEAD
     return await UploadVideo(formData);
   } catch {
     ElMessage.error('上传失败');
@@ -179,6 +281,33 @@ function removeVideo() {
 
 const slidesFile = ref<File | null>(null);
 
+=======
+    const res = await uploadVideo(formData);
+    console.log('上传成功！', res);
+    return res;
+  } catch (err) {
+    console.error('上传失败：', err.response?.data || err);
+  }
+}
+
+function uploadFile(file: File, file_type: string, paper_id: string) {
+  const formData = new FormData();
+  formData.append('paper_id', paper_id);
+  formData.append('file_type', file_type);
+  formData.append('file', file);
+  return formData;
+}
+
+function removeVideo() {
+  videoFile.value = null;
+}
+
+// Slides (PDF up to 10MB)
+const slidesFile = ref<File | null>(null);
+
+const isMove = ref(true);
+
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 function onUploadSlides(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -189,12 +318,20 @@ function onUploadSlides(e: Event) {
   }
   slidesFile.value = file;
 }
+<<<<<<< HEAD
+=======
+
+function removeSlides() {
+  slidesFile.value = null;
+}
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 
 function removeSlides() {
   slidesFile.value = null;
 }
 
 const posterFile = ref<File | null>(null);
+<<<<<<< HEAD
 const posterFiles = ref<Array<{ file: File; uploaded: boolean; url?: string }>>([]);
 
 // 从API数据获取poster文件列表
@@ -220,6 +357,28 @@ const posterFiles = ref<Array<{ file: File; uploaded: boolean; url?: string }>>(
 // });
 
 async function onUploadPoster(e: Event) {
+=======
+
+function onUploadPoster(e: Event) {
+  const input = e.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
+    ElMessage.error('Poster must be a single-page PDF up to 10MB.');
+    return;
+  }
+  posterFile.value = file;
+}
+
+function removePoster() {
+  posterFile.value = null;
+}
+
+// Additional info: any files
+const additionalFiles = ref<File[]>([]);
+
+function onUploadAdditional(e: Event) {
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
   const input = e.target as HTMLInputElement;
   const files = input.files;
   if (!files || files.length === 0) return;
@@ -256,6 +415,7 @@ async function onUploadPoster(e: Event) {
   input.value = '';
 }
 
+<<<<<<< HEAD
 function removePoster(index: number) {
   posterFiles.value.splice(index, 1);
 }
@@ -305,6 +465,19 @@ function removePoster(index: number) {
 
 function saveDetails() {
   ElMessage.success('Details saved successfully!');
+=======
+function clearAdditional() {
+  additionalFiles.value = [];
+}
+
+function saveDetails() {
+  putMyPaper({
+    id: 2,
+    doi: Number(detailFormCopy.doi),
+    abstract: detailFormCopy.abstract,
+    keywords: detailFormCopy.keywords,
+  });
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 }
 
 const pdfModalVisible = ref(false);
@@ -356,6 +529,7 @@ function openInNewTab() {
   }
 }
 
+<<<<<<< HEAD
 // function addToSchedule() {
 //   try {
 //     const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
@@ -422,6 +596,9 @@ const sessionInfo = {
 
 //   return null;
 // }
+=======
+const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 </script>
 
 <template>
@@ -436,13 +613,13 @@ const sessionInfo = {
         <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
         <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
         <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
-          Info</button>
+        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
         <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
 
       <section class="right-panel">
         <header class="event-header">
+<<<<<<< HEAD
           <!--          如果有eventMeta?.conference信息 就正常展示-->
           <div v-if="eventMeta?.conference">
             <div class="conference-header">
@@ -511,6 +688,79 @@ const sessionInfo = {
                     }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
                       affiliation.country : ''
                     }}
+=======
+          <div class="conference-header">
+            <div class="logo" v-if="myPaperDetailInfo?.conference.logo">
+              <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
+            </div>
+            <div class="conference-info">
+              <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
+              <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
+              <div class="conference-details">
+                <div class="detail-row">
+                  <span class="detail-icon">📅</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">📍</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">🏢</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.address }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="conference-links">
+            <a :href="myPaperDetailInfo?.conference.website" target="_blank" class="conf-link">
+              <span class="link-icon">🌐</span>
+              Official Website
+            </a>
+            <a :href="myPaperDetailInfo?.conference.committee_website" target="_blank" class="conf-link">
+              <span class="link-icon">👥</span>
+              Committee
+            </a>
+            <a :href="myPaperDetailInfo?.conference.registration_website" target="_blank" class="conf-link">
+              <span class="link-icon">📝</span>
+              Registration
+            </a>
+          </div>
+          <div class="meta">
+            <div class="title">{{ myPaperDetailInfo?.title }}</div>
+            <div class="authors">
+              <span class="author-name">John Smith<sup>1</sup></span
+              >, <span class="author-name">Jane Doe<sup>2</sup></span
+              >,
+              <span class="author-name">Bob Johnson<sup>1,3</sup></span>
+            </div>
+            <div class="affiliations">
+              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
+              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
+              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
+            </div>
+            <div class="session-notice">
+              <div class="session-header">
+                <div class="notice-title">Important Conference Schedule</div>
+              </div>
+              <div class="session-content">
+                <div class="schedule-details">
+                  <div class="schedule-row">
+                    <span class="schedule-label">📅 Date:</span>
+                    <span class="schedule-value">{{ formatRange(sessionInfo?.start_time) }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">🏢 Room:</span>
+                    <span class="schedule-value">{{ sessionInfo?.room_info }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">🎯 Session:</span>
+                    <span class="schedule-value">{{ sessionInfo?.session_name }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">📄 Paper ID:</span>
+                    <span class="schedule-value">{{ sessionInfo?.session_number }}</span>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
                   </div>
                 </div>
                  当机构列表为空的时候，渲染一个空状态 -->
@@ -552,6 +802,7 @@ const sessionInfo = {
                 {{ eventMeta?.conference.end_time }}
               </div>
             </div>
+<<<<<<< HEAD
           </div>
           <!--          没有eventMeta?.conference信息的时候 渲染一个空状态-->
           <div v-else class="empty-conference-state">
@@ -563,6 +814,11 @@ const sessionInfo = {
                 <span class="btn-icon">🔄</span>
                 Retry
               </button>
+=======
+            <div class="dates">
+              Date Created: {{ myPaperDetailInfo?.conference.start_time }} · Date Edited:
+              {{ myPaperDetailInfo?.conference.end_time }}
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
             </div>
           </div>
         </header>
@@ -571,6 +827,7 @@ const sessionInfo = {
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
+<<<<<<< HEAD
               <input v-model="detailsForm.doi" placeholder="Enter DOI (e.g., 10.1145/1234567)" />
             </div>
             <div class="form-item full">
@@ -586,6 +843,23 @@ const sessionInfo = {
               <div v-if="detailsForm.graphicalAbstractPreview" class="preview">
                 <img :src="detailsForm.graphicalAbstractPreview" alt="Graphical Abstract" />
                 <button @click="detailsForm.graphicalAbstractPreview = ''" class="remove-btn">Remove</button>
+=======
+              <input v-model="detailFormCopy.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" />
+            </div>
+            <div class="form-item full">
+              <label>Abstract</label>
+              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="myPaperDetailInfo?.abstract"></textarea>
+            </div>
+            <div class="form-item">
+              <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
+              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
+              <button @click="onUploadGraphicalAbstract(e)" class="upload-btn">Upload Image</button>
+              <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
+              <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
+                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-if="isMove" />
+                <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-else />
+                <button @click="deleteImage()" class="remove-btn">Remove</button>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
               </div>
             </div>
             <div class="form-item full">
@@ -619,13 +893,17 @@ const sessionInfo = {
               </div>
               <button @click="removeVideo" class="remove-btn">Remove</button>
             </div>
+<<<<<<< HEAD
             <!-- <video v-if="videoSrc" class="preview-video" controls :src="videoSrc"></video> -->
+=======
+            {{ videoShow }}
+            <video v-if="videoShow || videoSrc" class="preview-video" controls :src="videoSrc ?? videoShow ?? undefined"></video>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides"
-            style="display: none" />
+          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
           <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
           <div class="file-row" v-if="slidesFile">
             <div class="file-info">
@@ -649,8 +927,34 @@ const sessionInfo = {
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
+<<<<<<< HEAD
           <input ref="posterInput" type="file" multiple @change="onUploadPoster" style="display: none" />
           <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster Files</button>
+=======
+          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
+          <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
+          <div class="file-row" v-if="posterFile">
+            <div class="file-info">
+              <div class="file-icon">🖼️</div>
+              <div class="file-details">
+                <div class="file-name">{{ posterFile.name }}</div>
+                <div class="file-size">{{ (posterFile.size / 1024 / 1024).toFixed(2) }} MB</div>
+              </div>
+            </div>
+            <button @click="removePoster" class="remove-btn">Remove</button>
+          </div>
+          <div class="pdf-preview" v-if="posterFile">
+            <div class="pdf-preview-header">
+              <span class="pdf-title">{{ posterFile.name }}</span>
+              <button @click="openPdfModal('poster')" class="preview-btn">Preview PDF</button>
+            </div>
+            <div class="pdf-thumbnail" @click="openPdfModal('poster')">
+              <div class="pdf-icon">🖼️</div>
+              <div class="pdf-info">Click to preview poster</div>
+            </div>
+          </div>
+        </div>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
 
           <!-- <div class="file-list" v-if="apiPosterFiles.length || posterFiles.length"> -->
           <!-- 显示API数据中的poster文件 -->
@@ -747,17 +1051,23 @@ const sessionInfo = {
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
+<<<<<<< HEAD
                 <div class="status"
                   :class="{ ok: apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some((f) => f.uploaded)) }">
                   {{apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some((f) =>
                     f.uploaded)) ?
                     'Uploaded' : 'Missing'}}
+=======
+                <div class="status" :class="{ ok: additionalFiles.length > 0 }">
+                  {{ additionalFiles.length > 0 ? 'Uploaded' : 'Missing' }}
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
                 </div>
               </div>
             </div>
           </div>
         </div> -->
 
+<<<<<<< HEAD
 
 
   <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
@@ -774,6 +1084,30 @@ const sessionInfo = {
             <div class="pdf-fallback-mobile">
               <div class="pdf-icon">📄</div>
               <p>{{ getCurrentFileName() }}</p>
+=======
+    <!-- PDF Preview Modal -->
+    <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
+      <div class="pdf-modal" @click.stop>
+        <div class="pdf-modal-header">
+          <h3>{{ currentPdfTitle }}</h3>
+          <button @click="closePdfModal" class="close-btn">×</button>
+        </div>
+        <div class="pdf-modal-content">
+          <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0"></iframe>
+          <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
+            <!-- Mobile PDF display using object tag -->
+            <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
+              <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe" />
+              <div class="pdf-fallback-mobile">
+                <div class="pdf-icon">📄</div>
+                <p>{{ getCurrentFileName() }}</p>
+              </div>
+            </object>
+            <!-- Mobile action buttons -->
+            <div class="mobile-pdf-actions">
+              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
+              <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc
             </div>
           </object>
           <div class="mobile-pdf-actions">

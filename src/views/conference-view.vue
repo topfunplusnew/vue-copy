@@ -1,35 +1,81 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, nextTick } from 'vue';
-// import walletItem from '@/components/wallet-item.vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
-import { getImageUrl } from '@/utils';
-import { ElMessage, ElMessageBox } from 'element-plus';
-// import type { IUser } from '@/types/user';
-import { formatRange } from '@/utils/date';
-// import type { IBlogComment } from '@/types/blog';
-// import UserPageDialog from '@/views/user/user-page-dialog.vue';
-// import type { IBlog } from '@/types/blog';
-import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
+import commonHeader from '@/layout/common-header.vue';
+import { getImageUrl } from '@/utils';
+import { formatRange } from '@/utils/date';
 
-// ===== Academic Meetings types (temporary, will be moved to types/) =====
-
-
-// const selectedBlog =ref<IBlog | null>(null); // 当前选中的博客详情
-// 关闭博客详情弹出层
-// const closeBlogDetail = () => {
-//   store.clearSelectedPost();
-//   document.body.style.overflow = '';
-// };
 const store = useUserStore();
 const router = useRouter();
+<<<<<<< HEAD:src/views/conference-view.vue
 const conferencesStory = useConferenceStore();
+=======
+const conferencesStore = useConferenceStore();
+
+const showEditProfile = ref(false);
+const editForm = reactive({
+  name: '',
+  avatar: '',
+});
+
+const showCropper = ref(false);
+const cropperRef = ref();
+const cropImage = ref('');
+const uploadfile = ref<HTMLElement | null>(null);
+const cropOption = {
+  autoCrop: true,
+  fixedBox: true,
+  outputType: 'png',
+  centerBox: true,
+  infoTrue: true,
+  full: false,
+  canMoveBox: true,
+  original: false,
+  canScale: true,
+  fixed: true,
+  fixedNumber: [1, 1],
+};
+
+const isDragging = ref(false);
+const dragOffset = reactive({ x: 0, y: 0 });
+const editProfilePosition = reactive({ x: 0, y: 0 });
+
+const showContactModal = ref(false);
+const contactForm = reactive({
+  email: '',
+  phone: '',
+  website: '',
+  linkedin: '',
+  twitter: '',
+  orcid: '',
+});
+
+const showCVModal = ref(false);
+const showCVPreviewModal = ref(false);
+const cvFile = ref<File | null>(null);
+const cvUploadRef = ref<HTMLElement | null>(null);
+const uploadedCV = ref<{ file: File; uploadDate: string; url: string } | null>(null);
+
+const user = computed(() => store.user);
+
+const isWalletConnected = computed(() => {
+  return false;
+});
+
+const isMobile = computed(() => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+});
+
+const currentMyConferenceList = computed(() => conferencesStore.myConferenceList);
+const featuredEvents = computed(() => conferencesStore.list);
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
 
 onMounted(() => {
-  // 确保页面滚动到顶部
   nextTick(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     document.body.scrollTop = 0;
@@ -40,28 +86,38 @@ onMounted(() => {
     editForm.name = data.name;
     editForm.avatar = data.avatar;
   });
+<<<<<<< HEAD:src/views/conference-view.vue
   store.getUserBlogList(true);
   conferencesStory.getMyConference();
   conferencesStory.getConferenceList();
 
+=======
+  conferencesStore.getMyConference();
+  conferencesStore.getConferencesList();
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
 });
 
-// 添加登出处理函数
 function handleLogout() {
   store.logout();
   router.push({ name: 'login' });
 }
 
-// const user = reactive(userInfo);
-const user = computed(() => store.user);
+function showSocialModal() {
+  store.getFollowings();
+  store.getFollowers();
+}
 
+<<<<<<< HEAD:src/views/conference-view.vue
 const uploadfile = ref<HTMLElement | null>(null);
 
+=======
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
 function onUpload() {
   showCropper.value = true;
   if (uploadfile.value) uploadfile.value.click();
 }
 
+<<<<<<< HEAD:src/views/conference-view.vue
 // const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
 
 
@@ -121,26 +177,28 @@ const cropImage = ref('');
 
 
 // 修改裁剪完成函数，直接更新头像
+=======
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
 function cropSuccess() {
   cropperRef.value.getCropBlob((image: Blob) => {
-
-    // const file = new File([image], 'file', {type: image.type});
     store.uploadImage(image).then(({ data }) => {
+<<<<<<< HEAD:src/views/conference-view.vue
       editForm.avatar = data.avatar;
+=======
+      editForm.avatar = data.avatar || '';
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
     });
     showCropper.value = false;
   });
 }
 
+function cancelCrop() {
+  showCropper.value = false;
+  if (showEditProfile.value) {
+    editForm.avatar = user.value?.avatar || '';
+  }
+}
 
-// 添加编辑个人信息相关状态
-const showEditProfile = ref(false);
-const editForm = reactive({
-  name: user.value?.name,
-  avatar: user.value?.avatar,
-});
-
-// 提交编辑
 function submitProfileEdit() {
   store
     .editUserInfo(editForm)
@@ -151,14 +209,17 @@ function submitProfileEdit() {
   showEditProfile.value = false;
 }
 
-// 取消编辑
 function cancelProfileEdit() {
+<<<<<<< HEAD:src/views/conference-view.vue
   editForm.name = user.value?.name;
   editForm.avatar = user.value?.avatar;
+=======
+  editForm.name = user.value?.name || '';
+  editForm.avatar = user.value?.avatar || '';
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
   showEditProfile.value = false;
 }
 
-// 在编辑页面上传头像
 function handleEditAvatarUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
@@ -171,11 +232,6 @@ function handleEditAvatarUpload(event: Event) {
     reader.readAsDataURL(file);
   }
 }
-
-// 添加拖动相关状态和方法
-const isDragging = ref(false);
-const dragOffset = reactive({ x: 0, y: 0 });
-const editProfilePosition = reactive({ x: 0, y: 0 });
 
 function startDrag(e: MouseEvent) {
   isDragging.value = true;
@@ -194,6 +250,7 @@ function stopDrag() {
   isDragging.value = false;
 }
 
+<<<<<<< HEAD:src/views/conference-view.vue
 // 修改取消裁剪函数
 function cancelCrop() {
   showCropper.value = false;
@@ -505,95 +562,89 @@ const isMobile = computed(() => {
 
 // Open contact info modal
 const openContactModal = () => {
+=======
+function openContactModal() {
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
   showContactModal.value = true;
   document.body.style.overflow = 'hidden';
-};
+}
 
-// Close contact info modal
-const closeContactModal = () => {
+function closeContactModal() {
   showContactModal.value = false;
   document.body.style.overflow = '';
-};
+}
 
-// Submit contact info
-const submitContactInfo = () => {
-  // TODO: Implement API call to save contact info
+function submitContactInfo() {
   console.log('Contact info submitted:', contactForm);
   ElMessage.success('Contact information saved successfully!');
   closeContactModal();
-};
+}
 
-// Open CV upload modal
-const openCVModal = () => {
+function openCVModal() {
   showCVModal.value = true;
   document.body.style.overflow = 'hidden';
-};
+}
 
-// Close CV upload modal
-const closeCVModal = () => {
+function closeCVModal() {
   showCVModal.value = false;
   document.body.style.overflow = '';
-};
+}
 
-// Handle CV file selection
-const handleCVUpload = (event: Event) => {
+function handleCVUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
   if (file) {
     cvFile.value = file;
     console.log('CV file selected:', file.name);
   }
-};
+}
 
-// Submit CV
-const submitCV = () => {
+function submitCV() {
   if (!cvFile.value) {
     ElMessage.warning('Please select a CV file first');
     return;
   }
 
-  // Store uploaded CV
   uploadedCV.value = {
     file: cvFile.value,
     uploadDate: new Date().toLocaleDateString(),
     url: URL.createObjectURL(cvFile.value),
   };
 
-  // TODO: Implement API call to upload CV
   console.log('CV uploaded:', cvFile.value);
   ElMessage.success('CV uploaded successfully!');
   closeCVModal();
   cvFile.value = null;
-};
+}
 
-// Open CV for viewing
-const openCVPreview = () => {
+function openCVPreview() {
   if (uploadedCV.value) {
     showCVPreviewModal.value = true;
     document.body.style.overflow = 'hidden';
   }
-};
+}
 
-// Close CV preview modal
-const closeCVPreview = () => {
+function closeCVPreview() {
   showCVPreviewModal.value = false;
   document.body.style.overflow = '';
-};
+}
 
-// Get current CV filename
-const getCurrentCVFileName = () => {
+function getCurrentCVFileName() {
   return uploadedCV.value?.file.name || 'document.pdf';
-};
+}
 
-// Open CV in new tab (for mobile)
-const openCVInNewTab = () => {
+function openCVInNewTab() {
   if (uploadedCV.value?.url) {
     window.open(uploadedCV.value.url, '_blank');
   }
-};
+}
 
+<<<<<<< HEAD:src/views/conference-view.vue
 // Remove/Withdraw CV
 const withdrawCV = () => {
+=======
+function withdrawCV() {
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
   ElMessageBox.confirm('Are you sure you want to withdraw your CV? This action cannot be undone.', 'Withdraw CV', {
     confirmButtonText: 'Withdraw',
     cancelButtonText: 'Cancel',
@@ -603,6 +654,7 @@ const withdrawCV = () => {
       if (uploadedCV.value?.url) {
         URL.revokeObjectURL(uploadedCV.value.url);
       }
+<<<<<<< HEAD:src/views/conference-view.vue
 
       // Clear the uploaded CV
       uploadedCV.value = null;
@@ -620,17 +672,26 @@ const currentParticipations = computed(() => conferencesStory.details);
 const featuredEvents = computed(() => conferencesStory.list);
 
 const handleLogoError = (event: Event) => {
+=======
+      uploadedCV.value = null;
+      console.log('CV withdrawn');
+      ElMessage.success('CV withdrawn successfully!');
+      closeCVPreview();
+    })
+    .catch(() => {});
+}
+
+function handleLogoError(event: Event) {
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
   const img = event.target as HTMLImageElement;
   console.error('Logo failed to load:', img.src);
   img.style.display = 'none';
-};
+}
 
-const handleLogoLoad = (event: Event) => {
+function handleLogoLoad(event: Event) {
   const img = event.target as HTMLImageElement;
   console.log('Logo loaded successfully:', img.src);
-};
-
-
+}
 </script>
 
 <template>
@@ -639,9 +700,7 @@ const handleLogoLoad = (event: Event) => {
     <commonHeader />
 
     <div class="user-page">
-      <!-- 主体内容，使用 flex 布局让左侧个人信息 & 右侧博客并排 -->
       <section class="main-content">
-        <!-- 左侧用户信息面板 -->
         <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
           <div class="profile-buttons">
             <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
@@ -651,7 +710,6 @@ const handleLogoLoad = (event: Event) => {
             <div class="avatar-section">
               <div class="avatar-container">
                 <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
-                <!-- <input type="file" class="upload-avatar" accept="image/*" @change="handleAvatarUpload" /> -->
                 <div class="avatar-upload-icon">
                   <i class="el-icon-camera"></i>
                 </div>
@@ -660,19 +718,12 @@ const handleLogoLoad = (event: Event) => {
             <div class="username">{{ user?.name }}</div>
             <div class="user-id">ID: {{ user?.id }}</div>
             <div class="user-institution">MUST</div>
-            <!-- <div class="registration-time">Joined: {{ user?.created_at }}</div> -->
-            <!-- Likes / Coins -->
             <div class="stats">
               <div class="stat">
                 <span class="number">{{ user?.likes }}</span>
                 <span class="label">Likes</span>
               </div>
-              <!-- <div class="stat">
-              <span class="number">{{ user?.coins }}</span>
-              <span class="label">Coins</span>
-            </div> -->
             </div>
-            <!-- Following / Followers -->
             <div class="follow-stats-row">
               <div class="follow-item">
                 <span class="number">{{ user?.followings }}</span>
@@ -688,7 +739,6 @@ const handleLogoLoad = (event: Event) => {
               </div>
             </div>
 
-            <!-- Additional Profile Buttons -->
             <div class="additional-buttons">
               <button class="contact-info-btn" @click="openContactModal">CONTACT INFO</button>
               <button v-if="!uploadedCV" class="upload-cv-btn" @click="openCVModal">UPLOAD CV</button>
@@ -697,14 +747,12 @@ const handleLogoLoad = (event: Event) => {
           </div>
         </aside>
 
-        <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
         <div class="vertical-divider-us"></div>
-        <!-- 右侧会议内容区域 -->
         <section class="events">
-          <!-- 顶部：正在参与的会议 -->
           <div class="current-participations">
             <div class="section-title">My Events</div>
 
+<<<<<<< HEAD:src/views/conference-view.vue
             <!-- TODO 这里 如果已经登录，那么就展示My Events  -->
             <div v-if="store.isLogin()">
               <div v-if="currentParticipations" class="conference-list" v-for="cur in currentParticipations"
@@ -727,11 +775,37 @@ const handleLogoLoad = (event: Event) => {
                         <span v-for="(author, i) in sub.chairperson" :key="i" class="author">
                           {{ author }}<span v-if="i < sub.chairperson.length - 1">, </span>
                         </span>
+=======
+            <template v-if="currentMyConferenceList?.length">
+              <div class="conference-list" v-for="cur in currentMyConferenceList" :key="cur.id">
+                <div class="conference-card">
+                  <div class="conference-header">
+                    <div class="conference-name-container">
+                      <img v-if="cur.logo" :src="cur.logo" :alt="cur.name + ' logo'" class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
+                      <div class="conference-name">{{ cur.name }}</div>
+                    </div>
+                  </div>
+
+                  <div class="submission-list">
+                    <div
+                      v-for="sub in cur.my_papers"
+                      :key="sub.paper_id"
+                      class="submission-item"
+                      @click="router.push({ name: 'MyEventDetail', params: { conferenceId: cur.id, paperId: sub.paper_id } })"
+                    >
+                      <div class="paper-title">{{ sub.paper_title }}</div>
+                      <div class="authors">
+                        <span v-for="(author, i) in sub.authors" :key="i" class="author"> {{ author }}<span v-if="i < sub.authors.length - 1">, </span> </span>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+<<<<<<< HEAD:src/views/conference-view.vue
+=======
+            </template>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
 
               <div v-else class="empty-state">
                 <div class="empty-title">No current participations</div>
@@ -743,30 +817,28 @@ const handleLogoLoad = (event: Event) => {
             </div>
           </div>
 
-          <!-- 精选 Events：其他会议推荐 -->
           <div class="featured-events">
             <div class="section-header">
               <div class="section-title">Featured Events</div>
             </div>
 
             <div v-if="featuredEvents.length > 0" class="featured-list">
-              <div v-for="evt in featuredEvents" :key="evt.id" class="featured-card"
-                @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: evt.id } })">
+              <div v-for="evt in featuredEvents" :key="evt.id" class="featured-card" @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: evt.id } })">
                 <div class="featured-header">
                   <div class="featured-name-container">
-                    <img v-if="evt.logo" :src="evt.logo" :alt="evt.name + ' logo'" class="featured-event-logo"
-                      @error="handleLogoError" @load="handleLogoLoad" />
+                    <img v-if="evt.logo" :src="evt.logo" :alt="evt.name + ' logo'" class="featured-event-logo" @error="handleLogoError" @load="handleLogoLoad" />
                     <div class="featured-name">{{ evt.name }}</div>
                   </div>
                   <div class="featured-date">{{ formatRange(evt.start_time, evt.end_time) }}</div>
                 </div>
                 <div class="featured-meta">
                   <span class="featured-location">{{ evt.place_name }}</span>
-                  <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank"
-                    rel="noopener">Website</a>
+                  <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank" rel="noopener"> Website </a>
                 </div>
                 <div v-if="evt.keywords?.length" class="featured-topics">
-                  <span class="topic-tag" v-for="(t, i) in evt.keywords" :key="i">{{ t.name }}</span>
+                  <span class="topic-tag" v-for="(t, i) in evt.keywords" :key="i">
+                    {{ t.name }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -779,6 +851,7 @@ const handleLogoLoad = (event: Event) => {
         </section>
       </section>
 
+<<<<<<< HEAD:src/views/conference-view.vue
 
       <!-- 裁剪弹窗 -->
       <div v-if="false" class="cropper-modal">
@@ -791,9 +864,11 @@ const handleLogoLoad = (event: Event) => {
       </div>
       <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true"
         :show-close="true" destroy-on-close>
+=======
+      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true" :show-close="true" destroy-on-close>
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
         <div class="avatar-cut">
           <vue-cropper ref="cropperRef" :img="cropImage" v-bind="cropOption" />
-
         </div>
         <template #footer>
           <div class="dialog-footer">
@@ -803,14 +878,24 @@ const handleLogoLoad = (event: Event) => {
         </template>
       </el-dialog>
 
-      <!-- 编辑个人信息弹窗 -->
       <div class="edit-profile-modal" v-if="showEditProfile">
-        <div class="edit-profile-container" :style="{
-          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
-        }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+        <div
+          class="edit-profile-container"
+          :style="{
+            transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
+          }"
+          @mousedown="startDrag"
+          @mousemove="onDrag"
+          @mouseup="stopDrag"
+          @mouseleave="stopDrag"
+        >
           <h2>Edit Profile</h2>
+<<<<<<< HEAD:src/views/conference-view.vue
           <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*"
             @change="handleEditAvatarUpload" />
+=======
+          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
           <div class="edit-avatar-section avatar-container">
             <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
             <div class="avatar-upload-icon">
@@ -830,7 +915,6 @@ const handleLogoLoad = (event: Event) => {
         </div>
       </div>
 
-      <!-- Contact Info Modal -->
       <div class="contact-modal" v-if="showContactModal">
         <div class="contact-modal-container">
           <div class="modal-header">
@@ -870,7 +954,6 @@ const handleLogoLoad = (event: Event) => {
         </div>
       </div>
 
-      <!-- CV Upload Modal -->
       <div class="cv-modal" v-if="showCVModal">
         <div class="cv-modal-container">
           <div class="modal-header">
@@ -879,8 +962,12 @@ const handleLogoLoad = (event: Event) => {
           </div>
           <div class="modal-content">
             <div class="upload-area">
+<<<<<<< HEAD:src/views/conference-view.vue
               <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload"
                 style="display: none" />
+=======
+              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload" style="display: none" />
+>>>>>>> 77f9935f741c22c4bae183759e6095ae8494e9fc:src/views/conference.vue
               <div class="upload-zone" @click="cvUploadRef?.click()">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">
@@ -903,7 +990,6 @@ const handleLogoLoad = (event: Event) => {
       </div>
     </div>
 
-    <!-- CV Preview Modal -->
     <div v-if="showCVPreviewModal" class="pdf-modal-overlay" @click="closeCVPreview">
       <div class="pdf-modal" @click.stop>
         <div class="pdf-modal-header">
@@ -916,7 +1002,6 @@ const handleLogoLoad = (event: Event) => {
         <div class="pdf-modal-content">
           <iframe v-if="uploadedCV?.url && !isMobile" :src="uploadedCV.url" class="pdf-viewer" frameborder="0"></iframe>
           <div v-else-if="uploadedCV?.url && isMobile" class="mobile-pdf-viewer">
-            <!-- Mobile PDF display using object tag -->
             <object :data="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe">
               <embed :src="uploadedCV.url" type="application/pdf" class="mobile-pdf-iframe" />
               <div class="pdf-fallback-mobile">
@@ -924,7 +1009,6 @@ const handleLogoLoad = (event: Event) => {
                 <p>{{ getCurrentCVFileName() }}</p>
               </div>
             </object>
-            <!-- Mobile action buttons -->
             <div class="mobile-pdf-actions">
               <a :href="uploadedCV.url" :download="getCurrentCVFileName()" class="download-btn"> Download CV </a>
               <button @click="openCVInNewTab" class="open-btn">Open in New Tab</button>
