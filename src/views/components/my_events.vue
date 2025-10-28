@@ -1,108 +1,94 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, inject, toRaw, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ref, reactive, computed, onMounted, toRaw, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
-import { getImageUrl } from '@/utils';
 import commonHeader from '@/layout/common-header.vue';
-import { useConferenceStore } from '@/stores/conference'
-import { formatRange } from '@/utils/date'
-import { deepClone } from '@/utils/index'
-import { UploadVideo, putMyPaper, deleteFile } from '@/services/api'
-import { IPapersKeyword } from '@/types/conference'
-const route = useRoute();
-const router = useRouter();
-const userStore = useUserStore();
-const user = computed(() => userStore.user);
+import { useConferenceStore } from '@/stores/conference';
+import { formatRange } from '@/utils/date';
+import { deepClone, getImageUrl } from '@/utils/index';
+import { uploadVideo, putMyPaper, deleteFile } from '@/services/api';
 
-// File input refs
+const route = useRoute();
+const userStore = useUserStore();
 const graphicalAbstractInput = ref<HTMLInputElement>();
 const videoInput = ref<HTMLInputElement>();
 const slidesInput = ref<HTMLInputElement>();
 const posterInput = ref<HTMLInputElement>();
 const additionalInput = ref<HTMLInputElement>();
-
 const conferenceId = computed(() => Number(route.params.conferenceId));
 const paperId = computed(() => Number(route.params.paperId));
-
-
-
-// Left navigation tabs
 type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
 const activeTab = ref<TabKey>('details');
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
-const store = useConferenceStore()
-// Mock: load conference & paper meta
 
+const store = useConferenceStore();
 
 onMounted(() => {
-  store.getMyPapers(2);
-})
+  store.getMyPaper(paperId.value);
+});
 
-
-const eventMeta = computed(() => store.myPapers)
-
-// Details form
+const myPaperDetailInfo = computed(() => store.myPaperDetail);
 const detailsForm = computed(() => ({
-  doi: eventMeta.value?.doi ?? '',
-  abstract: eventMeta.value?.abstract ?? '',
-  keywords: eventMeta.value?.keywords ?? [],
-  graphicalAbstractFile: eventMeta.value?.graphic_abstract ?? '',
-  graphicalAbstractPreview: eventMeta.value?.graphic_abstract ?? ''
-}))
+  doi: myPaperDetailInfo.value?.doi ?? '',
+  abstract: myPaperDetailInfo.value?.abstract ?? '',
+  keywords: myPaperDetailInfo.value?.keywords ?? [],
+  graphicalAbstractFile: myPaperDetailInfo.value?.graphic_abstract ?? '',
+  graphicalAbstractPreview: myPaperDetailInfo.value?.graphic_abstract ?? '',
+}));
 
 const detailFormCopy = reactive({
   doi: 0,
   abstract: '',
   keywords: [{ name: '', id: 0, order: 0 }],
   graphicalAbstractFile: '',
-  graphicalAbstractPreview: ''
-})
+  graphicalAbstractPreview: '',
+});
 
 watch(
   () => detailsForm.value,
   (newVal) => {
-    Object.assign(detailFormCopy, deepClone(toRaw(newVal)))
+    Object.assign(detailFormCopy, deepClone(toRaw(newVal)));
   },
-  { immediate: true, deep: true }
-)
+  { immediate: true, deep: true },
+);
 
-const imagePath = ref<string>('')
+const imagePath = ref<string>('');
+
 function onUploadGraphicalAbstract(e: Event) {
-  graphicalAbstractInput.value?.click()
+  graphicalAbstractInput.value?.click();
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
-  const valid = (
-    ['image/jpeg', 'image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024
-  );
+  const valid = ['image/jpeg', 'image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024;
   if (!valid) {
     ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
     return;
   }
 
-  UploadVideo(uploadFile(file, 'graphic_abstract', '2'))
+  uploadVideo(uploadFile(file, 'graphic_abstract', '2'));
 
   const url = URL.createObjectURL(file);
-  imagePath.value = url
+  imagePath.value = url;
   detailFormCopy.graphicalAbstractFile = url;
   detailFormCopy.graphicalAbstractPreview = url;
 }
-function deleteImage() {
-  isMove.value = !isMove.value
-  detailFormCopy.graphicalAbstractPreview = ''
-  deleteFile({ paper_id: 2, file_type: 'graphic_abstract', file_path: imagePath.value })
-}
 
+function deleteImage() {
+  isMove.value = !isMove.value;
+  detailFormCopy.graphicalAbstractPreview = '';
+  deleteFile({ paper_id: 2, file_type: 'graphic_abstract', file_path: imagePath.value });
+}
 
 // Video
 const videoConsent = ref(false);
 const videoFile = ref<File | null>(null);
-const videoShow = ref<string | null>(eventMeta.value?.video ?? null)
-const videoSrc = computed(() => {//视频预览
+const videoShow = ref<string | null>(myPaperDetailInfo.value?.video ?? null);
+const videoSrc = computed(() => {
+  //视频预览
 
   if (!videoFile.value) return '';
   try {
@@ -112,7 +98,8 @@ const videoSrc = computed(() => {//视频预览
   }
 });
 
-async function onUploadVideo(e: Event, file_type = 'video') {//处理上传逻辑
+async function onUploadVideo(e: Event, file_type = 'video') {
+  //处理上传逻辑
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
   if (!file) return;
@@ -121,35 +108,36 @@ async function onUploadVideo(e: Event, file_type = 'video') {//处理上传逻�
     return;
   }
   videoFile.value = file;
-  const formData = new FormData()
-  formData.append('paper_id', '2')
-  formData.append('file_type', file_type)
-  formData.append('file', file)
+  const formData = new FormData();
+  formData.append('paper_id', '2');
+  formData.append('file_type', file_type);
+  formData.append('file', file);
 
   try {
-    const res = await UploadVideo(formData)
+    const res = await uploadVideo(formData);
     console.log('上传成功！', res);
-    return res
+    return res;
   } catch (err) {
     console.error('上传失败：', err.response?.data || err);
   }
 }
 
 function uploadFile(file: File, file_type: string, paper_id: string) {
-  const formData = new FormData()
-  formData.append('paper_id', paper_id)
-  formData.append('file_type', file_type)
-  formData.append('file', file)
-  return formData
+  const formData = new FormData();
+  formData.append('paper_id', paper_id);
+  formData.append('file_type', file_type);
+  formData.append('file', file);
+  return formData;
 }
 
-function removeVideo() { videoFile.value = null; }
+function removeVideo() {
+  videoFile.value = null;
+}
 
 // Slides (PDF up to 10MB)
 const slidesFile = ref<File | null>(null);
 
-
-const isMove = ref(true)
+const isMove = ref(true);
 
 function onUploadSlides(e: Event) {
   const input = e.target as HTMLInputElement;
@@ -161,10 +149,14 @@ function onUploadSlides(e: Event) {
   }
   slidesFile.value = file;
 }
-function removeSlides() { slidesFile.value = null; }
+
+function removeSlides() {
+  slidesFile.value = null;
+}
 
 // Poster (single-page PDF up to 10MB)
 const posterFile = ref<File | null>(null);
+
 function onUploadPoster(e: Event) {
   const input = e.target as HTMLInputElement;
   const file = input.files?.[0];
@@ -175,16 +167,23 @@ function onUploadPoster(e: Event) {
   }
   posterFile.value = file;
 }
-function removePoster() { posterFile.value = null; }
+
+function removePoster() {
+  posterFile.value = null;
+}
 
 // Additional info: any files
 const additionalFiles = ref<File[]>([]);
+
 function onUploadAdditional(e: Event) {
   const input = e.target as HTMLInputElement;
   const files = input.files ? Array.from(input.files) : [];
   additionalFiles.value = files;
 }
-function clearAdditional() { additionalFiles.value = []; }
+
+function clearAdditional() {
+  additionalFiles.value = [];
+}
 
 function saveDetails() {
   putMyPaper({
@@ -192,7 +191,7 @@ function saveDetails() {
     doi: Number(detailFormCopy.doi),
     abstract: detailFormCopy.abstract,
     keywords: detailFormCopy.keywords,
-  })
+  });
 }
 
 // PDF Preview Modal
@@ -246,182 +245,7 @@ function openInNewTab() {
   }
 }
 
-// Schedule functionality - 只添加用户的重要个人日程
-// function addToSchedule() {
-//   try {
-//     const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
-
-//     // 解析用户session日期
-//     const userSessionDate = parseUserSessionDate();
-
-//     if (!userSessionDate) {
-//       ElMessage.error('Unable to parse session date');
-//       return;
-//     }
-
-//     // 检查是否已经添加过用户session
-//     const existingSession = existingEvents.find((event: any) => event.isUserSession && event.type === 'session');
-//     if (existingSession) {
-//       ElMessage.warning('Your presentation session is already in your schedule!');
-//       return;
-//     }
-
-//     // 添加用户的演讲session（重要个人日程）
-//     const userSessionEvent = {
-//       id: `user-session-${Date.now()}`,
-//       title: `${eventMeta.value?.title} - My Presentation`,
-//       date: userSessionDate,
-//       time: '14:30',
-//       location: `Room ${sessionInfo.room}, ${eventMeta.value?.conference.address}`,
-//       description: `My presentation: ${eventMeta.value?.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
-//       type: 'session' as const,
-//       isUserSession: true,
-//       sessionRoom: sessionInfo.room,
-//       paperID: sessionInfo.paperID,
-//       customColor: '#ff8c00' // 橘色作为默认颜色
-//     };
-
-//     existingEvents.push(userSessionEvent);
-//     localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
-
-//     ElMessage.success('Your presentation session added to your schedule!');
-//   } catch (error) {
-//     console.error('Failed to add session to schedule:', error);
-//     ElMessage.error('Failed to add session to schedule');
-//   }
-// }
-
-// 统一的session信息，确保显示和数据的一致性
-
-const sessionInfo = computed(() => eventMeta.value?.session)
-
-// Helper function to parse user session date
-// function parseUserSessionDate(): string | null {
-//   const sessionDateStr = sessionInfo.dateDisplay;
-//   try {
-//     const match = sessionDateStr.match(/(\w+)\.,\s+(\w+)\s+(\d+),\s+(\d+)/);
-//     if (match) {
-//       const [, , month, day, year] = match;
-//       const monthNames = [
-//         'January', 'February', 'March', 'April', 'May', 'June',
-//         'July', 'August', 'September', 'October', 'November', 'December'
-//       ];
-//       const monthIndex = monthNames.indexOf(month);
-//       if (monthIndex !== -1) {
-//         // 使用本地时间避免时区问题
-//         const parsedYear = parseInt(year);
-//         const parsedMonth = monthIndex + 1; // 月份从1开始
-//         const parsedDay = parseInt(day);
-
-//         // 手动构建YYYY-MM-DD格式，避免时区转换
-//         const yearStr = parsedYear.toString();
-//         const monthStr = parsedMonth.toString().padStart(2, '0');
-//         const dayStr = parsedDay.toString().padStart(2, '0');
-
-//         const result = `${yearStr}-${monthStr}-${dayStr}`;
-//         return result;
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error parsing session date:', error);
-//   }
-
-//   return null;
-// }
-
-// Helper function to parse conference date range
-// function parseConferenceDateRange(dateStr: string): { startYear: number, startMonth: number, startDay: number, days: number } | null {
-//   // Parse "December 9-15, 2025" to get date range
-//   try {
-//     const match = dateStr.match(/(\w+)\s+(\d+)-(\d+),\s+(\d+)/);
-//     if (match) {
-//       const [, month, startDay, endDay, year] = match;
-//       const monthNames = [
-//         'January', 'February', 'March', 'April', 'May', 'June',
-//         'July', 'August', 'September', 'October', 'November', 'December'
-//       ];
-//       const monthIndex = monthNames.indexOf(month);
-//       if (monthIndex !== -1) {
-//         return {
-//           startYear: parseInt(year),
-//           startMonth: monthIndex + 1, // 1-based month
-//           startDay: parseInt(startDay),
-//           days: parseInt(endDay) - parseInt(startDay) + 1
-//         };
-//       }
-//     }
-
-//     // Handle single day format like "December 9, 2025"
-//     const singleMatch = dateStr.match(/(\w+)\s+(\d+),\s+(\d+)/);
-//     if (singleMatch) {
-//       const [, month, day, year] = singleMatch;
-//       const monthNames = [
-//         'January', 'February', 'March', 'April', 'May', 'June',
-//         'July', 'August', 'September', 'October', 'November', 'December'
-//       ];
-//       const monthIndex = monthNames.indexOf(month);
-//       if (monthIndex !== -1) {
-//         return {
-//           startYear: parseInt(year),
-//           startMonth: monthIndex + 1,
-//           startDay: parseInt(day),
-//           days: 1
-//         };
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error parsing date range:', error);
-//   }
-
-//   return null;
-// }
-
-// Helper function to format date object to YYYY-MM-DD string (避免时区问题)
-// function formatDateToString(date: Date): string {
-//   const year = date.getFullYear();
-//   const month = (date.getMonth() + 1).toString().padStart(2, '0');
-//   const day = date.getDate().toString().padStart(2, '0');
-//   return `${year}-${month}-${day}`;
-// }
-
-// Helper function to parse conference date string to proper date format
-// function parseConferenceDate(dateStr: string): string {
-//   // Parse "December 9-15, 2025" to get the start date
-//   try {
-//     const match = dateStr.match(/(\w+)\s+(\d+)(?:-\d+)?,\s+(\d+)/);
-//     if (match) {
-//       const [, month, day, year] = match;
-//       const monthNames = [
-//         'January', 'February', 'March', 'April', 'May', 'June',
-//         'July', 'August', 'September', 'October', 'November', 'December'
-//       ];
-//       const monthIndex = monthNames.indexOf(month);
-//       if (monthIndex !== -1) {
-//         // 使用本地时间避免时区问题
-//         const parsedYear = parseInt(year);
-//         const parsedMonth = monthIndex + 1; // 月份从1开始
-//         const parsedDay = parseInt(day);
-
-//         // 手动构建YYYY-MM-DD格式，避免时区转换
-//         const yearStr = parsedYear.toString();
-//         const monthStr = parsedMonth.toString().padStart(2, '0');
-//         const dayStr = parsedDay.toString().padStart(2, '0');
-
-//         return `${yearStr}-${monthStr}-${dayStr}`;
-//       }
-//     }
-//   } catch (error) {
-//     console.error('Error parsing date:', error);
-//   }
-
-//   // Fallback to current date if parsing fails
-//   const now = new Date();
-//   const year = now.getFullYear();
-//   const month = (now.getMonth() + 1).toString().padStart(2, '0');
-//   const day = now.getDate().toString().padStart(2, '0');
-//   return `${year}-${month}-${day}`;
-// }
-
+const sessionInfo = computed(() => myPaperDetailInfo.value?.session);
 </script>
 
 <template>
@@ -436,8 +260,7 @@ const sessionInfo = computed(() => eventMeta.value?.session)
         <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
         <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
         <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
-          Info</button>
+        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
         <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
       </aside>
       <section class="right-panel">
@@ -449,57 +272,54 @@ const sessionInfo = computed(() => eventMeta.value?.session)
         </header> -->
         <header class="event-header">
           <div class="conference-header">
-            <div class="logo" v-if="eventMeta?.conference.logo">
-              <img :src="eventMeta.conference.logo" alt="Conference Logo" />
+            <div class="logo" v-if="myPaperDetailInfo?.conference.logo">
+              <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
             </div>
             <div class="conference-info">
-              <div class="conference-name">{{ eventMeta?.conference.abbreviation }}</div>
-              <div class="conference-full-name">{{ eventMeta?.conference.name }}</div>
+              <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
+              <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(eventMeta?.conference.start_time,
-                    eventMeta?.conference.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ eventMeta?.conference.city }}, {{ eventMeta?.conference.country }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
-                  <span class="detail-text">{{ eventMeta?.conference.address }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.address }}</span>
                 </div>
               </div>
             </div>
           </div>
           <div class="conference-links">
-            <a :href="eventMeta?.conference.website" target="_blank" class="conf-link">
+            <a :href="myPaperDetailInfo?.conference.website" target="_blank" class="conf-link">
               <span class="link-icon">🌐</span>
               Official Website
             </a>
-            <a :href="eventMeta?.conference.committee_website" target="_blank" class="conf-link">
+            <a :href="myPaperDetailInfo?.conference.committee_website" target="_blank" class="conf-link">
               <span class="link-icon">👥</span>
               Committee
             </a>
-            <a :href="eventMeta?.conference.registration_website" target="_blank" class="conf-link">
+            <a :href="myPaperDetailInfo?.conference.registration_website" target="_blank" class="conf-link">
               <span class="link-icon">📝</span>
               Registration
             </a>
           </div>
           <div class="meta">
-            <div class="title">{{ eventMeta?.title }}</div>
+            <div class="title">{{ myPaperDetailInfo?.title }}</div>
             <div class="authors">
-              <span class="author-name">John Smith<sup>1</sup></span>,
-              <span class="author-name">Jane Doe<sup>2</sup></span>,
+              <span class="author-name">John Smith<sup>1</sup></span
+              >, <span class="author-name">Jane Doe<sup>2</sup></span
+              >,
               <span class="author-name">Bob Johnson<sup>1,3</sup></span>
             </div>
             <div class="affiliations">
-              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA,
-                USA</div>
-              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory,
-                Cambridge, MA, USA</div>
-              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California,
-                Berkeley, CA, USA</div>
+              <div class="affiliation"><sup>1</sup>Department of Computer Science, Stanford University, Stanford, CA, USA</div>
+              <div class="affiliation"><sup>2</sup>MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, USA</div>
+              <div class="affiliation"><sup>3</sup>Department of Electrical Engineering, University of California, Berkeley, CA, USA</div>
             </div>
             <div class="session-notice">
               <div class="session-header">
@@ -530,9 +350,10 @@ const sessionInfo = computed(() => eventMeta.value?.session)
                 </button> -->
               </div>
             </div>
-            <div class="dates">Date Created: {{ eventMeta?.conference.start_time }} · Date Edited: {{
-              eventMeta?.conference.end_time }}</div>
-
+            <div class="dates">
+              Date Created: {{ myPaperDetailInfo?.conference.start_time }} · Date Edited:
+              {{ myPaperDetailInfo?.conference.end_time }}
+            </div>
           </div>
         </header>
 
@@ -540,23 +361,19 @@ const sessionInfo = computed(() => eventMeta.value?.session)
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
-              <input v-model="detailFormCopy.doi" :placeholder="`${eventMeta?.doi ?? ''}`" />
+              <input v-model="detailFormCopy.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" />
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="eventMeta?.abstract"></textarea>
+              <textarea v-model="detailFormCopy.abstract" rows="6" :placeholder="myPaperDetailInfo?.abstract"></textarea>
             </div>
             <div class="form-item">
-              <label>Graphical Abstract</label>{{
-                detailFormCopy.graphicalAbstractPreview }}
-              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png"
-                @change="onUploadGraphicalAbstract" style="display: none" />
+              <label>Graphical Abstract</label>{{ detailFormCopy.graphicalAbstractPreview }}
+              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
               <button @click="onUploadGraphicalAbstract(e)" class="upload-btn">Upload Image</button>
               <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
               <div v-if="detailFormCopy.graphicalAbstractPreview" class="preview">
-
-                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract"
-                  v-if="isMove" />
+                <img :src="'/images' + detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-if="isMove" />
                 <img :src="detailFormCopy.graphicalAbstractPreview" alt="Graphical Abstract" v-else />
                 <button @click="deleteImage()" class="remove-btn">Remove</button>
               </div>
@@ -592,14 +409,12 @@ const sessionInfo = computed(() => eventMeta.value?.session)
               <button @click="removeVideo" class="remove-btn">Remove</button>
             </div>
             {{ videoShow }}
-            <video v-if="videoShow || videoSrc" class="preview-video" controls
-              :src="videoSrc ?? videoShow ?? undefined"></video>
+            <video v-if="videoShow || videoSrc" class="preview-video" controls :src="videoSrc ?? videoShow ?? undefined"></video>
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides"
-            style="display: none" />
+          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
           <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
           <div class="file-row" v-if="slidesFile">
             <div class="file-info">
@@ -624,8 +439,7 @@ const sessionInfo = computed(() => eventMeta.value?.session)
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster"
-            style="display: none" />
+          <input ref="posterInput" type="file" accept="application/pdf" @change="onUploadPoster" style="display: none" />
           <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster (PDF)</button>
           <div class="file-row" v-if="posterFile">
             <div class="file-info">
@@ -672,8 +486,9 @@ const sessionInfo = computed(() => eventMeta.value?.session)
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!detailsForm.graphicalAbstractFile }">{{
-                  detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!detailsForm.graphicalAbstractFile }">
+                  {{ detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Slides</div>
@@ -689,9 +504,9 @@ const sessionInfo = computed(() => eventMeta.value?.session)
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: additionalFiles.length > 0 }">{{ additionalFiles.length > 0 ?
-                  'Uploaded' :
-                  'Missing' }}</div>
+                <div class="status" :class="{ ok: additionalFiles.length > 0 }">
+                  {{ additionalFiles.length > 0 ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
             </div>
           </div>
@@ -707,12 +522,11 @@ const sessionInfo = computed(() => eventMeta.value?.session)
           <button @click="closePdfModal" class="close-btn">×</button>
         </div>
         <div class="pdf-modal-content">
-          <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0">
-          </iframe>
+          <iframe v-if="currentPdfUrl && !isMobile" :src="currentPdfUrl" class="pdf-viewer" frameborder="0"></iframe>
           <div v-else-if="currentPdfUrl && isMobile" class="mobile-pdf-viewer">
             <!-- Mobile PDF display using object tag -->
             <object :data="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
-              <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe">
+              <embed :src="currentPdfUrl" type="application/pdf" class="mobile-pdf-iframe" />
               <div class="pdf-fallback-mobile">
                 <div class="pdf-icon">📄</div>
                 <p>{{ getCurrentFileName() }}</p>
@@ -720,12 +534,8 @@ const sessionInfo = computed(() => eventMeta.value?.session)
             </object>
             <!-- Mobile action buttons -->
             <div class="mobile-pdf-actions">
-              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn">
-                Download PDF
-              </a>
-              <button @click="openInNewTab" class="open-btn">
-                Open in New Tab
-              </button>
+              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
+              <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
             </div>
           </div>
           <div v-else class="pdf-loading">Loading PDF...</div>
