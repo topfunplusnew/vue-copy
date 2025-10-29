@@ -10,20 +10,24 @@ import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/serv
 import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
+import { useDragSort } from '@/hooks/useDragSort';
 const store = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
 const activeTab = ref<TabKey>('details');
 const myPaperDetailInfo = computed(() => store.myPaperDetail);
+
+// 静态常量
+const MAX_KEYWORDS = 6;
 onMounted(async () => {
   await store.getMyPaper(paperId.value);
   console.log(`myPaperDetailInfo.value`, myPaperDetailInfo.value);
 });
 // 创建基于myPaperDetailInfo的reactive表单对象
+const keywords = ref<Array<{ name: string; id: number; order: number }>>([]);
 const formData = reactive({
   doi: '',
   abstract: '',
-  keywords: [] as string[],
   graphic_abstract: '',
   video: '',
   slide: '',
@@ -31,13 +35,24 @@ const formData = reactive({
   addition_files: '',
 });
 
+// 使用拖拽排序hook
+const {
+  draggedIndex,
+  draggedOverIndex,
+  handleDragStart,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop,
+  handleDragEnd
+} = useDragSort(keywords);
+
 // 初始化表单数据
 const initializeFormData = () => {
   if (myPaperDetailInfo.value) {
     formData.doi = String(myPaperDetailInfo.value.doi ?? '');
     formData.abstract = myPaperDetailInfo.value.abstract ?? '';
-    // 将keywords从对象数组转换为字符串数组
-    formData.keywords = myPaperDetailInfo.value.keywords?.map((k) => k.name || '').filter(Boolean) || [];
+    // 后端返回的是对象数组，按order排序
+    keywords.value = myPaperDetailInfo.value.keywords?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [];
     formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
     formData.video = myPaperDetailInfo.value.video ?? '';
     formData.slide = myPaperDetailInfo.value.slide ?? '';
@@ -125,31 +140,40 @@ const handleSelect = (item: Record<string, unknown>) => {
 // 添加关键词
 const addKeyword = (keyword?: string) => {
   const keywordToAdd = keyword || keywordInput.value.trim();
-  if (keywordToAdd && !formData.keywords.includes(keywordToAdd)) {
-    formData.keywords.push(keywordToAdd);
+  
+  // 检查是否已达到最大数量限制
+  if (keywords.value.length >= MAX_KEYWORDS) {
+    ElMessage.warning(`最多只能添加${MAX_KEYWORDS}个关键词`);
+    return;
+  }
+  
+  if (keywordToAdd && !keywords.value.some(k => k.name === keywordToAdd)) {
+    const newKeyword = {
+      name: keywordToAdd,
+      id: keywords.value.length + 1,
+      order: keywords.value.length + 1
+    };
+    keywords.value.push(newKeyword);
     keywordInput.value = '';
   }
 };
 
 // 删除关键词
 const removeKeyword = (index: number) => {
-  formData.keywords.splice(index, 1);
+  keywords.value.splice(index, 1);
+  // 重新分配order
+  keywords.value.forEach((keyword, idx) => {
+    keyword.order = idx + 1;
+  });
 };
 
 async function saveDetails() {
   try {
-    // 将keywords字符串数组转换为后端期望的对象数组格式
-    const keywordsForBackend = formData.keywords.map((keyword, index) => ({
-      name: keyword,
-      id: index + 1,
-      order: index + 1,
-    }));
-
     const updateData = {
       id: paperId.value,
       doi: formData.doi || '',
       abstract: formData.abstract,
-      keywords: keywordsForBackend,
+      keywords: keywords.value, // 使用keywords ref
       graphic_abstract: formData.graphic_abstract,
       video: formData.video,
       slide: formData.slide,
@@ -410,7 +434,7 @@ function getAffiliationNumber(originalId: number): number {
               <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
             </div>
             <div class="form-item full">
-              <label>Keywords</label>
+              <label>Keywords ({{ keywords.length }}/{{ MAX_KEYWORDS }})</label>
               <div class="keywords-container">
                 <div class="keywords-input-row">
                   <el-row>
@@ -418,13 +442,31 @@ function getAffiliationNumber(originalId: number): number {
                       <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync" placeholder="请输入关键词..." @select="handleSelect" @keyup.enter="addKeyword" />
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim()" type="primary">添加 </el-button>
+                      <div class="add-button-container">
+                        <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加 </el-button>
+                      </div>
                     </el-col>
+                    <div v-if="keywords.length >= MAX_KEYWORDS" class="max-keywords-warning">Maximum 6 Keywords</div>
                   </el-row>
                 </div>
-                <div class="keywords-tags" v-if="formData.keywords.length > 0">
-                  <el-tag v-for="(keyword, index) in formData.keywords" :key="index" closable @close="removeKeyword(index)">
-                    {{ keyword }}
+                <div class="keywords-tags" v-if="keywords.length > 0">
+                  <el-tag 
+                    v-for="(keyword, index) in keywords" 
+                    :key="keyword.id" 
+                    :draggable="true"
+                    :class="{ 
+                      'dragging': draggedIndex === index,
+                      'drag-over': draggedOverIndex === index 
+                    }"
+                    closable 
+                    @close="removeKeyword(index)"
+                    @dragstart="(event: DragEvent) => handleDragStart(event, index)"
+                    @dragover="(event: DragEvent) => handleDragOver(event, index)"
+                    @dragleave="handleDragLeave"
+                    @drop="(event: DragEvent) => handleDrop(event, index)"
+                    @dragend="handleDragEnd"
+                  >
+                    {{ keyword.name }}
                   </el-tag>
                 </div>
               </div>
@@ -647,5 +689,28 @@ function getAffiliationNumber(originalId: number): number {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+}
+
+.add-button-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.max-keywords-warning {
+  color: #f56c6c;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.drag-over {
+  border: 2px dashed #409eff !important;
+  background-color: #f0f9ff !important;
 }
 </style>
