@@ -237,7 +237,7 @@ const handleUploadProgress = () => {
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="props.isshow">
+      }" :multiple="true" v-if="props.isShow">
       <div class="upload-block" :class="{
         'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-block-loading': uploadLoading,

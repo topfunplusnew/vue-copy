@@ -390,8 +390,10 @@ function seachPaper() {
 
             <div v-if="activeTab === 'additional'" class="additional-content">
               <template v-if="paperDetail?.addition_files">
-                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
-                  class="additional-iframe" :is-show="true" />
+                <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
+                  class="additional-iframe" :limit="-1" :is-show="false" /> -->
+                <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
+                  :isshow="true" class="additional-iframe" />
               </template>
             </div>
           </div>
