@@ -66,3 +66,23 @@ export const downloadFile = (url: string, filename: string) => {
   link.click();
   document.body.removeChild(link);
 };
+
+/**
+ * 去除图片URL中的/images/前缀，获取原始文件路径
+ * @param url - 包含/images/前缀的URL
+ * @returns 去除前缀后的原始文件路径
+ */
+export function removeImagePrefix(url: string): string {
+  if (!url) return '';
+  // 如果URL包含/images/前缀，则去除
+  if (url.startsWith('/images/')) {
+    return url.replace('/images/', '');
+  }
+  // 如果URL包含完整的getImageUrl结果，也去除前缀
+  if (url.includes('/images/')) {
+    const parts = url.split('/images/');
+    return parts.length > 1 ? parts[1] : url;
+  }
+  // 如果没有前缀，直接返回原URL
+  return url;
+}

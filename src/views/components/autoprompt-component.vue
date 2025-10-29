@@ -534,5 +534,5 @@ function insertTripPrompt() {
 </template>
 
 <style scoped>
-@import '@/styles/pages/_generator-generatep.scss';
+@use '@/styles/pages/_generator-generatep.scss';
 </style>

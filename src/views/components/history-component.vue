@@ -175,5 +175,5 @@ watch(() => props.visible, (newVisible) => {
 </template>
 
 <style scoped>
-@import '@/styles/pages/_generator-history.scss';
+@use '@/styles/pages/_generator-history.scss';
 </style>

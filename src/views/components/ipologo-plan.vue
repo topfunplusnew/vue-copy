@@ -264,6 +264,6 @@ const startPlanning = () => {
 </script>
 
 <style scoped>
-@import '@/styles/components/_ipologo-plan.scss';
+@use '@/styles/components/_ipologo-plan.scss';
 </style>
      

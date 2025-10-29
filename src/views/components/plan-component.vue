@@ -151,14 +151,14 @@ watch(() => props.visible, (newVisible) => {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/components/plan-component.scss';
+@use '@/styles/components/plan-component.scss';
 </style>
 
 
 <template>
     <transition name="slide-from-left">
       <div v-if="visible" class="plan-overlay">
-        <div class="plan-panel">
+        <div class="plan-panel"> 
           
           <!-- 弹窗头部 -->
           <div class="plan-header">

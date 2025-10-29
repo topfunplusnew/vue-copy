@@ -210,7 +210,7 @@ const sendConfirmationEmail = async () => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/styles/_forgetpassword.scss';
+@use '@/styles/_forgetpassword.scss';
 
 .password-strength-signup {
   margin-top: 8px;

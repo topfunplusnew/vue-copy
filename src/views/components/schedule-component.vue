@@ -333,7 +333,7 @@ const handleStorageChange = () => {
 </script>
 
 <style scoped>
-@import '@/styles/components/_schedule.scss';
+@use '@/styles/components/_schedule.scss';
 </style>
 
 <template>

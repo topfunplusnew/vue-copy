@@ -4,7 +4,7 @@ import { Plus, Document } from '@element-plus/icons-vue';
 import { ElMessage, type UploadProps } from 'element-plus';
 import { auth } from '@/services/http.ts';
 import { computed, ref } from 'vue';
-import { getImageUrl, isVideoFile, isPdfFile, isImageFile, isZipFile } from '@/utils';
+import { getImageUrl, isVideoFile, isPdfFile, isImageFile, isZipFile, removeImagePrefix } from '@/utils';
 import type { UploadUserFile } from 'element-plus';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference';
@@ -169,8 +169,6 @@ const getFileIcon = (url: string) => {
 };
 
 const serverActionUrl = computed(() => import.meta.env.IPG_API_URL + getFileUploadAddress());
-const dialogImageUrl = ref('');
-const dialogVisible = ref(false);
 const deleteLoading = ref(false);
 const uploadLoading = ref(false);
 const isUploadDisabled = computed(() => {
@@ -185,11 +183,12 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
     return;
   }
   deleteLoading.value = true;
-  deleteFile({
+  const deleteBody = {
     paper_id: Number(paperId.value),
     file_type: file_type.value,
-    file_path: uploadFile.url || '',
-  })
+    file_path: removeImagePrefix(uploadFile.url || ''),
+  }
+  deleteFile(deleteBody)
     .then(() => {
       ElMessage.success('删除文件成功~');
       emit('refresh');
@@ -201,10 +200,6 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
     .finally(() => {
       deleteLoading.value = false;
     });
-};
-const handlePictureCardPreview: UploadProps['onPreview'] = (uploadFile) => {
-  dialogImageUrl.value = uploadFile.url!;
-  dialogVisible.value = true;
 };
 const handleError = () => {
   ElMessage.error('上传失败!');
@@ -238,7 +233,6 @@ const handleUploadProgress = () => {
       v-model:file-list="posterFileList"
       :action="serverActionUrl"
       list-type="text"
-      :on-preview="handlePictureCardPreview"
       :on-remove="handleRemove"
       :on-error="handleError"
       :on-exceed="handleExceed"
@@ -269,7 +263,7 @@ const handleUploadProgress = () => {
           <div class="upload-loading-text">上传中...</div>
         </div>
         <!-- 图片预览状态 -->
-        <div v-else-if="shouldShowImagePreview" class="image-preview-container" @click="handlePictureCardPreview(posterFileList[0] as any)">
+        <div v-else-if="shouldShowImagePreview" class="image-preview-container" >
           <img :src="imageUrl || ''" :alt="posterFileList[0]?.name" class="preview-image" />
           <div class="image-overlay">
             <div class="image-overlay-text">点击预览</div>
@@ -292,7 +286,7 @@ const handleUploadProgress = () => {
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
-          <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="file.name" class="file-thumbnail" @click="handlePictureCardPreview(file as any)" />
+          <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="file.name" class="file-thumbnail" />
           <!-- 如果不是图片，显示对应的文件图标 -->
           <div v-else class="file-icon-container">
             <component :is="getFileIcon(file.url || '')" v-if="getFileIcon(file.url || '')" class="file-icon" />
@@ -311,10 +305,6 @@ const handleUploadProgress = () => {
         </div>
       </div>
     </div>
-    <el-dialog v-model="dialogVisible">
-      <img w-full :src="dialogImageUrl" alt="Preview Image" />
-    </el-dialog>
-
     <!-- 视频播放器 -->
     <div v-if="shouldShowVideoPlayer" class="video-player-container">
       <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">您的浏览器不支持视频播放</video>
