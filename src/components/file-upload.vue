@@ -15,6 +15,7 @@ import PptIcon from './icons/ppt-icon.vue';
 import TxtIcon from './icons/txt-icon.vue';
 import VideoIcon from './icons/video-icon.vue';
 import ZipIcon from './icons/zip-icon.vue';
+import type { UploadAjaxError } from 'element-plus/es/components/upload/src/ajax';
 
 interface PaperDetail {
   fileUrl?: string;
@@ -201,8 +202,8 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
       deleteLoading.value = false;
     });
 };
-const handleError = () => {
-  ElMessage.error('上传失败!');
+const handleError = (error: UploadAjaxError) => {
+  ElMessage.error('上传失败,' + JSON.parse(error.message).error);
   uploadLoading.value = false;
 };
 
