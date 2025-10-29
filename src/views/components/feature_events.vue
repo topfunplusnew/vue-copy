@@ -1,3 +1,4 @@
+FileUpload
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
@@ -6,7 +7,9 @@ import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
 import { useRouter } from 'vue-router';
-
+import type { TabKey } from '@/types/conference.ts';
+import { getFileTypeByTabKey } from '@/utils/conference.ts';
+import FileUpload from '@/components/file-upload.vue';
 interface IPaper {
   id: number;
   title: string;
@@ -53,7 +56,7 @@ const selectedConference = computed({
 const searchQuery = ref('');//搜索框绑定的输入值
 const selectedPaper = ref<IPaper | null>(null);//当前选中的论文对象
 const showPaperModal = ref(false);//控制论文详情弹窗是否显示
-const activeTab = ref('details');//当前激活的 Tab
+const activeTab = ref<TabKey>('details');//当前激活的 Tab
 // const currentPage = ref(1);//当前分页页码
 // const papersPerPage = ref(20);//每页显示论文数量（默认 12）
 
@@ -92,24 +95,31 @@ function openPaperModal(paper: IPaper) {
   selectedPaper.value = paper;
   showPaperModal.value = true;
   activeTab.value = 'details';
+  conferenceStore.getPaperDetailAll(String(paper.id))
+
 }
+const paperDetail = computed(() => conferenceStore.paperDetail)
+
 
 function closePaperModal() {
   showPaperModal.value = false;
   selectedPaper.value = null;
 }
 
-function switchTab(tab: string) {
+function switchTab(tab: TabKey) {
   activeTab.value = tab;
 }
 
-function getAuthorAffiliations(authorIndex: number, paper: IPaper): string {
-  // Simple mapping: first author -> institution 1, second author -> institution 2, etc.
-  // In a real application, this would be more complex based on actual author-institution relationships
-  const institutionIndex = authorIndex % paper.institutions.length;
-  return (institutionIndex + 1).toString();
-}
+// function getAuthorAffiliations(authorIndex: number, paper: IPaper): string {
+//   // Simple mapping: first author -> institution 1, second author -> institution 2, etc.
+//   // In a real application, this would be more complex based on actual author-institution relationships
+//   const institutionIndex = authorIndex % paper.institutions.length;
+//   return (institutionIndex + 1).toString();
+// }
 
+const paperContent = computed(() => ({
+  fileUrl: paperDetail.value?.[getFileTypeByTabKey(activeTab.value)],
+}));
 
 function seachPaper() {
   conferenceStore.getConferencePaper(props.conferenceId, searchQuery.value);
@@ -264,17 +274,14 @@ function seachPaper() {
           </div>
 
           <div class="papers-list">
-            <div v-for="paper in conferencePapers" :key="paper.id" class="paper-card" @click="openPaperModal(paper)">
+            <div v-for="paper in conferencePapers" :key="paper.id" class="paper-item" @click="openPaperModal(paper)">
               <div class="paper-title">{{ paper.paper_title }}</div>
-              <template v-for="authors in paper.paper_authors" :key="authors.id">
-                <div class="paper-authors">{{ authors.name }}</div>
-                <div class="paper-institutions">{{ authors.affiliation }}</div>
-              </template>
-              <div class="paper-keywords">
-                <span v-for="keyword in paper.keywords" :key="keyword" class="keyword-tag">
-                  {{ keyword }}
+              <template v-for="(authors, index) in paper.paper_authors" :key="authors.id">
+                <span class="paper-authors"><span class="author">{{ authors.name }}</span>
+                  <span v-if="index < paper.paper_authors.length - 1">,</span>
                 </span>
-              </div>
+                <!-- <div class="paper-institutions">{{ authors.affiliation }}</div> -->
+              </template>
             </div>
 
             <div v-if="conferencePapers?.length === 0" class="no-papers">
@@ -298,18 +305,20 @@ function seachPaper() {
             <div class="info-section">
               <h4>Authors</h4>
               <div class="authors-list">
-                <span v-for="(author, index) in selectedPaper?.authors" :key="index" class="author-name">
-                  {{ author }}
-                  <sup>{{ selectedPaper ? getAuthorAffiliations(index, selectedPaper) : '' }}</sup>
-                  {{ index < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                <span v-for="(author, index) in paperDetail?.authors" :key="index" class="author-name">
+                  {{ author.name }}
+                  {{ index < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
               </div>
             </div>
 
             <div class="info-section">
               <h4>Affiliations</h4>
               <div class="affiliations-list">
-                <div v-for="(institution, index) in selectedPaper?.institutions" :key="index" class="affiliation">
-                  <sup>{{ index + 1 }}</sup>{{ institution }}
+                <div v-for="(author, index) in paperDetail?.authors" :key="index" class="affiliation">
+                  <sup>{{ index + 1 }}</sup>
+                  <template v-for="name in author.affiliations">
+                    {{ name.name }}
+                  </template>
                 </div>
               </div>
             </div>
@@ -318,22 +327,22 @@ function seachPaper() {
           <div class="tab-navigation">
             <button :class="['tab-btn', { active: activeTab === 'details' }]"
               @click="switchTab('details')">Details</button>
-            <button :class="['tab-btn', { active: activeTab === 'videos', disabled: !selectedPaper?.video }]"
-              @click="selectedPaper?.video && switchTab('videos')" :disabled="!selectedPaper?.video">
+            <button :class="['tab-btn', { active: activeTab === 'video', disabled: !paperDetail?.video }]"
+              @click="paperDetail?.video && switchTab('video')" :disabled="!paperDetail?.video">
               Video
             </button>
-            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !selectedPaper?.slides }]"
-              @click="selectedPaper?.slides && switchTab('slides')" :disabled="!selectedPaper?.slides">
+            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
+              @click="paperDetail?.slide && switchTab('slides')" :disabled="!paperDetail?.slide">
               Slides
             </button>
-            <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !selectedPaper?.poster }]"
-              @click="selectedPaper?.poster && switchTab('poster')" :disabled="!selectedPaper?.poster">
+            <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]"
+              @click="paperDetail?.poster && switchTab('poster')" :disabled="!paperDetail?.poster">
               Poster
             </button>
             <button
-              :class="['tab-btn', { active: activeTab === 'additional', disabled: !selectedPaper?.additionalInfo }]"
-              @click="selectedPaper?.additionalInfo && switchTab('additional')"
-              :disabled="!selectedPaper?.additionalInfo">
+              :class="['tab-btn', { active: activeTab === 'additional', disabled: !(paperDetail?.addition_files.length) }]"
+              @click="paperDetail?.addition_files.length && switchTab('additional')"
+              :disabled="!paperDetail?.addition_files.length">
               Additional Info
             </button>
           </div>
@@ -342,44 +351,48 @@ function seachPaper() {
             <div v-if="activeTab === 'details'" class="details-content">
               <div class="detail-item">
                 <h5>DOI</h5>
-                <p>{{ selectedPaper?.doi }}</p>
+                <p>{{ paperDetail?.doi }}</p>
               </div>
               <div class="detail-item">
                 <h5>Abstract</h5>
-                <p>{{ selectedPaper?.abstract }}</p>
+                <p>{{ paperDetail?.abstract }}</p>
               </div>
               <div class="detail-item">
                 <h5>Graphical Abstract</h5>
-                <img v-if="selectedPaper?.graphicalAbstract" :src="selectedPaper.graphicalAbstract"
-                  alt="Graphical Abstract" class="graphical-abstract" />
+                <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
+                  <img v-if="1" :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract" />
+                </template>
               </div>
               <div class="detail-item">
                 <h5>Keywords</h5>
                 <div class="keywords-list">
-                  <span v-for="keyword in selectedPaper?.keywords" :key="keyword" class="keyword-tag">
-                    {{ keyword }}
+                  <span v-for="keyword in paperDetail?.keywords" :key="keyword.order" class="keyword-tag">
+                    {{ keyword.name }}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div v-if="activeTab === 'videos'" class="videos-content">
-              <video v-if="selectedPaper?.video" :src="selectedPaper.video" controls class="paper-video">
-                Your browser does not support the video tag.
-              </video>
+            <div v-if="activeTab === 'video'" class="videos-content">
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+                :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
-              <iframe v-if="selectedPaper?.slides" :src="selectedPaper.slides" class="slides-iframe"></iframe>
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+                class="slides-iframe" :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'poster'" class="poster-content">
-              <img v-if="selectedPaper?.poster" :src="selectedPaper.poster" alt="Poster" class="poster-image" />
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+                class="poster-image" :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'additional'" class="additional-content">
-              <iframe v-if="selectedPaper?.additionalInfo" :src="selectedPaper.additionalInfo"
-                class="additional-iframe"></iframe>
+              <template v-if="paperDetail?.addition_files">
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
+                  class="additional-iframe" :is-show="true" />
+              </template>
             </div>
           </div>
         </div>

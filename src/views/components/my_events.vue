@@ -10,6 +10,8 @@ import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/serv
 import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
+import { ElLoading } from 'element-plus'
+import type { FullScreen } from '@element-plus/icons-vue';
 const store = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
@@ -30,7 +32,7 @@ const formData = reactive({
   poster: '',
   addition_files: '',
 });
-
+const fullscreenLoading = ref(false)//全局loading
 // 初始化表单数据
 const initializeFormData = () => {
   if (myPaperDetailInfo.value) {
@@ -58,6 +60,7 @@ watch(
 const paperContent = computed(() => ({
   fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
 }));
+
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
@@ -101,7 +104,7 @@ const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) =>
         // 从响应中提取items数组，并获取关键词名称
         const items = response.data?.items || [];
         const suggestions = items
-          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+          .map((item: { name?: string; keyword?: string;[key: string]: unknown }) => ({
             value: item.name || item.keyword || String(item),
           }))
           .filter((item: { value: string }) => item.value);
@@ -137,6 +140,7 @@ const removeKeyword = (index: number) => {
 };
 
 async function saveDetails() {
+  fullscreenLoading.value = true
   try {
     // 将keywords字符串数组转换为后端期望的对象数组格式
     const keywordsForBackend = formData.keywords.map((keyword, index) => ({
@@ -165,6 +169,15 @@ async function saveDetails() {
   } catch (error) {
     console.error('保存失败：', error);
     ElMessage.error('保存失败，请重试');
+  }
+  fullscreenLoading.value = false
+}
+const validateDoi = (value: string) => {
+  //过滤掉非法字符
+  const valid = value.replace(/[^A-Za-z0-9._:/-]/g, '')
+  if (valid !== value) {
+    ElMessage.warning('DOI 只能包含字母、数字、. _ : / - 等字符，不能有空格或中文哦～')
+    formData.doi = valid//自动纠正
   }
 }
 
@@ -276,18 +289,11 @@ function getAffiliationNumber(originalId: number): number {
 <template>
   <div class="background-layer"></div>
 
-  <div class="my-events-page main">
+  <div class="my-events-page main" v-loading.fullscreen.lock="fullscreenLoading" element-loading-text="Saving">
     <commonHeader />
 
     <section class="main-content">
-      <aside class="left-nav">
-        <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
-        <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
-        <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
-        <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
-        <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
-      </aside>
+
       <section class="right-panel">
         <header class="event-header">
           <div class="conference-header">
@@ -300,11 +306,13 @@ function getAffiliationNumber(originalId: number): number {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
+                    myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
+                    myPaperDetailInfo?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
@@ -335,9 +343,10 @@ function getAffiliationNumber(originalId: number): number {
               <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
                 <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
                   {{ author.name
-                  }}<template v-if="author?.affiliations?.length"
-                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
-                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                  }}<template v-if="author?.affiliations?.length"><sup
+                      v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{
+                        getAffiliationNumber(affiliation.id) }}</sup></template><span
+                    v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
                 </span>
               </div>
               <!-- 当论文作者为空的时候 渲染一个空状态 -->
@@ -349,9 +358,12 @@ function getAffiliationNumber(originalId: number): number {
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup
-                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
-                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                  <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
+                    affiliation.department ? ', ' +
+                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
+                    affiliation.country : ''
+                  }}
                 </div>
               </div>
               <!-- 当机构列表为空的时候，渲染一个空状态 -->
@@ -394,20 +406,35 @@ function getAffiliationNumber(originalId: number): number {
             </div>
           </div>
         </header>
+        <!-- detail video Slides Poster Additional Info Full Fils -->
+        <div class="left-nav">
+          <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
+          <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
+          <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
+          <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
+          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+            Info</button>
+          <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
+        </div>
 
+
+        <!-- 展示区 -->
         <div v-if="activeTab === 'details'" class="tab-content">
           <div class="form-grid">
             <div class="form-item">
               <label>Digital Object Identifier</label>
-              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
+              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable
+                @input="validateDoi" />
             </div>
             <div class="form-item full">
               <label>Abstract</label>
-              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract" resize="vertical" />
+              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract"
+                resize="vertical" />
             </div>
             <div class="form-item">
               <label>Graphical Abstract</label>
-              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+                @refresh="refreshPaperData" />
             </div>
             <div class="form-item full">
               <label>Keywords</label>
@@ -415,15 +442,18 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="keywords-input-row">
                   <el-row>
                     <el-col :span="18">
-                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync" placeholder="请输入关键词..." @select="handleSelect" @keyup.enter="addKeyword" />
+                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
+                        placeholder="请输入关键词..." @select="handleSelect" @keyup.enter="addKeyword" />
                     </el-col>
                     <el-col :span="6">
-                      <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim()" type="primary">添加 </el-button>
+                      <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim()" type="primary">添加
+                      </el-button>
                     </el-col>
                   </el-row>
                 </div>
                 <div class="keywords-tags" v-if="formData.keywords.length > 0">
-                  <el-tag v-for="(keyword, index) in formData.keywords" :key="index" closable @close="removeKeyword(index)">
+                  <el-tag v-for="(keyword, index) in formData.keywords" :key="index" closable
+                    @close="removeKeyword(index)">
                     {{ keyword }}
                   </el-tag>
                 </div>
@@ -443,20 +473,24 @@ function getAffiliationNumber(originalId: number): number {
             </label>
           </div>
           <div v-if="videoConsent" class="video-upload">
-            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
+            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+              @refresh="refreshPaperData" :isshow="true" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+            @refresh="refreshPaperData" :isshow="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+            @refresh="refreshPaperData" :isshow="true" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1" @refresh="refreshPaperData" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1"
+            @refresh="refreshPaperData" :isshow="true" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -470,15 +504,18 @@ function getAffiliationNumber(originalId: number): number {
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>

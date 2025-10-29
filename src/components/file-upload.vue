@@ -27,6 +27,7 @@ interface Props {
   paperId: string | number;
   paperDetail?: PaperDetail;
   limit: number;
+  isshow: boolean;
 }
 
 interface Emits {
@@ -38,6 +39,7 @@ const props = withDefaults(defineProps<Props>(), {
   paperId: '',
   paperDetail: () => ({}),
   limit: 1,
+  isShow: true
 });
 
 const emit = defineEmits<Emits>();
@@ -227,43 +229,28 @@ const handleUploadProgress = () => {
 
 <template>
   <div>
-    <el-upload
-      :data="bodyParams"
-      :headers="headers"
-      v-model:file-list="posterFileList"
-      :action="serverActionUrl"
-      list-type="text"
-      :on-remove="handleRemove"
-      :on-error="handleError"
-      :on-exceed="handleExceed"
-      :on-progress="handleUploadProgress"
-      :before-upload="handleUploadStart"
-      :on-success="handleUploadSuccess"
-      :limit="props.limit === -1 ? undefined : props.limit"
-      :disabled="isUploadDisabled || uploadLoading"
-      class="upload-area"
-      :class="{
+    <el-upload :data="bodyParams" :headers="headers" v-model:file-list="posterFileList" :action="serverActionUrl"
+      list-type="text" :on-remove="handleRemove" :on-error="handleError" :on-exceed="handleExceed"
+      :on-progress="handleUploadProgress" :before-upload="handleUploadStart" :on-success="handleUploadSuccess"
+      :limit="props.limit === -1 ? undefined : props.limit" :disabled="isUploadDisabled || uploadLoading"
+      class="upload-area" :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }"
-    >
-      <div
-        class="upload-block"
-        :class="{
-          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
-          'upload-block-loading': uploadLoading,
-          'upload-block-image-preview': shouldShowImagePreview,
-        }"
-        :style="{ height: uploadBlockHeight }"
-      >
+      }" :multiple="true" v-if="props.isshow">
+      <div class="upload-block" :class="{
+        'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
+        'upload-block-loading': uploadLoading,
+        'upload-block-image-preview': shouldShowImagePreview,
+      }" :style="{ height: uploadBlockHeight }">
+
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
           <div class="upload-loading-text">上传中...</div>
         </div>
         <!-- 图片预览状态 -->
-        <div v-else-if="shouldShowImagePreview" class="image-preview-container" >
+        <div v-else-if="shouldShowImagePreview" class="image-preview-container">
           <img :src="imageUrl || ''" :alt="posterFileList[0]?.name" class="preview-image" />
           <div class="image-overlay">
             <div class="image-overlay-text">点击预览</div>
@@ -282,7 +269,7 @@ const handleUploadProgress = () => {
     </el-upload>
 
     <!-- 自定义文件列表显示 -->
-    <div v-if="posterFileList.length > 0" class="custom-file-list">
+    <div v-if="posterFileList.length > 0 && props.isshow" class="custom-file-list">
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
@@ -297,10 +284,11 @@ const handleUploadProgress = () => {
             </div>
           </div>
         </div>
-        <div class="file-info">
+        <div class="file-info" v-if="props.isshow">
           <div class="file-name" :title="file.name">{{ file.name }}</div>
           <div class="file-actions">
-            <el-button type="danger" size="small" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
+            <el-button type="danger" size="small" :loading="deleteLoading"
+              @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
           </div>
         </div>
       </div>
@@ -312,7 +300,8 @@ const handleUploadProgress = () => {
 
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览 </iframe>
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览
+      </iframe>
     </div>
   </div>
 </template>
@@ -450,6 +439,7 @@ const handleUploadProgress = () => {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }

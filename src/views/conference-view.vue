@@ -275,7 +275,7 @@ function handleLogoLoad(event: Event) {
 
     <div class="user-page">
       <section class="main-content">
-        <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
+        <!-- <div class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
           <div class="profile-buttons">
             <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
             <button class="logout-btn" @click="handleLogout">LOGOUT</button>
@@ -319,11 +319,26 @@ function handleLogoLoad(event: Event) {
               <button v-else class="view-cv-btn" @click="openCVPreview">VIEW CV</button>
             </div>
           </div>
-        </aside>
+        </div> -->
 
         <div class="vertical-divider-us"></div>
         <section class="events">
+
           <div class="current-participations">
+            <div v-if="store.isLogin()">
+              <router-link :to="{ name: 'userpage' }" class="user-info">
+                <div class="avatar-section">
+                  <div class="avatar-container">
+                    <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
+                  </div>
+                </div>
+              </router-link>
+
+              <div class="profile-buttons">
+                <button class="logout-btn" @click="handleLogout">LOGOUT</button>
+              </div>
+            </div>
+
             <div class="section-title">My Events</div>
 
             <div v-if="store.isLogin()">
@@ -369,9 +384,8 @@ function handleLogoLoad(event: Event) {
             </div>
 
             <div v-if="featuredConferenceList.length > 0" class="featured-list">
-              <div v-for="featuredConference in featuredConferenceList" :key="featuredConference.id"
-                class="featured-card"
-                @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } })">
+              <router-link :to="{ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } }"
+                v-for="featuredConference in featuredConferenceList" :key="featuredConference.id" class="featured-card">
                 <div class="featured-header">
                   <div class="featured-name-container">
                     <img v-if="featuredConference.logo" :src="getImageUrl(featuredConference.logo)"
@@ -379,20 +393,22 @@ function handleLogoLoad(event: Event) {
                       @load="handleLogoLoad" />
                     <div class="featured-name">{{ featuredConference.name }}</div>
                   </div>
-                  <div class="featured-date">{{ formatRange(featuredConference.start_time, featuredConference.end_time)
+                  <div class="featured-date">{{ formatRange(featuredConference.start_time,
+                    featuredConference.end_time)
                   }}</div>
                 </div>
                 <div class="featured-meta">
                   <span class="featured-location">{{ featuredConference.place_name }}</span>
                   <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website"
-                    target="_blank" rel="noopener"> Website </a>
+                    target="_blank" rel="noopener" @click.stop> Website </a>
                 </div>
                 <div v-if="featuredConference.keywords?.length" class="featured-topics">
                   <span class="topic-tag" v-for="(t, i) in featuredConference.keywords" :key="i">
                     {{ t.name }}
                   </span>
+
                 </div>
-              </div>
+              </router-link>
             </div>
 
             <div v-else class="empty-state">

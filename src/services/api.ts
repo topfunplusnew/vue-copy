@@ -238,3 +238,6 @@ export const getConferenceIdPaper = (id: string, search?: string | null) => http
 
 // 关键词搜索API
 export const searchKeywords = (query: string) => http.get(`/keyword?search=${encodeURIComponent(query)}`);
+
+//获取论文详情
+export const getPaperDetail = (id: string) => http.get(`/paper/${id}`)

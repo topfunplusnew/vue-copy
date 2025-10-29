@@ -29,7 +29,6 @@
     box-sizing: border-box;
 
     @include screen-mobile {
-
       padding: 10px 10px;
     }
 
@@ -47,7 +46,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
-      
+
       .section-title {
         font-weight: 700;
         font-size: 30px;
@@ -57,7 +56,7 @@
         letter-spacing: 0.5px;
         background: transparent;
       }
-      
+
       .view-more-btn {
         background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
         color: white;
@@ -68,19 +67,19 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
-        
+
         &:hover {
           transform: translateY(-2px);
           box-shadow: 0 6px 20px rgba(99, 102, 241, 0.3);
           background: linear-gradient(135deg, #5b21b6 0%, #9333ea 100%);
         }
-        
+
         &:active {
           transform: translateY(0);
         }
       }
     }
-    
+
     // Keep backward compatibility for existing section-title usage
     .section-title {
       font-weight: 700;
@@ -149,10 +148,10 @@
           color: #7c3aed;
           text-shadow: 0 1px 2px rgba(168, 85, 247, 0.2);
           letter-spacing: 0.3px;
-
+          @include wordWrap();
           @include screen-mobile {
             font-size: 18px;
-        }
+          }
         }
         .submission-count {
           font-size: 14px;
@@ -198,18 +197,19 @@
           }
 
           .paper-title {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
             font-size: 20px;
             font-weight: 600;
             line-height: 1.5;
             margin-bottom: 8px;
             color: #581c87;
             text-shadow: 0 1px 2px rgba(168, 85, 247, 0.1);
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            hyphens: auto;
-
+            text-align: left;
+            @include wordWrap();
             @include screen-mobile {
-                font-size: 15px;
+              font-size: 15px;
             }
           }
           .authors {
@@ -219,8 +219,12 @@
             line-height: 1.4;
             word-wrap: break-word;
             overflow-wrap: break-word;
+            text-align: left;
             @include screen-mobile {
-                font-size: 15px;
+              font-size: 15px;
+            }
+            .author {
+              display: inline-block;
             }
           }
         }
@@ -233,7 +237,7 @@
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%);
       border: 2px dashed rgba(99, 102, 241, 0.3);
       border-radius: 12px;
-      
+
       .empty-title {
         font-weight: 600;
         font-size: 16px;
@@ -288,6 +292,7 @@
       padding: 14px 16px;
       transition: all 0.25s ease;
       position: relative;
+      text-decoration: none;
 
       &:hover {
         transform: translateY(-2px);
@@ -305,7 +310,7 @@
           font-size: 25px;
           font-weight: 700;
           color: #0ea5e9;
-
+          @include wordWrap();
           @include screen-mobile {
             font-size: 18px;
           }
@@ -356,6 +361,11 @@
           border: 1px solid rgba(56, 189, 248, 0.25);
           padding: 2px 8px;
           border-radius: 9999px;
+          @include wordWrap();
+          @include wordWrap();
+          &::first-letter {
+            text-transform: uppercase;
+          }
         }
       }
     }
@@ -363,7 +373,8 @@
 }
 
 // ===== Modal Styles =====
-.contact-modal, .cv-modal {
+.contact-modal,
+.cv-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -375,8 +386,9 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  
-  .contact-modal-container, .cv-modal-container {
+
+  .contact-modal-container,
+  .cv-modal-container {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%);
     border: 1px solid rgba(99, 102, 241, 0.2);
     border-radius: 16px;
@@ -385,21 +397,21 @@
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    
+
     .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 20px 24px;
       border-bottom: 1px solid rgba(99, 102, 241, 0.1);
-      
+
       h2 {
         margin: 0;
         color: #4c1d95;
         font-size: 20px;
         font-weight: 700;
       }
-      
+
       .close-btn {
         background: none;
         border: none;
@@ -414,20 +426,20 @@
         justify-content: center;
         border-radius: 50%;
         transition: all 0.2s ease;
-        
+
         &:hover {
           background: rgba(99, 102, 241, 0.1);
           color: #6366f1;
         }
       }
     }
-    
+
     .modal-content {
       padding: 24px;
-      
+
       .form-group {
         margin-bottom: 20px;
-        
+
         label {
           display: block;
           margin-bottom: 8px;
@@ -435,7 +447,7 @@
           font-weight: 500;
           font-size: 14px;
         }
-        
+
         input {
           width: 100%;
           padding: 12px 16px;
@@ -444,19 +456,19 @@
           font-size: 14px;
           transition: all 0.2s ease;
           box-sizing: border-box;
-          
+
           &:focus {
             outline: none;
             border-color: #6366f1;
             box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
           }
-          
+
           &::placeholder {
             color: #9ca3af;
           }
         }
       }
-      
+
       .upload-area {
         .upload-zone {
           border: 2px dashed rgba(99, 102, 241, 0.3);
@@ -466,36 +478,36 @@
           cursor: pointer;
           transition: all 0.3s ease;
           background: rgba(99, 102, 241, 0.02);
-          
+
           &:hover {
             border-color: #6366f1;
             background: rgba(99, 102, 241, 0.05);
           }
-          
+
           .upload-icon {
             font-size: 48px;
             margin-bottom: 16px;
           }
-          
+
           .upload-text {
             p {
               margin: 0;
               color: #374151;
-              
+
               &:first-child {
                 font-weight: 600;
                 font-size: 16px;
                 margin-bottom: 4px;
               }
             }
-            
+
             .upload-hint {
               font-size: 14px;
               color: #6b7280;
             }
           }
         }
-        
+
         .selected-file {
           margin-top: 16px;
           padding: 12px 16px;
@@ -505,17 +517,17 @@
           display: flex;
           align-items: center;
           gap: 8px;
-          
+
           .file-icon {
             font-size: 20px;
           }
-          
+
           .file-name {
             flex: 1;
             color: #374151;
             font-weight: 500;
           }
-          
+
           .file-size {
             color: #6b7280;
             font-size: 14px;
@@ -523,27 +535,27 @@
         }
       }
     }
-    
+
     .modal-footer {
       padding: 20px 24px;
       border-top: 1px solid rgba(99, 102, 241, 0.1);
       display: flex;
       justify-content: flex-end;
       gap: 12px;
-      
+
       .el-button {
         padding: 10px 20px;
         border-radius: 8px;
         font-weight: 500;
-        
+
         &.el-button--primary {
           background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
           border: none;
-          
+
           &:hover {
             background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
           }
-          
+
           &:disabled {
             background: #d1d5db;
             cursor: not-allowed;
@@ -579,7 +591,7 @@
   display: flex;
   flex-direction: column;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  
+
   @include screen-mobile {
     width: 95vw;
     height: 90vh;
@@ -592,14 +604,14 @@
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-  
+
   h3 {
     margin: 0;
     font-size: rpx(20);
     font-weight: 600;
     color: #1e293b;
   }
-  
+
   .close-btn {
     background: none;
     border: none;
@@ -609,16 +621,16 @@
     padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
-    
+
     &:hover {
       background: rgba(239, 68, 68, 0.1);
       color: #ef4444;
     }
   }
-  
+
   @include screen-mobile {
     padding: 16px 20px;
-    
+
     h3 {
       font-size: rpx(18);
     }
@@ -629,13 +641,13 @@
   flex: 1;
   padding: 0;
   overflow: hidden;
-  
+
   .pdf-viewer {
     width: 100%;
     height: 100%;
     border: none;
   }
-  
+
   .pdf-loading {
     display: flex;
     align-items: center;
@@ -644,19 +656,19 @@
     font-size: rpx(18);
     color: #64748b;
   }
-  
+
   .mobile-pdf-viewer {
     display: flex;
     flex-direction: column;
     height: 100%;
-    
+
     .mobile-pdf-iframe {
       flex: 1;
       width: 100%;
       border: none;
       min-height: 0;
     }
-    
+
     .pdf-fallback-mobile {
       display: flex;
       flex-direction: column;
@@ -664,13 +676,13 @@
       justify-content: center;
       height: 400px;
       text-align: center;
-      
+
       .pdf-icon {
         font-size: 64px;
         margin-bottom: 16px;
         opacity: 0.8;
       }
-      
+
       p {
         margin: 0;
         color: #475569;
@@ -680,7 +692,7 @@
         max-width: 90%;
       }
     }
-    
+
     .mobile-pdf-actions {
       flex-shrink: 0;
       display: flex;
@@ -688,8 +700,9 @@
       padding: 16px;
       background: rgba(248, 250, 252, 0.95);
       border-top: 1px solid rgba(226, 232, 240, 0.8);
-      
-      .download-btn, .open-btn {
+
+      .download-btn,
+      .open-btn {
         flex: 1;
         display: inline-block;
         padding: 12px 16px;
@@ -703,22 +716,22 @@
         border: none;
         box-sizing: border-box;
       }
-      
+
       .download-btn {
         background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
         color: white;
-        
+
         &:hover {
           transform: translateY(-1px);
           box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
         }
       }
-      
+
       .open-btn {
         background: rgba(99, 102, 241, 0.1);
         color: #6366f1;
         border: 2px solid rgba(99, 102, 241, 0.3);
-        
+
         &:hover {
           background: rgba(99, 102, 241, 0.15);
           border-color: rgba(99, 102, 241, 0.5);
@@ -728,18 +741,3 @@
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

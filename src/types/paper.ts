@@ -11,7 +11,7 @@ export interface IPaper {
 export interface IPaperAuthors {
     id: number;
     name: string;
-    affiliation?: IAffiliations[]
+    affiliations: IAffiliations[]
 }
 export interface IAffiliations {
     id: number;
@@ -20,11 +20,24 @@ export interface IAffiliations {
     university: string;
     city: string;
     country: string;
+    state?: string;
 }
-
-export interface page {
-    total: number;
-    page: number;
-    current_page: number;
-    per_page: number;
+export interface IpaperDetail {//论文详情
+    id: string;
+    title: string;
+    doi: string;
+    abstract: string;
+    venue: string;
+    authors: IPaperAuthors[]
+    graphic_abstract?: string[]
+    video: string
+    slide: string;
+    poster: string;
+    keywords: Ikeywords[]
+    addition_files: string[]
+}
+export interface Ikeywords {
+    id: number;
+    name: string;
+    order: number;
 }
