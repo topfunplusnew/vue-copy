@@ -187,7 +187,7 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
     paper_id: Number(paperId.value),
     file_type: file_type.value,
     file_path: removeImagePrefix(uploadFile.url || ''),
-  }
+  };
   deleteFile(deleteBody)
     .then(() => {
       ElMessage.success('删除文件成功~');
@@ -263,7 +263,7 @@ const handleUploadProgress = () => {
           <div class="upload-loading-text">上传中...</div>
         </div>
         <!-- 图片预览状态 -->
-        <div v-else-if="shouldShowImagePreview" class="image-preview-container" >
+        <div v-else-if="shouldShowImagePreview" class="image-preview-container">
           <img :src="imageUrl || ''" :alt="posterFileList[0]?.name" class="preview-image" />
           <div class="image-overlay">
             <div class="image-overlay-text">点击预览</div>
@@ -558,7 +558,7 @@ const handleUploadProgress = () => {
 
 .pdf-preview {
   width: 100%;
-  height: 600px;
+  height: calc(100vh - 8px);
   border: none;
   background-color: #f5f5f5;
 }
