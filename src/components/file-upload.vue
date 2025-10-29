@@ -15,6 +15,7 @@ import PptIcon from './icons/ppt-icon.vue';
 import TxtIcon from './icons/txt-icon.vue';
 import VideoIcon from './icons/video-icon.vue';
 import ZipIcon from './icons/zip-icon.vue';
+import type { UploadAjaxError } from 'element-plus/es/components/upload/src/ajax';
 
 interface PaperDetail {
   fileUrl?: string;
@@ -27,7 +28,7 @@ interface Props {
   paperId: string | number;
   paperDetail?: PaperDetail;
   limit: number;
-  isshow: boolean;
+  isShow: boolean;
 }
 
 interface Emits {
@@ -41,6 +42,8 @@ const props = withDefaults(defineProps<Props>(), {
   limit: 1,
   isShow: true
 });
+
+const isItemShow = computed(() => isItemShow);
 
 const emit = defineEmits<Emits>();
 const tabKey = computed(() => props.tabKey);
@@ -189,7 +192,7 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
     paper_id: Number(paperId.value),
     file_type: file_type.value,
     file_path: removeImagePrefix(uploadFile.url || ''),
-  }
+  };
   deleteFile(deleteBody)
     .then(() => {
       ElMessage.success('删除文件成功~');
@@ -203,8 +206,8 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
       deleteLoading.value = false;
     });
 };
-const handleError = () => {
-  ElMessage.error('上传失败!');
+const handleError = (error: UploadAjaxError) => {
+  ElMessage.error('上传失败,' + JSON.parse(error.message).error);
   uploadLoading.value = false;
 };
 
@@ -237,7 +240,7 @@ const handleUploadProgress = () => {
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="props.isShow">
+      }" :multiple="true" v-if="isItemShow">
       <div class="upload-block" :class="{
         'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-block-loading': uploadLoading,
@@ -269,7 +272,7 @@ const handleUploadProgress = () => {
     </el-upload>
 
     <!-- 自定义文件列表显示 -->
-    <div v-if="posterFileList.length > 0 && props.isshow" class="custom-file-list">
+    <div v-if="posterFileList.length > 0 && isItemShow" class="custom-file-list">
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
@@ -284,7 +287,7 @@ const handleUploadProgress = () => {
             </div>
           </div>
         </div>
-        <div class="file-info" v-if="props.isshow">
+        <div class="file-info" v-if="isItemShow">
           <div class="file-name" :title="file.name">{{ file.name }}</div>
           <div class="file-actions">
             <el-button type="danger" size="small" :loading="deleteLoading"
@@ -548,7 +551,7 @@ const handleUploadProgress = () => {
 
 .pdf-preview {
   width: 100%;
-  height: 600px;
+  height: calc(100vh - 8px);
   border: none;
   background-color: #f5f5f5;
 }

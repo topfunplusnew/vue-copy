@@ -19,6 +19,7 @@
     "@solana/web3.js": "^1.98.0",
     "@types/sortablejs": "^1.15.9",
     "@vuepic/vue-datepicker": "^11.0.2",
+    "@vueuse/core": "^14.0.0",
     "axios": "^1.7.9",
     "dayjs": "^1.11.18",
     "element-plus": "^2.9.5",

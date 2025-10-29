@@ -177,11 +177,11 @@ const handleClickOutside = (event: Event) => {
       <nav class="pop-nav" :class="{ 'nav-menu-active': navMenuActive }">
         <router-link :to="{ name: 'home' }" class="nav-btn toggle-nav desktop-nav">HOME</router-link>
         <router-link :to="{ name: 'about' }" class="nav-btn toggle-nav">ABOUT</router-link>
-        <router-link :to="{ name: 'conference' }" class="nav-btn toggle-nav">EVENTS</router-link>
+        <router-link v-if="false" :to="{ name: 'conference' }" class="nav-btn toggle-nav">EVENTS</router-link>
         <router-link :to="{ name: 'news' }" class="nav-btn toggle-nav">NEWS</router-link>
         <router-link :to="{ name: 'contact' }" class="nav-btn toggle-nav">CONTACT</router-link>
         <!-- <router-link :to="{ name: 'invitation' }" class="nav-btn toggle-nav">INVITATION</router-link> -->
-        
+
       </nav>
 
       <!-- 用户区域 -->
@@ -189,14 +189,13 @@ const handleClickOutside = (event: Event) => {
         <div v-if="userStore.user" class="nav-btn user-profile-btn">
           <div class="user-profile-nav">
             <div class="data-flow"></div>
-            <img
-              :src="getImageUrl(userStore.user.avatar || '')"
-              alt="User Avatar"
-            />
+            <img :src="getImageUrl(userStore.user.avatar || '')" alt="User Avatar" />
             <span class="home-new-username">{{ userStore.user.name }}</span>
             <el-dropdown trigger="click" @command="handleCommand">
               <span class="el-dropdown-link">
-                <el-icon><User /></el-icon>
+                <el-icon>
+                  <User />
+                </el-icon>
               </span>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -226,26 +225,14 @@ const handleClickOutside = (event: Event) => {
   <UserMessage v-model:visible="showMessageModal" />
 
   <!-- 计划弹窗组件 -->
-  <PlanComponent
-    :visible="showPlanModal"
-    :available-destinations="availableDestinations"
-    @close="showPlanModal = false"
-    @save="handlePlanSave"
-  />
+  <PlanComponent :visible="showPlanModal" :available-destinations="availableDestinations" @close="showPlanModal = false"
+    @save="handlePlanSave" />
 
   <!-- 历史弹窗组件 -->
-  <HistoryComponent
-    :visible="showHistoryModal"
-    @close="showHistoryModal = false"
-    @load-history="handleHistoryLoad"
-  />
+  <HistoryComponent :visible="showHistoryModal" @close="showHistoryModal = false" @load-history="handleHistoryLoad" />
 
   <!-- 日历弹窗组件 -->
-  <ScheduleComponent
-    :visible="showScheduleModal"
-    @close="showScheduleModal = false"
-    @save="handleScheduleSave"
-  />
+  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave" />
 </template>
 
 <style scoped>
