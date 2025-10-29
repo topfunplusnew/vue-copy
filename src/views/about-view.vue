@@ -109,7 +109,7 @@ const toggleFaq = (index: number) => {
     </div>
 
     <!-- 交互式特点展示区域 -->
-    <div class="features-container-about">
+    <!-- <div class="features-container-about">
       <div class="features-title-about">iPoloGO Features</div>
       <div class="features-grid-about">
         <div class="feature-card-about" v-for="(feature, index) in features" :key="index">
@@ -120,15 +120,15 @@ const toggleFaq = (index: number) => {
           <div class="feature-description-about">{{ feature.description }}</div>
         </div>
       </div>
-    </div>
+    </div> -->
 
     <!-- 统计数据展示 -->
-    <div class="stats-container-about">
+    <!-- <div class="stats-container-about">
       <div class="stat-item-about" v-for="(stat, index) in stats" :key="index">
         <div class="stat-value-about">{{ stat.value }}</div>
         <div class="stat-label-about">{{ stat.label }}</div>
       </div>
-    </div>
+    </div> -->
 
     <!-- FAQ Section -->
     <div class="faq-container-about">

@@ -325,21 +325,18 @@ function handleLogoLoad(event: Event) {
         <section class="events">
 
           <div class="current-participations">
-            <div v-if="store.isLogin()">
-              <router-link :to="{ name: 'userpage' }" class="user-info">
-                <div class="avatar-section">
-                  <div class="avatar-container">
-                    <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="avatar" />
-                  </div>
-                </div>
-              </router-link>
-
-              <div class="profile-buttons">
-                <button class="logout-btn" @click="handleLogout">LOGOUT</button>
+            <div class="section-header-with-avatar">
+              <div class="left-section">
+                <router-link v-if="store.isLogin()" :to="{ name: 'userpage' }" class="user-avatar-link">
+                  <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="user-avatar-small" />
+                </router-link>
+                <div class="section-title">My Events</div>
               </div>
+              <button v-if="store.isLogin()" class="sign-out-btn" @click="handleLogout">
+                <span class="sign-out-icon">⏏</span>
+                <span class="sign-out-text">Sign Out</span>
+              </button>
             </div>
-
-            <div class="section-title">My Events</div>
 
             <div v-if="store.isLogin()">
               <template v-if="currentMyConferenceList?.length">
@@ -367,14 +364,19 @@ function handleLogoLoad(event: Event) {
                 </div>
               </template>
 
-
-              <div v-else class="empty-state">
-                <div class="empty-title">No current participations</div>
-                <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+              <div v-else class="empty-state-redesigned">
+                <div class="empty-icon">📝</div>
+                <div class="empty-title">No Events Yet</div>
+                <div class="empty-desc">You haven't participated in any conferences yet.</div>
+                <div class="empty-hint">Submit a paper or register for a conference to get started!</div>
               </div>
             </div>
-            <div v-else>
-              <el-button type="primary" @click="router.push({ name: 'login' })">Login to check detail</el-button>
+            <div v-else class="login-prompt">
+              <div class="login-icon">🔒</div>
+              <div class="login-message">Sign in to view your events</div>
+              <el-button type="primary" class="login-btn" @click="router.push({ name: 'login' })">
+                Sign In
+              </el-button>
             </div>
           </div>
 
