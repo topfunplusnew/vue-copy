@@ -13,6 +13,7 @@ import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import { useDragSort } from '@/hooks/useDragSort';
 import { getImageFormats, getVideoFormats } from '@/utils/file';
+import SaveButton from '@/components/save-button.vue';
 
 const store = useConferenceStore();
 const route = useRoute();
@@ -58,7 +59,7 @@ const detailsRules: FormRules = {
   keywords: [
     {
       validator: (_: unknown, __: unknown, callback: (error?: Error) => void) => {
-        if ((keywords.value?.length || 0) >= MAX_KEYWORDS) {
+        if ((keywords.value?.length || 0) > MAX_KEYWORDS) {
           callback(new Error(`You already add ${MAX_KEYWORDS} keywords.`));
           return;
         }
@@ -432,7 +433,7 @@ function getAffiliationNumber(originalId: number): number {
               <div class="session-content">
                 <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
-                    <span class="schedule-label">📅 Date:</span>
+                    <span class="schedule-label">📅 Date And Time:</span>
                     <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time) }}</span>
                   </div>
                   <div class="schedule-row">
@@ -455,8 +456,9 @@ function getAffiliationNumber(originalId: number): number {
               </div>
             </div>
             <div class="dates">
-              Date Created: {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string) }} · Date Edited:
-              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string) }}
+              Date Created:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} · Date Edited:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string, undefined, `YYYY-MM-DD`) }}
             </div>
           </div>
         </header>
