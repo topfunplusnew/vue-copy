@@ -411,7 +411,7 @@
           box-sizing: border-box;
           word-wrap: break-word;
           overflow-wrap: break-word;
-
+          text-decoration: none;
           @include screen-mobile {
             padding: 10px 16px;
           }

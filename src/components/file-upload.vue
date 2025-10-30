@@ -329,7 +329,7 @@ const handleUploadProgress = () => {
         </div>
         <div class="file-info">
           <div class="file-name" :title="file.name">{{ file.name }}</div>
-          <div class="file-actions">
+          <div class="file-actions" v-if="isItemShow">
             <el-button type="danger" size="small" :loading="deleteLoading"
               @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
           </div>

@@ -57,7 +57,16 @@ http.interceptors.response.use(
       auth.del();
     }
     if (error.status !== 200 && error.response.status !== 401) {
-      ElMessage.error(error.response.data.error || error.message);
+      // 未登录 - 避免短时间内重复显示错误消息
+      if (!loginExpiredMessageShown) {
+        loginExpiredMessageShown = true;
+        ElMessage.error(error.response.data.error || error.message);
+
+        // 设置定时器，1秒后允许再次显示错误消息
+        setTimeout(() => {
+          loginExpiredMessageShown = false;
+        }, MESSAGE_THROTTLE_TIME);
+      }
     }
     return Promise.reject(error);
   },
