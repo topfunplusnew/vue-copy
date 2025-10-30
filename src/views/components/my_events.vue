@@ -10,8 +10,6 @@ import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/serv
 import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
-import { ElLoading } from 'element-plus'
-import type { FullScreen } from '@element-plus/icons-vue';
 import { useDragSort } from '@/hooks/useDragSort';
 const store = useConferenceStore();
 const route = useRoute();
@@ -239,10 +237,8 @@ function openInNewTab() {
 // 获取机构列表 - 按作者顺序合并去重并重新编号
 const affiliations = computed(() => {
   if (!myPaperDetailInfo.value?.authors) return [];
-
   // 按作者的order属性排序
   const sortedAuthors = [...myPaperDetailInfo.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
-
   // 收集所有机构，记录作者ID和原始机构ID
   const allAffiliations: Array<{
     authorId: number;
@@ -257,7 +253,6 @@ const affiliations = computed(() => {
       country?: string;
     };
   }> = [];
-
   sortedAuthors.forEach((author) => {
     if (author.affiliations && author.affiliations.length > 0) {
       author.affiliations.forEach((affiliation) => {
@@ -269,7 +264,6 @@ const affiliations = computed(() => {
       });
     }
   });
-
   // 去重：相同原始机构ID只保留第一次出现的
   const uniqueAffiliations = new Map();
   const affiliationList: Array<{
@@ -282,7 +276,6 @@ const affiliations = computed(() => {
     state?: string;
     country?: string;
   }> = [];
-
   let newId = 1;
   allAffiliations.forEach((item) => {
     if (!uniqueAffiliations.has(item.originalAffiliationId)) {
@@ -300,7 +293,6 @@ const affiliations = computed(() => {
       affiliationList.push(newAffiliation);
     }
   });
-
   return affiliationList;
 });
 
@@ -416,7 +408,7 @@ function getAffiliationNumber(originalId: number): number {
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">📄 Paper ID:</span>
-                    <span class="schedule-value">{{ myPaperDetailInfo.session.id }}</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.paperId }}</span>
                   </div>
                 </div>
                 <!-- <button class="schedule-action-btn">

@@ -136,6 +136,7 @@ export interface ISession {
 export interface IPapers {
   id: number;
   title: string;
+  paperId: string;
   abstract: string;
   venue: string;
   doi: string;
