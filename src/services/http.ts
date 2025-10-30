@@ -43,11 +43,11 @@ http.interceptors.response.use(
   },
   (error) => {
     console.log(`error`, error);
-    if (error && error.response && error.response.status == 401) {
+    if (error && error.response && error.response.status === 401) {
       // 登录失效 - 避免短时间内重复显示错误消息
       if (!loginExpiredMessageShown) {
         loginExpiredMessageShown = true;
-        ElMessage.error('登录失效，请重新登录');
+        ElMessage.error(error.response.data.error || error.message);
 
         // 设置定时器，1秒后允许再次显示错误消息
         setTimeout(() => {
@@ -56,7 +56,7 @@ http.interceptors.response.use(
       }
       auth.del();
     }
-    if (error.status !== 200) {
+    if (error.status !== 200 && error.response.status !== 401) {
       ElMessage.error(error.response.data.error || error.message);
     }
     return Promise.reject(error);
