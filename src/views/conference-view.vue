@@ -70,6 +70,7 @@ const isMobile = computed(() => {
 
 const currentMyConferenceList = computed(() => conferencesStore.myConferenceList);
 const featuredConferenceList = computed(() => conferencesStore.conferenceList);
+const isLoadingMyEvents = ref(true);
 
 onMounted(() => {
   nextTick(() => {
@@ -82,7 +83,10 @@ onMounted(() => {
     editForm.name = data.name;
     editForm.avatar = data.avatar;
   });
-  conferencesStore.getMyConference();
+  isLoadingMyEvents.value = true;
+  conferencesStore.getMyConference().finally(() => {
+    isLoadingMyEvents.value = false;
+  });
   conferencesStore.getConferencesList();
 });
 
@@ -273,11 +277,11 @@ function formatFirstLetterUppercase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 </script>
-
-<template>
-  <div class="background-layer"></div>
-  <div class="about layout-main">
-    <commonHeader />
+  
+  <template>
+    <div class="background-layer"></div>
+    <div class="about layout-main">
+      <commonHeader />
 
     <div class="user-page">
       <section class="main-content">
@@ -351,7 +355,11 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
 
             <div v-if="store.isLogin()">
-              <template v-if="currentMyConferenceList?.length">
+              <div v-if="isLoadingMyEvents" class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Loading events...</div>
+              </div>
+              <template v-else-if="currentMyConferenceList?.length">
                 <div class="conference-list" v-for="cur in currentMyConferenceList" :key="cur.id">
                   <div class="conference-card">
                     <div class="conference-header">
@@ -574,3 +582,33 @@ function formatFirstLetterUppercase(str: string): string {
     </div>
   </div>
 </template>
+
+<style scoped>
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 0;
+  }
+  
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #1890ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .loading-text {
+    color: #606266;
+    font-size: 14px;
+  }
+</style>

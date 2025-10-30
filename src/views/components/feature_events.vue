@@ -189,6 +189,44 @@ function formatFirstLetterUppercase(str: string): string {
 
 </script>
 
+<style scoped>
+.access-restricted {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
+  color: #909399;
+}
+
+.access-restricted p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* 禁用状态的video按钮样式 */
+.tab-btn:disabled {
+  position: relative;
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: #f5f7fa;
+  border: 1px solid #ebeef5;
+}
+
+.tab-btn:disabled:before {
+  content: '🔒';
+  margin-right: 4px;
+}
+
+.tab-btn:disabled:hover {
+  background-color: #f5f7fa;
+  cursor: not-allowed;
+}
+</style>
+
 <template>
   <div class="background-layer"></div>
 
@@ -391,8 +429,8 @@ function formatFirstLetterUppercase(str: string): string {
           <div class="tab-navigation">
             <button :class="['tab-btn', { active: activeTab === 'details' }]"
               @click="switchTab('details')">Details</button>
-            <button :class="['tab-btn', { active: activeTab === 'video', disabled: !paperDetail?.video }]"
-              @click="paperDetail?.video && switchTab('video')" :disabled="!paperDetail?.video">
+            <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
+              :disabled="!paperDetail?.is_open_access">
               Video
             </button>
             <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
@@ -438,8 +476,13 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
 
             <div v-if="activeTab === 'video'" class="videos-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
-                :is-show="false" />
+              <template v-if="paperDetail?.is_open_access">
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent"
+                  :limit="1" :is-show="false" />
+              </template>
+              <div v-else class="access-restricted">
+                <p>视频内容仅限开放访问</p>
+              </div>
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
@@ -457,7 +500,7 @@ function formatFirstLetterUppercase(str: string): string {
               <template v-if="paperDetail?.addition_files">
                 <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
                   class="additional-iframe" :limit="-1" :is-show="false" /> -->
-                <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
                   :is-show="false" class="additional-iframe" />
 
               </template>
