@@ -6,25 +6,31 @@ import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
-import { useRouter } from 'vue-router';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
-interface IPaper {
+type SelectedPaperLite = { id: number; title?: string };
+type AffRaw = {
   id: number;
-  title: string;
-  authors: string[];
-  institutions: string[];
-  doi: string;
-  abstract: string;
-  keywords: string[];
-  graphicalAbstract: string | null;
-  video: string | null;
-  slides: string | null;
-  poster: string | null;
-  additionalInfo: string | null;
-}
-const router = useRouter();
+  name?: string;
+  department?: string;
+  university?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+};
+type AffiliationLite = {
+  id: number;
+  originalId: number;
+  name?: string;
+  department?: string;
+  university?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+};
+type PaperDetailLike = { fileUrl?: string | string[] };
+// const router = useRouter();
 const conferenceStore = useConferenceStore();
 const props = defineProps({
   conferenceId: {
@@ -48,13 +54,10 @@ const conferenceDetail = computed(() => conferenceStore.conferenceDetail);
 
 
 
-const selectedConference = computed({
-  get: () => conferenceDetail.value,
-  set: (val) => (conferenceDetail.value = val),
-});
+const selectedConference = computed(() => conferenceDetail.value);
 
 const searchQuery = ref('');//搜索框绑定的输入值
-const selectedPaper = ref<IPaper | null>(null);//当前选中的论文对象
+const selectedPaper = ref<SelectedPaperLite | null>(null);//当前选中的论文对象
 const showPaperModal = ref(false);//控制论文详情弹窗是否显示
 const activeTab = ref<TabKey>('details');//当前激活的 Tab
 // const currentPage = ref(1);//当前分页页码
@@ -91,7 +94,7 @@ function registerInterest(conferenceId: number) {
   ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
 }
 
-function openPaperModal(paper: IPaper) {
+function openPaperModal(paper: SelectedPaperLite) {
   selectedPaper.value = paper;
   showPaperModal.value = true;
   activeTab.value = 'details';
@@ -117,12 +120,71 @@ function switchTab(tab: TabKey) {
 //   return (institutionIndex + 1).toString();
 // }
 
-const paperContent = computed(() => ({
-  fileUrl: paperDetail.value?.[getFileTypeByTabKey(activeTab.value)],
-}));
+const paperContent = computed<PaperDetailLike>(() => {
+  // 当activeTab为'additional'时，直接使用addition_files
+  if (activeTab.value === 'additional') {
+    return {
+      fileUrl: paperDetail.value?.addition_files || []
+    };
+  }
+
+  // 其他标签页保持原有逻辑
+  const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value)] as unknown;
+  const fileUrl = Array.isArray(raw) ? undefined : (raw as string | undefined);
+  return { fileUrl };
+});
+
+// 获取机构列表 - 按作者顺序合并去重并重新编号
+const affiliations = computed((): AffiliationLite[] => {
+  if (!paperDetail.value?.authors) return [];
+  const sortedAuthors = [...paperDetail.value.authors];
+  const allAffiliations: { authorId: number; originalAffiliationId: number; affiliation: AffRaw }[] = [];
+  sortedAuthors.forEach((author) => {
+    if (author.affiliations && author.affiliations.length > 0) {
+      author.affiliations.forEach((affiliation) => {
+        allAffiliations.push({
+          authorId: author.id,
+          originalAffiliationId: affiliation.id,
+          affiliation: affiliation as AffRaw,
+        });
+      });
+    }
+  });
+  const uniqueAffiliations = new Map();
+  const affiliationList: AffiliationLite[] = [];
+  let newId = 1;
+  allAffiliations.forEach((item) => {
+    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+      const newAffiliation = {
+        id: newId++,
+        originalId: item.originalAffiliationId,
+        name: item.affiliation.name,
+        department: item.affiliation.department,
+        university: item.affiliation.university,
+        city: item.affiliation.city,
+        state: item.affiliation.state,
+        country: item.affiliation.country,
+      };
+      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+      affiliationList.push(newAffiliation);
+    }
+  });
+  return affiliationList;
+});
+
+function getAffiliationNumber(originalId: number) {
+  const aff = affiliations.value.find((a) => a.originalId === originalId);
+  return aff ? aff.id : 0;
+}
 
 function seachPaper() {
   conferenceStore.getConferencePaper(props.conferenceId, searchQuery.value);
+}
+
+// 格式化字符串，使第一个字母大写，其他字母小写
+function formatFirstLetterUppercase(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 </script>
@@ -177,7 +239,7 @@ function seachPaper() {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -213,8 +275,8 @@ function seachPaper() {
           <div class="research-topics">
             <h3>Key Research Topics</h3>
             <div class="topic-tags">
-              <span v-for="topic in selectedConference?.keywords" :key="topic.id" class="topic-tag">
-                {{ topic.name }}
+              <span v-for="(topic, index) in selectedConference?.keywords" :key="index" class="topic-tag">
+                {{ index === 0 ? formatFirstLetterUppercase(topic.name) : topic.name }}
               </span>
             </div>
           </div>
@@ -242,7 +304,7 @@ function seachPaper() {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</div>
+                  }}</div>
                 </div>
               </div>
             </div>
@@ -305,20 +367,22 @@ function seachPaper() {
             <div class="info-section">
               <h4>Authors</h4>
               <div class="authors-list">
-                <span v-for="(author, index) in paperDetail?.authors" :key="index" class="author-name">
-                  {{ author.name }}
-                  {{ index < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                  {{ author.name }}<template v-if="author?.affiliations?.length"><sup
+                      v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                      }}</sup></template><span>
+                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                  </span>
               </div>
             </div>
 
             <div class="info-section">
               <h4>Affiliations</h4>
               <div class="affiliations-list">
-                <div v-for="(author, index) in paperDetail?.authors" :key="index" class="affiliation">
-                  <sup>{{ index + 1 }}</sup>
-                  <template v-for="name in author.affiliations">
-                    {{ name.name }}
-                  </template>
+                <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
+                  <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
+                    aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
+                    aff.state ? ', ' + aff.state : '' }}{{ aff.country ? ', ' + aff.country : '' }}
                 </div>
               </div>
             </div>
@@ -374,18 +438,19 @@ function seachPaper() {
             </div>
 
             <div v-if="activeTab === 'video'" class="videos-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 class="slides-iframe" :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'poster'" class="poster-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 class="poster-image" :is-show="false" />
+
             </div>
 
             <div v-if="activeTab === 'additional'" class="additional-content">
@@ -393,7 +458,8 @@ function seachPaper() {
                 <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
                   class="additional-iframe" :limit="-1" :is-show="false" /> -->
                 <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
-                  :isshow="true" class="additional-iframe" />
+                  :is-show="false" class="additional-iframe" />
+
               </template>
             </div>
           </div>

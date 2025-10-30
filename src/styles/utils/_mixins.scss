@@ -46,4 +46,5 @@
   word-break: keep-all; //保证单词内部不被拆开换行（尤其对英文）
   overflow-wrap: break-word; //如果一整段太长，允许按单词边界换行
   white-space: normal; //保持默认的空格换行行为
+  text-align: left; //最后一行文本左对齐
 }

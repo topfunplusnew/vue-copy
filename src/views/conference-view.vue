@@ -266,6 +266,12 @@ function handleLogoLoad(event: Event) {
   const img = event.target as HTMLImageElement;
   console.log('Logo loaded successfully:', img.src);
 }
+
+// 格式化字符串，使第一个字母大写，其他字母小写
+function formatFirstLetterUppercase(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
 </script>
 
 <template>
@@ -409,7 +415,7 @@ function handleLogoLoad(event: Event) {
                 </div>
                 <div v-if="featuredConference.keywords?.length" class="featured-topics">
                   <span class="topic-tag" v-for="(t, i) in featuredConference.keywords" :key="i">
-                    {{ t.name }}
+                    {{ i === 0 ? formatFirstLetterUppercase(t.name) : t.name }}
                   </span>
 
                 </div>
