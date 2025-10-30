@@ -1,8 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getConferenceList, getConferenceDetail, getMyPaperDetail, getMyConferenceList, getConferenceIdPaper, getPaperDetail } from '@/services/api';
+import { getConferenceList, getConferenceDetail, getMyPaperDetail, getMyConferenceList, getConferenceIdPaper, getPaperDetail, updateMyPaperDetail } from '@/services/api';
 import type { IConferenceEvent, IConferenceParticipation, IPapers, IMyConference } from '@/types/conference';
-import type { IPaper, IpaperDetail } from '@/types/paper'
+import type { IModifyPaperShow, IPaper, IpaperDetail } from '@/types/paper'
 
 export const useConferenceStore = defineStore('meet', () => {
   const conferenceList = ref<IConferenceEvent[]>([]);
@@ -10,7 +10,7 @@ export const useConferenceStore = defineStore('meet', () => {
   const myConferenceList = ref<IMyConference[]>([]);
   const myPaperDetail = ref<IPapers>();//我的论文详情
   const conferencePaper = ref<IPaper[]>()//会议论文
-  const paperDetail = ref<IpaperDetail>()
+  const paperDetail = ref<IModifyPaperShow>()
 
   function getConferencesList() {
     return getConferenceList().then(res => {
@@ -57,10 +57,19 @@ export const useConferenceStore = defineStore('meet', () => {
   function getPaperDetailAll(id: string) {
     return getPaperDetail(id).then((res) => {
       paperDetail.value = res.data
-
     })
   }
 
+  // 更新论文的is_open_access状态
+  function updateIsOpenAccess(data: IModifyPaperShow) {
+    return updateMyPaperDetail(data).then(res => {
+      if (res.data) {
+        console.log('更新成功', res.data);
+        console.log(res.data.paper);
+        paperDetail.value.is_open_access = res.data.paper.is_open_access
+      }
+    });
+  }
 
   return {
     conferencePaper,
@@ -74,6 +83,7 @@ export const useConferenceStore = defineStore('meet', () => {
     getMyPaper,
     getMyConference,
     getConferencePaper,
-    getPaperDetailAll
+    getPaperDetailAll,
+    updateIsOpenAccess
   };
 });

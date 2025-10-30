@@ -37,6 +37,7 @@ const formData = reactive({
   poster: '',
   addition_files: '',
   keywords: [] as Array<{ name: string; id: number; order: number }>,
+  is_open_access: false
 });
 const fullscreenLoading = ref(false); //全局loading
 const detailsFormRef = ref<FormInstance>();
@@ -86,6 +87,9 @@ const initializeFormData = () => {
     formData.slide = myPaperDetailInfo.value.slide ?? '';
     formData.poster = myPaperDetailInfo.value.poster ?? '';
     formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
+    formData.is_open_access = myPaperDetailInfo.value.is_open_access ?? false;
+    // 同时更新store中的is_open_access状态
+    store.updateIsOpenAccess(formData.is_open_access);
   }
 };
 
@@ -154,7 +158,7 @@ const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) =>
         // 从响应中提取items数组，并获取关键词名称
         const items = response.data?.items || [];
         const suggestions = items
-          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+          .map((item: { name?: string; keyword?: string;[key: string]: unknown }) => ({
             value: item.name || item.keyword || String(item),
           }))
           .filter((item: { value: string }) => item.value);
@@ -367,11 +371,13 @@ function getAffiliationNumber(originalId: number): number {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
+                    myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
+                    myPaperDetailInfo?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
@@ -402,9 +408,10 @@ function getAffiliationNumber(originalId: number): number {
               <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
                 <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
                   {{ author.name
-                  }}<template v-if="author?.affiliations?.length"
-                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
-                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                  }}<template v-if="author?.affiliations?.length"><sup
+                      v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{
+                        getAffiliationNumber(affiliation.id) }}</sup></template><span
+                    v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
                 </span>
               </div>
               <!-- 当论文作者为空的时候 渲染一个空状态 -->
@@ -416,9 +423,12 @@ function getAffiliationNumber(originalId: number): number {
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup
-                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
-                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                  <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
+                    affiliation.department ? ', ' +
+                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
+                    affiliation.country : ''
+                  }}
                 </div>
               </div>
               <!-- 当机构列表为空的时候，渲染一个空状态 -->
@@ -457,7 +467,8 @@ function getAffiliationNumber(originalId: number): number {
             </div>
             <div class="dates">
               Date Created:
-              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} · Date Edited:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} ·
+              Date Edited:
               {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string, undefined, `YYYY-MM-DD`) }}
             </div>
           </div>
@@ -468,60 +479,52 @@ function getAffiliationNumber(originalId: number): number {
           <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
           <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
           <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
+          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+            Info</button>
           <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
         </div>
-
         <!-- 展示区 -->
         <div v-if="activeTab === 'details'" class="tab-content">
-          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid" @submit.prevent>
+          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
+            @submit.prevent>
             <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
               <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
             </el-form-item>
             <el-form-item label="Abstract" class="form-item full">
-              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract" resize="vertical" />
+              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract"
+                resize="vertical" />
             </el-form-item>
             <el-form-item label="Graphical Abstract" class="form-item">
-              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+                @refresh="refreshPaperData" :is-show="true" />
             </el-form-item>
-            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords" class="form-item full">
+            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords"
+              class="form-item full">
               <div class="keywords-container">
                 <div class="keywords-input-row">
                   <el-row>
                     <el-col :span="18">
-                      <el-autocomplete
-                        v-model="keywordInput"
-                        :fetch-suggestions="querySearchAsync"
-                        placeholder="please input keywords..."
-                        @select="handleSelect"
-                        @keyup.enter="addKeyword"
-                        @blur="onKeywordBlur"
-                      />
+                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
+                        placeholder="please input keywords..." @select="handleSelect" @keyup.enter="addKeyword"
+                        @blur="onKeywordBlur" />
                     </el-col>
                     <el-col :span="6">
                       <div class="add-button-container">
-                        <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加 </el-button>
+                        <el-button @click="() => addKeyword()"
+                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加
+                        </el-button>
                       </div>
                     </el-col>
                   </el-row>
                 </div>
                 <div class="keywords-tags" v-if="keywords.length > 0">
-                  <el-tag
-                    v-for="(keyword, index) in keywords"
-                    :key="keyword.id"
-                    :draggable="true"
-                    :class="{
-                      dragging: draggedIndex === index,
-                      'drag-over': draggedOverIndex === index,
-                    }"
-                    closable
-                    @close="removeKeyword(index)"
+                  <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
+                    dragging: draggedIndex === index,
+                    'drag-over': draggedOverIndex === index,
+                  }" closable @close="removeKeyword(index)"
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
-                    @dragover="(event: DragEvent) => handleDragOver(event, index)"
-                    @dragleave="handleDragLeave"
-                    @drop="(event: DragEvent) => handleDrop(event, index)"
-                    @dragend="handleDragEnd"
-                  >
+                    @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
+                    @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd">
                     {{ keyword.name }}
                   </el-tag>
                 </div>
@@ -537,35 +540,37 @@ function getAffiliationNumber(originalId: number): number {
         </div>
 
         <div v-else-if="activeTab === 'video'" class="tab-content">
-          <div class="consent-section">
+          <!-- 当视频已存在时显示同意条款复选框 -->
+          <div v-if="myPaperDetailInfo?.video" class="consent-section">
             <label class="checkbox">
-              <input type="checkbox" v-model="videoConsent" />
+              <input type="checkbox" v-model="formData.is_open_access" @change="store.updateIsOpenAccess({
+                id: paperId,
+                is_open_access: formData.is_open_access
+              })" />
               <span>I have read, understood, and accept the video release terms.</span>
             </label>
           </div>
-          <div v-if="videoConsent" class="video-upload">
-            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <!-- 总是显示上传组件 -->
+          <div class="video-upload">
+            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
+              :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
+            :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+            @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload
-            :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
-            :tab-key="activeTab"
-            :paper-id="paperId"
-            :paper-detail="paperContent"
-            :limit="-1"
-            @refresh="refreshPaperData"
-            :is-show="true"
-          />
+          <file-upload :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
+            :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1"
+            @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -579,15 +584,18 @@ function getAffiliationNumber(originalId: number): number {
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>

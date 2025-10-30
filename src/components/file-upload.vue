@@ -269,6 +269,19 @@ const handleUploadSuccess = () => {
 const handleUploadProgress = () => {
   // 上传进度处理，保持loading状态
 };
+
+// 处理文件下载
+const handleFileDownload = (file: UploadUserFile) => {
+  if (!file.url) return;
+  
+  // 创建一个临时链接用于下载
+  const link = document.createElement('a');
+  link.href = file.url;
+  link.download = file.name || 'download';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
 </script>
 
 <template>
@@ -281,7 +294,7 @@ const handleUploadProgress = () => {
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="isItemShow">
+      }" :multiple="true" v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)">
       <div class="upload-block" :class="{
         'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-block-loading': uploadLoading,
@@ -328,7 +341,9 @@ const handleUploadProgress = () => {
           </div>
         </div>
         <div class="file-info">
-          <div class="file-name" :title="file.name">{{ file.name }}</div>
+          <div class="file-name" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer;">
+            {{ file.name }}
+          </div>
           <div class="file-actions" v-if="isItemShow">
             <el-button type="danger" size="small" :loading="deleteLoading"
               @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
@@ -555,11 +570,17 @@ const handleUploadProgress = () => {
 .file-name {
   font-size: 13px;
   font-weight: 500;
-  color: #333;
+  color: #409eff; /* 改为蓝色，表示可点击 */
   word-break: break-all;
   line-height: 1.3;
   flex: 1;
   margin-right: 8px;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #66b1ff; /* 悬停时颜色变浅 */
+    text-decoration: underline; /* 悬停时显示下划线 */
+  }
 }
 
 .file-actions {

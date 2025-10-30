@@ -4,7 +4,7 @@ import type { IChatReq } from '@/types/chat';
 import { auth, http } from './http';
 import type { IRequest } from '@/types/service';
 import type { IPlaceCreateReq, IPlanCreateReq, IPlanSearchReq, IPlanUpdateReq } from '@/types/plan';
-import type { IModifyPaper } from '@/types/conference';
+import type { IModifyPaperShow } from '@/types/paper';
 
 /**
  * 用户登录
@@ -221,7 +221,7 @@ export const getMyPaperDetail = (id: number) => http.get(`/paper/${id}`);
 /*
 修改我的论文
 */
-export const updateMyPaperDetail = (data: IModifyPaper) => http.put('my-paper', data);
+export const updateMyPaperDetail = (data: IModifyPaperShow) => http.put('my-paper', data);
 
 // 获取schedule列表
 export const getScheduleList = () => http.get('/schedule')
@@ -241,3 +241,5 @@ export const searchKeywords = (query: string) => http.get(`/keyword?search=${enc
 
 //获取论文详情
 export const getPaperDetail = (id: string) => http.get(`/paper/${id}`)
+
+

@@ -152,6 +152,7 @@ export interface IPapers {
   slide?: string;
   poster?: string;
   addition_files?: string;
+  is_open_access: boolean;
 }
 
 export interface Ivideo {
