@@ -13,6 +13,7 @@ import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import { useDragSort } from '@/hooks/useDragSort';
 import { getImageFormats, getVideoFormats } from '@/utils/file';
+import SaveButton from '@/components/save-button.vue';
 
 const store = useConferenceStore();
 const route = useRoute();
@@ -58,7 +59,7 @@ const detailsRules: FormRules = {
   keywords: [
     {
       validator: (_: unknown, __: unknown, callback: (error?: Error) => void) => {
-        if ((keywords.value?.length || 0) >= MAX_KEYWORDS) {
+        if ((keywords.value?.length || 0) > MAX_KEYWORDS) {
           callback(new Error(`You already add ${MAX_KEYWORDS} keywords.`));
           return;
         }
