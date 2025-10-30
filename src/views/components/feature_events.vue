@@ -29,7 +29,7 @@ type AffiliationLite = {
   state?: string;
   country?: string;
 };
-type PaperDetailLike = { fileUrl?: string };
+type PaperDetailLike = { fileUrl?: string | string[] };
 // const router = useRouter();
 const conferenceStore = useConferenceStore();
 const props = defineProps({
@@ -121,6 +121,14 @@ function switchTab(tab: TabKey) {
 // }
 
 const paperContent = computed<PaperDetailLike>(() => {
+  // 当activeTab为'additional'时，直接使用addition_files
+  if (activeTab.value === 'additional') {
+    return {
+      fileUrl: paperDetail.value?.addition_files || []
+    };
+  }
+
+  // 其他标签页保持原有逻辑
   const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value)] as unknown;
   const fileUrl = Array.isArray(raw) ? undefined : (raw as string | undefined);
   return { fileUrl };
@@ -231,7 +239,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -296,7 +304,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</div>
+                  }}</div>
                 </div>
               </div>
             </div>
@@ -361,10 +369,10 @@ function formatFirstLetterUppercase(str: string): string {
               <div class="authors-list">
                 <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
                   {{ author.name }}<template v-if="author?.affiliations?.length"><sup
-                      v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id) }}</sup></template><span>
-                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }}
+                      v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                      }}</sup></template><span>
+                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
                   </span>
-                </span>
               </div>
             </div>
 
@@ -442,14 +450,16 @@ function formatFirstLetterUppercase(str: string): string {
             <div v-if="activeTab === 'poster'" class="poster-content">
               <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 class="poster-image" :is-show="false" />
+
             </div>
 
             <div v-if="activeTab === 'additional'" class="additional-content">
               <template v-if="paperDetail?.addition_files">
                 <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
                   class="additional-iframe" :limit="-1" :is-show="false" /> -->
-                <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="-1"
-                  :is-show="true" class="additional-iframe" />
+                <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
+                  :is-show="false" class="additional-iframe" />
+
               </template>
             </div>
           </div>

@@ -4,6 +4,10 @@ import { ElMessage } from 'element-plus';
 
 export const auth = new Auth();
 
+// 用于跟踪登录失效错误消息是否已显示
+let loginExpiredMessageShown = false;
+const MESSAGE_THROTTLE_TIME = 1000; // 1秒内不重复显示
+
 export function login(token: string) {
   auth.set(token);
 }
@@ -39,11 +43,20 @@ http.interceptors.response.use(
   },
   (error) => {
     console.log(`error`, error);
-    if (error && error.response && error.response.status == 401) {
-      // 登录失效
+    if (error && error.response && error.response.status === 401) {
+      // 登录失效 - 避免短时间内重复显示错误消息
+      if (!loginExpiredMessageShown) {
+        loginExpiredMessageShown = true;
+        ElMessage.error(error.response.data.error || error.message);
+
+        // 设置定时器，1秒后允许再次显示错误消息
+        setTimeout(() => {
+          loginExpiredMessageShown = false;
+        }, MESSAGE_THROTTLE_TIME);
+      }
       auth.del();
     }
-    if (error.status !== 200) {
+    if (error.status !== 200 && error.response.status !== 401) {
       ElMessage.error(error.response.data.error || error.message);
     }
     return Promise.reject(error);
