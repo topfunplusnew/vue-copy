@@ -6,25 +6,31 @@ import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
-import { useRouter } from 'vue-router';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
-interface IPaper {
+type SelectedPaperLite = { id: number; title?: string };
+type AffRaw = {
   id: number;
-  title: string;
-  authors: string[];
-  institutions: string[];
-  doi: string;
-  abstract: string;
-  keywords: string[];
-  graphicalAbstract: string | null;
-  video: string | null;
-  slides: string | null;
-  poster: string | null;
-  additionalInfo: string | null;
-}
-const router = useRouter();
+  name?: string;
+  department?: string;
+  university?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+};
+type AffiliationLite = {
+  id: number;
+  originalId: number;
+  name?: string;
+  department?: string;
+  university?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+};
+type PaperDetailLike = { fileUrl?: string };
+// const router = useRouter();
 const conferenceStore = useConferenceStore();
 const props = defineProps({
   conferenceId: {
@@ -48,13 +54,10 @@ const conferenceDetail = computed(() => conferenceStore.conferenceDetail);
 
 
 
-const selectedConference = computed({
-  get: () => conferenceDetail.value,
-  set: (val) => (conferenceDetail.value = val),
-});
+const selectedConference = computed(() => conferenceDetail.value);
 
 const searchQuery = ref('');//搜索框绑定的输入值
-const selectedPaper = ref<IPaper | null>(null);//当前选中的论文对象
+const selectedPaper = ref<SelectedPaperLite | null>(null);//当前选中的论文对象
 const showPaperModal = ref(false);//控制论文详情弹窗是否显示
 const activeTab = ref<TabKey>('details');//当前激活的 Tab
 // const currentPage = ref(1);//当前分页页码
@@ -91,7 +94,7 @@ function registerInterest(conferenceId: number) {
   ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
 }
 
-function openPaperModal(paper: IPaper) {
+function openPaperModal(paper: SelectedPaperLite) {
   selectedPaper.value = paper;
   showPaperModal.value = true;
   activeTab.value = 'details';
@@ -117,31 +120,54 @@ function switchTab(tab: TabKey) {
 //   return (institutionIndex + 1).toString();
 // }
 
-const paperContent = computed(() => ({
-  fileUrl: paperDetail.value?.[getFileTypeByTabKey(activeTab.value)],
-}));
+const paperContent = computed<PaperDetailLike>(() => {
+  const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value)] as unknown;
+  const fileUrl = Array.isArray(raw) ? undefined : (raw as string | undefined);
+  return { fileUrl };
+});
 
-// 计算属性：获取去重后的机构列表
-const uniqueAffiliations = computed(() => {
+// 获取机构列表 - 按作者顺序合并去重并重新编号
+const affiliations = computed((): AffiliationLite[] => {
   if (!paperDetail.value?.authors) return [];
-
-  const affiliationMap = new Map();
-
-  // 遍历所有作者的所有机构，使用Map去重
-  paperDetail.value.authors.forEach(author => {
-    if (author.affiliations && author.affiliations.length) {
-      author.affiliations.forEach(affiliation => {
-        // 使用机构id作为Map的键，确保每个机构只存储一次
-        if (affiliation?.name && !affiliationMap.has(affiliation?.name)) {
-          affiliationMap.set(affiliation.name, affiliation.name);
-        }
+  const sortedAuthors = [...paperDetail.value.authors];
+  const allAffiliations: { authorId: number; originalAffiliationId: number; affiliation: AffRaw }[] = [];
+  sortedAuthors.forEach((author) => {
+    if (author.affiliations && author.affiliations.length > 0) {
+      author.affiliations.forEach((affiliation) => {
+        allAffiliations.push({
+          authorId: author.id,
+          originalAffiliationId: affiliation.id,
+          affiliation: affiliation as AffRaw,
+        });
       });
     }
   });
-
-  // 将Map转换为数组并返回
-  return Array.from(affiliationMap.values());
+  const uniqueAffiliations = new Map();
+  const affiliationList: AffiliationLite[] = [];
+  let newId = 1;
+  allAffiliations.forEach((item) => {
+    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+      const newAffiliation = {
+        id: newId++,
+        originalId: item.originalAffiliationId,
+        name: item.affiliation.name,
+        department: item.affiliation.department,
+        university: item.affiliation.university,
+        city: item.affiliation.city,
+        state: item.affiliation.state,
+        country: item.affiliation.country,
+      };
+      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+      affiliationList.push(newAffiliation);
+    }
+  });
+  return affiliationList;
 });
+
+function getAffiliationNumber(originalId: number) {
+  const aff = affiliations.value.find((a) => a.originalId === originalId);
+  return aff ? aff.id : 0;
+}
 
 function seachPaper() {
   conferenceStore.getConferencePaper(props.conferenceId, searchQuery.value);
@@ -333,19 +359,22 @@ function formatFirstLetterUppercase(str: string): string {
             <div class="info-section">
               <h4>Authors</h4>
               <div class="authors-list">
-                <span v-for="(author, index) in paperDetail?.authors" :key="index" class="author-name">
-                  {{ author.name }}
-                  {{ index < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                  {{ author.name }}<template v-if="author?.affiliations?.length"><sup
+                      v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id) }}</sup></template><span>
+                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }}
+                  </span>
+                </span>
               </div>
             </div>
 
             <div class="info-section">
               <h4>Affiliations</h4>
               <div class="affiliations-list">
-                <!-- 使用计算属性获取去重后的机构列表 -->
-                <div v-for="(affiliation, affIndex) in uniqueAffiliations" :key="affiliation.id" class="affiliation">
-                  <span class="affiliation-number">{{ affIndex + 1 }}</span>
-                  {{ affiliation }}
+                <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
+                  <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
+                    aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
+                    aff.state ? ', ' + aff.state : '' }}{{ aff.country ? ', ' + aff.country : '' }}
                 </div>
               </div>
             </div>
@@ -401,17 +430,17 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
 
             <div v-if="activeTab === 'video'" class="videos-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 class="slides-iframe" :is-show="false" />
             </div>
 
             <div v-if="activeTab === 'poster'" class="poster-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="1"
+              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
                 class="poster-image" :is-show="false" />
             </div>
 
@@ -419,8 +448,8 @@ function formatFirstLetterUppercase(str: string): string {
               <template v-if="paperDetail?.addition_files">
                 <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
                   class="additional-iframe" :limit="-1" :is-show="false" /> -->
-                <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
-                  :isshow="true" class="additional-iframe" />
+                <file-upload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="-1"
+                  :is-show="true" class="additional-iframe" />
               </template>
             </div>
           </div>
