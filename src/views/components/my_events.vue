@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
-import { formatRange } from '@/utils/date';
+import { convertUTCToTimezone, formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
 import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/services/api';
 import FileUpload from '@/components/file-upload.vue';
@@ -433,7 +433,7 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date:</span>
-                    <span class="schedule-value">{{ myPaperDetailInfo.session.start_time }}</span>
+                    <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time) }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
@@ -455,8 +455,8 @@ function getAffiliationNumber(originalId: number): number {
               </div>
             </div>
             <div class="dates">
-              Date Created: {{ myPaperDetailInfo?.conference.start_time }} · Date Edited:
-              {{ myPaperDetailInfo?.conference.end_time }}
+              Date Created: {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string) }} · Date Edited:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string) }}
             </div>
           </div>
         </header>
