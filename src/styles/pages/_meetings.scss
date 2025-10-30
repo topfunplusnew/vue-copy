@@ -328,7 +328,7 @@
         justify-content: space-between;
         margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: none;
+        
 
         .conference-name-container {
           display: flex;
@@ -362,6 +362,7 @@
             color: #7c3aed;
             text-shadow: 0 1px 2px rgba(168, 85, 247, 0.2);
             letter-spacing: 0.3px;
+
             @include wordWrap();
             @include screen-mobile {
               font-size: 18px;
@@ -375,6 +376,7 @@
           color: #7c3aed;
           text-shadow: 0 1px 2px rgba(168, 85, 247, 0.2);
           letter-spacing: 0.3px;
+
           @include wordWrap();
           @include screen-mobile {
             font-size: 18px;
