@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { formatRange } from '@/utils/date';
@@ -11,6 +12,7 @@ import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import { useDragSort } from '@/hooks/useDragSort';
+
 const store = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
@@ -21,7 +23,6 @@ const myPaperDetailInfo = computed(() => store.myPaperDetail);
 const MAX_KEYWORDS = 6;
 onMounted(async () => {
   await store.getMyPaper(paperId.value);
-  console.log(`myPaperDetailInfo.value`, myPaperDetailInfo.value);
 });
 // 创建基于myPaperDetailInfo的reactive表单对象
 const keywords = ref<Array<{ name: string; id: number; order: number }>>([]);
@@ -33,19 +34,42 @@ const formData = reactive({
   slide: '',
   poster: '',
   addition_files: '',
+  keywords: [] as Array<{ name: string; id: number; order: number }>,
 });
-const fullscreenLoading = ref(false)//全局loading
+const fullscreenLoading = ref(false); //全局loading
+const detailsFormRef = ref<FormInstance>();
+
+const validateDoiRule = (_: unknown, value: string, callback: (error?: Error) => void): void => {
+  if (!value) {
+    callback();
+    return;
+  }
+  const pattern = /^[A-Za-z0-9._:\/\-]+$/;
+  if (!pattern.test(value)) {
+    callback(new Error('DOI can only contain letters, numbers,. _:/-and other characters.'));
+    return;
+  }
+  callback();
+};
+
+const detailsRules: FormRules = {
+  doi: [{ validator: validateDoiRule, trigger: ['blur', 'change'] }],
+  keywords: [
+    {
+      validator: (_: unknown, __: unknown, callback: (error?: Error) => void) => {
+        if ((keywords.value?.length || 0) >= MAX_KEYWORDS) {
+          callback(new Error(`You already add ${MAX_KEYWORDS} keywords.`));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
+};
 
 // 使用拖拽排序hook
-const {
-  draggedIndex,
-  draggedOverIndex,
-  handleDragStart,
-  handleDragOver,
-  handleDragLeave,
-  handleDrop,
-  handleDragEnd
-} = useDragSort(keywords);
+const { draggedIndex, draggedOverIndex, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd } = useDragSort(keywords);
 
 // 初始化表单数据
 const initializeFormData = () => {
@@ -54,6 +78,7 @@ const initializeFormData = () => {
     formData.abstract = myPaperDetailInfo.value.abstract ?? '';
     // 后端返回的是对象数组，按order排序
     keywords.value = myPaperDetailInfo.value.keywords?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [];
+    formData.keywords = keywords.value;
     formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
     formData.video = myPaperDetailInfo.value.video ?? '';
     formData.slide = myPaperDetailInfo.value.slide ?? '';
@@ -71,10 +96,19 @@ watch(
   { immediate: true, deep: true },
 );
 
+// 同步表单字段并触发表单校验
+watch(
+  () => keywords.value,
+  () => {
+    formData.keywords = keywords.value;
+    detailsFormRef.value?.validateField('keywords');
+  },
+  { deep: true },
+);
+
 const paperContent = computed(() => ({
   fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
 }));
-
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
@@ -118,7 +152,7 @@ const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) =>
         // 从响应中提取items数组，并获取关键词名称
         const items = response.data?.items || [];
         const suggestions = items
-          .map((item: { name?: string; keyword?: string;[key: string]: unknown }) => ({
+          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
             value: item.name || item.keyword || String(item),
           }))
           .filter((item: { value: string }) => item.value);
@@ -145,15 +179,16 @@ const addKeyword = (keyword?: string) => {
 
   // 检查是否已达到最大数量限制
   if (keywords.value.length >= MAX_KEYWORDS) {
-    ElMessage.warning(`最多只能添加${MAX_KEYWORDS}个关键词`);
+    ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
+    detailsFormRef.value?.validateField('keywords');
     return;
   }
 
-  if (keywordToAdd && !keywords.value.some(k => k.name === keywordToAdd)) {
+  if (keywordToAdd && !keywords.value.some((k) => k.name === keywordToAdd)) {
     const newKeyword = {
       name: keywordToAdd,
       id: keywords.value.length + 1,
-      order: keywords.value.length + 1
+      order: keywords.value.length + 1,
     };
     keywords.value.push(newKeyword);
     keywordInput.value = '';
@@ -169,9 +204,23 @@ const removeKeyword = (index: number) => {
   });
 };
 
+function onKeywordBlur() {
+  if (keywords.value.length >= MAX_KEYWORDS) {
+    detailsFormRef.value?.validateField('keywords');
+    ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
+  }
+}
+
 async function saveDetails() {
-  fullscreenLoading.value = true
+  fullscreenLoading.value = true;
   try {
+    // 校验表单
+    const valid = await detailsFormRef.value?.validate().catch(() => false);
+    if (!valid) {
+      fullscreenLoading.value = false;
+      ElMessage.error('The form verification failed, please check your input!');
+      return;
+    }
     const updateData = {
       id: paperId.value,
       doi: formData.doi || '',
@@ -193,16 +242,10 @@ async function saveDetails() {
     console.error('保存失败：', error);
     ElMessage.error('保存失败，请重试');
   }
-  fullscreenLoading.value = false
+  fullscreenLoading.value = false;
 }
-const validateDoi = (value: string) => {
-  //过滤掉非法字符
-  const valid = value.replace(/[^A-Za-z0-9._:/-]/g, '')
-  if (valid !== value) {
-    ElMessage.warning('DOI 只能包含字母、数字、. _ : / - 等字符，不能有空格或中文哦～')
-    formData.doi = valid//自动纠正
-  }
-}
+
+// DOI 的校验已集成到 el-form 的自定义规则 validateDoiRule 中
 
 const pdfModalVisible = ref(false);
 const currentPdfUrl = ref('');
@@ -310,7 +353,6 @@ function getAffiliationNumber(originalId: number): number {
     <commonHeader />
 
     <section class="main-content">
-
       <section class="right-panel">
         <header class="event-header">
           <div class="conference-header">
@@ -323,13 +365,11 @@ function getAffiliationNumber(originalId: number): number {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
-                    myPaperDetailInfo?.conference.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
-                    myPaperDetailInfo?.conference.country }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
@@ -360,10 +400,9 @@ function getAffiliationNumber(originalId: number): number {
               <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
                 <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
                   {{ author.name
-                  }}<template v-if="author?.affiliations?.length"><sup
-                      v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{
-                        getAffiliationNumber(affiliation.id) }}</sup></template><span
-                    v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                  }}<template v-if="author?.affiliations?.length"
+                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
+                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
                 </span>
               </div>
               <!-- 当论文作者为空的时候 渲染一个空状态 -->
@@ -375,12 +414,9 @@ function getAffiliationNumber(originalId: number): number {
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
-                    affiliation.department ? ', ' +
-                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
-                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
-                    affiliation.country : ''
-                  }}
+                  <sup>{{ affiliation.id }}</sup
+                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
                 </div>
               </div>
               <!-- 当机构列表为空的时候，渲染一个空状态 -->
@@ -429,66 +465,71 @@ function getAffiliationNumber(originalId: number): number {
           <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
           <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
           <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
-            Info</button>
+          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
           <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
         </div>
 
-
         <!-- 展示区 -->
         <div v-if="activeTab === 'details'" class="tab-content">
-          <div class="form-grid">
-            <div class="form-item">
-              <label>Digital Object Identifier</label>
-              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable
-                @input="validateDoi" />
-            </div>
-            <div class="form-item full">
-              <label>Abstract</label>
-              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract"
-                resize="vertical" />
-            </div>
-            <div class="form-item">
-              <label>Graphical Abstract</label>
-              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
-                @refresh="refreshPaperData" :is-show="true" />
-            </div>
-            <div class="form-item full">
-              <label>Keywords ({{ keywords.length }}/{{ MAX_KEYWORDS }})</label>
+          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid" @submit.prevent>
+            <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
+              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
+            </el-form-item>
+            <el-form-item label="Abstract" class="form-item full">
+              <el-input v-model="formData.abstract" type="textarea" :rows="6" :placeholder="myPaperDetailInfo?.abstract" resize="vertical" />
+            </el-form-item>
+            <el-form-item label="Graphical Abstract" class="form-item">
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+            </el-form-item>
+            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords" class="form-item full">
               <div class="keywords-container">
                 <div class="keywords-input-row">
                   <el-row>
                     <el-col :span="18">
-                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
-                        placeholder="请输入关键词..." @select="handleSelect" @keyup.enter="addKeyword" />
+                      <el-autocomplete
+                        v-model="keywordInput"
+                        :fetch-suggestions="querySearchAsync"
+                        placeholder="please input keywords..."
+                        @select="handleSelect"
+                        @keyup.enter="addKeyword"
+                        @blur="onKeywordBlur"
+                      />
                     </el-col>
                     <el-col :span="6">
                       <div class="add-button-container">
-                        <el-button @click="() => addKeyword()"
-                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加
-                        </el-button>
+                        <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加 </el-button>
                       </div>
                     </el-col>
-                    <div v-if="keywords.length >= MAX_KEYWORDS" class="max-keywords-warning">Maximum 6 Keywords</div>
                   </el-row>
                 </div>
                 <div class="keywords-tags" v-if="keywords.length > 0">
-                  <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
-                    'dragging': draggedIndex === index,
-                    'drag-over': draggedOverIndex === index
-                  }" closable @close="removeKeyword(index)"
+                  <el-tag
+                    v-for="(keyword, index) in keywords"
+                    :key="keyword.id"
+                    :draggable="true"
+                    :class="{
+                      dragging: draggedIndex === index,
+                      'drag-over': draggedOverIndex === index,
+                    }"
+                    closable
+                    @close="removeKeyword(index)"
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
-                    @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
-                    @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd">
+                    @dragover="(event: DragEvent) => handleDragOver(event, index)"
+                    @dragleave="handleDragLeave"
+                    @drop="(event: DragEvent) => handleDrop(event, index)"
+                    @dragend="handleDragEnd"
+                  >
                     {{ keyword.name }}
                   </el-tag>
                 </div>
               </div>
-            </div>
+            </el-form-item>
             <div class="form-actions">
-              <button @click="saveDetails()" class="save-btn">Save Details</button>
+              <el-form-item>
+                <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button>
+              </el-form-item>
             </div>
-          </div>
+          </el-form>
         </div>
 
         <div v-else-if="activeTab === 'video'" class="tab-content">
@@ -499,24 +540,20 @@ function getAffiliationNumber(originalId: number): number {
             </label>
           </div>
           <div v-if="videoConsent" class="video-upload">
-            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
-              @refresh="refreshPaperData" :is-show="true" />
+            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
-            @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
-            @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1"
-            @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -530,18 +567,15 @@ function getAffiliationNumber(originalId: number): number {
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}
-                </div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}
-                </div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}
-                </div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
