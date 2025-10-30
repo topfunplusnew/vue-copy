@@ -481,7 +481,7 @@ function formatFirstLetterUppercase(str: string): string {
                   :limit="1" :is-show="false" />
               </template>
               <div v-else class="access-restricted">
-                <p>视频内容仅限开放访问</p>
+                <p>Video content is only available to open access.</p>
               </div>
             </div>
 

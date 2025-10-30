@@ -27,17 +27,37 @@
     }
 
     .selector-header {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.08) 100%);
-      border: 1px solid rgba(59, 130, 246, 0.2);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(99, 102, 241, 0.1) 100%);
+      border: 2px solid rgba(59, 130, 246, 0.25);
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 20px;
+      box-shadow: 
+        0 4px 16px rgba(59, 130, 246, 0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+
+      // 顶部装饰线
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, 
+          transparent 0%, 
+          rgba(59, 130, 246, 0.6) 50%, 
+          transparent 100%);
+      }
 
       h2 {
         margin: 0 0 12px 0;
-        font-size: rpx(24);
+        font-size: rpx(23);
         font-weight: 700;
-        color: #1e293b;
+        color: #1e40af;
+        letter-spacing: 0.5px;
       }
 
       .stats {
@@ -46,8 +66,8 @@
 
         .stat-item {
           font-size: rpx(18);
-          color: #64748b;
-          font-weight: 500;
+          color: #475569;
+          font-weight: 600;
         }
       }
     }
@@ -59,62 +79,136 @@
 
       .conference-card {
         display: flex;
-        gap: 12px;
+        gap: 14px;
         padding: 16px;
-        background: rgba(255, 255, 255, 0.8);
-        border: 2px solid rgba(226, 232, 240, 0.6);
-        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.85) 100%);
+        border: 2px solid rgba(148, 163, 184, 0.25);
+        border-radius: 14px;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         text-decoration: none;
+        position: relative;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+        // 左侧指示条
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 4px;
+          height: 0;
+          background: linear-gradient(180deg, #3b82f6 0%, #6366f1 100%);
+          border-radius: 0 4px 4px 0;
+          transition: height 0.3s ease;
+        }
 
         &:hover {
-          background: rgba(255, 255, 255, 0.95);
-          border-color: rgba(59, 130, 246, 0.3);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.9) 100%);
+          border-color: rgba(59, 130, 246, 0.4);
+          transform: translateX(4px);
+          box-shadow: 
+            0 8px 24px rgba(59, 130, 246, 0.15),
+            0 4px 12px rgba(0, 0, 0, 0.08);
+
+          &::before {
+            height: 60%;
+          }
+
+          .card-name {
+            color: #2563eb;
+          }
         }
 
         &.active {
-          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(99, 102, 241, 0.08) 100%);
-          border-color: rgba(59, 130, 246, 0.4);
-          box-shadow: 0 4px 16px rgba(59, 130, 246, 0.2);
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.12) 100%);
+          border: 2px solid #3b82f6;
+          box-shadow: 
+            0 8px 32px rgba(59, 130, 246, 0.25),
+            0 4px 16px rgba(99, 102, 241, 0.2),
+            inset 0 1px 2px rgba(255, 255, 255, 0.4);
+          transform: translateX(6px);
+
+          &::before {
+            height: 80%;
+            width: 5px;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+          }
+
+          .card-logo {
+            box-shadow: 
+              0 4px 16px rgba(59, 130, 246, 0.3),
+              0 0 0 3px rgba(59, 130, 246, 0.15);
+            transform: scale(1.05);
+          }
+
+          .card-name {
+            color: #1e40af;
+            font-weight: 800;
+          }
+
+          .card-category {
+            color: #2563eb;
+            font-weight: 700;
+          }
+
+          .card-date {
+            color: #1e40af;
+            font-weight: 600;
+          }
         }
 
         .card-logo {
           width: 60px;
           height: 60px;
           flex-shrink: 0;
+          border-radius: 10px;
+          overflow: hidden;
+          background: white;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+          transition: all 0.3s ease;
 
           img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            border-radius: 8px;
+            padding: 4px;
           }
         }
 
         .card-info {
           flex: 1;
+          min-width: 0;
 
           .card-name {
-            font-size: rpx(24);
+            font-size: rpx(22);
             font-weight: 700;
             color: #1e293b;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
+            line-height: 1.2;
+            transition: color 0.3s ease;
+            @include wordWrap();
           }
 
           .card-category {
-            font-size: rpx(18);
+            font-size: rpx(16);
             color: #6366f1;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 6px;
+            padding: 2px 8px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 4px;
+            display: inline-block;
+            transition: all 0.3s ease;
           }
 
           .card-date {
-            font-size: rpx(20);
-            color: #3f4753;
+            font-size: rpx(18);
+            color: #64748b;
+            font-weight: 500;
             margin-bottom: 4px;
+            transition: all 0.3s ease;
           }
 
           .card-tier {
@@ -317,6 +411,7 @@
           color: #475569;
           line-height: 1.6;
           margin: 0;
+          text-align: justify;
         }
       }
 
@@ -757,15 +852,17 @@
       border-radius: 20px;
       max-width: 90vw;
       width: 100%;
-      max-height: 85vh;
+      max-height: 92vh;
       overflow: hidden;
       box-shadow:
         0 25px 80px rgba(59, 130, 246, 0.15),
         0 0 0 1px rgba(59, 130, 246, 0.1);
       backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
 
       @include screen-mobile {
-        max-height: 80vh;
+        max-height: 88vh;
         border-radius: 16px;
         max-width: 95vw;
         width: 95vw;
@@ -780,9 +877,10 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 28px;
+        padding: 24px 28px;
         border-bottom: 1px solid rgba(59, 130, 246, 0.2);
         background: linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(99, 102, 241, 0.08) 100%);
+        flex-shrink: 0;
 
         @include screen-mobile {
           padding: 16px;
@@ -834,16 +932,19 @@
 
       .modal-content {
         padding: 28px;
-        max-height: calc(85vh - 120px);
+        flex: 1;
         overflow-y: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
 
         @include screen-mobile {
           padding: 16px;
-          max-height: calc(80vh - 80px);
         }
 
         .paper-info {
           margin-bottom: 28px;
+          flex-shrink: 0;
 
           .info-section {
             margin-bottom: 20px;
@@ -914,6 +1015,7 @@
           gap: 12px;
           margin-bottom: 28px;
           border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+          flex-shrink: 0;
 
           @include screen-mobile {
             flex-wrap: wrap;
@@ -960,6 +1062,10 @@
         }
 
         .tab-content {
+          flex: 1;
+          min-height: 0;
+          overflow-y: auto;
+
           .details-content {
             .detail-item {
               margin-bottom: 28px;
@@ -1023,27 +1129,31 @@
           .additional-content {
             .paper-video {
               width: 100%;
-              max-height: 450px;
+              height: 550px;
+              max-height: 550px;
               border-radius: 12px;
               border: 1px solid rgba(59, 130, 246, 0.2);
               box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
               @include screen-mobile {
-                max-height: 350px;
+                height: 400px;
+                max-height: 400px;
               }
             }
 
             .slides-iframe,
             .additional-iframe {
               width: 100%;
-              height: 600px;
+              height: 650px;
+              min-height: 500px;
               border: none;
               border-radius: 12px;
               border: 1px solid rgba(59, 130, 246, 0.2);
               box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
               @include screen-mobile {
-                height: 450px;
+                height: 500px;
+                min-height: 400px;
               }
             }
 
