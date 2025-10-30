@@ -121,8 +121,36 @@ const paperContent = computed(() => ({
   fileUrl: paperDetail.value?.[getFileTypeByTabKey(activeTab.value)],
 }));
 
+// 计算属性：获取去重后的机构列表
+const uniqueAffiliations = computed(() => {
+  if (!paperDetail.value?.authors) return [];
+
+  const affiliationMap = new Map();
+
+  // 遍历所有作者的所有机构，使用Map去重
+  paperDetail.value.authors.forEach(author => {
+    if (author.affiliations && author.affiliations.length) {
+      author.affiliations.forEach(affiliation => {
+        // 使用机构id作为Map的键，确保每个机构只存储一次
+        if (affiliation?.name && !affiliationMap.has(affiliation?.name)) {
+          affiliationMap.set(affiliation.name, affiliation.name);
+        }
+      });
+    }
+  });
+
+  // 将Map转换为数组并返回
+  return Array.from(affiliationMap.values());
+});
+
 function seachPaper() {
   conferenceStore.getConferencePaper(props.conferenceId, searchQuery.value);
+}
+
+// 格式化字符串，使第一个字母大写，其他字母小写
+function formatFirstLetterUppercase(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 </script>
@@ -177,7 +205,7 @@ function seachPaper() {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -213,8 +241,8 @@ function seachPaper() {
           <div class="research-topics">
             <h3>Key Research Topics</h3>
             <div class="topic-tags">
-              <span v-for="topic in selectedConference?.keywords" :key="topic.id" class="topic-tag">
-                {{ topic.name }}
+              <span v-for="(topic, index) in selectedConference?.keywords" :key="index" class="topic-tag">
+                {{ index === 0 ? formatFirstLetterUppercase(topic.name) : topic.name }}
               </span>
             </div>
           </div>
@@ -242,7 +270,7 @@ function seachPaper() {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</div>
+                  }}</div>
                 </div>
               </div>
             </div>
@@ -314,11 +342,10 @@ function seachPaper() {
             <div class="info-section">
               <h4>Affiliations</h4>
               <div class="affiliations-list">
-                <div v-for="(author, index) in paperDetail?.authors" :key="index" class="affiliation">
-                  <sup>{{ index + 1 }}</sup>
-                  <template v-for="name in author.affiliations">
-                    {{ name.name }}
-                  </template>
+                <!-- 使用计算属性获取去重后的机构列表 -->
+                <div v-for="(affiliation, affIndex) in uniqueAffiliations" :key="affiliation.id" class="affiliation">
+                  <span class="affiliation-number">{{ affIndex + 1 }}</span>
+                  {{ affiliation }}
                 </div>
               </div>
             </div>
