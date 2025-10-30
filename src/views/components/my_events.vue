@@ -664,52 +664,8 @@ function getAffiliationNumber(originalId: number): number {
   margin: auto;
 }
 
-// 导航按钮样式
-.left-nav {
-  display: flex;
-  gap: 12px;
-  margin: 24px 0;
-  padding: 8px;
-  background-color: #f5f7fa;
-  border-radius: 8px;
-  flex-wrap: wrap;
-}
-
-.left-nav button {
-  padding: 10px 20px;
-  border: 2px solid transparent;
-  background-color: transparent;
-  color: #606266;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  outline: none;
-}
-
-.left-nav button:hover {
-  color: #409eff;
-  background-color: #ecf5ff;
-  border-color: #d9ecff;
-}
-
-// 激活状态的增强样式
-.left-nav button.active {
-  color: #ffffff;
-  background-color: #409eff;
-  border-color: #409eff;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
-  font-weight: 600;
-  transform: translateY(-1px);
-}
-
-.left-nav button.active:hover {
-  color: #ffffff;
-  background-color: #66b1ff;
-  border-color: #66b1ff;
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
-}
+// 导航按钮样式 - 由 _my_events.scss 统一管理
+// 这里保留基础样式作为后备
 
 .pdf-modal-header {
   display: flex;
@@ -772,26 +728,36 @@ function getAffiliationNumber(originalId: number): number {
 }
 
 .consent-section {
-  margin-bottom: 24px;
-  padding: 16px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  border: 1px solid #e9ecef;
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  display: inline-block;
+  width: auto;
 }
 
 .checkbox {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
   font-size: 14px;
   color: #333;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  width: auto;
+  
+  &:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+  }
 }
 
 .checkbox input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .keywords-container {
