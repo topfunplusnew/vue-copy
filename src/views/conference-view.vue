@@ -415,9 +415,9 @@ function formatFirstLetterUppercase(str: string): string {
                       @load="handleLogoLoad" />
                     <div class="featured-name">{{ featuredConference.name }}</div>
                   </div>
-                  <div class="featured-date">{{ formatRange(featuredConference.start_time,
-                    featuredConference.end_time)
-                  }}</div>
+                  <div class="featured-date">
+                    <span>{{ formatRange(featuredConference.start_time, featuredConference.end_time) }}</span>
+                  </div>
                 </div>
                 <div class="featured-meta">
                   <span class="featured-location">{{ featuredConference.place_name }}</span>
