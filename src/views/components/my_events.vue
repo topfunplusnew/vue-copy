@@ -455,8 +455,9 @@ function getAffiliationNumber(originalId: number): number {
               </div>
             </div>
             <div class="dates">
-              Date Created: {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string) }} · Date Edited:
-              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string) }}
+              Date Created:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} · Date Edited:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string, undefined, `YYYY-MM-DD`) }}
             </div>
           </div>
         </header>
