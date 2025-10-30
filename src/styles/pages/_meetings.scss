@@ -287,7 +287,7 @@
 
     .conference-card {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(236, 72, 153, 0.03) 100%);
-      border: 1px solid rgba(168, 85, 247, 0.2);
+      border: none;
       border-radius: 14px;
       padding: 24px 32px;
       transition: all 0.3s ease;
@@ -296,6 +296,7 @@
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
+      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.08);
 
       @include screen-mobile {
         padding: 10px 6px;
@@ -314,8 +315,7 @@
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 12px 40px rgba(168, 85, 247, 0.25);
-        border-color: rgba(168, 85, 247, 0.4);
+        box-shadow: 0 8px 30px rgba(168, 85, 247, 0.15);
 
         &::before {
           opacity: 1;
@@ -328,7 +328,7 @@
         justify-content: space-between;
         margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: none;
 
         .conference-name-container {
           display: flex;
@@ -348,7 +348,7 @@
             background: rgba(255, 255, 255, 0.8);
             padding: 4px;
             box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
-            border: 1px solid rgba(124, 58, 237, 0.2);
+            border: none;
 
             @include screen-mobile {
               width: 40px;
