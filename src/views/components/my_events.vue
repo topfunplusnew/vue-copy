@@ -432,7 +432,7 @@ function getAffiliationNumber(originalId: number): number {
               <div class="session-content">
                 <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
-                    <span class="schedule-label">📅 Date:</span>
+                    <span class="schedule-label">📅 Date And Time:</span>
                     <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time) }}</span>
                   </div>
                   <div class="schedule-row">
