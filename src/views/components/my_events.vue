@@ -610,6 +610,53 @@ function getAffiliationNumber(originalId: number): number {
   margin: auto;
 }
 
+// 导航按钮样式
+.left-nav {
+  display: flex;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 8px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.left-nav button {
+  padding: 10px 20px;
+  border: 2px solid transparent;
+  background-color: transparent;
+  color: #606266;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.left-nav button:hover {
+  color: #409eff;
+  background-color: #ecf5ff;
+  border-color: #d9ecff;
+}
+
+// 激活状态的增强样式
+.left-nav button.active {
+  color: #ffffff;
+  background-color: #409eff;
+  border-color: #409eff;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  font-weight: 600;
+  transform: translateY(-1px);
+}
+
+.left-nav button.active:hover {
+  color: #ffffff;
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.4);
+}
+
 .pdf-modal-header {
   display: flex;
   justify-content: space-between;

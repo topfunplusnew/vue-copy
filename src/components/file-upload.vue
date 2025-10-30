@@ -43,7 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
   isShow: true
 });
 
-const isItemShow = computed(() => isItemShow);
+const isItemShow: boolean = computed(() => props.isShow);
 
 const emit = defineEmits<Emits>();
 const tabKey = computed(() => props.tabKey);
@@ -272,7 +272,7 @@ const handleUploadProgress = () => {
     </el-upload>
 
     <!-- 自定义文件列表显示 -->
-    <div v-if="posterFileList.length > 0 && isItemShow" class="custom-file-list">
+    <div v-if="(posterFileList.length > 0)" class="custom-file-list">
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
@@ -287,11 +287,11 @@ const handleUploadProgress = () => {
             </div>
           </div>
         </div>
-        <div class="file-info" v-if="isItemShow">
+        <div class="file-info">
           <div class="file-name" :title="file.name">{{ file.name }}</div>
           <div class="file-actions">
             <el-button type="danger" size="small" :loading="deleteLoading"
-              @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
+              @click="handleRemove(file as any, posterFileList as any)" v-if="isItemShow"> 删除 </el-button>
           </div>
         </div>
       </div>
