@@ -527,7 +527,8 @@ function getAffiliationNumber(originalId: number): number {
             </el-form-item>
             <div class="form-actions">
               <el-form-item>
-                <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button>
+                <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button> -->
+                <save-button @click="saveDetails()" />
               </el-form-item>
             </div>
           </el-form>
