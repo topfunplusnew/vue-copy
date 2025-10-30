@@ -12,6 +12,7 @@ import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import { useDragSort } from '@/hooks/useDragSort';
+import { getImageFormats, getVideoFormats } from '@/utils/file';
 
 const store = useConferenceStore();
 const route = useRoute();
@@ -540,20 +541,28 @@ function getAffiliationNumber(originalId: number): number {
             </label>
           </div>
           <div v-if="videoConsent" class="video-upload">
-            <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload
+            :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
+            :tab-key="activeTab"
+            :paper-id="paperId"
+            :paper-detail="paperContent"
+            :limit="-1"
+            @refresh="refreshPaperData"
+            :is-show="true"
+          />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">

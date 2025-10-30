@@ -5,7 +5,7 @@ import { ElMessage, type UploadProps } from 'element-plus';
 import { auth } from '@/services/http.ts';
 import { computed, ref } from 'vue';
 import { getImageUrl, isVideoFile, isPdfFile, isImageFile, isZipFile, removeImagePrefix } from '@/utils';
-import type { UploadUserFile } from 'element-plus';
+import type { UploadFiles, UploadUserFile } from 'element-plus';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference';
 import PdfIcon from './icons/pdf-icon.vue';
@@ -15,7 +15,7 @@ import PptIcon from './icons/ppt-icon.vue';
 import TxtIcon from './icons/txt-icon.vue';
 import VideoIcon from './icons/video-icon.vue';
 import ZipIcon from './icons/zip-icon.vue';
-import type { UploadAjaxError } from 'element-plus/es/components/upload/src/ajax';
+import type { UploadFile } from 'element-plus/es/components/upload/src/upload.mjs';
 
 interface PaperDetail {
   fileUrl?: string;
@@ -29,6 +29,8 @@ interface Props {
   paperDetail?: PaperDetail;
   limit: number;
   isShow: boolean;
+  // 可选：限制允许上传的文件类型。支持HTML accept格式，如 'image/*', '.pdf', 'application/pdf' 或数组
+  accept?: string | string[];
 }
 
 interface Emits {
@@ -40,11 +42,10 @@ const props = withDefaults(defineProps<Props>(), {
   paperId: '',
   paperDetail: () => ({}),
   limit: 1,
-  isShow: true
+  isShow: true,
+  accept: undefined,
 });
-
-const isItemShow = computed(() => isItemShow);
-
+const isItemShow = computed(() => props.isShow);
 const emit = defineEmits<Emits>();
 const tabKey = computed(() => props.tabKey);
 const paperDetailInfo = computed(() => props.paperDetail);
@@ -206,7 +207,8 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
       deleteLoading.value = false;
     });
 };
-const handleError = (error: UploadAjaxError) => {
+const handleError: UploadProps['onError'] = (error: Error, uploadFile: UploadFile, uploadFiles: UploadFiles) => {
+  console.log(uploadFile, uploadFiles);
   ElMessage.error('上传失败,' + JSON.parse(error.message).error);
   uploadLoading.value = false;
 };
@@ -217,6 +219,45 @@ const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
 
 const handleUploadStart = () => {
   uploadLoading.value = true;
+};
+
+// 生成用于el-upload的accept字符串
+const acceptAttr = computed(() => {
+  if (!props.accept) return undefined;
+  return Array.isArray(props.accept) ? props.accept.join(',') : props.accept;
+});
+
+// 校验文件类型是否符合accept规则
+function matchAcceptRule(file: File, rule: string): boolean {
+  const name = file.name || '';
+  const type = file.type || '';
+  const token = rule.trim().toLowerCase();
+  if (!token) return true;
+  // .ext 扩展名匹配
+  if (token.startsWith('.')) {
+    return name.toLowerCase().endsWith(token);
+  }
+  // image/* 这样的通配mime
+  if (token.endsWith('/*')) {
+    const prefix = token.replace('/*', '');
+    return type.toLowerCase().startsWith(prefix);
+  }
+  // 直接与mime完全匹配，如 application/pdf
+  return type.toLowerCase() === token;
+}
+
+const handleBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (props.accept) {
+    const rules = Array.isArray(props.accept) ? props.accept : String(props.accept).split(',');
+    const ok = rules.some((r) => matchAcceptRule(rawFile as unknown as File, r));
+    if (!ok) {
+      const acceptText = Array.isArray(props.accept) ? props.accept.join(', ') : String(props.accept);
+      ElMessage.error(`Only files of types ${acceptText} are allowed.`);
+      return false;
+    }
+  }
+  handleUploadStart();
+  return true;
 };
 
 const handleUploadSuccess = () => {
@@ -232,21 +273,39 @@ const handleUploadProgress = () => {
 
 <template>
   <div>
-    <el-upload :data="bodyParams" :headers="headers" v-model:file-list="posterFileList" :action="serverActionUrl"
-      list-type="text" :on-remove="handleRemove" :on-error="handleError" :on-exceed="handleExceed"
-      :on-progress="handleUploadProgress" :before-upload="handleUploadStart" :on-success="handleUploadSuccess"
-      :limit="props.limit === -1 ? undefined : props.limit" :disabled="isUploadDisabled || uploadLoading"
-      class="upload-area" :class="{
+    <el-upload
+      :data="bodyParams"
+      :headers="headers"
+      v-model:file-list="posterFileList"
+      :action="serverActionUrl"
+      list-type="text"
+      :on-remove="handleRemove"
+      :on-error="handleError"
+      :on-exceed="handleExceed"
+      :on-progress="handleUploadProgress"
+      :before-upload="handleBeforeUpload"
+      :on-success="handleUploadSuccess"
+      :limit="props.limit === -1 ? undefined : props.limit"
+      :disabled="isUploadDisabled || uploadLoading"
+      :accept="acceptAttr"
+      class="upload-area"
+      :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="isItemShow">
-      <div class="upload-block" :class="{
-        'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
-        'upload-block-loading': uploadLoading,
-        'upload-block-image-preview': shouldShowImagePreview,
-      }" :style="{ height: uploadBlockHeight }">
-
+      }"
+      :multiple="true"
+      v-if="isItemShow"
+    >
+      <div
+        class="upload-block"
+        :class="{
+          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
+          'upload-block-loading': uploadLoading,
+          'upload-block-image-preview': shouldShowImagePreview,
+        }"
+        :style="{ height: uploadBlockHeight }"
+      >
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
@@ -290,8 +349,7 @@ const handleUploadProgress = () => {
         <div class="file-info" v-if="isItemShow">
           <div class="file-name" :title="file.name">{{ file.name }}</div>
           <div class="file-actions">
-            <el-button type="danger" size="small" :loading="deleteLoading"
-              @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
+            <el-button type="danger" size="small" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
           </div>
         </div>
       </div>
@@ -303,8 +361,7 @@ const handleUploadProgress = () => {
 
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览
-      </iframe>
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览 </iframe>
     </div>
   </div>
 </template>
