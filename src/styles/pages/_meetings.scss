@@ -622,9 +622,6 @@
           border-radius: 9999px;
           @include wordWrap();
           @include wordWrap();
-          &::first-letter {
-            text-transform: uppercase;
-          }
         }
       }
     }

@@ -205,7 +205,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</span>
+                    }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -270,7 +270,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</div>
+                    }}</div>
                 </div>
               </div>
             </div>

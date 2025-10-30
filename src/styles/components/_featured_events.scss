@@ -344,9 +344,6 @@
             font-size: rpx(20);
             color: #065f46;
             font-weight: 500;
-            &::first-letter {
-              text-transform: uppercase;
-            }
           }
         }
       }
