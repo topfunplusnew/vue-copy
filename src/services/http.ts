@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Auth } from './auth.ts';
+import { ElMessage } from 'element-plus';
 
 export const auth = new Auth();
 
@@ -41,6 +42,9 @@ http.interceptors.response.use(
     if (error && error.response && error.response.status == 401) {
       // 登录失效
       auth.del();
+    }
+    if (error.status !== 200) {
+      ElMessage.error(error.response.data.error || error.message);
     }
     return Promise.reject(error);
   },
