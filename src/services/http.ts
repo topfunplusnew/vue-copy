@@ -56,6 +56,9 @@ http.interceptors.response.use(
       }
       auth.del();
     }
+    if (error.status !== 200) {
+      ElMessage.error(error.response.data.error || error.message);
+    }
     return Promise.reject(error);
   },
 );
