@@ -553,7 +553,7 @@ function getAffiliationNumber(originalId: number): number {
                   video_status: formData.video_status
                 });
               }" />
-              <span>I have read, understood, and accept the video release terms.</span>
+              <span>I understand and agree to keep the video private.</span>
             </label>
           </div>
           <!-- 总是显示上传组件 -->
@@ -569,7 +569,7 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当幻灯片已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.slide" class="consent-section">
             <div class="consent-row">
-              <span>Make slides visible to public</span>
+              <span>Hide slides from the public</span>
               <el-switch v-model="formData.slide_status" :active-value="2" :inactive-value="1" @change="(value) => store.updateIsOpenAccess({
                 id: paperId,
                 slide_status: value
@@ -584,7 +584,7 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当海报已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.poster" class="consent-section">
             <div class="consent-row">
-              <span>Make poster visible to public</span>
+              <span>Hide poster from the public</span>
               <el-switch v-model="formData.poster_status" :active-value="2" :inactive-value="1" @change="(value) => store.updateIsOpenAccess({
                 id: paperId,
                 poster_status: value
