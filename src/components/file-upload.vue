@@ -23,6 +23,10 @@ interface PaperDetail {
   [key: string]: unknown;
 }
 
+type IsFileListShowConfig = {
+  [key in TabKey]?: boolean;
+}
+
 interface Props {
   tabKey: TabKey;
   paperId: string | number;
@@ -31,6 +35,8 @@ interface Props {
   isShow: boolean;
   // 可选：限制允许上传的文件类型。支持HTML accept格式，如 'image/*', '.pdf', 'application/pdf' 或数组
   accept?: string | string[];
+  // 是否显示文件列表
+  isFileListShowConfig?: IsFileListShowConfig;
 }
 
 interface Emits {
@@ -50,6 +56,12 @@ const emit = defineEmits<Emits>();
 const tabKey = computed(() => props.tabKey);
 const paperDetailInfo = computed(() => props.paperDetail);
 const paperId = computed(() => props.paperId);
+const getVisibleByTabKey = (tabKey: TabKey) => {
+  if (!props.isFileListShowConfig) {
+    return true;
+  }
+  return props.isFileListShowConfig[tabKey];
+};
 // 文件列表 这里除了额外文件后端限制只能一个文件
 const posterFileList = computed((): UploadUserFile[] => {
   if (!paperDetailInfo.value?.fileUrl) {
@@ -273,7 +285,7 @@ const handleUploadProgress = () => {
 // 处理文件下载
 const handleFileDownload = (file: UploadUserFile) => {
   if (!file.url) return;
-  
+
   // 创建一个临时链接用于下载
   const link = document.createElement('a');
   link.href = file.url;
@@ -286,20 +298,39 @@ const handleFileDownload = (file: UploadUserFile) => {
 
 <template>
   <div>
-    <el-upload :data="bodyParams" :headers="headers" v-model:file-list="posterFileList" :action="serverActionUrl"
-      list-type="text" :on-remove="handleRemove" :on-error="handleError" :on-exceed="handleExceed"
-      :on-progress="handleUploadProgress" :before-upload="handleBeforeUpload" :on-success="handleUploadSuccess"
-      :limit="props.limit === -1 ? undefined : props.limit" :disabled="isUploadDisabled || uploadLoading"
-      :accept="acceptAttr" class="upload-area" :class="{
+    <el-upload
+      :data="bodyParams"
+      :headers="headers"
+      v-model:file-list="posterFileList"
+      :action="serverActionUrl"
+      list-type="text"
+      :on-remove="handleRemove"
+      :on-error="handleError"
+      :on-exceed="handleExceed"
+      :on-progress="handleUploadProgress"
+      :before-upload="handleBeforeUpload"
+      :on-success="handleUploadSuccess"
+      :limit="props.limit === -1 ? undefined : props.limit"
+      :disabled="isUploadDisabled || uploadLoading"
+      :accept="acceptAttr"
+      class="upload-area"
+      :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)">
-      <div class="upload-block" :class="{
-        'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
-        'upload-block-loading': uploadLoading,
-        'upload-block-image-preview': shouldShowImagePreview,
-      }" :style="{ height: uploadBlockHeight }">
+      }"
+      :multiple="true"
+      v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)"
+    >
+      <div
+        class="upload-block"
+        :class="{
+          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
+          'upload-block-loading': uploadLoading,
+          'upload-block-image-preview': shouldShowImagePreview,
+        }"
+        :style="{ height: uploadBlockHeight }"
+      >
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
@@ -325,7 +356,7 @@ const handleFileDownload = (file: UploadUserFile) => {
     </el-upload>
 
     <!-- 自定义文件列表显示 -->
-    <div v-if="(posterFileList.length > 0)" class="custom-file-list">
+    <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
@@ -341,12 +372,11 @@ const handleFileDownload = (file: UploadUserFile) => {
           </div>
         </div>
         <div class="file-info">
-          <div class="file-name" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer;">
+          <div class="file-name" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
-            <el-button type="danger" size="small" :loading="deleteLoading"
-              @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
+            <el-button type="danger" size="small" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
           </div>
         </div>
       </div>
@@ -358,8 +388,7 @@ const handleFileDownload = (file: UploadUserFile) => {
 
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览
-      </iframe>
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览 </iframe>
     </div>
   </div>
 </template>
@@ -576,7 +605,7 @@ const handleFileDownload = (file: UploadUserFile) => {
   flex: 1;
   margin-right: 8px;
   transition: color 0.3s ease;
-  
+
   &:hover {
     color: #66b1ff; /* 悬停时颜色变浅 */
     text-decoration: underline; /* 悬停时显示下划线 */
