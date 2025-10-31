@@ -1,9 +1,10 @@
-import { ref, nextTick } from 'vue';
+import { ref, type Ref } from 'vue';
 
 export interface DragSortItem {
   id: number;
   order: number;
-  [key: string]: any;
+
+  [key: string]: unknown;
 }
 
 export function useDragSort<T extends DragSortItem>(items: Ref<T[]>) {
@@ -32,7 +33,7 @@ export function useDragSort<T extends DragSortItem>(items: Ref<T[]>) {
 
   const handleDrop = (event: DragEvent, index: number) => {
     event.preventDefault();
-    
+
     if (draggedIndex.value === null || draggedIndex.value === index) {
       return;
     }
@@ -65,6 +66,6 @@ export function useDragSort<T extends DragSortItem>(items: Ref<T[]>) {
     handleDragOver,
     handleDragLeave,
     handleDrop,
-    handleDragEnd
+    handleDragEnd,
   };
 }
