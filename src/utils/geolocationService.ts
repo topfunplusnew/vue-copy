@@ -26,3 +26,8 @@ export async function getReverseGeocoding(lat: number, lon: number) {
   }
   return { city, country, flagUrl };
 }
+
+
+
+
+

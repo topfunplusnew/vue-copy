@@ -122,7 +122,7 @@ const handleHistoryLoad = (conversationId: number) => {
 };
 
 // 处理日历事件保存
-const handleScheduleSave = (event: any) => {
+const handleScheduleSave = (event: unknown) => {
   console.log('Schedule event saved:', event);
   showScheduleModal.value = false;
   ElMessage.success('Event added to schedule successfully!');
@@ -177,7 +177,7 @@ const handleClickOutside = (event: Event) => {
       <nav class="pop-nav" :class="{ 'nav-menu-active': navMenuActive }">
         <router-link :to="{ name: 'home' }" class="nav-btn toggle-nav desktop-nav">HOME</router-link>
         <router-link :to="{ name: 'about' }" class="nav-btn toggle-nav">ABOUT</router-link>
-        <router-link :to="{ name: 'meetings' }" class="nav-btn toggle-nav">EVENTS</router-link>
+        <router-link :to="{ name: 'conference' }" class="nav-btn toggle-nav">EVENTS</router-link>
         <router-link :to="{ name: 'news' }" class="nav-btn toggle-nav">NEWS</router-link>
         <router-link :to="{ name: 'contact' }" class="nav-btn toggle-nav">CONTACT</router-link>
         <!-- <router-link :to="{ name: 'invitation' }" class="nav-btn toggle-nav">INVITATION</router-link> -->

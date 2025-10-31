@@ -1,10 +1,9 @@
-import type{ IBlogReq } from '@/types/blog';
+import type { IBlogReq } from '@/types/blog';
 import type { IPairToken, ILogin, IUserEdit, IUserSignup } from '@/types/user.ts';
 import type { IBlogPostCreate, IBlogPostimage, IBlogEdit } from '@/types/blog';
 import type { IChatReq } from '@/types/chat';
 import { http, auth } from './http';
 import type { IRequest } from '@/types/service';
-
 import type {
   IPlanCreateReq,
   IPlanUpdateReq,
@@ -40,10 +39,10 @@ export const userLogout = () =>
     resole(true);
   });
 
-export const accountActivate = (token:string) => http.put('/user/active', {token});
+export const accountActivate = (token: string) => http.put('/user/active', { token });
 // export const multiRoundChat = (data: IMultiRoundChat) => http.post('/chat', data);
 
-export const googleAuthorize = (token:string) => http.post('/oauth/google', {token}).then(res=>{
+export const googleAuthorize = (token: string) => http.post('/oauth/google', { token }).then(res => {
   const data = res.data as IPairToken;
   auth.set(data.access_token);
   return res;
@@ -64,7 +63,7 @@ export const blogPost = (data: IBlogPostCreate) => http.post('/blog', data);
 
 export const blogSocialFilters = () => http.get('/social_filters');
 
-export const myblogdelete = (id: number) => http.delete('/blog', {params: {id: id}});
+export const myblogdelete = (id: number) => http.delete('/blog', { params: { id: id } });
 
 export const myblogedit = (data: IBlogEdit) => http.put('/blog', data);
 
@@ -80,48 +79,48 @@ export const uploadAvatar = (data: FormData) => http.post('/file/avatar', data, 
   }
 });
 
-export const invitationAuth = (code:string) => http.post('/user/invitation-auth', {invitation_code:code});
-export const joinWaitlist = (message:string) => http.post('/waitlist', {message});
+export const invitationAuth = (code: string) => http.post('/user/invitation-auth', { invitation_code: code });
+export const joinWaitlist = (message: string) => http.post('/waitlist', { message });
 
 
 // export const getBlogPost = (id: string) => http.get(`/blog/${id}`);
-export const getBlogPost = (id: string) => http.get('/blog', {params:{id}}); // 根据id获取blog
+export const getBlogPost = (id: string) => http.get('/blog', { params: { id } }); // 根据id获取blog
 
-export const getMyBlogList = (req:IBlogReq = {}) => http.get('/my_blogs', {params:req}); // blog列表，可以搜索分页
-export const getAllBlogList = (req:IBlogReq = {}) => http.get('/blogs', {params:req}); // 我的blog，blog列表一样的搜索和分页
-export const getOsBlogList = (req:IBlogReq = {}) => http.get('/blogs/official', {params:req}); // 官方blog，可以分页
+export const getMyBlogList = (req: IBlogReq = {}) => http.get('/my_blogs', { params: req }); // blog列表，可以搜索分页
+export const getAllBlogList = (req: IBlogReq = {}) => http.get('/blogs', { params: req }); // 我的blog，blog列表一样的搜索和分页
+export const getOsBlogList = (req: IBlogReq = {}) => http.get('/blogs/official', { params: req }); // 官方blog，可以分页
 
-export const comment2Blog = (blogId: number, content: string) => http.post('/comment', {id:blogId, blog:true, content});
-export const comment2Comment = (commentId: number, content: string) => http.post('/comment', {id:commentId, content});
-export const commentDel = (id: number) => http.delete('/comment', {params:{id}}); // 删除评论
+export const comment2Blog = (blogId: number, content: string) => http.post('/comment', { id: blogId, blog: true, content });
+export const comment2Comment = (commentId: number, content: string) => http.post('/comment', { id: commentId, content });
+export const commentDel = (id: number) => http.delete('/comment', { params: { id } }); // 删除评论
 export const comments = (commentId: number) => http.get(`/comments/${commentId}`);
 
-export const homeviewweather = (city: string) => http.get('/weather', {params:{city}});
+export const homeviewweather = (city: string) => http.get('/weather', { params: { city } });
 
 
 /**
  * 关注
  */
-export const userFollow = (id:number) => http.post('/user/follow', {id});
-export const userUnfollow = (id:number) => http.delete('/user/follow', {params:{id}});
-export const userIsFollowing = (id:number) => http.get('user/follow', {params:{id}});
-export const userFollowings = (id:number, req:IRequest = {}) => http.get(`/user/followings/${id}`, {params:req});
-export const userFollowers = (id:number, req:IRequest = {}) => http.get(`/user/followers/${id}`, {params:req});
+export const userFollow = (id: number) => http.post('/user/follow', { id });
+export const userUnfollow = (id: number) => http.delete('/user/follow', { params: { id } });
+export const userIsFollowing = (id: number) => http.get('user/follow', { params: { id } });
+export const userFollowings = (id: number, req: IRequest = {}) => http.get(`/user/followings/${id}`, { params: req });
+export const userFollowers = (id: number, req: IRequest = {}) => http.get(`/user/followers/${id}`, { params: req });
 
 
 /**
  * chat
  */
-export const chatStream = (req:IChatReq) => http.post('/chatz', req, {
+export const chatStream = (req: IChatReq) => http.post('/chatz', req, {
   headers: {
     'Accept': 'text/event-stream'
   },
-  responseType:'stream',
-  adapter:'fetch'
+  responseType: 'stream',
+  adapter: 'fetch'
 }); // chat 流试显示
 
 export const chatConversations = () => http.get('/chat/history'); // 主题列表
-export const chatRestore = (conversationID:number) => http.get(`/chat/restore/${conversationID}`); //根据主题返回本主题下的所有历史记录
+export const chatRestore = (conversationID: number) => http.get(`/chat/restore/${conversationID}`); //根据主题返回本主题下的所有历史记录
 
 
 
@@ -196,3 +195,32 @@ export const placeGet = (id: number) => http.get('/place', { params: { id } });
  */
 export const placeSearch = (query: IRequest = {}) => http.get('/places', { params: query });
 
+/**
+ * 获取会议列表
+ */
+export const ConferenceList = (query: IRequest = {}) => http.get('/conference', { params: query })
+
+/* 
+*获取会议详情
+*/
+export const ConferenceDetails = (id: number | string) => http.get(`/conference/${id}`)
+
+/* 
+我的会议
+*/
+export const MyConferences = () => http.get('/my-conferences')
+
+/* 
+详情论文
+*/
+export const Mypapers = (id: number) => http.get(`/paper/${id}`)
+
+
+/* 
+上传
+*/
+export const UploadVideo = (formatDate: FormData) => http.post('/paper/upload-file', formatDate)
+
+
+// 获取schedule列表
+export const getScheduleList = () => http.get('/schedule')
