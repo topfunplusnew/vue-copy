@@ -692,8 +692,8 @@
         max-width: 100%;
         box-sizing: border-box;
         word-wrap: break-word;
-        overflow-wrap: break-word;
-
+        overflow-wrap: break-word;  
+        cursor: pointer;
         @include screen-mobile {
           padding: 10px 16px;
         }
