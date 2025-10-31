@@ -249,6 +249,59 @@ function formatFirstLetterUppercase(str: string): string {
   background-color: #f5f7fa;
   cursor: not-allowed;
 }
+
+/* 模态框头部样式 - 使标题居中 */
+.modal-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 60px;
+  background-color: #fff;
+  border-bottom: 1px solid #eaeaea;
+  padding: 0 20px;
+}
+
+/* 确保关闭按钮样式清晰可见 */
+.modal-header .close-btn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  background-color: transparent;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  /* 确保关闭按钮在标题上方 */
+}
+
+.modal-header h2 {
+  margin: 0;
+  text-align: center;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px 40px;
+  /* 为右侧的关闭按钮留出空间 */
+  word-wrap: break-word;
+  max-width: 100%;
+  z-index: 1;
+  /* 确保标题在关闭按钮下方但仍然可见 */
+}
+
+.modal-header .close-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
 </style>
 
 <template>
@@ -414,50 +467,25 @@ function formatFirstLetterUppercase(str: string): string {
     <div v-if="showPaperModal" class="paper-modal-overlay" @click="closePaperModal">
       <div class="paper-modal" @click.stop>
         <div class="modal-header">
-          <h2>{{ selectedPaper?.title }}</h2>
+          <h2>{{ paperDetail?.title || selectedPaper?.title || '论文详情' }}</h2>
           <button class="close-btn" @click="closePaperModal">×</button>
         </div>
 
         <div class="modal-content">
-          <div class="paper-info">
-            <div class="info-section">
-              <h4>Authors</h4>
-              <div class="authors-list">
-                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
-                  {{ author.name
-                  }}<template v-if="author?.affiliations?.length"><sup v-for="(aff, affIdx) in author.affiliations"
-                      :key="affIdx">{{ getAffiliationNumber(aff.id) }}</sup></template><span>
-                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
-                  </span>
-              </div>
-            </div>
-
-            <div class="info-section">
-              <h4>Affiliations</h4>
-              <div class="affiliations-list">
-                <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                  <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
-                    aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', '
-                    +
-                    aff.state : ''
-                  }}{{ aff.country ? ', ' + aff.country : '' }}
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="tab-container">
             <div class="tab-navigation">
               <button :class="['tab-btn', { active: activeTab === 'details' }]"
                 @click="switchTab('details')">Details</button>
               <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-                :disabled="paperDetail?.video_status !== 1">Video</button>
+                :disabled="!paperDetail?.video">
+                Video
+              </button>
               <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
-                @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 1">
+                @click="paperDetail?.slide && switchTab('slides')" :disabled="!paperDetail?.slide">
                 Slides
               </button>
               <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]"
-                @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 1">
+                @click="paperDetail?.poster && switchTab('poster')" :disabled="!paperDetail?.poster">
                 Poster
               </button>
               <button
