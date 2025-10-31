@@ -294,39 +294,20 @@ const handleFileDownload = (file: UploadUserFile) => {
 
 <template>
   <div>
-    <el-upload
-      :data="bodyParams"
-      :headers="headers"
-      v-model:file-list="posterFileList"
-      :action="serverActionUrl"
-      list-type="text"
-      :on-remove="handleRemove"
-      :on-error="handleError"
-      :on-exceed="handleExceed"
-      :on-progress="handleUploadProgress"
-      :before-upload="handleBeforeUpload"
-      :on-success="handleUploadSuccess"
-      :limit="props.limit === -1 ? undefined : props.limit"
-      :disabled="isUploadDisabled || uploadLoading"
-      :accept="acceptAttr"
-      class="upload-area"
-      :class="{
+    <el-upload :data="bodyParams" :headers="headers" v-model:file-list="posterFileList" :action="serverActionUrl"
+      list-type="text" :on-remove="handleRemove" :on-error="handleError" :on-exceed="handleExceed"
+      :on-progress="handleUploadProgress" :before-upload="handleBeforeUpload" :on-success="handleUploadSuccess"
+      :limit="props.limit === -1 ? undefined : props.limit" :disabled="isUploadDisabled || uploadLoading"
+      :accept="acceptAttr" class="upload-area" :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }"
-      :multiple="true"
-      v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)"
-    >
-      <div
-        class="upload-block"
-        :class="{
-          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
-          'upload-block-loading': uploadLoading,
-          'upload-block-image-preview': shouldShowImagePreview,
-        }"
-        :style="{ height: uploadBlockHeight }"
-      >
+      }" :multiple="true" v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)">
+      <div class="upload-block" :class="{
+        'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
+        'upload-block-loading': uploadLoading,
+        'upload-block-image-preview': shouldShowImagePreview,
+      }" :style="{ height: uploadBlockHeight }">
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
@@ -368,11 +349,13 @@ const handleFileDownload = (file: UploadUserFile) => {
           </div>
         </div>
         <div class="file-info">
-          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)"
+            style="cursor: pointer">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
-            <el-button type="danger" size="small" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
+            <el-button type="danger" size="small" :loading="deleteLoading"
+              @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
           </div>
         </div>
       </div>
@@ -384,7 +367,8 @@ const handleFileDownload = (file: UploadUserFile) => {
 
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览 </iframe>
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览
+      </iframe>
     </div>
   </div>
 </template>
@@ -553,8 +537,8 @@ const handleFileDownload = (file: UploadUserFile) => {
 }
 
 .file-thumbnail {
-  width: 100%;
-  height: 100%;
+  max-width: 400px;
+  height: auto;
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.2s ease;
