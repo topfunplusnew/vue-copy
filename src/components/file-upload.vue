@@ -255,6 +255,15 @@ function matchAcceptRule(file: File, rule: string): boolean {
 }
 
 const handleBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  const file = rawFile as File;
+  
+  // 检查文件大小，限制为500MB
+  const maxSize = 500 * 1024 * 1024; // 500MB in bytes
+  if (file.size > maxSize) {
+    ElMessage.error('文件大小不能超过500MB，请选择较小的文件');
+    return false;
+  }
+  
   if (props.accept) {
     const rules = Array.isArray(props.accept) ? props.accept : String(props.accept).split(',');
     const ok = rules.some((r) => matchAcceptRule(rawFile as unknown as File, r));
@@ -331,6 +340,11 @@ const handleFileDownload = (file: UploadUserFile) => {
         </template>
       </div>
     </el-upload>
+
+    <!-- 文件尺寸提示 -->
+    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">
+      您最大可上传500MB的文件
+    </div>
 
     <!-- 自定义文件列表显示 -->
     <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
@@ -477,6 +491,14 @@ const handleFileDownload = (file: UploadUserFile) => {
 
 .upload-text-disabled {
   color: #c0c4cc !important;
+}
+
+.upload-size-hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ff2b2b;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .upload-loading-container {
