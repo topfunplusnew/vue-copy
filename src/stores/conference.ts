@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { getConferenceList, getConferenceDetail, getMyPaperDetail, getMyConferenceList, getConferenceIdPaper, getPaperDetail, updateMyPaperDetail } from '@/services/api';
 import type { IConferenceEvent, IConferenceParticipation, IPapers, IMyConference } from '@/types/conference';
 import type { IModifyPaperShow, IPaper, IpaperDetail } from '@/types/paper'
+import { ElMessage } from 'element-plus';
 
 export const useConferenceStore = defineStore('meet', () => {
   const conferenceList = ref<IConferenceEvent[]>([]);
@@ -57,7 +58,11 @@ export const useConferenceStore = defineStore('meet', () => {
   function getPaperDetailAll(id: string) {
     return getPaperDetail(id).then((res) => {
       paperDetail.value = res.data
-    })
+    }).catch(err => {
+      paperDetail.value = {} as IpaperDetail
+      console.error('获取论文详情失败', err);
+      throw err;
+    });
   }
 
   // 更新论文的is_open_access状态
@@ -65,9 +70,14 @@ export const useConferenceStore = defineStore('meet', () => {
     return updateMyPaperDetail(data).then(res => {
       if (res.data) {
         console.log('更新成功', res.data);
-        console.log(res.data.paper);
-        paperDetail.value.is_open_access = res.data.paper.is_open_access
+        myPaperDetail.value.poster_visible = res.data.paper.poster_visible
+        myPaperDetail.value.slide_visible = res.data.paper.slide_visible
+        myPaperDetail.value.video_visible = res.data.paper.video_visible
       }
+    }).catch(err => {
+      console.error('更新失败', err);
+      ElMessage.error('更新失败');
+      throw err;
     });
   }
 

@@ -273,7 +273,7 @@ const handleUploadProgress = () => {
 // 处理文件下载
 const handleFileDownload = (file: UploadUserFile) => {
   if (!file.url) return;
-  
+
   // 创建一个临时链接用于下载
   const link = document.createElement('a');
   link.href = file.url;
@@ -341,7 +341,8 @@ const handleFileDownload = (file: UploadUserFile) => {
           </div>
         </div>
         <div class="file-info">
-          <div class="file-name" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer;">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)"
+            style="cursor: pointer;">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
@@ -518,8 +519,6 @@ const handleFileDownload = (file: UploadUserFile) => {
 }
 
 .file-preview {
-  width: 36px;
-  height: 36px;
   margin-right: 10px;
   display: flex;
   align-items: center;
@@ -563,23 +562,26 @@ const handleFileDownload = (file: UploadUserFile) => {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   min-height: 36px;
 }
 
 .file-name {
   font-size: 13px;
   font-weight: 500;
-  color: #409eff; /* 改为蓝色，表示可点击 */
+  color: #409eff;
+  /* 改为蓝色，表示可点击 */
   word-break: break-all;
   line-height: 1.3;
   flex: 1;
   margin-right: 8px;
   transition: color 0.3s ease;
-  
+
   &:hover {
-    color: #66b1ff; /* 悬停时颜色变浅 */
-    text-decoration: underline; /* 悬停时显示下划线 */
+    color: #66b1ff;
+    /* 悬停时颜色变浅 */
+    text-decoration: underline;
+    /* 悬停时显示下划线 */
   }
 }
 

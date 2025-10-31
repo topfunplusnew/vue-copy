@@ -152,7 +152,9 @@ export interface IPapers {
   slide?: string;
   poster?: string;
   addition_files?: string;
-  is_open_access: boolean;
+  poster_status: number,
+  slide_status: number,
+  video_status: number,
 }
 
 export interface Ivideo {
@@ -177,6 +179,7 @@ export interface IModifyPaper {
   slide?: string;
   poster?: string;
   addition_files?: string;
+
 }
 
 export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';

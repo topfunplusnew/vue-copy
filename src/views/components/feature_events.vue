@@ -9,6 +9,7 @@ import { getImageUrl } from '@/utils';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
+import type { IpaperDetail } from '@/types/paper';
 type SelectedPaperLite = { id: number; title?: string };
 type AffRaw = {
   id: number;
@@ -93,15 +94,26 @@ const conferenceStats = computed(() => ({//统计会议数量和类别
 function registerInterest(conferenceId: number) {
   ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
 }
-
+const papershow = ref<boolean>(false);
+const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
 function openPaperModal(paper: SelectedPaperLite) {
-  selectedPaper.value = paper;
-  showPaperModal.value = true;
-  activeTab.value = 'details';
-  conferenceStore.getPaperDetailAll(String(paper.id))
-
+  conferenceStore.getPaperDetailAll(String(paper.id)).then(res => {
+    papershow.value = true;
+    selectedPaper.value = paper;
+    showPaperModal.value = true;
+    activeTab.value = 'details';
+  }).catch(err => {
+    showPaperModal.value = false;
+    console.error('打开论文详情弹窗失败', err);
+  });
 }
-const paperDetail = computed(() => conferenceStore.paperDetail)
+watch(
+  () => conferenceStore.paperDetail,
+  (newVal) => {
+    paperDetail.value = newVal
+  },
+  { immediate: true } // 页面加载时同步一次
+)
 
 
 function closePaperModal() {
@@ -216,10 +228,11 @@ function formatFirstLetterUppercase(str: string): string {
   border: 1px solid #ebeef5;
 }
 
+/* 
 .tab-btn:disabled:before {
   content: '🔒';
   margin-right: 4px;
-}
+} */
 
 .tab-btn:disabled:hover {
   background-color: #f5f7fa;
@@ -401,44 +414,21 @@ function formatFirstLetterUppercase(str: string): string {
         </div>
 
         <div class="modal-content">
-          <div class="paper-info">
-            <div class="info-section">
-              <h4>Authors</h4>
-              <div class="authors-list">
-                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
-                  {{ author.name }}<template v-if="author?.affiliations?.length"><sup
-                      v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
-                      }}</sup></template><span>
-                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
-                  </span>
-              </div>
-            </div>
-
-            <div class="info-section">
-              <h4>Affiliations</h4>
-              <div class="affiliations-list">
-                <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                  <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
-                    aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
-                    aff.state ? ', ' + aff.state : '' }}{{ aff.country ? ', ' + aff.country : '' }}
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="tab-navigation">
             <button :class="['tab-btn', { active: activeTab === 'details' }]"
               @click="switchTab('details')">Details</button>
             <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-              :disabled="!paperDetail?.is_open_access">
+              :disabled="paperDetail?.video_status === 2 || paperDetail?.video_status === 1">
               Video
             </button>
             <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
-              @click="paperDetail?.slide && switchTab('slides')" :disabled="!paperDetail?.slide">
+              @click="paperDetail?.slide && switchTab('slides')"
+              :disabled="paperDetail?.slide_status === 2 || paperDetail?.slide_status === 1">
               Slides
             </button>
             <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]"
-              @click="paperDetail?.poster && switchTab('poster')" :disabled="!paperDetail?.poster">
+              @click="paperDetail?.poster && switchTab('poster')"
+              :disabled="paperDetail?.poster_status === 2 || paperDetail?.poster_status === 1">
               Poster
             </button>
             <button
@@ -451,6 +441,30 @@ function formatFirstLetterUppercase(str: string): string {
 
           <div class="tab-content">
             <div v-if="activeTab === 'details'" class="details-content">
+              <div class="paper-info">
+                <div class="info-section">
+                  <h4>Authors</h4>
+                  <div class="authors-list">
+                    <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                      {{ author.name }}<template v-if="author?.affiliations?.length"><sup
+                          v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                          }}</sup></template><span>
+                        {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                      </span>
+                  </div>
+                </div>
+
+                <div class="info-section">
+                  <h4>Affiliations</h4>
+                  <div class="affiliations-list">
+                    <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
+                      <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
+                        aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
+                        aff.state ? ', ' + aff.state : '' }}{{ aff.country ? ', ' + aff.country : '' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="detail-item">
                 <h5>DOI</h5>
                 <p>{{ paperDetail?.doi }}</p>

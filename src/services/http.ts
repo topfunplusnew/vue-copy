@@ -56,6 +56,7 @@ http.interceptors.response.use(
       }
       auth.del();
     }
+
     if (error.status !== 200 && error.response.status !== 401) {
       // 未登录 - 避免短时间内重复显示错误消息
       if (!loginExpiredMessageShown) {
