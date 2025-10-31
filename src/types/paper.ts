@@ -38,6 +38,7 @@ export interface IpaperDetail {//论文详情
     poster_status: number,
     slide_status: number,
     video_status: number,
+    is_open_access?: boolean,
 }
 export interface Ikeywords {
     id: number;

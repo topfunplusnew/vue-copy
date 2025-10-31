@@ -55,14 +55,12 @@ export const useConferenceStore = defineStore('meet', () => {
     })
 
   }
-  function getPaperDetailAll(id: string) {
-    return getPaperDetail(id).then((res) => {
-      paperDetail.value = res.data
-    }).catch(err => {
-      paperDetail.value = {} as IpaperDetail
-      console.error('获取论文详情失败', err);
-      throw err;
-    });
+  async function getPaperDetailAll(id: string) {
+    const res = await getPaperDetail(id)
+    if (!res.data){
+      return;
+    }
+    paperDetail.value = res.data
   }
 
   // 更新论文的is_open_access状态
