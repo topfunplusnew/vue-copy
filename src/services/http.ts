@@ -15,21 +15,21 @@ function shouldSkipErrorMessage(error: unknown): boolean {
     config?: { url?: string; baseURL?: string };
     response?: { config?: { url?: string; baseURL?: string } };
   };
-  
+
   const requestUrl = axiosError?.config?.url || axiosError?.response?.config?.url || '';
   const baseURL = axiosError?.config?.baseURL || http.defaults.baseURL || '';
-  
+
   // 获取相对路径（去除 baseURL 部分）
   let path = requestUrl;
   if (baseURL && requestUrl.startsWith(baseURL)) {
     path = requestUrl.replace(baseURL, '');
   }
-  
+
   // 提取路径部分（去除查询参数和哈希）
   const pathname = path.split('?')[0].split('#')[0];
-  
+
   // 检查是否在排除列表中
-  return UN_TRACKED_URL_PATH_LIST.some(excludedPath => 
+  return UN_TRACKED_URL_PATH_LIST.some(excludedPath =>
     pathname === excludedPath || pathname.startsWith(excludedPath)
   );
 }
@@ -83,17 +83,10 @@ http.interceptors.response.use(
       }
       auth.del();
     }
-<<<<<<< HEAD
-
-    if (error.status !== 200 && error.response.status !== 401) {
-      // 未登录 - 避免短时间内重复显示错误消息
-      if (!loginExpiredMessageShown) {
-=======
     if (error && error.response && error.response.status !== 200 && error.response.status !== 401) {
       // 其他错误 - 避免短时间内重复显示错误消息
       // 检查是否在排除列表中，如果是则不显示错误消息
       if (!shouldSkipErrorMessage(error) && !loginExpiredMessageShown) {
->>>>>>> a9e12b9745564c2894759e11d263dfa76b70b2c9
         loginExpiredMessageShown = true;
         ElMessage.error(error.response.data.error || error.message);
 

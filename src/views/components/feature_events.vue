@@ -126,7 +126,7 @@ watch(
   { immediate: true } // 页面加载时同步一次
 )
 
-const paperDetail = computed(() => conferenceStore.paperDetail);
+// const paperDetail = computed(() => conferenceStore.paperDetail);
 
 function closePaperModal() {
   showPaperModal.value = false;
@@ -239,11 +239,11 @@ function formatFirstLetterUppercase(str: string): string {
   border: 1px solid #ebeef5;
 }
 
-/* 
+
 .tab-btn:disabled:before {
   content: '🔒';
   margin-right: 4px;
-} */
+}
 
 .tab-btn:disabled:hover {
   background-color: #f5f7fa;
@@ -301,7 +301,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</span>
+                    }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -363,7 +363,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</div>
+                    }}</div>
                 </div>
               </div>
             </div>
@@ -451,13 +451,13 @@ function formatFirstLetterUppercase(str: string): string {
               <button :class="['tab-btn', { active: activeTab === 'details' }]"
                 @click="switchTab('details')">Details</button>
               <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-                :disabled="paperDetail?.video_status !== 2">Video</button>
+                :disabled="paperDetail?.video_status !== 1">Video</button>
               <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
-                @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 2">
+                @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 1">
                 Slides
               </button>
               <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]"
-                @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 2">
+                @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 1">
                 Poster
               </button>
               <button

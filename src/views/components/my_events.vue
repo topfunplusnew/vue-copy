@@ -561,7 +561,7 @@ function getAffiliationNumber(originalId: number): number {
 
             <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
               :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData"
-              :is-show="!myPaperDetailInfo?.video" />
+              :is-show="true" />
           </div>
         </div>
 
