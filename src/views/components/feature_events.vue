@@ -99,7 +99,6 @@ function registerInterest(conferenceId: number) {
   const data: IAddFavoriteRequest = {
     conference_id: conferenceId,
   };
-  ElMessage.info('Adding to Favourite...');
   addFavorite(data)
     .then(() => {
       ElMessage.success('Interest registered! You will receive updates about this conference.');
