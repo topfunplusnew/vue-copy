@@ -4,11 +4,25 @@
     // ========== 用户输入形成模块与选择tools ==========
 @mixin wrapper{
   .trip-planning-container {
-    width: 100%;
-    max-width: rpx(1000);
+    width: 98%;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     gap: rpx(20);
+    margin: 0 auto;
+
+    @include screen-pc {
+      width: 98%;
+      max-width: none;
+    }
+
+    @include screen-pad {
+      width: 97%;
+    }
+
+    @include screen-mobile {
+      width: 96%;
+    }
 
     // ========== 主输入区域 ==========
     .chat-input-container {

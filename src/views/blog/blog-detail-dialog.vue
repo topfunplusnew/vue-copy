@@ -29,6 +29,14 @@ const selectedBlog = computed(() => store.blog);
 // const currentImageIndex = ref(0);
 const newComment = ref('');
 
+// 图片数组 - 优先使用 image，如果没有则使用 files
+const blogImages = computed(() => {
+  if (selectedBlog.value?.image && selectedBlog.value.image.length > 0) {
+    return selectedBlog.value.image;
+  }
+  return selectedBlog.value?.files || [];
+});
+
 // 评论相关的状态
 const replyContent = ref('');
 const expandedReplies = ref<number[]>([]);
@@ -336,7 +344,7 @@ const handleUserClick = (event?: Event) => {
       <div class="detail-left">
         <!-- 图片轮播 -->
         <el-carousel
-          v-if="selectedBlog?.image && selectedBlog.image.length > 0"
+          v-if="blogImages && blogImages.length > 0"
           :interval="5000"
           class="image-section"
           height="100%"
@@ -344,7 +352,7 @@ const handleUserClick = (event?: Event) => {
           :loop="true"
           :autoplay="false"
         >
-          <el-carousel-item v-for="(image, index) in selectedBlog.image" :key="index">
+          <el-carousel-item v-for="(image, index) in blogImages" :key="index">
             <div class="image-slider">
               <div class="image-wrapper">
                 <img
