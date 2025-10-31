@@ -560,8 +560,7 @@ function getAffiliationNumber(originalId: number): number {
           <div class="video-upload">
 
             <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
-              :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData"
-              :is-show="true" />
+              :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
@@ -673,6 +672,9 @@ function getAffiliationNumber(originalId: number): number {
   color: #606266;
   font-size: 12px;
   border-radius: 4px;
+  position: absolute;
+  top: -25px;
+  left: 290px;
 }
 
 .pdf-modal-overlay {
@@ -815,6 +817,7 @@ function getAffiliationNumber(originalId: number): number {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  margin-top: 10px;
 }
 
 .add-button-container {
