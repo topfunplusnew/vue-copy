@@ -409,7 +409,7 @@ function formatFirstLetterUppercase(str: string): string {
               <router-link :to="{ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } }"
                 v-for="featuredConference in featuredConferenceList" :key="featuredConference.id" class="featured-card">
                 <div class="featured-header">
-                  <div class="featured-name-container">
+                  <div class="featured-name-container-1">
                     <img v-if="featuredConference.logo" :src="getImageUrl(featuredConference.logo)"
                       :alt="featuredConference.name + ' logo'" class="featured-event-logo" @error="handleLogoError"
                       @load="handleLogoLoad" />
