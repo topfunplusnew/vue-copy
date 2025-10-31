@@ -10,6 +10,9 @@ import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
 import type { IpaperDetail } from '@/types/paper';
+import { addFavorite } from '@/services/conference';
+import type { IAddFavoriteRequest } from '@/services/conference/type.ts';
+
 type SelectedPaperLite = { id: number; title?: string };
 type AffRaw = {
   id: number;
@@ -36,31 +39,33 @@ const conferenceStore = useConferenceStore();
 const props = defineProps({
   conferenceId: {
     type: String,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 onMounted(() => {
   conferenceStore.getConferencesList();
-})
+});
 
-watch(() => props.conferenceId, (val, old) => {
-  if (val !== old) {
-    conferenceStore.getConferenceDetails(val);
-    conferenceStore.getConferencePaper(val);
-  }
-}, { immediate: true });
+watch(
+  () => props.conferenceId,
+  (val, old) => {
+    if (val !== old) {
+      conferenceStore.getConferenceDetails(val);
+      conferenceStore.getConferencePaper(val);
+    }
+  },
+  { immediate: true },
+);
 
 const featuredConferences = computed(() => conferenceStore.conferenceList);
 const conferenceDetail = computed(() => conferenceStore.conferenceDetail);
 
-
-
 const selectedConference = computed(() => conferenceDetail.value);
 
-const searchQuery = ref('');//搜索框绑定的输入值
-const selectedPaper = ref<SelectedPaperLite | null>(null);//当前选中的论文对象
-const showPaperModal = ref(false);//控制论文详情弹窗是否显示
-const activeTab = ref<TabKey>('details');//当前激活的 Tab
+const searchQuery = ref(''); //搜索框绑定的输入值
+const selectedPaper = ref<SelectedPaperLite | null>(null); //当前选中的论文对象
+const showPaperModal = ref(false); //控制论文详情弹窗是否显示
+const activeTab = ref<TabKey>('details'); //当前激活的 Tab
 // const currentPage = ref(1);//当前分页页码
 // const papersPerPage = ref(20);//每页显示论文数量（默认 12）
 
@@ -68,19 +73,15 @@ const activeTab = ref<TabKey>('details');//当前激活的 Tab
 
 const conferencePapers = computed(() => conferenceStore.conferencePaper);
 
-
-
-
-
 // watch(searchQuery, () => {
 //   currentPage.value = 1;
 // });
 
-const conferenceStats = computed(() => ({//统计会议数量和类别
+const conferenceStats = computed(() => ({
+  //统计会议数量和类别
   totalConferences: featuredConferences.value?.length,
   categories: [...new Set(featuredConferences.value?.map((c) => c.conference_type))],
 }));
-
 
 //点击请求新会议
 // async function selectConference(id: number) {
@@ -90,9 +91,19 @@ const conferenceStats = computed(() => ({//统计会议数量和类别
 //   conferenceDetail.value = conferenceStore.conferenceDetail;
 
 // }
+const addFavorLoading = ref<boolean>(false);
 
-function registerInterest(conferenceId: number) {
-  ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
+// 添加至喜欢 发送邮件
+async function registerInterest(conferenceId: number) {
+  const data: IAddFavoriteRequest = {
+    conference_id: conferenceId,
+  };
+  addFavorLoading.value = true;
+  ElMessage.info('Adding to Favourite...');
+  const res = await addFavorite(data);
+  console.log(res);
+  addFavorLoading.value = false;
+  ElMessage.success('Interest registered! You will receive updates about this conference.');
 }
 const papershow = ref<boolean>(false);
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
@@ -115,6 +126,7 @@ watch(
   { immediate: true } // 页面加载时同步一次
 )
 
+const paperDetail = computed(() => conferenceStore.paperDetail);
 
 function closePaperModal() {
   showPaperModal.value = false;
@@ -136,7 +148,7 @@ const paperContent = computed<PaperDetailLike>(() => {
   // 当activeTab为'additional'时，直接使用addition_files
   if (activeTab.value === 'additional') {
     return {
-      fileUrl: paperDetail.value?.addition_files || []
+      fileUrl: paperDetail.value?.addition_files || [],
     };
   }
 
@@ -198,7 +210,6 @@ function formatFirstLetterUppercase(str: string): string {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
-
 </script>
 
 <style scoped>
@@ -261,7 +272,7 @@ function formatFirstLetterUppercase(str: string): string {
           <router-link v-for="conf in featuredConferences" :key="conf.id"
             :class="['conference-card', { active: selectedConference?.id === conf.id }]" :to="{
               name: 'FeaturedEvents',
-              params: { conferenceId: conf.id }
+              params: { conferenceId: conf.id },
             }">
             <div class="card-logo">
               <img :src="getImageUrl(conf.logo)" :alt="conf.abbreviation" />
@@ -305,15 +316,12 @@ function formatFirstLetterUppercase(str: string): string {
           </div>
 
           <div class="conference-links">
-            <a :href="selectedConference?.website" target="_blank" class="conf-link">
-              <span class="link-icon">🌐</span> Official Website
-            </a>
-            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link">
-              <span class="link-icon">👥</span> Committee
-            </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link">
-              <span class="link-icon">📝</span> Registration
-            </a>
+            <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span>
+              Official Website </a>
+            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span
+                class="link-icon">👥</span> Committee </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span
+                class="link-icon">📝</span> Registration </a>
           </div>
 
           <!-- Conference Description -->
@@ -363,15 +371,12 @@ function formatFirstLetterUppercase(str: string): string {
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <button @click="registerInterest(selectedConference!.id)" class="interest-btn">
-              <span class="btn-icon">💡</span> Add to Favourite
-            </button>
-            <a :href="selectedConference?.website" target="_blank" class="visit-btn">
-              <span class="btn-icon">🔗</span> Visit Website
-            </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn">
-              <span class="btn-icon">📝</span> Register Now
-            </a>
+            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)"
+              class="interest-btn"><span class="btn-icon">💡</span> Add to Favourite </el-button>
+            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span>
+              Visit Website </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span
+                class="btn-icon">📝</span> Register Now </a>
           </div>
         </header>
 
@@ -414,110 +419,141 @@ function formatFirstLetterUppercase(str: string): string {
         </div>
 
         <div class="modal-content">
-          <div class="tab-navigation">
-            <button :class="['tab-btn', { active: activeTab === 'details' }]"
-              @click="switchTab('details')">Details</button>
-            <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-              :disabled="paperDetail?.video_status === 2 || paperDetail?.video_status === 1">
-              Video
-            </button>
-            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
-              @click="paperDetail?.slide && switchTab('slides')"
-              :disabled="paperDetail?.slide_status === 2 || paperDetail?.slide_status === 1">
-              Slides
-            </button>
-            <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]"
-              @click="paperDetail?.poster && switchTab('poster')"
-              :disabled="paperDetail?.poster_status === 2 || paperDetail?.poster_status === 1">
-              Poster
-            </button>
-            <button
-              :class="['tab-btn', { active: activeTab === 'additional', disabled: !(paperDetail?.addition_files.length) }]"
-              @click="paperDetail?.addition_files.length && switchTab('additional')"
-              :disabled="!paperDetail?.addition_files.length">
-              Additional Info
-            </button>
+          <div class="paper-info">
+            <div class="info-section">
+              <h4>Authors</h4>
+              <div class="authors-list">
+                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                  {{ author.name
+                  }}<template v-if="author?.affiliations?.length"><sup v-for="(aff, affIdx) in author.affiliations"
+                      :key="affIdx">{{ getAffiliationNumber(aff.id) }}</sup></template><span>
+                    {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                  </span>
+              </div>
+            </div>
+
+            <div class="info-section">
+              <h4>Affiliations</h4>
+              <div class="affiliations-list">
+                <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
+                  <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
+                    aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', '
+                    +
+                    aff.state : ''
+                  }}{{ aff.country ? ', ' + aff.country : '' }}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="tab-content">
-            <div v-if="activeTab === 'details'" class="details-content">
-              <div class="paper-info">
-                <div class="info-section">
-                  <h4>Authors</h4>
-                  <div class="authors-list">
-                    <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
-                      {{ author.name }}<template v-if="author?.affiliations?.length"><sup
-                          v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
-                          }}</sup></template><span>
-                        {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
-                      </span>
-                  </div>
-                </div>
+          <div class="tab-container">
+            <div class="tab-navigation">
+              <button :class="['tab-btn', { active: activeTab === 'details' }]"
+                @click="switchTab('details')">Details</button>
+              <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
+                :disabled="paperDetail?.video_status !== 2">Video</button>
+              <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]"
+                @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 2">
+                Slides
+              </button>
+              <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]"
+                @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 2">
+                Poster
+              </button>
+              <button
+                :class="['tab-btn', { active: activeTab === 'additional', disabled: !paperDetail?.addition_files.length }]"
+                @click="paperDetail?.addition_files.length && switchTab('additional')"
+                :disabled="!paperDetail?.addition_files.length">
+                Additional Info
+              </button>
+            </div>
 
-                <div class="info-section">
-                  <h4>Affiliations</h4>
-                  <div class="affiliations-list">
-                    <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                      <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
-                        aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
-                        aff.state ? ', ' + aff.state : '' }}{{ aff.country ? ', ' + aff.country : '' }}
+            <div class="tab-content">
+              <div v-if="activeTab === 'details'" class="details-content">
+                <div class="paper-info">
+                  <div class="info-section">
+                    <h4>Authors</h4>
+                    <div class="authors-list">
+                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex"
+                        class="author-name">
+                        {{ author.name }}<template v-if="author?.affiliations?.length"><sup
+                            v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                            }}</sup></template><span>
+                          {{ authorIndex < (paperDetail?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                        </span>
+                    </div>
+                  </div>
+
+                  <div class="info-section">
+                    <h4>Affiliations</h4>
+                    <div class="affiliations-list">
+                      <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
+                        <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name
+                        }}{{
+                          aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
+                          aff.state ? ', ' + aff.state : '' }}{{ aff.country ? ', ' + aff.country : '' }}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="detail-item">
-                <h5>DOI</h5>
-                <p>{{ paperDetail?.doi }}</p>
-              </div>
-              <div class="detail-item">
-                <h5>Abstract</h5>
-                <p>{{ paperDetail?.abstract }}</p>
-              </div>
-              <div class="detail-item">
-                <h5>Graphical Abstract</h5>
-                <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
-                  <img v-if="1" :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract" />
-                </template>
-              </div>
-              <div class="detail-item">
-                <h5>Keywords</h5>
-                <div class="keywords-list">
-                  <span v-for="keyword in paperDetail?.keywords" :key="keyword.order" class="keyword-tag">
-                    {{ keyword.name }}
-                  </span>
+                <div class="detail-item">
+                  <h5>DOI</h5>
+                  <p>{{ paperDetail?.doi }}</p>
+                </div>
+                <div class="detail-item">
+                  <h5>Abstract</h5>
+                  <p>{{ paperDetail?.abstract }}</p>
+                </div>
+                <div class="detail-item">
+                  <h5>Graphical Abstract</h5>
+                  <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
+                    <img v-if="1" :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract" />
+                  </template>
+                </div>
+                <div class="detail-item">
+                  <h5>Keywords</h5>
+                  <div class="keywords-list">
+                    <span v-for="keyword in paperDetail?.keywords" :key="keyword.order" class="keyword-tag">
+                      {{ keyword.name }}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div v-if="activeTab === 'video'" class="videos-content">
-              <template v-if="paperDetail?.is_open_access">
-                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent"
-                  :limit="1" :is-show="false" />
-              </template>
-              <div v-else class="access-restricted">
-                <p>Video content is only available to open access.</p>
+              <div v-if="activeTab === 'video'" class="videos-content">
+                <template v-if="paperDetail?.is_open_access">
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent"
+                    :limit="1" :is-show="false" :is-file-list-show-config="{
+                      [activeTab]: false,
+                    }" />
+                </template>
+                <div v-else class="access-restricted">
+                  <p>Video content is only available to open access.</p>
+                </div>
               </div>
-            </div>
 
-            <div v-if="activeTab === 'slides'" class="slides-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
-                class="slides-iframe" :is-show="false" />
-            </div>
+              <div v-if="activeTab === 'slides'" class="slides-content">
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent"
+                  :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
+                    [activeTab]: false,
+                  }" />
+              </div>
 
-            <div v-if="activeTab === 'poster'" class="poster-content">
-              <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent" :limit="1"
-                class="poster-image" :is-show="false" />
+              <div v-if="activeTab === 'poster'" class="poster-content">
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="paperContent"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
+                    [activeTab]: false,
+                  }" />
+              </div>
 
-            </div>
-
-            <div v-if="activeTab === 'additional'" class="additional-content">
-              <template v-if="paperDetail?.addition_files">
-                <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
+              <div v-if="activeTab === 'additional'" class="additional-content">
+                <template v-if="paperDetail?.addition_files">
+                  <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
                   class="additional-iframe" :limit="-1" :is-show="false" /> -->
-                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
-                  :is-show="false" class="additional-iframe" />
-
-              </template>
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1"
+                    :is-show="false" class="additional-iframe" />
+                </template>
+              </div>
             </div>
           </div>
         </div>
