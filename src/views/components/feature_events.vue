@@ -94,15 +94,15 @@ const conferenceStats = computed(() => ({
 const addFavorLoading = ref<boolean>(false);
 
 // 添加至喜欢 发送邮件
-async function registerInterest(conferenceId: number) {
+function registerInterest(conferenceId: number) {
   const data: IAddFavoriteRequest = {
     conference_id: conferenceId,
   };
   addFavorLoading.value = true;
   ElMessage.info('Adding to Favourite...');
-  const res = await addFavorite(data);
-  console.log(res);
-  addFavorLoading.value = false;
+  addFavorite(data).finally(() => {
+    addFavorLoading.value = false;
+  });
   ElMessage.success('Interest registered! You will receive updates about this conference.');
 }
 
