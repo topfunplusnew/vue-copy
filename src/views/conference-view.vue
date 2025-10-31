@@ -257,7 +257,7 @@ function withdrawCV() {
       ElMessage.success('CV withdrawn successfully!');
       closeCVPreview();
     })
-    .catch(() => { });
+    .catch(() => {});
 }
 
 function handleLogoError(event: Event) {
@@ -276,12 +276,16 @@ function formatFirstLetterUppercase(str: string): string {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
+
+function getRedirectUrl() {
+  return location.pathname;
+}
 </script>
-  
-  <template>
-    <div class="background-layer"></div>
-    <div class="about layout-main">
-      <commonHeader />
+
+<template>
+  <div class="background-layer"></div>
+  <div class="about layout-main">
+    <commonHeader />
 
     <div class="user-page">
       <section class="main-content">
@@ -333,7 +337,6 @@ function formatFirstLetterUppercase(str: string): string {
 
         <div class="vertical-divider-us"></div>
         <section class="events">
-
           <div class="current-participations">
             <div class="section-header-with-avatar">
               <div class="left-section">
@@ -354,19 +357,16 @@ function formatFirstLetterUppercase(str: string): string {
                   <div class="conference-card">
                     <div class="conference-header">
                       <div class="conference-name-container">
-                        <img v-if="cur.logo" :src="getImageUrl(cur.logo)" :alt="cur.name + ' logo'"
-                          class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
+                        <img v-if="cur.logo" :src="getImageUrl(cur.logo)" :alt="cur.name + ' logo'" class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
                         <div class="conference-name">{{ cur.name }}</div>
                       </div>
                     </div>
 
                     <div class="submission-list">
-                      <router-link :to="{ name: 'MyEventDetail', params: { paperId: sub.paper_id } }"
-                        v-for="sub in cur.my_papers" :key="sub.paper_id" class="submission-item">
+                      <router-link :to="{ name: 'MyEventDetail', params: { paperId: sub.paper_id } }" v-for="sub in cur.my_papers" :key="sub.paper_id" class="submission-item">
                         <div class="paper-title">{{ sub.paper_title }}</div>
                         <div class="authors">
-                          <span v-for="(author, i) in sub.authors" :key="i" class="author"> {{ author }}<span
-                              v-if="i < sub.authors.length - 1">, </span> </span>
+                          <span v-for="(author, i) in sub.authors" :key="i" class="author"> {{ author }}<span v-if="i < sub.authors.length - 1">, </span> </span>
                         </div>
                       </router-link>
                     </div>
@@ -384,7 +384,18 @@ function formatFirstLetterUppercase(str: string): string {
             <div v-else class="login-prompt">
               <div class="login-icon">🔒</div>
               <div class="login-message">Sign in to view your events</div>
-              <el-button type="primary" class="login-btn" @click="router.push({ name: 'login' })">
+              <el-button
+                type="primary"
+                class="login-btn"
+                @click="
+                  router.push({
+                    name: 'login',
+                    query: {
+                      redirectUrl: getRedirectUrl(),
+                    },
+                  })
+                "
+              >
                 Sign In
               </el-button>
             </div>
@@ -396,13 +407,22 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
 
             <div v-if="featuredConferenceList.length > 0" class="featured-list">
-              <router-link :to="{ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } }"
-                v-for="featuredConference in featuredConferenceList" :key="featuredConference.id" class="featured-card">
+              <router-link
+                :to="{ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } }"
+                v-for="featuredConference in featuredConferenceList"
+                :key="featuredConference.id"
+                class="featured-card"
+              >
                 <div class="featured-header">
                   <div class="featured-name-container-1">
-                    <img v-if="featuredConference.logo" :src="getImageUrl(featuredConference.logo)"
-                      :alt="featuredConference.name + ' logo'" class="featured-event-logo" @error="handleLogoError"
-                      @load="handleLogoLoad" />
+                    <img
+                      v-if="featuredConference.logo"
+                      :src="getImageUrl(featuredConference.logo)"
+                      :alt="featuredConference.name + ' logo'"
+                      class="featured-event-logo"
+                      @error="handleLogoError"
+                      @load="handleLogoLoad"
+                    />
                     <div class="featured-name">{{ featuredConference.name }}</div>
                   </div>
                   <div class="featured-date">
@@ -411,14 +431,12 @@ function formatFirstLetterUppercase(str: string): string {
                 </div>
                 <div class="featured-meta">
                   <span class="featured-location">{{ featuredConference.place_name }}</span>
-                  <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website"
-                    target="_blank" rel="noopener" @click.stop> Website </a>
+                  <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website" target="_blank" rel="noopener" @click.stop> Website </a>
                 </div>
                 <div v-if="featuredConference.keywords?.length" class="featured-topics">
                   <span class="topic-tag" v-for="(t, i) in featuredConference.keywords" :key="i">
                     {{ i === 0 ? formatFirstLetterUppercase(t.name) : t.name }}
                   </span>
-
                 </div>
               </router-link>
             </div>
@@ -431,8 +449,7 @@ function formatFirstLetterUppercase(str: string): string {
         </section>
       </section>
 
-      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true"
-        :show-close="true" destroy-on-close>
+      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true" :show-close="true" destroy-on-close>
         <div class="avatar-cut">
           <vue-cropper ref="cropperRef" :img="cropImage" v-bind="cropOption" />
         </div>
@@ -445,12 +462,18 @@ function formatFirstLetterUppercase(str: string): string {
       </el-dialog>
 
       <div class="edit-profile-modal" v-if="showEditProfile">
-        <div class="edit-profile-container" :style="{
-          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
-        }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
+        <div
+          class="edit-profile-container"
+          :style="{
+            transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
+          }"
+          @mousedown="startDrag"
+          @mousemove="onDrag"
+          @mouseup="stopDrag"
+          @mouseleave="stopDrag"
+        >
           <h2>Edit Profile</h2>
-          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*"
-            @change="handleEditAvatarUpload" />
+          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
           <div class="edit-avatar-section avatar-container">
             <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
             <div class="avatar-upload-icon">
@@ -517,8 +540,7 @@ function formatFirstLetterUppercase(str: string): string {
           </div>
           <div class="modal-content">
             <div class="upload-area">
-              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload"
-                style="display: none" />
+              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload" style="display: none" />
               <div class="upload-zone" @click="cvUploadRef?.click()">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">
@@ -574,31 +596,35 @@ function formatFirstLetterUppercase(str: string): string {
 </template>
 
 <style scoped>
-  .loading-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 0;
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
-  
-  .loading-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #1890ff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
+  100% {
+    transform: rotate(360deg);
   }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .loading-text {
-    color: #606266;
-    font-size: 14px;
-  }
+}
+
+.loading-text {
+  color: #606266;
+  font-size: 14px;
+}
 </style>
