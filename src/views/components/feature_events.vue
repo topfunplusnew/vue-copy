@@ -9,6 +9,8 @@ import { getImageUrl } from '@/utils';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
+import { addFavorite } from '@/services/conference';
+import type { IAddFavoriteRequest } from '@/services/conference/type.ts';
 type SelectedPaperLite = { id: number; title?: string };
 type AffRaw = {
   id: number;
@@ -89,9 +91,18 @@ const conferenceStats = computed(() => ({//统计会议数量和类别
 //   conferenceDetail.value = conferenceStore.conferenceDetail;
 
 // }
-
-function registerInterest(conferenceId: number) {
-  ElMessage.success('Interest registered! You will receive updates about this conference.' + conferenceId);
+const addFavorLoading =  ref<boolean>(false);
+// 添加至喜欢 发送邮件
+async function registerInterest(conferenceId: number) {
+  const data: IAddFavoriteRequest = {
+    conference_id: conferenceId,
+  }
+  addFavorLoading.value = true
+  ElMessage.info("Adding to Favourite...")
+  const res = await addFavorite(data)
+  console.log (res)
+  addFavorLoading.value = false
+  ElMessage.success('Interest registered! You will receive updates about this conference.');
 }
 
 function openPaperModal(paper: SelectedPaperLite) {
@@ -350,9 +361,9 @@ function formatFirstLetterUppercase(str: string): string {
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <button @click="registerInterest(selectedConference!.id)" class="interest-btn">
+            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)" class="interest-btn">
               <span class="btn-icon">💡</span> Add to Favourite
-            </button>
+            </el-button>
             <a :href="selectedConference?.website" target="_blank" class="visit-btn">
               <span class="btn-icon">🔗</span> Visit Website
             </a>
