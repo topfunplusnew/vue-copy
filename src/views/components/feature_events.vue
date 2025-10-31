@@ -95,15 +95,21 @@ const addFavorLoading = ref<boolean>(false);
 
 // 添加至喜欢 发送邮件
 function registerInterest(conferenceId: number) {
+  addFavorLoading.value = true;
   const data: IAddFavoriteRequest = {
     conference_id: conferenceId,
   };
-  addFavorLoading.value = true;
   ElMessage.info('Adding to Favourite...');
-  addFavorite(data).finally(() => {
-    addFavorLoading.value = false;
-  });
-  ElMessage.success('Interest registered! You will receive updates about this conference.');
+  addFavorite(data)
+    .then(() => {
+      ElMessage.success('Interest registered! You will receive updates about this conference.');
+    })
+    .catch((err) => {
+      ElMessage.error(`error adding favourite , `, err.response.data.message);
+    })
+    .finally(() => {
+      addFavorLoading.value = false;
+    });
 }
 
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
