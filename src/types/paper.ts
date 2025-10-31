@@ -35,7 +35,10 @@ export interface IpaperDetail {//论文详情
     poster: string;
     keywords: Ikeywords[];
     addition_files: string[];
-    is_open_access: boolean;
+    poster_status: number,
+    slide_status: number,
+    video_status: number,
+    is_open_access?: boolean,
 }
 export interface Ikeywords {
     id: number;
@@ -49,5 +52,7 @@ export interface IModifyPaperShow {
     abstract?: string;
     venue?: string;
     url?: string;
-    is_open_access?: boolean;
+    poster_status?: number;
+    slide_status?: number;
+    video_status?: number;
 }

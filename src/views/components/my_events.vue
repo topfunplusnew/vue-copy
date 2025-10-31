@@ -37,7 +37,9 @@ const formData = reactive({
   poster: '',
   addition_files: '',
   keywords: [] as Array<{ name: string; id: number; order: number }>,
-  is_open_access: false
+  poster_status: 0,
+  slide_status: 0,
+  video_status: 0,
 });
 const fullscreenLoading = ref(false); //全局loading
 const detailsFormRef = ref<FormInstance>();
@@ -87,9 +89,9 @@ const initializeFormData = () => {
     formData.slide = myPaperDetailInfo.value.slide ?? '';
     formData.poster = myPaperDetailInfo.value.poster ?? '';
     formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
-    formData.is_open_access = myPaperDetailInfo.value.is_open_access ?? false;
-    // 同时更新store中的is_open_access状态
-    store.updateIsOpenAccess(formData.is_open_access);
+    formData.poster_status = myPaperDetailInfo.value.poster_status ?? 0;
+    formData.slide_status = myPaperDetailInfo.value.slide_status ?? 0;
+    formData.video_status = myPaperDetailInfo.value.video_status ?? 0;
   }
 };
 
@@ -517,6 +519,7 @@ function getAffiliationNumber(originalId: number): number {
                     </el-col>
                   </el-row>
                 </div>
+                <div class="keywords-tips">拖拽标签可以调整关键词顺序</div>
                 <div class="keywords-tags" v-if="keywords.length > 0">
                   <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
                     dragging: draggedIndex === index,
@@ -543,26 +546,50 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当视频已存在时显示同意条款复选框 -->
           <div v-if="myPaperDetailInfo?.video" class="consent-section">
             <label class="checkbox">
-              <input type="checkbox" v-model="formData.is_open_access" @change="store.updateIsOpenAccess({
-                id: paperId,
-                is_open_access: formData.is_open_access
-              })" />
-              <span>I have read, understood, and accept the video release terms.</span>
+              <input type="checkbox" :checked="formData.video_status === 2" @change="(event) => {
+                formData.video_status = event.target.checked ? 2 : 1;
+                store.updateIsOpenAccess({
+                  id: paperId,
+                  video_status: formData.video_status
+                });
+              }" />
+              <span>I understand and agree to keep the video private.</span>
             </label>
           </div>
           <!-- 总是显示上传组件 -->
           <div class="video-upload">
+
             <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
               :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
+          <!-- 当幻灯片已存在时显示可见性控制滑块 -->
+          <div v-if="myPaperDetailInfo?.slide" class="consent-section">
+            <div class="consent-row">
+              <span>Hide slides from the public</span>
+              <el-switch v-model="formData.slide_status" :active-value="2" :inactive-value="1" @change="(value) => store.updateIsOpenAccess({
+                id: paperId,
+                slide_status: value
+              })" />
+            </div>
+          </div>
           <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
             :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
+          <!-- 当海报已存在时显示可见性控制滑块 -->
+          <div v-if="myPaperDetailInfo?.poster" class="consent-section">
+            <div class="consent-row">
+              <span>Hide poster from the public</span>
+              <el-switch v-model="formData.poster_status" :active-value="2" :inactive-value="1" @change="(value) => store.updateIsOpenAccess({
+                id: paperId,
+                poster_status: value
+              })" />
+            </div>
+          </div>
           <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
             @refresh="refreshPaperData" :is-show="true" />
         </div>
@@ -637,6 +664,19 @@ function getAffiliationNumber(originalId: number): number {
 </template>
 
 <style scoped lang="scss">
+.keywords-tips {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background-color: #f0f9ff;
+  border-left: 4px solid #409eff;
+  color: #606266;
+  font-size: 12px;
+  border-radius: 4px;
+  position: absolute;
+  top: -25px;
+  left: 290px;
+}
+
 .pdf-modal-overlay {
   position: fixed;
   top: 0;
@@ -747,7 +787,7 @@ function getAffiliationNumber(originalId: number): number {
   border-radius: 6px;
   transition: background-color 0.2s ease;
   width: auto;
-  
+
   &:hover {
     background-color: rgba(99, 102, 241, 0.05);
   }
@@ -777,6 +817,7 @@ function getAffiliationNumber(originalId: number): number {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
+  margin-top: 10px;
 }
 
 .add-button-container {

@@ -224,22 +224,19 @@ export const getMyPaperDetail = (id: number) => http.get(`/paper/${id}`);
 export const updateMyPaperDetail = (data: IModifyPaperShow) => http.put('my-paper', data);
 
 // 获取schedule列表
-export const getScheduleList = () => http.get('/schedule')
+export const getScheduleList = () => http.get('/schedule');
 
-
-/* 
+/*
 
 根据会议ID查询论文
 */
-export const getConferenceIdPaper = (id: string, search?: string | null) => http.get(`/conference/${id}/papers`, {
-  params: { search }
-})
-
+export const getConferenceIdPaper = (id: string, search?: string | null) =>
+  http.get(`/conference/${id}/papers`, {
+    params: { search },
+  });
 
 // 关键词搜索API
 export const searchKeywords = (query: string) => http.get(`/keyword?search=${encodeURIComponent(query)}`);
 
 //获取论文详情
-export const getPaperDetail = (id: string) => http.get(`/paper/${id}`)
-
-
+export const getPaperDetail = (id: string) => http.get(`/paper/${id}`);

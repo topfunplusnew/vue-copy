@@ -16,12 +16,11 @@ import TxtIcon from './icons/txt-icon.vue';
 import VideoIcon from './icons/video-icon.vue';
 import ZipIcon from './icons/zip-icon.vue';
 import type { UploadFile } from 'element-plus/es/components/upload/src/upload.mjs';
+import type { PaperDetail } from '@/components/index.ts';
 
-interface PaperDetail {
-  fileUrl?: string;
-
-  [key: string]: unknown;
-}
+type IsFileListShowConfig = {
+  [key in TabKey]?: boolean;
+};
 
 interface Props {
   tabKey: TabKey;
@@ -31,6 +30,8 @@ interface Props {
   isShow: boolean;
   // 可选：限制允许上传的文件类型。支持HTML accept格式，如 'image/*', '.pdf', 'application/pdf' 或数组
   accept?: string | string[];
+  // 是否显示文件列表
+  isFileListShowConfig?: IsFileListShowConfig;
 }
 
 interface Emits {
@@ -49,7 +50,14 @@ const isItemShow = computed(() => props.isShow);
 const emit = defineEmits<Emits>();
 const tabKey = computed(() => props.tabKey);
 const paperDetailInfo = computed(() => props.paperDetail);
+console.log(`paperDetailInfo.value`, paperDetailInfo.value);
 const paperId = computed(() => props.paperId);
+const getVisibleByTabKey = (tabKey: TabKey) => {
+  if (!props.isFileListShowConfig) {
+    return true;
+  }
+  return props.isFileListShowConfig[tabKey];
+};
 // 文件列表 这里除了额外文件后端限制只能一个文件
 const posterFileList = computed((): UploadUserFile[] => {
   if (!paperDetailInfo.value?.fileUrl) {
@@ -247,6 +255,15 @@ function matchAcceptRule(file: File, rule: string): boolean {
 }
 
 const handleBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  const file = rawFile as File;
+  
+  // 检查文件大小，限制为500MB
+  const maxSize = 500 * 1024 * 1024; // 500MB in bytes
+  if (file.size > maxSize) {
+    ElMessage.error('文件大小不能超过500MB，请选择较小的文件');
+    return false;
+  }
+  
   if (props.accept) {
     const rules = Array.isArray(props.accept) ? props.accept : String(props.accept).split(',');
     const ok = rules.some((r) => matchAcceptRule(rawFile as unknown as File, r));
@@ -273,7 +290,7 @@ const handleUploadProgress = () => {
 // 处理文件下载
 const handleFileDownload = (file: UploadUserFile) => {
   if (!file.url) return;
-  
+
   // 创建一个临时链接用于下载
   const link = document.createElement('a');
   link.href = file.url;
@@ -324,8 +341,13 @@ const handleFileDownload = (file: UploadUserFile) => {
       </div>
     </el-upload>
 
+    <!-- 文件尺寸提示 -->
+    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">
+      您最大可上传500MB的文件
+    </div>
+
     <!-- 自定义文件列表显示 -->
-    <div v-if="(posterFileList.length > 0)" class="custom-file-list">
+    <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
       <div v-for="file in posterFileList" :key="file.uid" class="file-item">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
@@ -341,7 +363,8 @@ const handleFileDownload = (file: UploadUserFile) => {
           </div>
         </div>
         <div class="file-info">
-          <div class="file-name" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer;">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)"
+            style="cursor: pointer">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
@@ -470,6 +493,14 @@ const handleFileDownload = (file: UploadUserFile) => {
   color: #c0c4cc !important;
 }
 
+.upload-size-hint {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #ff2b2b;
+  text-align: center;
+  line-height: 1.5;
+}
+
 .upload-loading-container {
   display: flex;
   flex-direction: column;
@@ -518,8 +549,6 @@ const handleFileDownload = (file: UploadUserFile) => {
 }
 
 .file-preview {
-  width: 36px;
-  height: 36px;
   margin-right: 10px;
   display: flex;
   align-items: center;
@@ -530,8 +559,8 @@ const handleFileDownload = (file: UploadUserFile) => {
 }
 
 .file-thumbnail {
-  width: 100%;
-  height: 100%;
+  max-width: 400px;
+  height: auto;
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -563,23 +592,26 @@ const handleFileDownload = (file: UploadUserFile) => {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   min-height: 36px;
 }
 
 .file-name {
   font-size: 13px;
   font-weight: 500;
-  color: #409eff; /* 改为蓝色，表示可点击 */
+  color: #409eff;
+  /* 改为蓝色，表示可点击 */
   word-break: break-all;
   line-height: 1.3;
   flex: 1;
   margin-right: 8px;
   transition: color 0.3s ease;
-  
+
   &:hover {
-    color: #66b1ff; /* 悬停时颜色变浅 */
-    text-decoration: underline; /* 悬停时显示下划线 */
+    color: #66b1ff;
+    /* 悬停时颜色变浅 */
+    text-decoration: underline;
+    /* 悬停时显示下划线 */
   }
 }
 
