@@ -426,25 +426,26 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
           </div>
 
-          <div class="tab-navigation">
-            <button :class="['tab-btn', { active: activeTab === 'details' }]" @click="switchTab('details')">Details</button>
-            <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')" :disabled="!paperDetail?.is_open_access">Video</button>
-            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]" @click="paperDetail?.slide && switchTab('slides')" :disabled="!paperDetail?.slide">
-              Slides
-            </button>
-            <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]" @click="paperDetail?.poster && switchTab('poster')" :disabled="!paperDetail?.poster">
-              Poster
-            </button>
-            <button
-              :class="['tab-btn', { active: activeTab === 'additional', disabled: !paperDetail?.addition_files.length }]"
-              @click="paperDetail?.addition_files.length && switchTab('additional')"
-              :disabled="!paperDetail?.addition_files.length"
-            >
-              Additional Info
-            </button>
-          </div>
+          <div class="tab-container">
+            <div class="tab-navigation">
+              <button :class="['tab-btn', { active: activeTab === 'details' }]" @click="switchTab('details')">Details</button>
+              <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')" :disabled="!paperDetail?.is_open_access">Video</button>
+              <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !paperDetail?.slide }]" @click="paperDetail?.slide && switchTab('slides')" :disabled="!paperDetail?.slide">
+                Slides
+              </button>
+              <button :class="['tab-btn', { active: activeTab === 'poster', disabled: !paperDetail?.poster }]" @click="paperDetail?.poster && switchTab('poster')" :disabled="!paperDetail?.poster">
+                Poster
+              </button>
+              <button
+                :class="['tab-btn', { active: activeTab === 'additional', disabled: !paperDetail?.addition_files.length }]"
+                @click="paperDetail?.addition_files.length && switchTab('additional')"
+                :disabled="!paperDetail?.addition_files.length"
+              >
+                Additional Info
+              </button>
+            </div>
 
-          <div class="tab-content">
+            <div class="tab-content">
             <div v-if="activeTab === 'details'" class="details-content">
               <div class="detail-item">
                 <h5>DOI</h5>
@@ -522,6 +523,7 @@ function formatFirstLetterUppercase(str: string): string {
                   class="additional-iframe" :limit="-1" :is-show="false" /> -->
                 <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent" :limit="-1" :is-show="false" class="additional-iframe" />
               </template>
+            </div>
             </div>
           </div>
         </div>
