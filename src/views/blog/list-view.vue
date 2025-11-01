@@ -625,19 +625,19 @@ watch(selectedLocation, () => {
     <common-header />
     <section class="welcome-section">
       <blur-text
-        text="Welcome to iPoloGO Beta"
+        text="Welcome to iPoloGO"
         :delay="180"
         animateBy="words"
         direction="top"
         class="welcome-text"
       />
-      <blur-text
+      <!-- <blur-text
         text="To Explore, To Share, To Earn"
         :delay="180"
         animateBy="words"
         direction="bottom"
         class="welcome-text2"
-      />
+      /> -->
     </section>
 
     <!-- 主体区域 -->
