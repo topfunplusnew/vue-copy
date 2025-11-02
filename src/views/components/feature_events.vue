@@ -2,8 +2,10 @@ FileUpload
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
+import { useRouter } from 'vue-router';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
+import { useUserStore } from '@/stores/user';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
 import type { TabKey } from '@/types/conference.ts';
@@ -36,6 +38,8 @@ type AffiliationLite = {
   country?: string;
 };
 const conferenceStore = useConferenceStore();
+const userStore = useUserStore();
+const router = useRouter();
 const props = defineProps({
   conferenceId: {
     type: String,
@@ -93,8 +97,25 @@ const conferenceStats = computed(() => ({
 // }
 const addFavorLoading = ref<boolean>(false);
 
+// 判断用户是否登录
+const isLoggedIn = computed(() => userStore.isLogin());
+
 // 添加至喜欢 发送邮件
 function registerInterest(conferenceId: number) {
+  // 如果未登录，跳转到登录页面并带上回调地址
+  if (!isLoggedIn.value) {
+    const currentRoute = router.currentRoute.value;
+    const redirectUrl = currentRoute.fullPath;
+    router.push({
+      name: 'login',
+      query: {
+        redirectUrl: redirectUrl,
+      },
+    });
+    return;
+  }
+
+  // 已登录，正常执行添加收藏逻辑
   addFavorLoading.value = true;
   const data: IAddFavoriteRequest = {
     conference_id: conferenceId,
@@ -469,7 +490,7 @@ function formatFirstLetterUppercase(str: string): string {
           <!-- Action Buttons -->
           <div class="action-buttons">
             <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)"
-              class="interest-btn"><span class="btn-icon">💡</span> Add to Favourite </el-button>
+              class="interest-btn"><span class="btn-icon">💡</span> {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }} </el-button>
             <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span>
               Visit Website </a>
             <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span
