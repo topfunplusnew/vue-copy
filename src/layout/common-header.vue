@@ -35,9 +35,11 @@ const navMenuActive = ref(false);
 
 // 可用景点数据（header中通常为空，但保持接口一致）
 const availableDestinations = ref<Destination[]>([]);
-
+const scheduleShow = ref(false)
 onMounted(() => {
-  userStore.getUserInfo();
+  userStore.getUserInfo().then(() => {
+    scheduleShow.value = true
+  });
   // 初始化钱包
   try {
     walletStore.init();
@@ -232,7 +234,8 @@ const handleClickOutside = (event: Event) => {
   <HistoryComponent :visible="showHistoryModal" @close="showHistoryModal = false" @load-history="handleHistoryLoad" />
 
   <!-- 日历弹窗组件 -->
-  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave" />
+  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave"
+    v-if="scheduleShow" />
 </template>
 
 <style scoped>
