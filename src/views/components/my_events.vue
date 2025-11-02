@@ -433,9 +433,9 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
                   <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
                     affiliation.department ? ', ' +
-                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
                   }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
-                    affiliation.country : ''
+                  affiliation.country : ''
                   }}
                 </div>
               </div>
@@ -499,7 +499,7 @@ function getAffiliationNumber(originalId: number): number {
               <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
             </el-form-item>
             <el-form-item label="Abstract" class="form-item full">
-              <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="false"
+              <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="true"
                 :placeholder="myPaperDetailInfo?.abstract || '点击编辑 Abstract'" :rows="6"
                 @change="handleAbstractChange" />
             </el-form-item>
@@ -563,8 +563,7 @@ function getAffiliationNumber(originalId: number): number {
                       video_status: formData.video_status,
                     });
                   }
-                }
-              " />
+                }" />
               <span>I understand and agree to keep the video private.</span>
             </label>
           </div>
