@@ -433,9 +433,9 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
                   <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
                     affiliation.department ? ', ' +
-                  affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
                   }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
-                  affiliation.country : ''
+                    affiliation.country : ''
                   }}
                 </div>
               </div>
@@ -624,8 +624,8 @@ function getAffiliationNumber(originalId: number): number {
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!formData.graphic_abstract }">
-                  {{ formData.graphic_abstract ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!(formData.graphic_abstract.length) }">
+                  {{ formData.graphic_abstract.length ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
               <div class="item">
@@ -645,8 +645,8 @@ function getAffiliationNumber(originalId: number): number {
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: !!formData.addition_files }">
-                  {{ formData.addition_files ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.addition_files.length }">
+                  {{ formData.addition_files.length ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>
