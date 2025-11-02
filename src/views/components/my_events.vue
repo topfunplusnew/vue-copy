@@ -1,334 +1,275 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from 'vue';
-import { ElMessage } from 'element-plus';
+import { computed, onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { ElMessage } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
-import { formatRange } from '@/utils/date';
-import { UploadVideo } from '@/services/api';
-import { validConfig } from '@/utils/configValidUtils.ts';
-import { getFileIcon } from '@/constants/file';
+import { convertUTCToTimezone, formatRange } from '@/utils/date';
+import { getImageUrl } from '@/utils';
+import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/services/api';
+import FileUpload from '@/components/file-upload.vue';
+import type { TabKey } from '@/types/conference.ts';
+import { getFileTypeByTabKey } from '@/utils/conference.ts';
+import { useDragSort } from '@/hooks/useDragSort';
+import { getImageFormats, getVideoFormats } from '@/utils/file';
+import SaveButton from '@/components/save-button.vue';
+import LatexContent from '@/components/latex-content.vue';
 
-type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
-
-const activeTab = ref<TabKey>('details');
-const graphicalAbstractInput = ref<HTMLInputElement>();
-const videoInput = ref<HTMLInputElement>();
-const slidesInput = ref<HTMLInputElement>();
-const posterInput = ref<HTMLInputElement>();
-const additionalInput = ref<HTMLInputElement>();
+const store = useConferenceStore();
 const route = useRoute();
-const conferenceStore = useConferenceStore();
-const videoConsent = ref(false);
-const videoFile = ref<File | null>(null);
+const paperId = computed(() => Number(route.params.paperId));
+const activeTab = ref<TabKey>('details');
+const myPaperDetailInfo = computed(() => store.myPaperDetail);
+
+// 静态常量
+const MAX_KEYWORDS = 6;
+onMounted(async () => {
+  await store.getMyPaper(paperId.value);
+});
+// 创建基于myPaperDetailInfo的reactive表单对象
+const keywords = ref<Array<{ name: string; id: number; order: number }>>([]);
+const formData = reactive({
+  doi: '',
+  abstract: '',
+  graphic_abstract: '',
+  video: '',
+  slide: '',
+  poster: '',
+  addition_files: '',
+  keywords: [] as Array<{ name: string; id: number; order: number }>,
+  poster_status: 0,
+  slide_status: 0,
+  video_status: 0,
+});
+const fullscreenLoading = ref(false); //全局loading
+const detailsFormRef = ref<FormInstance>();
+
+const validateDoiRule = (_: unknown, value: string, callback: (error?: Error) => void): void => {
+  if (!value) {
+    callback();
+    return;
+  }
+  const pattern = /^[A-Za-z0-9._:\/\-]+$/;
+  if (!pattern.test(value)) {
+    callback(new Error('DOI can only contain letters, numbers,. _:/-and other characters.'));
+    return;
+  }
+  callback();
+};
+
+const detailsRules: FormRules = {
+  doi: [{ validator: validateDoiRule, trigger: ['blur', 'change'] }],
+  keywords: [
+    {
+      validator: (_: unknown, __: unknown, callback: (error?: Error) => void) => {
+        if ((keywords.value?.length || 0) > MAX_KEYWORDS) {
+          callback(new Error(`You already add ${MAX_KEYWORDS} keywords.`));
+          return;
+        }
+        callback();
+      },
+      trigger: ['change', 'blur'],
+    },
+  ],
+};
+
+// 使用拖拽排序hook
+const { draggedIndex, draggedOverIndex, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd } = useDragSort(keywords);
+
+// 初始化表单数据
+const initializeFormData = () => {
+  if (myPaperDetailInfo.value) {
+    formData.doi = String(myPaperDetailInfo.value.doi ?? '');
+    formData.abstract = myPaperDetailInfo.value.abstract ?? '';
+    // 后端返回的是对象数组，按order排序
+    keywords.value = myPaperDetailInfo.value.keywords?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [];
+    formData.keywords = keywords.value;
+    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
+    formData.video = myPaperDetailInfo.value.video ?? '';
+    formData.slide = myPaperDetailInfo.value.slide ?? '';
+    formData.poster = myPaperDetailInfo.value.poster ?? '';
+    formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
+    formData.poster_status = myPaperDetailInfo.value.poster_status ?? 0;
+    formData.slide_status = myPaperDetailInfo.value.slide_status ?? 0;
+    formData.video_status = myPaperDetailInfo.value.video_status ?? 0;
+  }
+};
+
+// 监听myPaperDetailInfo变化，更新表单数据
+watch(
+  () => myPaperDetailInfo.value,
+  () => {
+    initializeFormData();
+  },
+  { immediate: true, deep: true },
+);
+
+// 同步表单字段并触发表单校验
+watch(
+  () => keywords.value,
+  () => {
+    formData.keywords = keywords.value;
+    detailsFormRef.value?.validateField('keywords');
+  },
+  { deep: true },
+);
+
+const paperContent = computed(() => ({
+  fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
+}));
 
 function setActiveTab(tab: TabKey) {
   activeTab.value = tab;
 }
 
-// 从路由参数获取conferenceId
-const paperId = computed(() => {
-  const id = route.params.paperId;
-  return typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 2;
-});
+async function refreshPaperData() {
+  await store.getMyPaper(paperId.value);
+  // 刷新后重新初始化表单数据
+  initializeFormData();
+}
 
-conferenceStore.getMyPapers(paperId.value);
-// 获取论文内容
-const eventMeta = computed(() => conferenceStore.myPapers);
-// 获取机构列表 - 按作者顺序合并去重并重新编号
-const affiliations = computed(() => {
-  if (!eventMeta.value?.authors) return [];
-  // 按作者的order属性排序
-  const sortedAuthors = [...eventMeta.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
-  // 收集所有机构，记录作者ID和原始机构ID
-  const allAffiliations: Array<{
-    authorId: number;
-    originalAffiliationId: number;
-    affiliation: {
-      id: number;
-      name: string;
-      department?: string;
-      university?: string;
-      city?: string;
-      state?: string;
-      country?: string;
+const videoConsent = ref(!!myPaperDetailInfo.value?.video);
+// 监听paper数据变化，自动更新video consent状态
+watch(
+  () => myPaperDetailInfo.value?.video,
+  (hasVideo) => {
+    videoConsent.value = !!hasVideo;
+  },
+  { immediate: true },
+);
+// 关键词搜索相关
+const keywordInput = ref('');
+let searchTimeout: NodeJS.Timeout | null = null;
+
+// 搜索关键词的异步函数
+const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) => void) => {
+  // 清除之前的定时器
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
+
+  if (!queryString.trim()) {
+    cb([]);
+    return;
+  }
+
+  // 添加防抖，避免频繁请求
+  searchTimeout = setTimeout(() => {
+    searchKeywordsAPI(queryString)
+      .then((response) => {
+        // 从响应中提取items数组，并获取关键词名称
+        const items = response.data?.items || [];
+        const suggestions = items
+          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+            value: item.name || item.keyword || String(item),
+          }))
+          .filter((item: { value: string }) => item.value);
+
+        cb(suggestions);
+      })
+      .catch((error) => {
+        console.error('搜索关键词失败:', error);
+        cb([]);
+      });
+  }, 200); // 300ms防抖
+};
+
+// 选择建议项
+const handleSelect = (item: Record<string, unknown>) => {
+  if (item.value && typeof item.value === 'string') {
+    addKeyword(item.value);
+  }
+};
+
+// 添加关键词
+const addKeyword = (keyword?: string) => {
+  const keywordToAdd = keyword || keywordInput.value.trim();
+
+  // 检查是否已达到最大数量限制
+  if (keywords.value.length >= MAX_KEYWORDS) {
+    ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
+    detailsFormRef.value?.validateField('keywords');
+    return;
+  }
+
+  if (keywordToAdd && !keywords.value.some((k) => k.name === keywordToAdd)) {
+    const newKeyword = {
+      name: keywordToAdd,
+      id: keywords.value.length + 1,
+      order: keywords.value.length + 1,
     };
-  }> = [];
+    keywords.value.push(newKeyword);
+    keywordInput.value = '';
+  }
+};
 
-  sortedAuthors.forEach((author) => {
-    if (author.affiliations && author.affiliations.length > 0) {
-      author.affiliations.forEach((affiliation) => {
-        allAffiliations.push({
-          authorId: author.id,
-          originalAffiliationId: affiliation.id,
-          affiliation: affiliation,
-        });
-      });
-    }
+// 删除关键词
+const removeKeyword = (index: number) => {
+  keywords.value.splice(index, 1);
+  // 重新分配order
+  keywords.value.forEach((keyword, idx) => {
+    keyword.order = idx + 1;
   });
+};
 
-  // 去重：相同原始机构ID只保留第一次出现的
-  const uniqueAffiliations = new Map();
-  const affiliationList: Array<{
-    id: number;
-    originalId: number;
-    name: string;
-    department?: string;
-    university?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-  }> = [];
-
-  let newId = 1;
-  allAffiliations.forEach((item) => {
-    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
-      const newAffiliation = {
-        id: newId++,
-        originalId: item.originalAffiliationId,
-        name: item.affiliation.name,
-        department: item.affiliation.department,
-        university: item.affiliation.university,
-        city: item.affiliation.city,
-        state: item.affiliation.state,
-        country: item.affiliation.country,
-      };
-      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
-      affiliationList.push(newAffiliation);
-    }
-  });
-
-  return affiliationList;
-});
-
-// 根据机构原始ID获取新的编号
-function getAffiliationNumber(originalId: number): number {
-  const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
-  return affiliation ? affiliation.id : 0;
+function onKeywordBlur() {
+  if (keywords.value.length >= MAX_KEYWORDS) {
+    detailsFormRef.value?.validateField('keywords');
+    ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
+  }
 }
 
-const detailsForm = reactive({
-  doi: '',
-  abstract: '',
-  keywords: ['', '', '', '', ''] as string[],
-  graphicalAbstractFile: null as File | null,
-  graphicalAbstractPreview: '' as string,
-});
-
-function onUploadGraphicalAbstract(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  const valid = ['image/jpeg', 'image/png'].includes(file.type) && file.size <= 10 * 1024 * 1024;
-  if (!valid) {
-    ElMessage.error('Invalid file. JPG/PNG up to 10MB.');
-    return;
-  }
-  const url = URL.createObjectURL(file);
-  detailsForm.graphicalAbstractFile = file;
-  detailsForm.graphicalAbstractPreview = url;
-}
-
-// 视频的地址 proxy会自动处理
-const videoSrc = computed(() => {
-  validConfig();
-  if (!eventMeta.value || !eventMeta.value?.video) {
-    return '';
-  }
-  return import.meta.env.IPG_IMAGE_URL + eventMeta.value?.video;
-});
-// pdf的地址
-const pdfSrc = computed(() => {
-  validConfig();
-  if (!eventMeta.value || !eventMeta.value?.slide) {
-    return '';
-  }
-  return import.meta.env.IPG_IMAGE_URL + eventMeta.value?.slide;
-});
-
-async function onUploadVideo(e: Event, file_type = 'video') {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!videoConsent.value) {
-    ElMessage.warning('Please accept the video release terms first.');
-    return;
-  }
-  videoFile.value = file;
-  const formData = new FormData();
-  formData.append('paper_id', paperId.value.toString());
-  formData.append('file_type', file_type);
-  formData.append('file', file);
-
+async function saveDetails() {
+  fullscreenLoading.value = true;
   try {
-    return await UploadVideo(formData);
-  } catch {
-    ElMessage.error('上传失败');
-  }
-}
-
-function removeVideo() {
-  videoFile.value = null;
-}
-
-const slidesFile = ref<File | null>(null);
-
-function onUploadSlides(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
-  if (!file.type.includes('pdf') || file.size > 10 * 1024 * 1024) {
-    ElMessage.error('Slides must be a PDF up to 10MB.');
-    return;
-  }
-  slidesFile.value = file;
-}
-
-function removeSlides() {
-  slidesFile.value = null;
-}
-
-const posterFile = ref<File | null>(null);
-const posterFiles = ref<Array<{ file: File; uploaded: boolean; url?: string }>>([]);
-
-// 从API数据获取poster文件列表
-const apiPosterFiles = computed(() => {
-  if (!eventMeta.value?.poster) return [];
-  return [
-    {
-      file: { name: eventMeta.value.poster.split('/').pop() || 'poster', size: 0 } as File,
-      uploaded: true,
-      url: import.meta.env.IPG_IMAGE_URL + eventMeta.value.poster,
-    },
-  ];
-});
-
-// 从API数据获取additional文件列表
-const apiAdditionalFiles = computed(() => {
-  if (!eventMeta.value?.addition_files || !Array.isArray(eventMeta.value.addition_files)) return [];
-  return eventMeta.value.addition_files.map((filePath: string) => ({
-    file: { name: filePath.split('/').pop() || 'file', size: 0 } as File,
-    uploaded: true,
-    url: import.meta.env.IPG_IMAGE_URL + filePath,
-  }));
-});
-
-async function onUploadPoster(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const files = input.files;
-  if (!files || files.length === 0) return;
-
-  for (const file of Array.from(files)) {
-    if (file.size > 10 * 1024 * 1024) {
-      ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
-      continue;
+    // 校验表单
+    const valid = await detailsFormRef.value?.validate().catch(() => false);
+    if (!valid) {
+      fullscreenLoading.value = false;
+      ElMessage.error('The form verification failed, please check your input!');
+      return;
     }
+    const updateData = {
+      id: paperId.value,
+      doi: formData.doi || '',
+      abstract: formData.abstract,
+      keywords: keywords.value, // 使用keywords ref
+      graphic_abstract: formData.graphic_abstract,
+      video: formData.video,
+      slide: formData.slide,
+      poster: formData.poster,
+      addition_files: formData.addition_files,
+    };
 
-    const formData = new FormData();
-    formData.append('paper_id', paperId.value.toString());
-    formData.append('file_type', 'poster');
-    formData.append('file', file);
+    await updateMyPaperDetail(updateData);
+    ElMessage.success('保存成功！');
 
-    try {
-      const response = await UploadVideo(formData);
-      posterFiles.value.push({
-        file: file,
-        uploaded: true,
-        url: response.data?.url || '',
-      });
-      ElMessage.success(`${file.name} uploaded successfully!`);
-    } catch {
-      posterFiles.value.push({
-        file: file,
-        uploaded: false,
-      });
-      ElMessage.error(`Failed to upload ${file.name}`);
-    }
+    // 保存成功后刷新数据
+    await refreshPaperData();
+  } catch (error) {
+    console.error('保存失败：', error);
+    ElMessage.error('保存失败，请重试');
   }
-
-  // 清空input
-  input.value = '';
+  fullscreenLoading.value = false;
 }
 
-function removePoster(index: number) {
-  posterFiles.value.splice(index, 1);
+// 处理 Abstract 内容变化
+function handleAbstractChange(value: string) {
+  formData.abstract = value;
 }
 
-const additionalFiles = ref<Array<{ file: File; uploaded: boolean; url?: string }>>([]);
-
-async function onUploadAdditional(e: Event) {
-  const input = e.target as HTMLInputElement;
-  const files = input.files;
-  if (!files || files.length === 0) return;
-
-  for (const file of Array.from(files)) {
-    if (file.size > 10 * 1024 * 1024) {
-      ElMessage.error(`${file.name} is too large. Max size is 10MB.`);
-      continue;
-    }
-
-    const formData = new FormData();
-    formData.append('paper_id', paperId.value.toString());
-    formData.append('file_type', 'additional');
-    formData.append('file', file);
-
-    try {
-      const response = await UploadVideo(formData);
-      additionalFiles.value.push({
-        file: file,
-        uploaded: true,
-        url: response.data?.url || '',
-      });
-      ElMessage.success(`${file.name} uploaded successfully!`);
-    } catch {
-      additionalFiles.value.push({
-        file: file,
-        uploaded: false,
-      });
-      ElMessage.error(`Failed to upload ${file.name}`);
-    }
-  }
-
-  // 清空input
-  input.value = '';
-}
-
-function clearAdditional() {
-  additionalFiles.value = [];
-}
-
-function saveDetails() {
-  ElMessage.success('Details saved successfully!');
-}
+// DOI 的校验已集成到 el-form 的自定义规则 validateDoiRule 中
 
 const pdfModalVisible = ref(false);
 const currentPdfUrl = ref('');
 const currentPdfTitle = ref('');
 const currentPdfFile = ref<File | null>(null);
 
+// Mobile detection
 const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 });
-
-function openPdfModal(type: 'slides' | 'poster') {
-  let file: File | null = null;
-  let title = '';
-
-  if (type === 'slides' && slidesFile.value) {
-    file = slidesFile.value;
-    title = `Slides: ${file.name}`;
-  } else if (type === 'poster' && posterFile.value) {
-    file = posterFile.value;
-    title = `Poster: ${file.name}`;
-  }
-
-  if (file) {
-    currentPdfFile.value = file;
-    currentPdfUrl.value = URL.createObjectURL(file);
-    currentPdfTitle.value = title;
-    pdfModalVisible.value = true;
-  }
-}
 
 function closePdfModal() {
   if (currentPdfUrl.value) {
@@ -350,355 +291,359 @@ function openInNewTab() {
   }
 }
 
-function addToSchedule() {
-  try {
-    const existingEvents = JSON.parse(localStorage.getItem('user-schedule-events') || '[]');
-    const userSessionDate = parseUserSessionDate();
-    if (!userSessionDate) {
-      ElMessage.error('Unable to parse session date');
-      return;
-    }
-    const existingSession = existingEvents.find((event: { isUserSession?: boolean; type?: string }) => event.isUserSession && event.type === 'session');
-    if (existingSession) {
-      ElMessage.warning('Your presentation session is already in your schedule!');
-      return;
-    }
-    const userSessionEvent = {
-      id: `user-session-${Date.now()}`,
-      title: `${eventMeta.value?.title} - My Presentation`,
-      date: userSessionDate,
-      time: '14:30',
-      location: `Room ${sessionInfo.room}, ${eventMeta.value?.conference.address}`,
-      description: `My presentation: ${eventMeta.value?.title}\nSession: ${sessionInfo.session}\nPaper ID: ${sessionInfo.paperID}`,
-      type: 'session' as const,
-      isUserSession: true,
-      sessionRoom: sessionInfo.room,
-      paperID: sessionInfo.paperID,
-      customColor: '#ff8c00',
+// 获取机构列表 - 按作者顺序合并去重并重新编号
+const affiliations = computed(() => {
+  if (!myPaperDetailInfo.value?.authors) return [];
+  // 按作者的order属性排序
+  const sortedAuthors = [...myPaperDetailInfo.value.authors].sort((a, b) => (a.order || 0) - (b.order || 0));
+  // 收集所有机构，记录作者ID和原始机构ID
+  const allAffiliations: Array<{
+    authorId: number;
+    originalAffiliationId: number;
+    affiliation: {
+      id: number;
+      name: string;
+      department?: string;
+      university?: string;
+      city?: string;
+      state?: string;
+      country?: string;
     };
-    existingEvents.push(userSessionEvent);
-    localStorage.setItem('user-schedule-events', JSON.stringify(existingEvents));
-    ElMessage.success('Your presentation session added to your schedule!');
-  } catch {
-    ElMessage.error('Failed to add session to schedule');
-  }
-}
-
-const sessionInfo = {
-  dateDisplay: 'WED., June 11, 2025',
-  room: 'A3',
-  session: 'Visual Computing and Cognitive Modelling for Human-Machine and Social Interaction & Humanized Crowd Computing',
-  paperID: '#1234',
-};
-
-function parseUserSessionDate(): string | null {
-  const sessionDateStr = sessionInfo.dateDisplay;
-  try {
-    const match = sessionDateStr.match(/(\w+)\.,\s+(\w+)\s+(\d+),\s+(\d+)/);
-    if (match) {
-      const [, , month, day, year] = match;
-      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      const monthIndex = monthNames.indexOf(month);
-      if (monthIndex !== -1) {
-        const parsedYear = parseInt(year);
-        const parsedMonth = monthIndex + 1;
-        const parsedDay = parseInt(day);
-
-        const yearStr = parsedYear.toString();
-        const monthStr = parsedMonth.toString().padStart(2, '0');
-        const dayStr = parsedDay.toString().padStart(2, '0');
-
-        const result = `${yearStr}-${monthStr}-${dayStr}`;
-        return result;
-      }
+  }> = [];
+  sortedAuthors.forEach((author) => {
+    if (author.affiliations && author.affiliations.length > 0) {
+      author.affiliations.forEach((affiliation) => {
+        allAffiliations.push({
+          authorId: author.id,
+          originalAffiliationId: affiliation.id,
+          affiliation: affiliation,
+        });
+      });
     }
-  } catch {}
+  });
+  // 去重：相同原始机构ID只保留第一次出现的
+  const uniqueAffiliations = new Map();
+  const affiliationList: Array<{
+    id: number;
+    originalId: number;
+    name: string;
+    department?: string;
+    university?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+  }> = [];
+  let newId = 1;
+  allAffiliations.forEach((item) => {
+    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
+      const newAffiliation = {
+        id: newId++,
+        originalId: item.originalAffiliationId,
+        name: item.affiliation.name,
+        department: item.affiliation.department,
+        university: item.affiliation.university,
+        city: item.affiliation.city,
+        state: item.affiliation.state,
+        country: item.affiliation.country,
+      };
+      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
+      affiliationList.push(newAffiliation);
+    }
+  });
+  return affiliationList;
+});
 
-  return null;
+// 根据机构原始ID获取新的编号
+function getAffiliationNumber(originalId: number): number {
+  const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
+  return affiliation ? affiliation.id : 0;
 }
 </script>
 
 <template>
   <div class="background-layer"></div>
 
-  <div class="my-events-page main">
+  <div class="my-events-page main" v-loading.fullscreen.lock="fullscreenLoading" element-loading-text="Saving">
     <commonHeader />
 
     <section class="main-content">
-      <aside class="left-nav">
-        <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
-        <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
-        <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
-        <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-        <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
-        <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
-      </aside>
-
       <section class="right-panel">
         <header class="event-header">
-          <!--          如果有eventMeta?.conference信息 就正常展示-->
-          <div v-if="eventMeta?.conference">
-            <div class="conference-header">
-              <div class="logo" v-if="eventMeta?.conference.logo">
-                <img :src="eventMeta.conference.logo" alt="Conference Logo" />
-              </div>
-              <div class="conference-info">
-                <div class="conference-name">{{ eventMeta?.conference.abbreviation }}</div>
-                <div class="conference-full-name">{{ eventMeta?.conference.name }}</div>
-                <div class="conference-details">
-                  <div class="detail-row">
-                    <span class="detail-icon">📅</span>
-                    <span class="detail-text">{{ formatRange(eventMeta!.created_at, eventMeta!.updated_at) }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-icon">📍</span>
-                    <span class="detail-text">{{ eventMeta?.conference.city }}, {{ eventMeta?.conference.country }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="detail-icon">🏢</span>
-                    <span class="detail-text">{{ eventMeta?.conference.address }}</span>
-                  </div>
-                </div>
-              </div>
+          <div class="conference-header">
+            <div class="logo" v-if="myPaperDetailInfo?.conference.logo">
+              <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
             </div>
-            <div class="conference-links">
-              <a :href="eventMeta?.conference.website" target="_blank" class="conf-link">
-                <span class="link-icon">🌐</span>
-                Official Website
-              </a>
-              <a :href="eventMeta?.conference.committee_website" target="_blank" class="conf-link">
-                <span class="link-icon">👥</span>
-                Committee
-              </a>
-              <a :href="eventMeta?.conference.registration_website" target="_blank" class="conf-link">
-                <span class="link-icon">📝</span>
-                Registration
-              </a>
-            </div>
-            <div class="meta">
-              <div class="title">{{ eventMeta?.title }}</div>
-              <!-- 渲染论文作者列表以及下标 -->
-              <div class="authors">
-                <div v-if="eventMeta?.authors?.length" class="authors-list">
-                  <span class="author-name" v-for="(author, authorIndex) in eventMeta.authors" :key="authorIndex">
-                    {{ author.name
-                    }}<template v-if="author?.affiliations?.length"
-                      ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
-                    ><span v-if="authorIndex < eventMeta.authors.length - 1">, </span>
-                  </span>
+            <div class="conference-info">
+              <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
+              <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
+              <div class="conference-details">
+                <div class="detail-row">
+                  <span class="detail-icon">📅</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
-                <!-- 当论文作者为空的时候 渲染一个空状态 -->
-                <div v-else class="empty-state">
-                  <div class="empty-text">No authors information available</div>
+                <div class="detail-row">
+                  <span class="detail-icon">📍</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
                 </div>
-              </div>
-              <!-- 渲染机构列表以及下标 -->
-              <div class="affiliations">
-                <div v-if="affiliations.length" class="affiliations-list">
-                  <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                    <sup>{{ affiliation.id }}</sup
-                    >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
-                    }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
-                  </div>
+                <div class="detail-row">
+                  <span class="detail-icon">🏢</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.address }}</span>
                 </div>
-                <!-- 当机构列表为空的时候，渲染一个空状态 -->
-                <div v-else class="empty-state">
-                  <div class="empty-text">No affiliation information available</div>
-                </div>
-              </div>
-              <div class="session-notice">
-                <div class="session-header">
-                  <div class="notice-title">Important Conference Schedule</div>
-                </div>
-                <div class="session-content">
-                  <div class="schedule-details">
-                    <div class="schedule-row">
-                      <span class="schedule-label">📅 Date:</span>
-                      <span class="schedule-value">{{ sessionInfo.dateDisplay }}</span>
-                    </div>
-                    <div class="schedule-row">
-                      <span class="schedule-label">🏢 Room:</span>
-                      <span class="schedule-value">{{ sessionInfo.room }}</span>
-                    </div>
-                    <div class="schedule-row">
-                      <span class="schedule-label">🎯 Session:</span>
-                      <span class="schedule-value">{{ sessionInfo.session }}</span>
-                    </div>
-                    <div class="schedule-row">
-                      <span class="schedule-label">📄 Paper ID:</span>
-                      <span class="schedule-value">{{ sessionInfo.paperID }}</span>
-                    </div>
-                  </div>
-                  <button class="schedule-action-btn" @click="addToSchedule">
-                    <span class="btn-icon">📌</span>
-                    Add to My Schedule
-                  </button>
-                </div>
-              </div>
-              <div class="dates">
-                Date Created: {{ eventMeta?.conference.start_time }} · Date Edited:
-                {{ eventMeta?.conference.end_time }}
               </div>
             </div>
           </div>
-          <!--          没有eventMeta?.conference信息的时候 渲染一个空状态-->
-          <div v-else class="empty-conference-state">
-            <div class="empty-content">
-              <div class="empty-icon">📋</div>
-              <div class="empty-title">No Paper Data</div>
-              <div class="empty-description">Unable to load Paper information. Please try refreshing the page.</div>
-              <button @click="() => conferenceStore.getMyPapers(paperId)" class="retry-btn">
-                <span class="btn-icon">🔄</span>
-                Retry
-              </button>
+          <div class="conference-links">
+            <a :href="myPaperDetailInfo?.conference.website" target="_blank" class="conf-link">
+              <span class="link-icon">🌐</span>
+              Official Website
+            </a>
+            <a :href="myPaperDetailInfo?.conference.committee_website" target="_blank" class="conf-link">
+              <span class="link-icon">👥</span>
+              Committee
+            </a>
+            <a :href="myPaperDetailInfo?.conference.registration_website" target="_blank" class="conf-link">
+              <span class="link-icon">📝</span>
+              Registration
+            </a>
+          </div>
+          <div class="meta">
+            <div class="title">{{ myPaperDetailInfo?.title }}</div>
+
+            <!-- 渲染论文作者列表以及下标 -->
+            <div class="authors">
+              <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
+                <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
+                  {{ author.name
+                  }}<template v-if="author?.affiliations?.length"
+                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{ getAffiliationNumber(affiliation.id) }}</sup></template
+                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                </span>
+              </div>
+              <!-- 当论文作者为空的时候 渲染一个空状态 -->
+              <div v-else class="empty-state">
+                <div class="empty-text">No authors information available</div>
+              </div>
+            </div>
+            <!-- 渲染机构列表以及下标 -->
+            <div class="affiliations">
+              <div v-if="affiliations.length" class="affiliations-list">
+                <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
+                  <sup>{{ affiliation.id }}</sup
+                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                </div>
+              </div>
+              <!-- 当机构列表为空的时候，渲染一个空状态 -->
+              <div v-else class="empty-state">
+                <div class="empty-text">No affiliation information available</div>
+              </div>
+            </div>
+            <div class="session-notice">
+              <div class="session-header">
+                <div class="notice-title">Important Conference Schedule</div>
+              </div>
+              <div class="session-content">
+                <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
+                  <div class="schedule-row">
+                    <span class="schedule-label">📅 Date And Time:</span>
+                    <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time) }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">🏢 Room:</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.room_info }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">🎯 Session:</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.session.session_name }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <span class="schedule-label">📄 Paper ID:</span>
+                    <span class="schedule-value">{{ myPaperDetailInfo.paperId }}</span>
+                  </div>
+                </div>
+                <!-- <button class="schedule-action-btn">
+                  <span class="btn-icon">📌</span>
+                  Add to My Schedule
+                </button> -->
+              </div>
+            </div>
+            <div class="dates">
+              Date Created:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} · Date Edited:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string, undefined, `YYYY-MM-DD`) }}
             </div>
           </div>
         </header>
-
-        <div v-if="activeTab === 'details'" class="tab-content">
-          <div class="form-grid">
-            <div class="form-item">
-              <label>Digital Object Identifier</label>
-              <input v-model="detailsForm.doi" placeholder="Enter DOI (e.g., 10.1145/1234567)" />
-            </div>
-            <div class="form-item full">
-              <label>Abstract</label>
-              <textarea v-model="detailsForm.abstract" rows="6" placeholder="Enter your abstract..."></textarea>
-            </div>
-            <div class="form-item">
-              <label>Graphical Abstract</label>
-              <input ref="graphicalAbstractInput" type="file" accept="image/jpeg,image/png" @change="onUploadGraphicalAbstract" style="display: none" />
-              <button @click="graphicalAbstractInput?.click()" class="upload-btn">Upload Image</button>
-              <div class="hint">Please upload an image [min 400x400 pixels – formats: JPG, PNG – max 10MB]</div>
-              <div v-if="detailsForm.graphicalAbstractPreview" class="preview">
-                <img :src="detailsForm.graphicalAbstractPreview" alt="Graphical Abstract" />
-                <button @click="detailsForm.graphicalAbstractPreview = ''" class="remove-btn">Remove</button>
-              </div>
-            </div>
-            <div class="form-item full">
-              <label>Keywords</label>
-              <div class="keywords">
-                <input v-for="(k, i) in detailsForm.keywords" :key="i" v-model="detailsForm.keywords[i]" placeholder="Keyword" />
-              </div>
-            </div>
-            <div class="form-actions">
-              <button @click="saveDetails" class="save-btn">Save Details</button>
-            </div>
-          </div>
+        <!-- detail video Slides Poster Additional Info Full Fils -->
+        <div class="left-nav">
+          <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
+          <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
+          <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
+          <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
+          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
+          <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
         </div>
-        <!--        如果左侧选择了视频-->
-        <div v-else-if="activeTab === 'video'" class="tab-content">
-          <div class="video-upload">
-            <label class="checkbox">
-              <input type="checkbox" v-model="videoConsent" />
-              <span>I have read, understood, and accept the video release terms.</span>
-            </label>
-            <input ref="videoInput" type="file" accept="video/*" @change="onUploadVideo" style="display: none" />
-            <button @click="videoInput?.click()" class="file-upload-btn" :disabled="!videoConsent">Upload Video</button>
-            <div class="file-row" v-if="videoFile">
-              <div class="file-info">
-                <div class="file-icon">📹</div>
-                <div class="file-details">
-                  <div class="file-name">{{ videoFile.name }}</div>
-                  <div class="file-size">{{ (videoFile.size / 1024 / 1024).toFixed(2) }} MB</div>
+        <!-- 展示区 -->
+        <div v-if="activeTab === 'details'" class="tab-content">
+          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid" @submit.prevent>
+            <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
+              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
+            </el-form-item>
+            <el-form-item label="Abstract" class="form-item full">
+              <latex-content
+                v-model:latex="formData.abstract"
+                :editable="true"
+                :display-mode="true"
+                :placeholder="myPaperDetailInfo?.abstract || '点击编辑 Abstract'"
+                :rows="6"
+                @change="handleAbstractChange"
+              />
+            </el-form-item>
+            <el-form-item label="Graphical Abstract" class="form-item">
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+            </el-form-item>
+            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords" class="form-item full">
+              <div class="keywords-container">
+                <div class="keywords-input-row">
+                  <el-row>
+                    <el-col :span="18">
+                      <el-autocomplete
+                        v-model="keywordInput"
+                        :fetch-suggestions="querySearchAsync"
+                        placeholder="please input keywords..."
+                        @select="handleSelect"
+                        @keyup.enter="addKeyword"
+                        @blur="onKeywordBlur"
+                      />
+                    </el-col>
+                    <el-col :span="6">
+                      <div class="add-button-container">
+                        <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加 </el-button>
+                      </div>
+                    </el-col>
+                  </el-row>
+                </div>
+                <div class="keywords-tips">拖拽标签可以调整关键词顺序</div>
+                <div class="keywords-tags" v-if="keywords.length > 0">
+                  <el-tag
+                    v-for="(keyword, index) in keywords"
+                    :key="keyword.id"
+                    :draggable="true"
+                    :class="{
+                      dragging: draggedIndex === index,
+                      'drag-over': draggedOverIndex === index,
+                    }"
+                    closable
+                    @close="removeKeyword(index)"
+                    @dragstart="(event: DragEvent) => handleDragStart(event, index)"
+                    @dragover="(event: DragEvent) => handleDragOver(event, index)"
+                    @dragleave="handleDragLeave"
+                    @drop="(event: DragEvent) => handleDrop(event, index)"
+                    @dragend="handleDragEnd"
+                  >
+                    {{ keyword.name }}
+                  </el-tag>
                 </div>
               </div>
-              <button @click="removeVideo" class="remove-btn">Remove</button>
+            </el-form-item>
+            <div class="form-actions">
+              <el-form-item>
+                <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button> -->
+                <save-button @click="saveDetails()" />
+              </el-form-item>
             </div>
-            <video v-if="videoSrc" class="preview-video" controls :src="videoSrc"></video>
+          </el-form>
+        </div>
+
+        <div v-else-if="activeTab === 'video'" class="tab-content">
+          <!-- 当视频已存在时显示同意条款复选框 -->
+          <div v-if="myPaperDetailInfo?.video" class="consent-section">
+            <label class="checkbox">
+              <input
+                type="checkbox"
+                :checked="formData.video_status === 2"
+                @change="
+                  (event: Event) => {
+                    const target = event.target as HTMLInputElement;
+                    if (target) {
+                      formData.video_status = target.checked ? 2 : 1;
+                      store.updateIsOpenAccess({
+                        id: paperId,
+                        video_status: formData.video_status,
+                      });
+                    }
+                  }
+                "
+              />
+              <span>I understand and agree to keep the video private.</span>
+            </label>
+          </div>
+          <!-- 总是显示上传组件 -->
+          <div class="video-upload">
+            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
         <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <input ref="slidesInput" type="file" accept="application/pdf" @change="onUploadSlides" style="display: none" />
-          <button @click="slidesInput?.click()" class="file-upload-btn">Upload Slides (PDF)</button>
-          <div class="file-row" v-if="slidesFile">
-            <div class="file-info">
-              <div class="file-icon">📄</div>
-              <div class="file-details">
-                <div class="file-name">{{ slidesFile.name }}</div>
-                <div class="file-size">{{ (slidesFile.size / 1024 / 1024).toFixed(2) }} MB</div>
-              </div>
+          <!-- 当幻灯片已存在时显示可见性控制滑块 -->
+          <div v-if="myPaperDetailInfo?.slide" class="consent-section">
+            <div class="consent-row">
+              <el-switch
+                v-model="formData.slide_status"
+                :active-value="1"
+                :inactive-value="2"
+                active-text="show"
+                inactive-text="hide"
+                @change="
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
+                    store.updateIsOpenAccess({
+                      id: paperId,
+                      slide_status: status,
+                    });
+                  }
+                "
+              />
             </div>
-            <button @click="removeSlides" class="remove-btn">Remove</button>
           </div>
-          <div class="pdf-preview" v-if="slidesFile">
-            <div class="pdf-preview-header">
-              <span class="pdf-title">{{ slidesFile.name }}</span>
-              <button @click="openPdfModal('slides')" class="preview-btn">Full Screen</button>
-            </div>
-            <div class="pdf-viewer-container">
-              <iframe :src="pdfSrc" class="pdf-viewer-iframe" frameborder="0"></iframe>
-            </div>
-          </div>
+          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <input ref="posterInput" type="file" multiple @change="onUploadPoster" style="display: none" />
-          <button @click="posterInput?.click()" class="file-upload-btn">Upload Poster Files</button>
-
-          <div class="file-list" v-if="apiPosterFiles.length || posterFiles.length">
-            <!-- 显示API数据中的poster文件 -->
-            <div class="file-row" v-for="(fileItem, index) in apiPosterFiles" :key="'api-' + index">
-              <div class="file-info">
-                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
-                <div class="file-details">
-                  <div class="file-name">{{ fileItem.file.name }}</div>
-                  <div class="file-size">API File</div>
-                  <div class="file-status uploaded">✓ From Server</div>
-                </div>
-              </div>
-              <a :href="fileItem.url" target="_blank" class="download-btn">Download</a>
-            </div>
-            <!-- 显示新上传的文件 -->
-            <div class="file-row" v-for="(fileItem, index) in posterFiles" :key="'new-' + index">
-              <div class="file-info">
-                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
-                <div class="file-details">
-                  <div class="file-name">{{ fileItem.file.name }}</div>
-                  <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
-                  <div class="file-status" :class="{ uploaded: fileItem.uploaded, failed: !fileItem.uploaded }">
-                    {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
-                  </div>
-                </div>
-              </div>
-              <button @click="removePoster(index)" class="remove-btn">Remove</button>
+          <!-- 当海报已存在时显示可见性控制滑块 -->
+          <div v-if="myPaperDetailInfo?.poster" class="consent-section">
+            <div class="consent-row">
+              <el-switch
+                v-model="formData.poster_status"
+                :active-value="1"
+                :inactive-value="2"
+                active-text="show"
+                inactive-text="hide"
+                @change="
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
+                    store.updateIsOpenAccess({
+                      id: paperId,
+                      poster_status: status,
+                    });
+                  }
+                "
+              />
             </div>
           </div>
+          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <input ref="additionalInput" type="file" multiple @change="onUploadAdditional" style="display: none" />
-          <button @click="additionalInput?.click()" class="file-upload-btn">Upload Additional Files (Optional)</button>
-          <div class="file-list" v-if="apiAdditionalFiles.length || additionalFiles.length">
-            <!-- 显示API数据中的additional文件 -->
-            <div class="file-row" v-for="(fileItem, index) in apiAdditionalFiles" :key="'api-' + index">
-              <div class="file-info">
-                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
-                <div class="file-details">
-                  <div class="file-name">{{ fileItem.file.name }}</div>
-                  <div class="file-size">API File</div>
-                  <div class="file-status uploaded">✓ From Server</div>
-                </div>
-              </div>
-              <a :href="fileItem.url" target="_blank" class="download-btn">Download</a>
-            </div>
-            <!-- 显示新上传的文件 -->
-            <div class="file-row" v-for="(fileItem, index) in additionalFiles" :key="'new-' + index">
-              <div class="file-info">
-                <div class="file-icon">{{ getFileIcon(fileItem.file.name) }}</div>
-                <div class="file-details">
-                  <div class="file-name">{{ fileItem.file.name }}</div>
-                  <div class="file-size">{{ (fileItem.file.size / 1024 / 1024).toFixed(2) }} MB</div>
-                  <div class="file-status" :class="{ uploaded: fileItem.uploaded, failed: !fileItem.uploaded }">
-                    {{ fileItem.uploaded ? '✓ Uploaded' : '✗ Upload Failed' }}
-                  </div>
-                </div>
-              </div>
-              <button @click="additionalFiles.splice(index, 1)" class="remove-btn">Remove</button>
-            </div>
-            <button @click="clearAdditional" class="clear-btn">Clear All</button>
-          </div>
+          <file-upload
+            :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
+            :tab-key="activeTab"
+            :paper-id="paperId"
+            :paper-detail="paperContent"
+            :limit="-1"
+            @refresh="refreshPaperData"
+            :is-show="true"
+          />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -706,28 +651,26 @@ function parseUserSessionDate(): string | null {
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!detailsForm.graphicalAbstractFile }">
-                  {{ detailsForm.graphicalAbstractFile ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.graphic_abstract }">
+                  {{ formData.graphic_abstract ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!slidesFile }">{{ slidesFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!videoFile }">{{ videoFile ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some((f) => f.uploaded)) }">
-                  {{ apiPosterFiles.length > 0 || (posterFiles.length > 0 && posterFiles.some((f) => f.uploaded)) ? 'Uploaded' : 'Missing' }}
-                </div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some((f) => f.uploaded)) }">
-                  {{ apiAdditionalFiles.length > 0 || (additionalFiles.length > 0 && additionalFiles.some((f) => f.uploaded)) ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.addition_files }">
+                  {{ formData.addition_files ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>
@@ -735,7 +678,6 @@ function parseUserSessionDate(): string | null {
         </div>
       </section>
     </section>
-
     <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
       <div class="pdf-modal" @click.stop>
         <div class="pdf-modal-header">
@@ -763,3 +705,184 @@ function parseUserSessionDate(): string | null {
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.keywords-tips {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background-color: #f0f9ff;
+  border-left: 4px solid #409eff;
+  color: #606266;
+  font-size: 12px;
+  border-radius: 4px;
+  position: absolute;
+  top: -25px;
+  left: 290px;
+}
+
+.pdf-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  overflow: auto;
+}
+
+.pdf-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  max-width: 90vw;
+  max-height: 90vh;
+  width: 800px;
+  height: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+}
+
+// 导航按钮样式 - 由 _my_events.scss 统一管理
+// 这里保留基础样式作为后备
+
+.pdf-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4e7ed;
+  flex-shrink: 0;
+}
+
+.pdf-modal-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.mobile-pdf-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.mobile-pdf-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+}
+
+.mobile-pdf-actions {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border-top: 1px solid #e4e7ed;
+  flex-shrink: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #333;
+}
+
+.consent-section {
+  padding: 0;
+  background-color: transparent;
+  border: none;
+  display: inline-block;
+  width: auto;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  padding: 8px 12px;
+  background-color: transparent;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  width: auto;
+
+  &:hover {
+    background-color: rgba(99, 102, 241, 0.05);
+  }
+}
+
+.checkbox input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.keywords-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.keywords-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.keywords-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.add-button-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.max-keywords-warning {
+  color: #f56c6c;
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+.dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.drag-over {
+  border: 2px dashed #409eff !important;
+  background-color: #f0f9ff !important;
+}
+</style>

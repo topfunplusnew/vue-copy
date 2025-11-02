@@ -90,7 +90,7 @@ const router = createRouter({
       },
     },
     {
-      path: '/forgetpassword',
+      path: '/forget-password',
       name: 'forgetpassword',
       component: () => import('@/views/user/forget-password.vue'),
     },
@@ -131,7 +131,7 @@ const router = createRouter({
       component: () => import('@/views/conference-view.vue'),
     },
     {
-      path: '/conference/my-events/:conferenceId/:paperId',
+      path: '/conference/my-events/:paperId',
       name: 'MyEventDetail',
       component: () => import('@/views/components/my_events.vue'),
       props: true,
@@ -140,7 +140,12 @@ const router = createRouter({
       path: '/conference/featured-events/:conferenceId',
       name: 'FeaturedEvents',
       component: () => import('@/views/components/feature_events.vue'),
-      props:true,
+      props: true,
+    },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: () => import('@/views/user/reset-password-email.vue'),
     },
   ],
 });

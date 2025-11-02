@@ -3,8 +3,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import {
-  Plus,
+import { 
+  Plus, 
   StarFilled,
   Right,
   Delete,
@@ -95,7 +95,7 @@ function addDestinationToPlan(destination: Destination) {
   if (planData.days.length === 0) {
     addNewDay();
   }
-
+  
   // 添加到最后一天
   const lastDayIndex = planData.days.length - 1;
   const newAttraction: Attraction = {
@@ -107,7 +107,7 @@ function addDestinationToPlan(destination: Destination) {
     placeName: destination.name
   };
   planData.days[lastDayIndex].attractions.push(newAttraction);
-
+  
   ElMessage.success(`Added ${destination.name} to Day ${planData.days[lastDayIndex].day}`);
 }
 
@@ -137,7 +137,7 @@ function savePlan() {
       }))
     }))
   };
-
+  
   emit('save', plan);
   ElMessage.success('Plan saved successfully!');
 }
@@ -151,15 +151,15 @@ watch(() => props.visible, (newVisible) => {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/components/plan-component.scss';
+@use '@/styles/components/plan-component.scss';
 </style>
 
 
 <template>
     <transition name="slide-from-left">
       <div v-if="visible" class="plan-overlay">
-        <div class="plan-panel">
-
+        <div class="plan-panel"> 
+          
           <!-- 弹窗头部 -->
           <div class="plan-header">
             <div class="plan-header-left">
@@ -169,8 +169,8 @@ watch(() => props.visible, (newVisible) => {
               </h2>
             </div>
             <div class="plan-header-actions">
-              <el-button
-                size="small"
+              <el-button 
+                size="small" 
                 @click="$emit('close')"
                 class="close-btn"
               >
@@ -178,10 +178,10 @@ watch(() => props.visible, (newVisible) => {
               </el-button>
             </div>
           </div>
-
+  
           <!-- 弹窗内容 -->
           <div class="plan-content">
-
+            
             <!-- 基本信息部分 -->
             <div class="plan-section">
               <h3>Basic Information</h3>
@@ -189,32 +189,32 @@ watch(() => props.visible, (newVisible) => {
                 <!-- 计划名称 -->
                 <div class="info-row">
                   <label>Plan Name</label>
-                  <el-input
-                    v-model="planData.title"
+                  <el-input 
+                    v-model="planData.title" 
                     placeholder="Enter your travel plan name"
                     size="small"
                   />
                 </div>
-
+                
                 <!-- 描述 -->
                 <div class="info-row">
                   <label>Description</label>
-                  <el-input
-                    v-model="planData.content"
+                  <el-input 
+                    v-model="planData.content" 
                     type="textarea"
                     :rows="2"
                     placeholder="Describe your travel plan"
                     size="small"
                   />
                 </div>
-
+  
                 <!-- 日期和人数 -->
                 <div class="info-row-group">
                   <div class="numbers-group">
                     <div class="number-item">
                       <label>People</label>
-                      <el-input-number
-                        v-model="planData.people"
+                      <el-input-number 
+                        v-model="planData.people" 
                         :min="1"
                         :max="20"
                         size="small"
@@ -222,8 +222,8 @@ watch(() => props.visible, (newVisible) => {
                     </div>
                     <div class="number-item">
                       <label>Budget (¥)</label>
-                      <el-input-number
-                        v-model="planData.budget"
+                      <el-input-number 
+                        v-model="planData.budget" 
                         :min="0"
                         :step="100"
                         size="small"
@@ -233,14 +233,14 @@ watch(() => props.visible, (newVisible) => {
                 </div>
               </div>
             </div>
-
+  
             <!-- 行程安排部分 -->
             <div class="plan-section">
               <div class="section-header">
                 <h3>Daily Itinerary</h3>
-                <el-button
-                  size="small"
-                  type="primary"
+                <el-button 
+                  size="small" 
+                  type="primary" 
                   @click="addNewDay"
                   class="add-day-btn"
                 >
@@ -248,16 +248,16 @@ watch(() => props.visible, (newVisible) => {
                   Add Day
                 </el-button>
               </div>
-
+  
               <div v-if="planData.days.length === 0" class="empty-state">
                 <div class="empty-icon">📅</div>
                 <p>No days planned yet</p>
                 <p class="hint">Click "Add Day" to start planning your itinerary</p>
               </div>
-
+  
               <div v-else class="days-container">
-                <div
-                  v-for="(day, dayIndex) in planData.days"
+                <div 
+                  v-for="(day, dayIndex) in planData.days" 
                   :key="dayIndex"
                   class="day-card"
                 >
@@ -267,8 +267,8 @@ watch(() => props.visible, (newVisible) => {
                       <span class="day-number">Day {{ day.day }}</span>
                       <span class="attractions-count">{{ day.attractions.length }} stops</span>
                     </div>
-                    <el-button
-                      size="small"
+                    <el-button 
+                      size="small" 
                       type="danger"
                       text
                       @click="removeDay(dayIndex)"
@@ -277,12 +277,12 @@ watch(() => props.visible, (newVisible) => {
                       <el-icon><Delete /></el-icon>
                     </el-button>
                   </div>
-
+                  
                   <!-- 景点列表 -->
                   <div class="attractions-container">
-                    <div
+                    <div 
                       v-for="(attraction, attractionIndex) in day.attractions"
-                      :key="attractionIndex"
+                      :key="attractionIndex" 
                       class="attraction-card"
                     >
                       <div class="attraction-time">
@@ -296,25 +296,25 @@ watch(() => props.visible, (newVisible) => {
                           @change="updateAttractionTime(dayIndex, attractionIndex, $event)"
                         />
                       </div>
-
+                      
                       <div class="attraction-details">
-                        <el-input
-                          v-model="attraction.placeName"
+                        <el-input 
+                          v-model="attraction.placeName" 
                           placeholder="Enter attraction name"
                           size="small"
                           class="place-input"
                         />
                         <div class="budget-row">
-                          <el-input-number
-                            v-model="attraction.budget"
+                          <el-input-number 
+                            v-model="attraction.budget" 
                             :min="0"
                             :step="10"
                             placeholder="Budget"
                             size="small"
                             class="budget-input"
                           />
-                          <el-select
-                            v-model="attraction.currency"
+                          <el-select 
+                            v-model="attraction.currency" 
                             size="small"
                             class="currency-select"
                           >
@@ -325,9 +325,9 @@ watch(() => props.visible, (newVisible) => {
                           </el-select>
                         </div>
                       </div>
-
-                      <el-button
-                        size="small"
+                      
+                      <el-button 
+                        size="small" 
                         type="danger"
                         text
                         @click="removeAttraction(dayIndex, attractionIndex)"
@@ -336,11 +336,11 @@ watch(() => props.visible, (newVisible) => {
                         <el-icon><Delete /></el-icon>
                       </el-button>
                     </div>
-
+                    
                     <!-- 添加景点按钮 -->
                     <div class="add-attraction-container">
-                      <el-button
-                        size="small"
+                      <el-button 
+                        size="small" 
                         type="primary"
                         text
                         @click="addAttraction(dayIndex)"
@@ -354,22 +354,22 @@ watch(() => props.visible, (newVisible) => {
                 </div>
               </div>
             </div>
-
+  
             <!-- 可选景点部分 -->
             <div class="plan-section" v-if="availableDestinations.length > 0">
               <h3>Suggested Destinations</h3>
               <div class="destinations-grid">
-                <div
+                <div 
                   v-for="(destination, index) in availableDestinations"
-                  :key="index"
+                  :key="index" 
                   class="destination-card"
                 >
                   <div class="destination-info">
                     <div class="destination-name">{{ destination.name }}</div>
                     <div class="destination-desc">{{ truncateText(destination.content, 60) }}</div>
                   </div>
-                  <el-button
-                    size="small"
+                  <el-button 
+                    size="small" 
                     type="primary"
                     @click="addDestinationToPlan(destination)"
                     class="add-destination-btn"
@@ -379,16 +379,16 @@ watch(() => props.visible, (newVisible) => {
                 </div>
               </div>
             </div>
-
+  
           </div>
-
+  
           <!-- 弹窗底部操作 -->
           <div class="plan-footer">
             <el-button @click="$emit('close')" size="small">
               Cancel
             </el-button>
-            <el-button
-              type="primary"
+            <el-button 
+              type="primary" 
               @click="savePlan"
               :disabled="!planData.title.trim() || planData.days.length === 0"
               size="small"
@@ -397,7 +397,7 @@ watch(() => props.visible, (newVisible) => {
               Save Plan
             </el-button>
           </div>
-
+  
         </div>
       </div>
     </transition>

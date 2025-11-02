@@ -6,17 +6,17 @@ export interface IConferenceKey {
 export interface IConferenceEvent {
   id: number;
   name: string;
+  abbreviation: string;
   place_name: string;
   start_time: string;
   end_time: string;
-  logoUrl?: string; // 会议logo URL
+  logo?: string; // 会议logo URL
   website?: string;
   keywords?: IConferenceKey[];
   conference_type: string;
 }
 
 export interface IConferenceSubmission {
-  id: number;
   session_name: string;
   chairperson: string[];
 }
@@ -95,16 +95,7 @@ export interface IMyPapers {
   is_accepted: boolean;
   presentation_time: string;
   session_name: string;
-}
-
-export interface IAffiliation {
-  id: number;
-  name: string;
-  department?: string;
-  university?: string;
-  city?: string;
-  state?: string;
-  country?: string;
+  authors: string[];
 }
 
 export interface IAuthor {
@@ -112,7 +103,8 @@ export interface IAuthor {
   name: string;
   order: number;
   is_corresponding: boolean;
-  affiliations: IAffiliation[];
+  labs: [];
+  affiliations: any[];
 }
 
 export interface IConference {
@@ -144,18 +136,25 @@ export interface ISession {
 export interface IPapers {
   id: number;
   title: string;
+  paperId: string;
   abstract: string;
   venue: string;
+  doi: string;
   authors: IAuthor[];
   conference: IConference;
   created_at: string;
   updated_at: string;
-  session: ISession[];
-  video: string | null;
-  slide: string | null;
-  graphic_abstract: string | null;
-  poster?: string | null;
-  addition_files?: string[];
+  session: ISession;
+  url: string;
+  keywords: IPapersKeyword[];
+  graphic_abstract?: string;
+  video?: string;
+  slide?: string;
+  poster?: string;
+  addition_files?: string;
+  poster_status: number,
+  slide_status: number,
+  video_status: number,
 }
 
 export interface Ivideo {
@@ -163,3 +162,25 @@ export interface Ivideo {
   file_type: string;
   file: File;
 }
+
+export interface IPapersKeyword {
+  id: number;
+  name: string;
+  order: number;
+}
+
+export interface IModifyPaper {
+  id: number;
+  doi: string;
+  abstract: string;
+  keywords: IPapersKeyword[];
+  graphic_abstract?: string;
+  video?: string;
+  slide?: string;
+  poster?: string;
+  addition_files?: string;
+
+}
+
+export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
+export type FileType = 'graphic_abstract' | 'video' | 'slide' | 'poster' | 'addition_files';

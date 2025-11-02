@@ -1,13 +1,11 @@
 @use './variables' as var;
 
-
 @mixin purity {
   margin-block-start: 0;
   margin-block-end: 0;
   list-style: none;
   padding-inline-start: 0;
 }
-
 
 @mixin keyframes($animationName) {
   // 动画
@@ -42,4 +40,11 @@
   -webkit-box-orient: vertical; /** 设置或检索伸缩盒对象的子元素的排列方式 **/
   -webkit-line-clamp: #{$line}; /** 显示的行数 **/
   overflow: hidden; /** 隐藏超出的内容 **/
+}
+
+@mixin wordWrap() {
+  word-break: keep-all; //保证单词内部不被拆开换行（尤其对英文）
+  overflow-wrap: break-word; //如果一整段太长，允许按单词边界换行
+  white-space: normal; //保持默认的空格换行行为
+  text-align: left; //最后一行文本左对齐
 }

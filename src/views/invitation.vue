@@ -603,5 +603,5 @@ if (currentStep.value === 'success') {
 </template>
 
 <style scoped>
-@import '@/styles/pages/invitation.scss';
+@use '@/styles/pages/invitation.scss';
 </style>

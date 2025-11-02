@@ -321,7 +321,7 @@ const loadScheduledWorkshops = () => {
 </script>
 
 <style scoped>
-@import '@/styles/components/_meeting-component.scss';
+@use '@/styles/components/_meeting-component.scss';
 </style>
 
 

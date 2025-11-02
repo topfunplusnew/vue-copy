@@ -1,17 +1,16 @@
 import dayjs from 'dayjs';
 
-export const formatDate = (dateString?:string) => {
+export const formatDate = (dateString?: string) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   });
 };
 
-
-export function formatRange(start: string, end?: string): string {
+export function formatRange(start?: string, end?: string): string {
   const s = dayjs(start);
   const e = end ? dayjs(end) : null;
 
@@ -24,4 +23,15 @@ export function formatRange(start: string, end?: string): string {
   if (mSame) return `${s.format('MMM D')}–${e.format('D')}, ${s.format('YYYY')}`;
   if (ySame) return `${s.format('MMM D')} – ${e.format('MMM D')}, ${s.format('YYYY')}`;
   return `${s.format('MMM D, YYYY')} – ${e.format('MMM D, YYYY')}`;
+}
+
+/**
+ * 将 UTC 时间转换为指定时区的本地时间
+ * @param utcTime - UTC 时间（ISO 字符串、Date 对象或 dayjs 支持的格式）
+ * @param targetZone - 目标时区（如 'Asia/Shanghai'、'America/New_York'）
+ * @param format - 可选，输出格式（默认 'YYYY-MM-DD HH:mm:ss'）
+ * @returns 指定时区格式化后的时间字符串
+ */
+export function convertUTCToTimezone(utcTime: string | Date, targetZone: string = `Asia/Shanghai`, format: string = 'YYYY-MM-DD HH:mm:ss'): string {
+  return dayjs.utc(utcTime).tz(targetZone).format(format);
 }

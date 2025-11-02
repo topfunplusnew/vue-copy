@@ -11,58 +11,167 @@
   z-index: 1;
   
   .ipologo-intro {
-    background-color: rgba(0, 0, 0, 0.5);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(240, 245, 255, 0.064) 100%);
+    backdrop-filter: blur(15px);
     border-radius: rpx(10);
-    box-shadow: 0px rpx(4) rpx(6) rgba(0, 0, 0, 0.3);
-    width: 80%;
-    max-width: rpx(950);
-    min-height: rpx(400);
+    box-shadow: 0px rpx(4) rpx(6) rgba(100, 179, 244, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    width: 85%;
+    max-width: rpx(1100);
+    min-height: rpx(500);
     text-align: justify; /* 使文本左对齐 */
     margin: rpx(20) auto;
-    padding: rpx(20) rpx(20);
+    padding: rpx(30) rpx(30);
     text-align: center;
   
     h1 {
-      font-size: rpx(55);
+      font-size: rpx(60);
       margin-top: rpx(10);
-      margin-bottom: rpx(15);
+      margin-bottom: rpx(20);
       background: linear-gradient(90deg, #64b3f4, #c2e59c);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
       letter-spacing: rpx(-0.5);
       font-weight: 700;
+      
+      @include screen-mobile {
+        font-size: rpx(35);
+        margin-bottom: rpx(15);
+      }
     }
-    p {
-      font-size: rpx(20);
+    
+    .intro-main {
+      font-size: rpx(22);
       text-align: justify;
       line-height: 1.8;
       max-width: rpx(900);
-      margin: 0 auto;
-      color: rgba(210, 225, 255, 0.9);
+      margin: 0 auto rpx(30) auto;
+      color: #2c3e50;
+      font-weight: 400;
       
       @include screen-pad {
         font-size: rpx(16);
         line-height: 1.7;
+        margin-bottom: rpx(25);
       }
       
       @include screen-mobile {
-        font-size: rpx(14);
+        font-size: rpx(22);
         line-height: 1.6;
+        margin-bottom: rpx(20);
+      }
+    }
+    
+    .features-highlight {
+      max-width: rpx(900);
+      margin: 0 auto;
+      
+      h3 {
+        font-size: rpx(24);
+        color: #34495e;
+        margin-bottom: rpx(20);
+        font-weight: 600;
+        text-align: left;
+        
+        @include screen-pad {
+          font-size: rpx(20);
+          margin-bottom: rpx(18);
+        }
+        
+        @include screen-mobile {
+          font-size: rpx(22);
+          margin-bottom: rpx(15);
+        }
+      }
+      
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: rpx(15);
+        
+        @include screen-mobile {
+          gap: rpx(12);
+        }
+      }
+      
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: rpx(15);
+        padding: rpx(15);
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: rpx(12);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background: rgba(255, 255, 255, 0.12);
+          border-color: rgba(255, 255, 255, 0.25);
+          transform: translateX(rpx(5));
+        }
+        
+        @include screen-pad {
+          padding: rpx(12);
+          gap: rpx(12);
+        }
+        
+        @include screen-mobile {
+          padding: rpx(10);
+          gap: rpx(10);
+        }
+        
+        .feature-icon {
+          font-size: rpx(28);
+          flex-shrink: 0;
+          line-height: 1;
+          
+          @include screen-pad {
+            font-size: rpx(24);
+          }
+          
+          @include screen-mobile {
+            font-size: rpx(22);
+          }
+        }
+        
+        .feature-text {
+          flex: 1;
+          font-size: rpx(20);
+          line-height: 1.6;
+          color: #4a5568;
+          text-align: left;
+          
+          strong {
+            color: #2d3748;
+            font-weight: 600;
+            display: block;
+            margin-bottom: rpx(4);
+          }
+          
+          @include screen-pad {
+            font-size: rpx(14);
+          }
+          
+          @include screen-mobile {
+            font-size: rpx(20);
+            line-height: 1.5;
+          }
+        }
       }
     }
     
     @include screen-pc {
       width: 90%;
-      min-height: rpx(350);
+      min-height: rpx(450);
       margin-top: rpx(30);
-      padding: rpx(30) rpx(15);
+      padding: rpx(30) rpx(40);
     }
     
     @include screen-pad {
       width: 95%;
-      min-height: rpx(300);
-      padding: rpx(25) rpx(12);
+      min-height: rpx(400);
+      padding: rpx(25) rpx(20);
     }
     
     @include screen-mobile {
@@ -72,36 +181,348 @@
       margin-top: rpx(20);
       margin-bottom: rpx(20);
       padding: rpx(20) rpx(15);
-
-      h1 {
-        font-size: rpx(30);
-        margin-bottom: rpx(10);
-      }
-      p {
-        font-size: rpx(14);
-        line-height: 1.6;
-        max-width: 100%;
-      }
     }
   }
 
 /* About页面的特殊样式 */
 
+/* Trusted By Section - 科技感横向滚动 */
+.trusted-by-section {
+  max-width: 100%;
+  width: 100%;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 255, 0.10) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: rpx(20);
+  border: 1px solid rgba(65, 145, 255, 0.25);
+  box-shadow: 
+    0 rpx(10) rpx(40) rgba(100, 179, 244, 0.12),
+    inset 0 rpx(1) rpx(1) rgba(255, 255, 255, 0.3);
+  
+  /* 科技网格背景 */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      linear-gradient(90deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px);
+    background-size: rpx(30) rpx(30);
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  /* 扫描线效果 */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(65, 145, 255, 0.8), transparent);
+    animation: scanning 3s linear infinite;
+    z-index: 1;
+  }
+  
+  @include screen-pad {
+    margin: rpx(50) auto;
+    border-radius: rpx(16);
+  }
+  
+  @include screen-mobile {
+    margin: rpx(40) auto;
+    border-radius: rpx(12);
+  }
+}
+
+@keyframes scanning {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.trusted-header {
+  text-align: center;
+  padding: rpx(40) rpx(20) rpx(30) rpx(20);
+  position: relative;
+  z-index: 2;
+  
+  h3 {
+    font-size: rpx(32);
+    font-weight: 700;
+    background: linear-gradient(135deg, #1a5490 0%, #2d6da8 50%, #1a5490 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: rpx(10);
+    letter-spacing: rpx(0.5);
+    
+    @include screen-pad {
+      font-size: rpx(28);
+    }
+    
+    @include screen-mobile {
+      font-size: rpx(28);
+    }
+  }
+  
+  .trusted-subtitle {
+    font-size: rpx(24);
+    color: #3a5683;
+    font-weight: 400;
+    
+    @include screen-mobile {
+      font-size: rpx(20);
+    }
+  }
+  
+  @include screen-pad {
+    padding: rpx(35) rpx(20) rpx(25) rpx(20);
+  }
+  
+  @include screen-mobile {
+    padding: rpx(30) rpx(15) rpx(20) rpx(15);
+  }
+}
+
+.logo-scroll-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: rpx(30) 0 rpx(40) 0;
+  z-index: 2;
+  
+  @include screen-mobile {
+    padding: rpx(20) 0 rpx(30) 0;
+  }
+}
+
+.logo-scroll-track {
+  display: flex;
+  width: fit-content;
+  animation: scrollLogos 40s linear infinite;
+  
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes scrollLogos {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.logo-scroll-content {
+  display: flex;
+  gap: rpx(20);
+  padding: 0 rpx(10);
+  
+  @include screen-mobile {
+    gap: rpx(15);
+  }
+}
+
+.university-logo-card {
+  flex-shrink: 0;
+  width: rpx(200);
+  height: rpx(140);
+  position: relative;
+  
+  @include screen-pad {
+    width: rpx(180);
+    height: rpx(130);
+  }
+  
+  @include screen-mobile {
+    width: rpx(160);
+    height: rpx(120);
+  }
+  
+  .logo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    border: 2px solid rgba(65, 145, 255, 0.3);
+    border-radius: rpx(12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(rpx(10));
+    
+    /* 内部光效 */
+    &::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(65, 145, 255, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    /* 边框发光动画 */
+    &::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: rpx(12);
+      padding: 2px;
+      background: linear-gradient(45deg, 
+        transparent,
+        rgba(65, 145, 255, 0.5),
+        transparent
+      );
+      -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    
+    &:hover {
+      transform: translateY(rpx(-8)) scale(1.05);
+      border-color: rgba(65, 145, 255, 0.6);
+      box-shadow: 
+        0 rpx(15) rpx(40) rgba(65, 145, 255, 0.3),
+        inset 0 0 rpx(20) rgba(65, 145, 255, 0.1);
+      
+      &::before {
+        opacity: 1;
+      }
+      
+      &::after {
+        opacity: 1;
+      }
+      
+      .logo-icon {
+        transform: scale(1.2) rotate(360deg);
+      }
+      
+      .university-name {
+        color: #64b3f4;
+      }
+      
+      .logo-rank {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .university-name {
+      font-size: rpx(13);
+      font-weight: 600;
+      color: rgba(45, 75, 120, 0.9);
+      text-align: center;
+      margin-bottom: rpx(8);
+      transition: color 0.3s ease;
+      z-index: 1;
+      
+      @include screen-mobile {
+        font-size: rpx(20);
+        margin-bottom: rpx(6);
+      }
+    }
+    
+    .logo-icon {
+      font-size: rpx(40);
+      margin-bottom: rpx(8);
+      filter: drop-shadow(0 0 rpx(10) rgba(100, 179, 244, 0.5));
+      transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      z-index: 1;
+      
+      @include screen-mobile {
+        font-size: rpx(50);
+        margin-bottom: rpx(6);
+      }
+    }
+    
+    .logo-rank {
+      font-size: rpx(11);
+      color: rgba(65, 90, 130, 0.7);
+      font-weight: 500;
+      opacity: 0.7;
+      transform: translateY(rpx(5));
+      transition: all 0.3s ease;
+      z-index: 1;
+      
+      @include screen-mobile {
+        font-size: rpx(20);
+      }
+    }
+  }
+}
+
+/* 左右渐变遮罩 */
+.scroll-fade-left,
+.scroll-fade-right {
+  position: absolute;
+  top: 0;
+  width: rpx(150);
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  
+  @include screen-pad {
+    width: rpx(100);
+  }
+  
+  @include screen-mobile {
+    width: rpx(80);
+  }
+}
+
+.scroll-fade-left {
+  left: 0;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0.12) 0%, 
+    rgba(240, 245, 255, 0.10) 40%,
+    transparent 100%
+  );
+}
+
+.scroll-fade-right {
+  right: 0;
+  background: linear-gradient(270deg, 
+    rgba(255, 255, 255, 0.12) 0%, 
+    rgba(240, 245, 255, 0.10) 40%,
+    transparent 100%
+  );
+}
 
 /* FAQ 部分样式 */
 .faq-container-about {
-  margin: rpx(60) auto;
   max-width: rpx(900);
   width: 90%;
   
   @include screen-pad {
     width: 95%;
-    margin: rpx(50) auto;
+
   }
   
   @include screen-mobile {
     width: 98%;
-    margin: rpx(40) auto;
+
   }
 }
 
@@ -136,12 +557,12 @@
     }
     
     @include screen-mobile {
-      font-size: rpx(24);
+      font-size: rpx(30);
     }
   }
   
   .faq-subtitle {
-    font-size: rpx(16);
+    font-size: rpx(25);
     color: #4a648f;
     opacity: 0.8;
     
@@ -150,7 +571,7 @@
     }
     
     @include screen-mobile {
-      font-size: rpx(13);
+      font-size: rpx(25);
     }
   }
   
@@ -213,7 +634,7 @@
   transition: all 0.3s ease;
   
   .question-text {
-    font-size: rpx(16);
+    font-size: rpx(22);
     font-weight: 600;
     color: #1a3566;
     line-height: 1.4;
@@ -225,7 +646,7 @@
     }
     
     @include screen-mobile {
-      font-size: rpx(14);
+      font-size: rpx(22);
       margin-right: rpx(10);
     }
   }
@@ -260,22 +681,23 @@
   background: rgba(255, 255, 255, 0.7);
   
   &.open {
-    max-height: rpx(300);
+    max-height: rpx(500);
     padding: rpx(20) rpx(25);
     border-top: 1px solid rgba(65, 145, 255, 0.1);
     
     @include screen-pad {
       padding: rpx(18) rpx(20);
+      max-height: rpx(550);
     }
     
     @include screen-mobile {
       padding: rpx(15) rpx(18);
-      max-height: rpx(400);
+      max-height: rpx(600);
     }
   }
   
   .answer-content {
-    font-size: rpx(14);
+    font-size: rpx(20);
     line-height: 1.7;
     color: #3a5683;
     
@@ -285,7 +707,7 @@
     }
     
     @include screen-mobile {
-      font-size: rpx(12);
+      font-size: rpx(20);
       line-height: 1.5;
     }
   }

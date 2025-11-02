@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, reactive, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import { ElInput, ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
-import {
-  GoogleSignInButton,
-  type CredentialResponse,
-} from "vue3-google-signin";
-
+import { GoogleSignInButton, type CredentialResponse } from 'vue3-google-signin';
 
 interface ApiError {
   response?: {
@@ -20,26 +16,27 @@ interface ApiError {
 
 const router = useRouter();
 const store = useUserStore();
+const route = useRoute();
 
+const redirectUrl = computed(() => route.query.redirectUrl);
 const loginForm = reactive({
   email: '',
-  password: ''
+  password: '',
 });
-
 
 const errorMessage = ref('');
 const isLoading = ref(false);
 const rememberMe = ref(false);
 
-function handleLoginSuccess(response: CredentialResponse){
+function handleLoginSuccess(response: CredentialResponse) {
   const { credential } = response;
-  console.log("Access Token", credential);
-  if(credential) store.oauth(credential, 'google');
-};
+  console.log('Access Token', credential);
+  if (credential) store.oauth(credential, 'google');
+}
 
 function handleLoginError() {
-  console.error("Google Login failed");
-};
+  console.error('Google Login failed');
+}
 
 const handleLogin = async () => {
   if (!loginForm.email || !loginForm.password) {
@@ -56,9 +53,15 @@ const handleLogin = async () => {
     ElMessage({
       message: 'Login successful!',
       type: 'success',
-      duration: 2000
+      duration: 2000,
     });
-
+    // 如果有回调地址 跳转到回调地址
+    if (redirectUrl.value) {
+      router.push({
+        path: redirectUrl.value as string,
+      });
+      return;
+    }
     router.push({ name: 'home' });
   } catch (error: unknown) {
     console.error(error);
@@ -77,7 +80,7 @@ const handleSocialLogin = (provider: string) => {
   ElMessage({
     message: `${provider} login will be available soon.`,
     type: 'info',
-    duration: 3000
+    duration: 3000,
   });
 };
 </script>
@@ -99,23 +102,12 @@ const handleSocialLogin = (provider: string) => {
 
           <div class="form-group-login login-input-group">
             <label for="email">Email</label>
-            <el-input type="email"
-            id="email"
-            v-model="loginForm.email"
-            placeholder="Your email address"
-            required />
+            <el-input type="email" id="email" v-model="loginForm.email" placeholder="Your email address" required />
           </div>
 
           <div class="form-group-login login-input-group">
             <label for="password">Password</label>
-            <el-input
-              v-model="loginForm.password"
-              id="password"
-              type="password"
-              placeholder="Your password"
-              show-password
-              required
-            />
+            <el-input v-model="loginForm.password" id="password" type="password" placeholder="Your password" show-password required />
           </div>
 
           <div class="form-options">
@@ -123,8 +115,7 @@ const handleSocialLogin = (provider: string) => {
               <input type="checkbox" id="remember" v-model="rememberMe" />
               <label for="remember">Remember me</label>
             </div>
-            <router-link :to="{ name: 'forgetpassword' }"
-            class="forgot-password">Forgot password ?</router-link>
+            <router-link :to="{ name: 'ResetPassword' }" class="forgot-password">Forgot password ?</router-link>
           </div>
 
           <button type="submit" class="login-button" :disabled="isLoading">
@@ -137,32 +128,26 @@ const handleSocialLogin = (provider: string) => {
           </div>
 
           <div class="social-login">
-
-            <button type="button" class="social-button"
-            @click="handleSocialLogin('Google')">
+            <button type="button" class="social-button" @click="handleSocialLogin('Google')">
               <img src="@/assets/google-logo.svg" alt="Google" />
               Google
             </button>
-            <button type="button" class="social-button"
-            @click="handleSocialLogin('Apple')">
+            <button type="button" class="social-button" @click="handleSocialLogin('Apple')">
               <img src="@/assets/apple-logo.svg" alt="Apple" />
               Apple
             </button>
-            <button type="button" class="social-button"
-            @click="handleSocialLogin('WeChat')">
+            <button type="button" class="social-button" @click="handleSocialLogin('WeChat')">
               <img src="@/assets/wechat-logo.svg" alt="WeChat" />
               WeChat
             </button>
           </div>
 
           <div class="signup-link">
-            Don't have an account? <router-link :to="{ name: 'signup' }">
-              Sign up</router-link>
+            Don't have an account?
+            <router-link :to="{ name: 'signup' }"> Sign up</router-link>
           </div>
         </form>
       </div>
     </div>
   </div>
 </template>
-
-

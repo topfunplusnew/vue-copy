@@ -35,9 +35,9 @@ export default defineConfig({
       '/api': {
         target: 'http://ipologo.com/', //jyh
         // target: 'http://127.0.0.1:9211',
-        // target:'https://119.84.246.217:56104',//测试环境
+        // target: 'https://119.84.246.217:56104',//测试环境
         changeOrigin: true,
-        secure: false, // ← 关闭 TLS 证书校验
+        secure: false,   // ← 关闭 TLS 证书校验
       },
       '/images': {
         target: 'http://ipologo.com/',

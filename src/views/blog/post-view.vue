@@ -883,14 +883,14 @@ onUnmounted(() => {
       </el-form-item>
 
       <!-- NFT 选项 -->
-      <el-form-item>
+      <!-- <el-form-item>
         <el-checkbox v-model="createData.isNFT">
           <div class="nft-option">
             <span class="nft-icon">🖼️</span>
             Make your NFT
           </div>
         </el-checkbox>
-      </el-form-item>
+      </el-form-item> -->
 
       <!-- 操作按钮 -->
       <el-form-item>

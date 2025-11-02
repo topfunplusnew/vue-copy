@@ -1,47 +1,29 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, nextTick } from 'vue';
+import { useRouter } from 'vue-router';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
-import { getImageUrl } from '@/utils';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { formatRange } from '@/utils/date';
-import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
+import commonHeader from '@/layout/common-header.vue';
+import { getImageUrl } from '@/utils';
+import { formatRange } from '@/utils/date';
+
 const store = useUserStore();
 const router = useRouter();
-const conferencesStory = useConferenceStore();
+const conferencesStore = useConferenceStore();
 
-onMounted(() => {
-  nextTick(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    document.body.scrollTop = 0;
-    document.documentElement.scrollTop = 0;
-  });
-  store.getUserInfo().then(({ data }) => {
-    editForm.name = data.name;
-    editForm.avatar = data.avatar;
-  });
-  store.getUserBlogList(true);
-  conferencesStory.getConferenceDetails(4);
-  conferencesStory.getConferenceList();
+const showEditProfile = ref(false);
+const editForm = reactive({
+  name: '',
+  avatar: '',
 });
 
-function handleLogout() {
-  store.logout();
-  router.push({ name: 'login' });
-}
-
-const user = computed(() => store.user);
-const uploadfile = ref<HTMLElement | null>(null);
-
-function onUpload() {
-  showCropper.value = true;
-  if (uploadfile.value) uploadfile.value.click();
-}
 const showCropper = ref(false);
 const cropperRef = ref();
+const cropImage = ref('');
+const uploadfile = ref<HTMLElement | null>(null);
 const cropOption = {
   autoCrop: true,
   fixedBox: true,
@@ -55,22 +37,91 @@ const cropOption = {
   fixed: true,
   fixedNumber: [1, 1],
 };
-const cropImage = ref('');
+
+const isDragging = ref(false);
+const dragOffset = reactive({ x: 0, y: 0 });
+const editProfilePosition = reactive({ x: 0, y: 0 });
+
+const showContactModal = ref(false);
+const contactForm = reactive({
+  email: '',
+  phone: '',
+  website: '',
+  linkedin: '',
+  twitter: '',
+  orcid: '',
+});
+
+const showCVModal = ref(false);
+const showCVPreviewModal = ref(false);
+const cvFile = ref<File | null>(null);
+const cvUploadRef = ref<HTMLElement | null>(null);
+const uploadedCV = ref<{ file: File; uploadDate: string; url: string } | null>(null);
+
+const user = computed(() => store.user);
+
+const isWalletConnected = computed(() => {
+  return false;
+});
+
+const isMobile = computed(() => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+});
+
+const currentMyConferenceList = computed(() => conferencesStore.myConferenceList);
+const featuredConferenceList = computed(() => conferencesStore.conferenceList);
+const isLoadingMyEvents = ref(true);
+
+onMounted(() => {
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+  });
+
+  store.getUserInfo().then(({ data }) => {
+    editForm.name = data.name;
+    editForm.avatar = data.avatar;
+    conferencesStore.getMyConference().finally(() => {
+      isLoadingMyEvents.value = false;
+    });
+  });
+  conferencesStore.getConferencesList();
+  isLoadingMyEvents.value = true;
+
+
+});
+
+function handleLogout() {
+  store.logout();
+  router.push({ name: 'login' });
+}
+
+function showSocialModal() {
+  store.getFollowings();
+  store.getFollowers();
+}
+
+function onUpload() {
+  showCropper.value = true;
+  if (uploadfile.value) uploadfile.value.click();
+}
 
 function cropSuccess() {
   cropperRef.value.getCropBlob((image: Blob) => {
     store.uploadImage(image).then(({ data }) => {
-      editForm.avatar = data.avatar;
+      editForm.avatar = data.avatar || '';
     });
     showCropper.value = false;
   });
 }
 
-const showEditProfile = ref(false);
-const editForm = reactive({
-  name: user.value?.name,
-  avatar: user.value?.avatar,
-});
+function cancelCrop() {
+  showCropper.value = false;
+  if (showEditProfile.value) {
+    editForm.avatar = user.value?.avatar || '';
+  }
+}
 
 function submitProfileEdit() {
   store
@@ -83,8 +134,8 @@ function submitProfileEdit() {
 }
 
 function cancelProfileEdit() {
-  editForm.name = user.value?.name;
-  editForm.avatar = user.value?.avatar;
+  editForm.name = user.value?.name || '';
+  editForm.avatar = user.value?.avatar || '';
   showEditProfile.value = false;
 }
 
@@ -100,10 +151,6 @@ function handleEditAvatarUpload(event: Event) {
     reader.readAsDataURL(file);
   }
 }
-
-const isDragging = ref(false);
-const dragOffset = reactive({ x: 0, y: 0 });
-const editProfilePosition = reactive({ x: 0, y: 0 });
 
 function startDrag(e: MouseEvent) {
   isDragging.value = true;
@@ -122,83 +169,42 @@ function stopDrag() {
   isDragging.value = false;
 }
 
-function cancelCrop() {
-  showCropper.value = false;
-  if (showEditProfile.value) {
-    editForm.avatar = user.value?.avatar;
-  }
-}
-
-const isWalletConnected = computed(() => {
-  return false;
-});
-
-const isSocialModalVisible = ref(false);
-
-function showSocialModal() {
-  isSocialModalVisible.value = true;
-  document.body.style.overflow = 'hidden';
-
-  store.getFollowings();
-  store.getFollowers();
-}
-const showContactModal = ref(false);
-const showCVModal = ref(false);
-
-const contactForm = reactive({
-  email: '',
-  phone: '',
-  website: '',
-  linkedin: '',
-  twitter: '',
-  orcid: '',
-});
-
-const cvFile = ref<File | null>(null);
-const cvUploadRef = ref<HTMLElement | null>(null);
-const uploadedCV = ref<{ file: File; uploadDate: string; url: string } | null>(null);
-
-const showCVPreviewModal = ref(false);
-const isMobile = computed(() => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-});
-
-const openContactModal = () => {
+function openContactModal() {
   showContactModal.value = true;
   document.body.style.overflow = 'hidden';
-};
+}
 
-const closeContactModal = () => {
+function closeContactModal() {
   showContactModal.value = false;
   document.body.style.overflow = '';
-};
+}
 
-const submitContactInfo = () => {
+function submitContactInfo() {
   console.log('Contact info submitted:', contactForm);
   ElMessage.success('Contact information saved successfully!');
   closeContactModal();
-};
+}
 
-const openCVModal = () => {
+function openCVModal() {
   showCVModal.value = true;
   document.body.style.overflow = 'hidden';
-};
+}
 
-const closeCVModal = () => {
+function closeCVModal() {
   showCVModal.value = false;
   document.body.style.overflow = '';
-};
+}
 
-const handleCVUpload = (event: Event) => {
+function handleCVUpload(event: Event) {
   const target = event.target as HTMLInputElement;
   const file = target.files ? target.files[0] : null;
   if (file) {
     cvFile.value = file;
     console.log('CV file selected:', file.name);
   }
-};
+}
 
-const submitCV = () => {
+function submitCV() {
   if (!cvFile.value) {
     ElMessage.warning('Please select a CV file first');
     return;
@@ -214,31 +220,31 @@ const submitCV = () => {
   ElMessage.success('CV uploaded successfully!');
   closeCVModal();
   cvFile.value = null;
-};
+}
 
-const openCVPreview = () => {
+function openCVPreview() {
   if (uploadedCV.value) {
     showCVPreviewModal.value = true;
     document.body.style.overflow = 'hidden';
   }
-};
+}
 
-const closeCVPreview = () => {
+function closeCVPreview() {
   showCVPreviewModal.value = false;
   document.body.style.overflow = '';
-};
+}
 
-const getCurrentCVFileName = () => {
+function getCurrentCVFileName() {
   return uploadedCV.value?.file.name || 'document.pdf';
-};
+}
 
-const openCVInNewTab = () => {
+function openCVInNewTab() {
   if (uploadedCV.value?.url) {
     window.open(uploadedCV.value.url, '_blank');
   }
-};
+}
 
-const withdrawCV = () => {
+function withdrawCV() {
   ElMessageBox.confirm('Are you sure you want to withdraw your CV? This action cannot be undone.', 'Withdraw CV', {
     confirmButtonText: 'Withdraw',
     cancelButtonText: 'Cancel',
@@ -253,21 +259,29 @@ const withdrawCV = () => {
       ElMessage.success('CV withdrawn successfully!');
       closeCVPreview();
     })
-};
+    .catch(() => { });
+}
 
-const currentParticipations = computed(() => conferencesStory.details);
-const featuredEvents = computed(() => conferencesStory.list);
-
-const handleLogoError = (event: Event) => {
+function handleLogoError(event: Event) {
   const img = event.target as HTMLImageElement;
   console.error('Logo failed to load:', img.src);
   img.style.display = 'none';
-};
+}
 
-const handleLogoLoad = (event: Event) => {
+function handleLogoLoad(event: Event) {
   const img = event.target as HTMLImageElement;
   console.log('Logo loaded successfully:', img.src);
-};
+}
+
+// 格式化字符串，使第一个字母大写，其他字母小写
+function formatFirstLetterUppercase(str: string): string {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
+function getRedirectUrl() {
+  return location.pathname;
+}
 </script>
 
 <template>
@@ -276,8 +290,8 @@ const handleLogoLoad = (event: Event) => {
     <commonHeader />
 
     <div class="user-page">
-        <section class="main-content">
-        <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
+      <section class="main-content">
+        <!-- <div class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
           <div class="profile-buttons">
             <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
             <button class="logout-btn" @click="handleLogout">LOGOUT</button>
@@ -321,54 +335,72 @@ const handleLogoLoad = (event: Event) => {
               <button v-else class="view-cv-btn" @click="openCVPreview">VIEW CV</button>
             </div>
           </div>
-        </aside>
+        </div> -->
 
         <div class="vertical-divider-us"></div>
         <section class="events">
           <div class="current-participations">
-            <div class="section-title">My Events</div>
+            <div class="section-header-with-avatar">
+              <div class="left-section">
+                <router-link v-if="store.isLogin()" :to="{ name: 'userpage' }" class="user-avatar-link">
+                  <img :src="getImageUrl(user?.avatar)" alt="User Avatar" class="user-avatar-small" />
+                </router-link>
+                <div class="section-title">My Events</div>
+              </div>
+            </div>
 
-            <!-- TODO 这里 如果已经登录，那么就展示My Events  -->
             <div v-if="store.isLogin()">
-              <div v-if="currentParticipations" class="conference-list">
-                <div class="conference-card">
-                  <div class="conference-header">
-                    <div class="conference-name-container">
-                      <img
-                        v-if="currentParticipations.logoUrl"
-                        :src="currentParticipations.logoUrl"
-                        :alt="currentParticipations.name + ' logo'"
-                        class="conference-logo"
-                        @error="handleLogoError"
-                        @load="handleLogoLoad"
-                      />
-                      <div class="conference-name">{{ currentParticipations.name }}</div>
-                    </div>
-                    <div class="submission-count">{{ currentParticipations.sessions.length }} papers</div>
-                  </div>
-                  <div class="submission-list">
-                    <div
-                      v-for="(sub, idx) in currentParticipations.sessions"
-                      :key="idx"
-                      class="submission-item"
-                      @click="router.push({ name: 'MyEventDetail', params: { conferenceId: currentParticipations.id, paperId: sub.id } })"
-                    >
-                      <div class="paper-title">{{ sub.session_name }}</div>
-                      <div class="authors">
-                        <span>{{ sub.chairperson }}</span>
+              <div v-if="isLoadingMyEvents" class="loading-state">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Loading events...</div>
+              </div>
+              <template v-else-if="currentMyConferenceList?.length">
+                <div class="conference-list" v-for="cur in currentMyConferenceList" :key="cur.id">
+                  <div class="conference-card">
+                    <div class="conference-header">
+                      <div class="conference-name-container">
+                        <img v-if="cur.logo" :src="getImageUrl(cur.logo)" :alt="cur.name + ' logo'"
+                          class="conference-logo" @error="handleLogoError" @load="handleLogoLoad" />
+                        <div class="conference-name">{{ cur.name }}</div>
                       </div>
+                    </div>
+
+                    <div class="submission-list">
+                      <router-link :to="{ name: 'MyEventDetail', params: { paperId: sub.paper_id } }"
+                        v-for="sub in cur.my_papers" :key="sub.paper_id" class="submission-item">
+                        <div class="paper-title">{{ sub.paper_title }}</div>
+                        <div class="authors">
+                          <span v-for="(author, i) in sub.authors" :key="i" class="author"> {{ author }}<span
+                              v-if="i < sub.authors.length - 1">, </span> </span>
+                        </div>
+                      </router-link>
                     </div>
                   </div>
                 </div>
-              </div>
+              </template>
 
-              <div v-else class="empty-state">
-                <div class="empty-title">No current participations</div>
-                <div class="empty-desc">When you join or submit to a conference, it will appear here.</div>
+              <div v-else class="empty-state-redesigned">
+                <div class="empty-icon">📝</div>
+                <div class="empty-title">No Events Yet</div>
+                <div class="empty-desc">You haven't participated in any conferences yet.</div>
+                <div class="empty-hint">Submit a paper or register for a conference to get started!</div>
+                <div class="empty-desc">Already have a conference paper? Please contact us at ipologo.os@gmail.com
+                  with your paper details to receive the link.</div>
               </div>
             </div>
-            <div v-else>
-              <el-button type="primary" @click="router.push({ name: 'login' })">Login to check detail</el-button>
+            <div v-else class="login-prompt">
+              <div class="login-icon">🔒</div>
+              <div class="login-message">Sign in to view your events</div>
+              <el-button type="primary" class="login-btn" @click="
+                router.push({
+                  name: 'login',
+                  query: {
+                    redirectUrl: getRedirectUrl(),
+                  },
+                })
+                ">
+                Sign In
+              </el-button>
             </div>
           </div>
 
@@ -377,23 +409,31 @@ const handleLogoLoad = (event: Event) => {
               <div class="section-title">Featured Events</div>
             </div>
 
-            <div v-if="featuredEvents.length > 0" class="featured-list">
-              <div v-for="evt in featuredEvents" :key="evt.id" class="featured-card" @click="router.push({ name: 'FeaturedEvents', params: { conferenceId: evt.id } })">
+            <div v-if="featuredConferenceList.length > 0" class="featured-list">
+              <router-link :to="{ name: 'FeaturedEvents', params: { conferenceId: featuredConference.id } }"
+                v-for="featuredConference in featuredConferenceList" :key="featuredConference.id" class="featured-card">
                 <div class="featured-header">
-                  <div class="featured-name-container">
-                    <img v-if="evt.logoUrl" :src="evt.logoUrl" :alt="evt.name + ' logo'" class="featured-event-logo" @error="handleLogoError" @load="handleLogoLoad" />
-                    <div class="featured-name">{{ evt.name }}</div>
+                  <div class="featured-name-container-1">
+                    <img v-if="featuredConference.logo" :src="getImageUrl(featuredConference.logo)"
+                      :alt="featuredConference.name + ' logo'" class="featured-event-logo" @error="handleLogoError"
+                      @load="handleLogoLoad" />
+                    <div class="featured-name">{{ featuredConference.name }}</div>
                   </div>
-                  <div class="featured-date">{{ formatRange(evt.start_time, evt.end_time) }}</div>
+                  <div class="featured-date">
+                    <span>{{ formatRange(featuredConference.start_time, featuredConference.end_time) }}</span>
+                  </div>
                 </div>
                 <div class="featured-meta">
-                  <span class="featured-location">{{ evt.place_name }}</span>
-                  <a v-if="evt.website" class="featured-link" :href="evt.website" target="_blank" rel="noopener">Website</a>
+                  <span class="featured-location">{{ featuredConference.place_name }}</span>
+                  <a v-if="featuredConference.website" class="featured-link" :href="featuredConference.website"
+                    target="_blank" rel="noopener" @click.stop> Website </a>
                 </div>
-                <div v-if="evt.keywords?.length" class="featured-topics">
-                  <span class="topic-tag" v-for="(t, i) in evt.keywords" :key="i">{{ t.name }}</span>
+                <div v-if="featuredConference.keywords?.length" class="featured-topics">
+                  <span class="topic-tag" v-for="(t, i) in featuredConference.keywords" :key="i">
+                    {{ i === 0 ? formatFirstLetterUppercase(t.name) : t.name }}
+                  </span>
                 </div>
-              </div>
+              </router-link>
             </div>
 
             <div v-else class="empty-state">
@@ -404,15 +444,8 @@ const handleLogoLoad = (event: Event) => {
         </section>
       </section>
 
-      <div v-if="false" class="cropper-modal">
-        <div class="cropper-container">
-          <div class="cropper-buttons">
-            <el-button @click="cropSuccess">Confirm</el-button>
-            <el-button @click="cancelCrop">Cancel</el-button>
-          </div>
-        </div>
-      </div>
-      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true" :show-close="true" destroy-on-close>
+      <el-dialog v-model="showCropper" class="crop-dialog" title="Edit Avatar" :close-on-click-modal="true"
+        :show-close="true" destroy-on-close>
         <div class="avatar-cut">
           <vue-cropper ref="cropperRef" :img="cropImage" v-bind="cropOption" />
         </div>
@@ -425,18 +458,12 @@ const handleLogoLoad = (event: Event) => {
       </el-dialog>
 
       <div class="edit-profile-modal" v-if="showEditProfile">
-        <div
-          class="edit-profile-container"
-          :style="{
-            transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
-          }"
-          @mousedown="startDrag"
-          @mousemove="onDrag"
-          @mouseup="stopDrag"
-          @mouseleave="stopDrag"
-        >
+        <div class="edit-profile-container" :style="{
+          transform: `translate(${editProfilePosition.x}px, ${editProfilePosition.y}px)`,
+        }" @mousedown="startDrag" @mousemove="onDrag" @mouseup="stopDrag" @mouseleave="stopDrag">
           <h2>Edit Profile</h2>
-          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
+          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*"
+            @change="handleEditAvatarUpload" />
           <div class="edit-avatar-section avatar-container">
             <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
             <div class="avatar-upload-icon">
@@ -503,7 +530,8 @@ const handleLogoLoad = (event: Event) => {
           </div>
           <div class="modal-content">
             <div class="upload-area">
-              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload" style="display: none" />
+              <input ref="cvUploadRef" type="file" accept=".pdf,.doc,.docx" @change="handleCVUpload"
+                style="display: none" />
               <div class="upload-zone" @click="cvUploadRef?.click()">
                 <div class="upload-icon">📄</div>
                 <div class="upload-text">
@@ -557,3 +585,38 @@ const handleLogoLoad = (event: Event) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #1890ff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: #606266;
+  font-size: 14px;
+}
+</style>
