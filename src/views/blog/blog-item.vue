@@ -2,22 +2,12 @@
   <!-- 点击整个博客项时，触发 onClick 事件 -->
   <div class="blog-item" :class="{ 'nft-blog': post.isNFT }" @click="onClick">
     <!-- 轮播图：如果有文件则显示 -->
-    <el-carousel
-      v-if="post.files && post.files.length > 0"
-      indicator-position="outside"
-      class="post-carousel"
-      :autoplay="false"
-      :touchable="true"
-      :loop="true"
-    >
+    <el-carousel v-if="post.files && post.files.length > 0" indicator-position="outside" class="post-carousel"
+      :autoplay="false" :touchable="true" :loop="true">
       <!-- 遍历所有文件 -->
       <el-carousel-item v-for="(file, index) in post.files" :key="index">
         <!-- 使用动态绑定的 src -->
-        <img
-          :src="getDisplayUrl(file)"
-          :alt="isVideo(file) ? 'Video Thumbnail' : 'Post Image'"
-          class="post-image"
-        />
+        <img :src="getDisplayUrl(file)" :alt="isVideo(file) ? 'Video Thumbnail' : 'Post Image'" class="post-image" />
       </el-carousel-item>
     </el-carousel>
 
@@ -32,12 +22,7 @@
     <div class="post-footer-userpage">
       <!-- 作者信息 -->
       <div class="author-info">
-        <img
-          v-if="post.user?.avatar"
-          :src="getImageUrl(post.user.avatar)"
-          alt="Avatar"
-          class="post-avatar"
-        />
+        <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
         <span class="author-name" :title="post.user?.name">
           {{ post.user?.name }}
         </span>
@@ -248,9 +233,11 @@ function onClick() {
 
 .post-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover; /* 保持图片/封面的宽高比并填满容器 */
-  background-color: #f0f0f0; /* 默认背景色，在封面生成前显示 */
+  height: auto;
+  object-fit: cover;
+  /* 保持图片/封面的宽高比并填满容器 */
+  background-color: #f0f0f0;
+  /* 默认背景色，在封面生成前显示 */
 }
 
 .post-content-userpage {
