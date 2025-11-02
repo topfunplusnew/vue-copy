@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import walletItem from '@/components/wallet-item.vue';
 import { ElInput, ElMessage } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 
@@ -22,7 +21,7 @@ const passwordRequirements = reactive({
   length: false,
   uppercase: false,
   number: false,
-  special: false
+  special: false,
 });
 
 const checkPasswordStrength = () => {
@@ -43,8 +42,6 @@ const checkPasswordStrength = () => {
 
   passwordStrength.value = strength;
 };
-
-
 
 const handleSubmit = async () => {
   if (!editForm.email || !editForm.password || !editForm.password_confirm) {
@@ -76,7 +73,7 @@ const handleSubmit = async () => {
   isLoading.value = true;
   try {
     // TODO: Handle password reset logic (e.g., API call)
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟API调用
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // 模拟API调用
     successMessage.value = 'Password reset successfully!';
     errorMessage.value = '';
     ElMessage.success('Password reset email has been sent!');
@@ -95,7 +92,7 @@ const sendConfirmationEmail = async () => {
 
   try {
     // TODO: 实现发送确认邮件的逻辑
-    await new Promise(resolve => setTimeout(resolve, 1000)); // 模拟API调用
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // 模拟API调用
     ElMessage.success('Confirmation email sent successfully!');
   } catch {
     ElMessage.error('Failed to send confirmation email.');
@@ -104,7 +101,7 @@ const sendConfirmationEmail = async () => {
 </script>
 
 <template>
-    <div class="background-layer"></div>
+  <div class="background-layer"></div>
   <div class="forget-password-page layout-main">
     <common-header />
 
@@ -125,46 +122,19 @@ const sendConfirmationEmail = async () => {
 
         <div class="form-group-forget">
           <label for="username">Username</label>
-          <el-input
-            type="text"
-            id="username"
-            v-model="editForm.username"
-            placeholder="Enter your username"
-            required
-          />
+          <el-input type="text" id="username" v-model="editForm.username" placeholder="Enter your username" required />
         </div>
 
         <div class="form-group-forget">
           <label for="email">Email</label>
-          <el-input
-            type="email"
-            id="email"
-            v-model="editForm.email"
-            placeholder="Enter your email address"
-            required
-          />
+          <el-input type="email" id="email" v-model="editForm.email" placeholder="Enter your email address" required />
         </div>
 
-        <button
-          type="button"
-          class="confirm-email-button"
-          @click="sendConfirmationEmail"
-          :disabled="!editForm.email"
-        >
-          Send Confirmation Email
-        </button>
+        <button type="button" class="confirm-email-button" @click="sendConfirmationEmail" :disabled="!editForm.email">Send Confirmation Email</button>
 
         <div class="form-group-forget">
           <label for="password">New Password</label>
-          <el-input
-            v-model="editForm.password"
-            type="password"
-            id="password"
-            placeholder="Enter your new password"
-            show-password
-            required
-            @input="checkPasswordStrength"
-          />
+          <el-input v-model="editForm.password" type="password" id="password" placeholder="Enter your new password" show-password required @input="checkPasswordStrength" />
         </div>
         <div class="password-strength-signup">
           <div class="strength-meter-signup">
@@ -172,10 +142,10 @@ const sendConfirmationEmail = async () => {
               class="strength-bar-signup"
               :style="{ width: `${passwordStrength * 25}%` }"
               :class="{
-                'weak': passwordStrength === 1,
-                'medium': passwordStrength === 2,
-                'strong': passwordStrength === 3,
-                'very-strong': passwordStrength === 4
+                weak: passwordStrength === 1,
+                medium: passwordStrength === 2,
+                strong: passwordStrength === 3,
+                'very-strong': passwordStrength === 4,
               }"
             ></div>
           </div>
@@ -186,14 +156,7 @@ const sendConfirmationEmail = async () => {
 
         <div class="form-group-forget">
           <label for="password_confirm">Confirm Pwd</label>
-          <el-input
-            v-model="editForm.password_confirm"
-            type="password"
-            id="password_confirm"
-            placeholder="Confirm your new password"
-            show-password
-            required
-          />
+          <el-input v-model="editForm.password_confirm" type="password" id="password_confirm" placeholder="Confirm your new password" show-password required />
         </div>
 
         <button type="submit" class="reset-password-button" :disabled="isLoading">
@@ -201,9 +164,7 @@ const sendConfirmationEmail = async () => {
           <span v-else class="loading-spinner"></span>
         </button>
 
-        <div class="login-link">
-          Remember your password? <router-link :to="{ name: 'login' }">Log in</router-link>
-        </div>
+        <div class="login-link">Remember your password? <router-link :to="{ name: 'login' }">Log in</router-link></div>
       </form>
     </div>
   </div>
@@ -211,54 +172,4 @@ const sendConfirmationEmail = async () => {
 
 <style lang="scss" scoped>
 @use '@/styles/_forgetpassword.scss';
-
-.password-strength-signup {
-  margin-top: 8px;
-  margin-left: 155px;
-  margin-bottom: 20px;
-  width: 76%;
-
-  .strength-meter-signup {
-    height: 4px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    overflow: hidden;
-    margin-bottom: 5px;
-  }
-
-  .strength-bar-signup {
-    height: 100%;
-    transition: all 0.3s ease;
-
-    &.weak {
-      background-color: #ff4d4d;
-    }
-
-    &.medium {
-      background-color: #ffaa00;
-    }
-
-    &.strong {
-      background-color: #2ecc71;
-    }
-
-    &.very-strong {
-      background-color: #00ff6a;
-    }
-  }
-
-  .strength-text-signup {
-    display: block;
-    margin-top: 4px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.7);
-  }
-}
-
-@media (max-width: 768px) {
-  .password-strength-signup {
-    margin-left: 0;
-    width: 100%;
-  }
-}
 </style>

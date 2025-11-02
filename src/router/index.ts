@@ -142,6 +142,11 @@ const router = createRouter({
       component: () => import('@/views/components/feature_events.vue'),
       props: true,
     },
+    {
+      path: '/reset-password',
+      name: 'ResetPassword',
+      component: () => import('@/views/user/reset-password-email.vue'),
+    },
   ],
 });
 const whiteList = ['invitation', 'forgetpassword', 'active'];
