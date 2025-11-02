@@ -379,6 +379,8 @@ function getRedirectUrl() {
                 <div class="empty-title">No Events Yet</div>
                 <div class="empty-desc">You haven't participated in any conferences yet.</div>
                 <div class="empty-hint">Submit a paper or register for a conference to get started!</div>
+                <div class="empty-desc">Already have a conference paper? Please contact us at ipologo.os@gmail.com
+                  with your paper details to receive the link.</div>
               </div>
             </div>
             <div v-else class="login-prompt">
