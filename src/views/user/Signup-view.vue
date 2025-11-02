@@ -118,7 +118,6 @@ const handleSubmit = async () => {
       </div>
 
       <form @submit.prevent="handleSubmit" v-else>
-        <div class="form-title-signup">Create Your Account</div>
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <div class="form-group-signup">
