@@ -553,6 +553,7 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当视频已存在时显示同意条款复选框 -->
           <div v-if="myPaperDetailInfo?.video" class="consent-section">
             <label class="checkbox">
+<<<<<<< HEAD
               <input type="checkbox" :checked="formData.video_status === 2" @change="
                 (event) => {
                   formData.video_status = event.target.checked ? 2 : 1;
@@ -562,6 +563,24 @@ function getAffiliationNumber(originalId: number): number {
                   });
                 }
               " />
+=======
+              <input
+                type="checkbox"
+                :checked="formData.video_status === 2"
+                @change="
+                  (event: Event) => {
+                    const target = event.target as HTMLInputElement;
+                    if (target) {
+                      formData.video_status = target.checked ? 2 : 1;
+                      store.updateIsOpenAccess({
+                        id: paperId,
+                        video_status: formData.video_status,
+                      });
+                    }
+                  }
+                "
+              />
+>>>>>>> 1d29f6d48268a2ed6825993269bf996193edb737
               <span>I understand and agree to keep the video private.</span>
             </label>
           </div>
@@ -576,11 +595,29 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当幻灯片已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.slide" class="consent-section">
             <div class="consent-row">
+<<<<<<< HEAD
               <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="show"
                 inactive-text="hide" @change="(value) => store.updateIsOpenAccess({
                   id: paperId,
                   slide_status: value
                 })" />
+=======
+              <span>Hide slides from the public</span>
+              <el-switch
+                v-model="formData.slide_status"
+                :active-value="2"
+                :inactive-value="1"
+                @change="
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
+                    store.updateIsOpenAccess({
+                      id: paperId,
+                      slide_status: status,
+                    });
+                  }
+                "
+              />
+>>>>>>> 1d29f6d48268a2ed6825993269bf996193edb737
             </div>
           </div>
           <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
@@ -591,11 +628,29 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当海报已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.poster" class="consent-section">
             <div class="consent-row">
+<<<<<<< HEAD
               <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="show"
                 inactive-text="hide" @change="(value) => store.updateIsOpenAccess({
                   id: paperId,
                   poster_status: value
                 })" />
+=======
+              <span>Hide poster from the public</span>
+              <el-switch
+                v-model="formData.poster_status"
+                :active-value="2"
+                :inactive-value="1"
+                @change="
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
+                    store.updateIsOpenAccess({
+                      id: paperId,
+                      poster_status: status,
+                    });
+                  }
+                "
+              />
+>>>>>>> 1d29f6d48268a2ed6825993269bf996193edb737
             </div>
           </div>
           <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
