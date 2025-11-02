@@ -17,10 +17,11 @@ $border-color: rgba(100, 179, 244, 0.2);
 
   /* 社交帖子模块 */
   .social-feed {
-    max-width: rpx(1315);
-    margin: rpx(20);
+    max-width: 100%;
+    width: 98%;
+    margin: rpx(20) auto;
     margin-bottom: rpx(20);
-    padding: rpx(15) rpx(15);
+    padding: rpx(15) rpx(20);
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border-radius: rpx(16);
@@ -28,8 +29,9 @@ $border-color: rgba(100, 179, 244, 0.2);
     min-height: 50vh;
 
     @include screen-pc {
-      // width: 98%;
-      // width: rpx(1315);
+      width: 98%;
+      max-width: none;
+      padding: rpx(15) rpx(30);
     }
 
     @include screen-pad {
@@ -338,15 +340,12 @@ $border-color: rgba(100, 179, 244, 0.2);
 
       .social-posts-panel {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
         gap: rpx(15);
         width: 100%;
 
         @include screen-pc {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: rpx(15);
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: rpx(20);
         }
 
         @include screen-pad {
@@ -433,15 +432,14 @@ $border-color: rgba(100, 179, 244, 0.2);
     /* 主容器 */
     .blog-detail-container-home {
       overflow-x: auto;
-      width: 100%;
-      min-width: 100%;
-      height: 85vh;
+      width: 95vw;
+      max-width: 95vw;
+      height: 90vh;
       display: flex;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
       background: white;
-      max-width: none;
       transition:
         flex-direction 0.3s ease,
         width 0.3s ease,
