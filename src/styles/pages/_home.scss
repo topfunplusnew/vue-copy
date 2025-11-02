@@ -20,7 +20,8 @@
   @include welcome.wrapper; //welcome section
 
   .main {
-    // width: 100%;
+    width: 100%;
+    max-width: 100%;
     padding: rpx(5);
     display: flex;
     flex-direction: column;

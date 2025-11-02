@@ -97,7 +97,6 @@ const handleSocialLogin = (provider: string) => {
 
       <div class="login-container">
         <form @submit.prevent="handleLogin">
-          <div class="form-title-login">Sign In</div>
           <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
           <div class="form-group-login login-input-group">

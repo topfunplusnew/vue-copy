@@ -704,7 +704,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</div>
+                    }}</div>
                 </div>
               </div>
             </div>
@@ -797,8 +797,7 @@ function formatFirstLetterUppercase(str: string): string {
                       class="author-name">
                       {{ author.name
                       }}<template v-if="author?.affiliations?.length"><sup v-for="(aff, affIdx) in author.affiliations"
-                          :key="affIdx">{{ getAffiliationNumber(aff.id)
-                          }}</sup></template><span>
+                          :key="affIdx">{{ getAffiliationNumber(aff.id) }}</sup></template><span>
                         {{ authorIndex < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
                       </span>
                   </div>
@@ -808,11 +807,10 @@ function formatFirstLetterUppercase(str: string): string {
                   <h4>Affiliations</h4>
                   <div class="affiliations-list">
                     <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                      <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name
-                      }}{{
-                        aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{
-                        aff.state ? ', ' +
-                          aff.state : ''
+                      <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
+                        aff.department
+                      ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' +
+                        aff.state : ''
                       }}{{ aff.country ? ', ' + aff.country : '' }}
                     </div>
                   </div>
@@ -824,7 +822,8 @@ function formatFirstLetterUppercase(str: string): string {
               </div>
               <div class="detail-item">
                 <h5>Abstract</h5>
-                <p>{{ selectedPaper?.abstract }}</p>
+                <!-- <p>{{ selectedPaper?.abstract }}</p> -->
+                <latex-content :latex="selectedPaper?.abstract" />
               </div>
               <div class="detail-item">
                 <h5>Graphical Abstract</h5>
