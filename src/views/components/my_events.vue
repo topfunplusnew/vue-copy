@@ -563,12 +563,15 @@ function getAffiliationNumber(originalId: number): number {
                 type="checkbox"
                 :checked="formData.video_status === 2"
                 @change="
-                  (event) => {
-                    formData.video_status = event.target.checked ? 2 : 1;
-                    store.updateIsOpenAccess({
-                      id: paperId,
-                      video_status: formData.video_status,
-                    });
+                  (event: Event) => {
+                    const target = event.target as HTMLInputElement;
+                    if (target) {
+                      formData.video_status = target.checked ? 2 : 1;
+                      store.updateIsOpenAccess({
+                        id: paperId,
+                        video_status: formData.video_status,
+                      });
+                    }
                   }
                 "
               />
@@ -591,11 +594,13 @@ function getAffiliationNumber(originalId: number): number {
                 :active-value="2"
                 :inactive-value="1"
                 @change="
-                  (value) =>
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
                     store.updateIsOpenAccess({
                       id: paperId,
-                      slide_status: value,
-                    })
+                      slide_status: status,
+                    });
+                  }
                 "
               />
             </div>
@@ -613,11 +618,13 @@ function getAffiliationNumber(originalId: number): number {
                 :active-value="2"
                 :inactive-value="1"
                 @change="
-                  (value) =>
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
                     store.updateIsOpenAccess({
                       id: paperId,
-                      poster_status: value,
-                    })
+                      poster_status: status,
+                    });
+                  }
                 "
               />
             </div>
