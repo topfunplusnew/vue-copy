@@ -557,7 +557,7 @@ function getAffiliationNumber(originalId: number): number {
                 (event: Event) => {
                   const target = event.target as HTMLInputElement;
                   if (target) {
-                    formData.video_status = target.checked ? 2 : 1;
+                    formData.video_status = target.checked ? 1 : 2;
                     store.updateIsOpenAccess({
                       id: paperId,
                       video_status: formData.video_status,
@@ -579,8 +579,8 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当幻灯片已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.slide" class="consent-section">
             <div class="consent-row">
-              <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="show"
-                inactive-text="hide" @change="
+              <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="release"
+                inactive-text="private" @change="
                   (value: number | boolean | string) => {
                     const status = typeof value === 'number' ? value : value ? 2 : 1;
                     store.updateIsOpenAccess({
@@ -600,8 +600,8 @@ function getAffiliationNumber(originalId: number): number {
           <div v-if="myPaperDetailInfo?.poster" class="consent-section">
             <div class="consent-row">
 
-              <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="show"
-                inactive-text="hide" @change="(value: number | boolean | string) => {
+              <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="release"
+                inactive-text="private" @change="(value: number | boolean | string) => {
                   const status = typeof value === 'number' ? value : value ? 2 : 1;
                   store.updateIsOpenAccess({
                     id: paperId,

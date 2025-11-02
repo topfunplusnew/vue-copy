@@ -713,7 +713,8 @@ function formatFirstLetterUppercase(str: string): string {
           <!-- Action Buttons -->
           <div class="action-buttons">
             <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)"
-              class="interest-btn"><span class="btn-icon">💡</span> {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }} </el-button>
+              class="interest-btn"><span class="btn-icon">💡</span>
+              {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }} </el-button>
             <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span>
               Visit Website </a>
             <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span
@@ -769,13 +770,13 @@ function formatFirstLetterUppercase(str: string): string {
             <button :class="['tab-btn', { active: activeTab === 'details' }]"
               @click="switchTab('details')">Details</button>
             <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-              :disabled="!selectedPaper?.video">Video</button>
-            <button :class="['tab-btn', { active: activeTab === 'slides', disabled: !selectedPaper?.slide }]"
-              @click="selectedPaper?.slide && switchTab('slides')" :disabled="!selectedPaper?.slide">
+              :disabled="selectedPaper?.video_status !== 1">Video</button>
+            <button :class="['tab-btn', { active: activeTab === 'slides' }]"
+              @click="selectedPaper?.slide && switchTab('slides')" :disabled="selectedPaper?.slide_status !== 1">
               Slides
             </button>
             <button :class="['tab-btn', { active: activeTab === 'poster' }]"
-              @click="selectedPaper?.poster && switchTab('poster')" :disabled="!selectedPaper?.poster">
+              @click="selectedPaper?.poster && switchTab('poster')" :disabled="selectedPaper?.poster_status !== 1">
               Poster
             </button>
             <button
@@ -842,7 +843,7 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
 
             <div v-if="activeTab === 'video'" class="videos-content">
-              <template v-if="selectedPaper?.is_open_access">
+              <template v-if="selectedPaper?.video_status === 1">
                 <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
                   :limit="1" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
