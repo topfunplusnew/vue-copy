@@ -568,11 +568,11 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当幻灯片已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.slide" class="consent-section">
             <div class="consent-row">
-              <span>Hide slides from the public</span>
-              <el-switch v-model="formData.slide_status" :active-value="2" :inactive-value="1" @change="(value) => store.updateIsOpenAccess({
-                id: paperId,
-                slide_status: value
-              })" />
+              <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="show"
+                inactive-text="hide" @change="(value) => store.updateIsOpenAccess({
+                  id: paperId,
+                  slide_status: value
+                })" />
             </div>
           </div>
           <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
@@ -583,11 +583,11 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当海报已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.poster" class="consent-section">
             <div class="consent-row">
-              <span>Hide poster from the public</span>
-              <el-switch v-model="formData.poster_status" :active-value="2" :inactive-value="1" @change="(value) => store.updateIsOpenAccess({
-                id: paperId,
-                poster_status: value
-              })" />
+              <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="show"
+                inactive-text="hide" @change="(value) => store.updateIsOpenAccess({
+                  id: paperId,
+                  poster_status: value
+                })" />
             </div>
           </div>
           <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"

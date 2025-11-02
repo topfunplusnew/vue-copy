@@ -256,14 +256,14 @@ function matchAcceptRule(file: File, rule: string): boolean {
 
 const handleBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
   const file = rawFile as File;
-  
+
   // 检查文件大小，限制为500MB
   const maxSize = 500 * 1024 * 1024; // 500MB in bytes
   if (file.size > maxSize) {
     ElMessage.error('文件大小不能超过500MB，请选择较小的文件');
     return false;
   }
-  
+
   if (props.accept) {
     const rules = Array.isArray(props.accept) ? props.accept : String(props.accept).split(',');
     const ok = rules.some((r) => matchAcceptRule(rawFile as unknown as File, r));
@@ -636,7 +636,7 @@ const handleFileDownload = (file: UploadUserFile) => {
 }
 
 .pdf-preview-container {
-  margin-top: 16px;
+
   border: 1px solid #e4e7ed;
   border-radius: 4px;
   overflow: hidden;
@@ -646,7 +646,7 @@ const handleFileDownload = (file: UploadUserFile) => {
   width: 100%;
   height: calc(100vh - 8px);
   border: none;
-  background-color: #f5f5f5;
+  // background-color: #f5f5f5;
 }
 
 .image-preview-container {
