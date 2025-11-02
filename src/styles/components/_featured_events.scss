@@ -1081,7 +1081,7 @@
                 z-index: 1;
               }
 
-              &.disabled {
+              &:disabled {
                 color: #9ca3af;
                 cursor: not-allowed;
                 opacity: 0.5;
@@ -1188,8 +1188,6 @@
                 width: 100%;
                 border: none;
                 border-radius: 12px;
-                border: 1px solid rgba(59, 130, 246, 0.2);
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 
                 @include screen-mobile {
                   height: 500px;
@@ -1202,7 +1200,7 @@
                 height: auto;
                 border-radius: 12px;
                 box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(59, 130, 246, 0.2);
+
               }
             }
           }

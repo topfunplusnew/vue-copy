@@ -70,9 +70,9 @@ export const useConferenceStore = defineStore('meet', () => {
             ElMessage.error('get conference detail error!');
             return;
           }
-          myPaperDetail.value.poster_visible = res.data.paper.poster_visible;
-          myPaperDetail.value.slide_visible = res.data.paper.slide_visible;
-          myPaperDetail.value.video_visible = res.data.paper.video_visible;
+          myPaperDetail.value.poster_status = res.data.paper.poster_status;
+          myPaperDetail.value.slide_status = res.data.paper.slide_status;
+          myPaperDetail.value.video_status = res.data.paper.video_status;
         }
       })
       .catch((err) => {
