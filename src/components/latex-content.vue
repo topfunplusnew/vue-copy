@@ -1,12 +1,10 @@
 <template>
   <div class="latex-content-wrapper">
-    <!-- 查看模式：展示 LaTeX 渲染结果 -->
     <div v-if="!isEditing" class="latex-view-mode" @click="enterEditMode" :class="{ 'is-clickable': editable }">
       <div ref="latexContainer" class="latex-content"></div>
       <div v-if="!props.latex" class="latex-placeholder">{{ placeholder || '点击编辑' }}</div>
       <div v-if="editable && props.latex" class="edit-hint">点击编辑</div>
     </div>
-    <!-- 编辑模式：文本输入框 -->
     <div v-else class="latex-edit-mode">
       <el-input ref="textareaRef" v-model="editValue" type="textarea" :rows="rows" :placeholder="placeholder || '请输入 LaTeX 内容...'" resize="vertical" class="latex-textarea" />
       <div class="latex-edit-actions">
@@ -70,21 +68,226 @@ const renderLatex = () => {
   }
 
   try {
-    // 处理空格：将普通空格替换为 LaTeX 的强制空格命令
-    // KaTeX 在数学模式下会忽略空格，需要将空格替换为 \ (反斜杠+空格) 来保留
-    const processedLatex = props.latex.replace(/ /g, '\\ ');
+    // 检查是否是完整的 LaTeX 文档（包含 \documentclass, \begin{document} 等）
+    const isFullDocument = props.latex.includes('\\documentclass') || props.latex.includes('\\begin{document}') || props.latex.includes('\\usepackage');
 
-    katex.render(processedLatex, latexContainer.value, {
-      displayMode: props.displayMode,
-      throwOnError: false,
-      ...props.options,
-    });
+    if (isFullDocument) {
+      // 完整 LaTeX 文档：提取并渲染数学表达式，其他部分作为文本显示
+      renderFullDocument(props.latex);
+    } else {
+      // 纯数学表达式：直接渲染
+      renderMathExpression(props.latex);
+    }
   } catch (error) {
     console.error('LaTeX 渲染错误:', error);
     if (latexContainer.value) {
       latexContainer.value.textContent = props.latex;
     }
   }
+};
+
+// 渲染完整的 LaTeX 文档（提取数学表达式）
+const renderFullDocument = (latex: string) => {
+  if (!latexContainer.value) return;
+
+  // 移除 documentclass、usepackage、begin{document}、end{document} 等文档命令
+  const content = latex
+    .replace(/\\documentclass\{[^}]*\}/g, '')
+    .replace(/\\usepackage\[[^\]]*\]\{[^}]*\}/g, '')
+    .replace(/\\usepackage\{[^}]*\}/g, '')
+    .replace(/\\title\{[^}]*\}/g, '')
+    .replace(/\\author\{[^}]*\}/g, '')
+    .replace(/\\maketitle/g, '')
+    .replace(/\\begin\{document\}/g, '')
+    .replace(/\\end\{document\}/g, '')
+    .replace(/\\bibliographystyle\{[^}]*\}/g, '')
+    .replace(/\\bibliography\{[^}]*\}/g, '');
+
+  // 提取和处理数学表达式
+  // 匹配 $$...$$, \[...\], \begin{equation}...\end{equation}, \begin{align}...\end{align} 等块级数学
+  // 以及 $...$, \(...\) 等行内数学
+
+  const blockMathRegex =
+    /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\begin\{(equation|equation\*|align|align\*|eqnarray|eqnarray\*|gather|gather\*|multline|multline\*)\}[\s\S]*?\\end\{(equation|equation\*|align|align\*|eqnarray|eqnarray\*|gather|gather\*|multline|multline\*)\})/g;
+  const inlineMathRegex = /(\$[^$\n]+?\$|\\\([^\)]+?\\\))/g;
+
+  const parts: Array<{ type: 'text' | 'block' | 'inline'; content: string }> = [];
+  let lastIndex = 0;
+  let match;
+
+  // 辅助函数：处理文本中的行内数学
+  const processInlineMath = (text: string): Array<{ type: 'text' | 'inline'; content: string }> => {
+    const textParts: Array<{ type: 'text' | 'inline'; content: string }> = [];
+    let textLastIndex = 0;
+    let inlineMatch;
+
+    while ((inlineMatch = inlineMathRegex.exec(text)) !== null) {
+      // 添加行内数学之前的文本
+      if (inlineMatch.index > textLastIndex) {
+        const textContent = text.substring(textLastIndex, inlineMatch.index);
+        if (textContent.trim()) {
+          textParts.push({ type: 'text', content: textContent });
+        }
+      }
+      // 提取数学表达式内容
+      let mathContent = inlineMatch[1];
+      if (mathContent.startsWith('$')) {
+        mathContent = mathContent.slice(1, -1);
+      } else if (mathContent.startsWith('\\(')) {
+        mathContent = mathContent.slice(2, -2);
+      }
+      textParts.push({ type: 'inline', content: mathContent.trim() });
+      textLastIndex = inlineMatch.index + inlineMatch[0].length;
+    }
+
+    // 添加最后剩余的文本
+    if (textLastIndex < text.length) {
+      const textContent = text.substring(textLastIndex);
+      if (textContent.trim()) {
+        textParts.push({ type: 'text', content: textContent });
+      }
+    }
+
+    // 如果没有找到任何数学表达式，返回整个文本
+    return textParts.length > 0 ? textParts : [{ type: 'text', content: text }];
+  };
+
+  // 先处理块级数学
+  while ((match = blockMathRegex.exec(content)) !== null) {
+    // 处理块级数学之前的文本（可能包含行内数学）
+    if (match.index > lastIndex) {
+      const text = content.substring(lastIndex, match.index);
+      if (text.trim()) {
+        const processedTextParts = processInlineMath(text);
+        parts.push(...processedTextParts);
+      }
+    }
+    // 提取数学表达式内容
+    let mathContent = match[1];
+    if (mathContent.startsWith('$$')) {
+      mathContent = mathContent.slice(2, -2);
+    } else if (mathContent.startsWith('\\[')) {
+      mathContent = mathContent.slice(2, -2);
+    } else if (mathContent.startsWith('\\begin{')) {
+      // 提取 \begin{...} 和 \end{...} 之间的内容
+      const beginMatch = mathContent.match(/\\begin\{[^}]+\}/);
+      if (beginMatch) {
+        const beginTag = beginMatch[0];
+        const endTag = beginTag.replace('begin', 'end');
+        const startIdx = mathContent.indexOf(beginTag) + beginTag.length;
+        const endIdx = mathContent.lastIndexOf(endTag);
+        if (endIdx > startIdx) {
+          mathContent = mathContent.substring(startIdx, endIdx);
+        }
+      }
+    }
+    parts.push({ type: 'block', content: mathContent.trim() });
+    lastIndex = match.index + match[0].length;
+  }
+
+  // 处理剩余的文本（可能包含行内数学）
+  if (lastIndex < content.length) {
+    const remainingText = content.substring(lastIndex);
+    if (remainingText.trim()) {
+      const processedTextParts = processInlineMath(remainingText);
+      parts.push(...processedTextParts);
+    }
+  }
+
+  // 渲染所有部分
+  // 需要合并连续的文本和行内数学到一个容器中
+  let currentTextContainer: HTMLDivElement | null = null;
+
+  parts.forEach((part, index) => {
+    if (part.type === 'text') {
+      // 如果当前没有文本容器，或者上一个部分是块级数学，创建新容器
+      if (!currentTextContainer || (index > 0 && parts[index - 1].type === 'block')) {
+        currentTextContainer = document.createElement('div');
+        currentTextContainer.className = 'latex-text-content';
+        latexContainer.value?.appendChild(currentTextContainer);
+      }
+
+      // 在文本容器中添加内容
+      const textContent = part.content
+        .replace(/\\section\{(.+?)\}/g, '<h2>$1</h2>')
+        .replace(/\\subsection\{(.+?)\}/g, '<h3>$1</h3>')
+        .replace(/\\textbf\{(.+?)\}/g, '<strong>$1</strong>')
+        .replace(/\\textit\{(.+?)\}/g, '<em>$1</em>')
+        .replace(/\\verb\|(.+?)\|/g, '<code>$1</code>')
+        .replace(/\\href\{([^}]+)\}\{([^}]+)\}/g, '<a href="$1">$2</a>')
+        .replace(/\\url\{([^}]+)\}/g, '<a href="$1">$1</a>');
+
+      // 处理换行
+      const lines = textContent.split('\n');
+      lines.forEach((line, lineIndex) => {
+        if (lineIndex > 0) {
+          currentTextContainer?.appendChild(document.createElement('br'));
+        }
+        if (line.trim()) {
+          const lineSpan = document.createElement('span');
+          lineSpan.innerHTML = line;
+          currentTextContainer?.appendChild(lineSpan);
+        }
+      });
+    } else if (part.type === 'inline') {
+      // 行内数学应该添加到当前的文本容器中
+      if (!currentTextContainer) {
+        currentTextContainer = document.createElement('div');
+        currentTextContainer.className = 'latex-text-content';
+        latexContainer.value?.appendChild(currentTextContainer);
+      }
+
+      const mathEl = document.createElement('span');
+      mathEl.className = 'latex-inline-math';
+
+      try {
+        katex.render(part.content, mathEl, {
+          displayMode: false,
+          throwOnError: false,
+          ...props.options,
+        });
+        currentTextContainer.appendChild(mathEl);
+      } catch (error) {
+        console.error('数学表达式渲染错误:', error, part.content);
+        mathEl.textContent = part.content;
+        currentTextContainer.appendChild(mathEl);
+      }
+    } else if (part.type === 'block') {
+      // 块级数学，结束当前文本容器
+      currentTextContainer = null;
+
+      const mathEl = document.createElement('div');
+      mathEl.className = 'latex-block-math';
+
+      try {
+        katex.render(part.content, mathEl, {
+          displayMode: true,
+          throwOnError: false,
+          ...props.options,
+        });
+        latexContainer.value?.appendChild(mathEl);
+      } catch (error) {
+        console.error('数学表达式渲染错误:', error, part.content);
+        mathEl.textContent = part.content;
+        latexContainer.value?.appendChild(mathEl);
+      }
+    }
+  });
+};
+
+// 渲染纯数学表达式
+const renderMathExpression = (latex: string) => {
+  if (!latexContainer.value) return;
+
+  // 处理空格：将普通空格替换为 LaTeX 的强制空格命令
+  // KaTeX 在数学模式下会忽略空格，需要将空格替换为 \ (反斜杠+空格) 来保留
+  const processedLatex = latex.replace(/ /g, '\\ ');
+
+  katex.render(processedLatex, latexContainer.value, {
+    displayMode: props.displayMode,
+    throwOnError: false,
+    ...props.options,
+  });
 };
 
 // 进入编辑模式
@@ -192,6 +395,70 @@ onMounted(() => {
     overflow-x: auto;
     overflow-y: auto;
     min-height: 40px;
+
+    // 文本内容样式
+    .latex-text-content {
+      margin: 0.5em 0;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+
+      h2 {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin: 1em 0 0.5em;
+        color: #333;
+      }
+
+      h3 {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin: 0.8em 0 0.4em;
+        color: #444;
+      }
+
+      code {
+        background-color: #f4f4f4;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9em;
+      }
+
+      a {
+        color: #409eff;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    // 块级数学样式
+    .latex-block-math {
+      margin: 1em 0;
+      overflow-x: auto;
+    }
+
+    // 行内数学样式
+    .latex-inline-math {
+      display: inline;
+      margin: 0 0.1em;
+      vertical-align: baseline;
+    }
+
+    // 文本内容样式调整
+    .latex-text-content {
+      display: block;
+
+      // 文本内容中的行内数学应该在同一行
+      :deep(.latex-inline-math) {
+        display: inline;
+        margin: 0 0.1em;
+        vertical-align: baseline;
+      }
+    }
 
     // 自定义滚动条样式 - Webkit (Chrome, Safari, Edge)
     &::-webkit-scrollbar {
