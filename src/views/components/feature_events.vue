@@ -11,6 +11,7 @@ import { getImageUrl } from '@/utils';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
+import LatexContent from '@/components/latex-content.vue';
 import type { IpaperDetail } from '@/types/paper';
 import { addFavorite } from '@/services/conference';
 import type { IAddFavoriteRequest } from '@/services/conference/type.ts';
@@ -632,7 +633,12 @@ function formatFirstLetterUppercase(str: string): string {
                   </div>
                   <div class="detail-item">
                     <h5>Abstract</h5>
-                    <p>{{ selectedPaper?.abstract }}</p>
+                    <latex-content
+                      :latex="selectedPaper?.abstract || ''"
+                      :editable="false"
+                      :display-mode="false"
+                      :placeholder="'No abstract available'"
+                    />
                   </div>
                   <div class="detail-item">
                     <h5>Graphical Abstract</h5>
