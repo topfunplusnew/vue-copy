@@ -234,7 +234,7 @@ function onClick() {
 .post-image {
   width: 100%;
   height: auto;
-  object-fit: cover;
+  object-fit: contain;
   /* 保持图片/封面的宽高比并填满容器 */
   background-color: #f0f0f0;
   /* 默认背景色，在封面生成前显示 */
