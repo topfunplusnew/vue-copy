@@ -32,11 +32,11 @@ const keywords = ref<Array<{ name: string; id: number; order: number }>>([]);
 const formData = reactive({
   doi: '',
   abstract: '',
-  graphic_abstract: '',
+  graphic_abstract: [] as string[],
   video: '',
   slide: '',
   poster: '',
-  addition_files: '',
+  addition_files: [] as string[],
   keywords: [] as Array<{ name: string; id: number; order: number }>,
   poster_status: 0,
   slide_status: 0,
@@ -85,11 +85,11 @@ const initializeFormData = () => {
     // 后端返回的是对象数组，按order排序
     keywords.value = myPaperDetailInfo.value.keywords?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [];
     formData.keywords = keywords.value;
-    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
+    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? [];
     formData.video = myPaperDetailInfo.value.video ?? '';
     formData.slide = myPaperDetailInfo.value.slide ?? '';
     formData.poster = myPaperDetailInfo.value.poster ?? '';
-    formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
+    formData.addition_files = myPaperDetailInfo.value.addition_files ?? [];
     formData.poster_status = myPaperDetailInfo.value.poster_status ?? 0;
     formData.slide_status = myPaperDetailInfo.value.slide_status ?? 0;
     formData.video_status = myPaperDetailInfo.value.video_status ?? 0;
