@@ -7,6 +7,7 @@ import { getImageUrl } from '@/utils';
 import { useRouter } from 'vue-router';
 import BlogDetailComment from './blog-detail-comment.vue';
 import { isImage, isVideo } from '@/constants/file';
+import type { AxiosError } from 'axios';
 
 const router = useRouter();
 const dialogWidth = ref('90%');
@@ -68,7 +69,7 @@ const checkLikeStatus = async (blogId: number | undefined) => {
 
   try {
     const response = await store.checkUserLike(blogId);
-    isLiked.value = response.data.has_liked;
+    isLiked.value = response.is_collected;
   } catch (error) {
     console.error('Failed to check like status:', error);
     isLiked.value = false;
@@ -78,7 +79,6 @@ const checkLikeStatus = async (blogId: number | undefined) => {
 // 处理点赞
 const handleLike = async () => {
   if (!selectedBlog.value?.id) return;
-
   if (!userStore.isLogin()) {
     ElMessageBox.confirm('You need to login to like this post. Would you like to login now?', 'Login Required', {
       confirmButtonText: 'Go to Login',
@@ -94,16 +94,10 @@ const handleLike = async () => {
     ElMessage.info('You have already liked this post');
     return;
   }
-
-  try {
-    await store.likeBlog(selectedBlog.value.id);
-    isLiked.value = true;
-    likesCount.value += 1;
-    ElMessage.success('Liked successfully');
-  } catch (error) {
-    console.error('Failed to like blog:', error);
-    ElMessage.error('Failed to like blog');
-  }
+  await store.likeBlog(selectedBlog.value.id);
+  isLiked.value = true;
+  likesCount.value += 1;
+  ElMessage.success('Liked successfully');
 };
 
 // 关注状态
