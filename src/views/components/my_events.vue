@@ -165,7 +165,7 @@ const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) =>
         // 从响应中提取items数组，并获取关键词名称
         const items = response.data?.items || [];
         const suggestions = items
-          .map((item: { name?: string; keyword?: string; [key: string]: unknown }) => ({
+          .map((item: { name?: string; keyword?: string;[key: string]: unknown }) => ({
             value: item.name || item.keyword || String(item),
           }))
           .filter((item: { value: string }) => item.value);
@@ -247,13 +247,13 @@ async function saveDetails() {
     };
 
     await updateMyPaperDetail(updateData);
-    ElMessage.success('保存成功！');
+    ElMessage.success('Save Successful!');
 
     // 保存成功后刷新数据
     await refreshPaperData();
   } catch (error) {
     console.error('保存失败：', error);
-    ElMessage.error('保存失败，请重试');
+    ElMessage.error('Save Failed, please try again');
   }
   fullscreenLoading.value = false;
 }
@@ -383,11 +383,13 @@ function getAffiliationNumber(originalId: number): number {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time, myPaperDetailInfo?.conference.end_time) }}</span>
+                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
+                    myPaperDetailInfo?.conference.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{ myPaperDetailInfo?.conference.country }}</span>
+                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
+                    myPaperDetailInfo?.conference.country }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">🏢</span>
@@ -434,9 +436,12 @@ function getAffiliationNumber(originalId: number): number {
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
-                  <sup>{{ affiliation.id }}</sup
-                  >{{ affiliation.university || affiliation.name }}{{ affiliation.department ? ', ' + affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
-                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' + affiliation.country : '' }}
+                  <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
+                    affiliation.department ? ', ' +
+                  affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
+                  affiliation.country : ''
+                  }}
                 </div>
               </div>
               <!-- 当机构列表为空的时候，渲染一个空状态 -->
@@ -475,7 +480,8 @@ function getAffiliationNumber(originalId: number): number {
             </div>
             <div class="dates">
               Date Created:
-              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} · Date Edited:
+              {{ convertUTCToTimezone(myPaperDetailInfo?.conference.start_time as string, undefined, `YYYY-MM-DD`) }} ·
+              Date Edited:
               {{ convertUTCToTimezone(myPaperDetailInfo?.conference.end_time as string, undefined, `YYYY-MM-DD`) }}
             </div>
           </div>
@@ -486,45 +492,41 @@ function getAffiliationNumber(originalId: number): number {
           <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
           <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
           <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional Info</button>
+          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+            Info</button>
           <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
         </div>
         <!-- 展示区 -->
         <div v-if="activeTab === 'details'" class="tab-content">
-          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid" @submit.prevent>
+          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
+            @submit.prevent>
             <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
               <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
             </el-form-item>
             <el-form-item label="Abstract" class="form-item full">
-              <latex-content
-                v-model:latex="formData.abstract"
-                :editable="true"
-                :display-mode="true"
-                :placeholder="myPaperDetailInfo?.abstract || '点击编辑 Abstract'"
-                :rows="6"
-                @change="handleAbstractChange"
-              />
+              <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="true"
+                :placeholder="myPaperDetailInfo?.abstract || 'Click to Edit Abstract'" :rows="6"
+                @change="handleAbstractChange" />
             </el-form-item>
             <el-form-item label="Graphical Abstract" class="form-item">
-              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+                @refresh="refreshPaperData" :is-show="true" />
             </el-form-item>
-            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords" class="form-item full">
+            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords"
+              class="form-item full">
               <div class="keywords-container">
                 <div class="keywords-input-row">
                   <el-row>
                     <el-col :span="18">
-                      <el-autocomplete
-                        v-model="keywordInput"
-                        :fetch-suggestions="querySearchAsync"
-                        placeholder="please input keywords..."
-                        @select="handleSelect"
-                        @keyup.enter="addKeyword"
-                        @blur="onKeywordBlur"
-                      />
+                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
+                        placeholder="please input keywords..." @select="handleSelect" @keyup.enter="addKeyword"
+                        @blur="onKeywordBlur" />
                     </el-col>
                     <el-col :span="6">
                       <div class="add-button-container">
-                        <el-button @click="() => addKeyword()" :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加 </el-button>
+                        <el-button @click="() => addKeyword()"
+                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">add
+                        </el-button>
                       </div>
                     </el-col>
                   </el-row>
@@ -543,12 +545,9 @@ function getAffiliationNumber(originalId: number): number {
                     @close="removeKeyword(index)"
                     :data-drag-index="index"
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
-                    @dragover="(event: DragEvent) => handleDragOver(event, index)"
-                    @dragleave="handleDragLeave"
-                    @drop="(event: DragEvent) => handleDrop(event, index)"
-                    @dragend="handleDragEnd"
-                    @touchstart="(event: TouchEvent) => keywordsContainerRef && handleTouchStart(event, index, keywordsContainerRef)"
-                  >
+                    @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
+                    @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"
+                    @touchstart="(event: TouchEvent) => keywordsContainerRef && handleTouchStart(event, index, keywordsContainerRef)">
                     {{ keyword.name }}
                   </el-tag>
                 </div>
@@ -567,28 +566,25 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当视频已存在时显示同意条款复选框 -->
           <div v-if="myPaperDetailInfo?.video" class="consent-section">
             <label class="checkbox">
-              <input
-                type="checkbox"
-                :checked="formData.video_status === 2"
-                @change="
-                  (event: Event) => {
-                    const target = event.target as HTMLInputElement;
-                    if (target) {
-                      formData.video_status = target.checked ? 1 : 2;
-                      store.updateIsOpenAccess({
-                        id: paperId,
-                        video_status: formData.video_status,
-                      });
-                    }
+              <input type="checkbox" :checked="formData.video_status === 2" @change="
+                (event: Event) => {
+                  const target = event.target as HTMLInputElement;
+                  if (target) {
+                    formData.video_status = target.checked ? 1 : 2;
+                    store.updateIsOpenAccess({
+                      id: paperId,
+                      video_status: formData.video_status,
+                    });
                   }
-                "
-              />
+                }
+              " />
               <span>I understand and agree to keep the video private.</span>
             </label>
           </div>
           <!-- 总是显示上传组件 -->
           <div class="video-upload">
-            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
+              :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
         </div>
 
@@ -596,13 +592,8 @@ function getAffiliationNumber(originalId: number): number {
           <!-- 当幻灯片已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.slide" class="consent-section">
             <div class="consent-row">
-              <el-switch
-                v-model="formData.slide_status"
-                :active-value="1"
-                :inactive-value="2"
-                active-text="release"
-                inactive-text="private"
-                @change="
+              <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="release"
+                inactive-text="private" @change="
                   (value: number | boolean | string) => {
                     const status = typeof value === 'number' ? value : value ? 2 : 1;
                     store.updateIsOpenAccess({
@@ -610,24 +601,19 @@ function getAffiliationNumber(originalId: number): number {
                       slide_status: status,
                     });
                   }
-                "
-              />
+                " />
             </div>
           </div>
-          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
+            :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'poster'" class="tab-content">
           <!-- 当海报已存在时显示可见性控制滑块 -->
           <div v-if="myPaperDetailInfo?.poster" class="consent-section">
             <div class="consent-row">
-              <el-switch
-                v-model="formData.poster_status"
-                :active-value="1"
-                :inactive-value="2"
-                active-text="release"
-                inactive-text="private"
-                @change="
+              <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="release"
+                inactive-text="private" @change="
                   (value: number | boolean | string) => {
                     const status = typeof value === 'number' ? value : value ? 2 : 1;
                     store.updateIsOpenAccess({
@@ -635,23 +621,17 @@ function getAffiliationNumber(originalId: number): number {
                       poster_status: status,
                     });
                   }
-                "
-              />
+                " />
             </div>
           </div>
-          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+            @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload
-            :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
-            :tab-key="activeTab"
-            :paper-id="paperId"
-            :paper-detail="paperContent"
-            :limit="-1"
-            @refresh="refreshPaperData"
-            :is-show="true"
-          />
+          <file-upload :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
+            :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1"
+            @refresh="refreshPaperData" :is-show="true" />
         </div>
 
         <div v-else-if="activeTab === 'fulltext'" class="tab-content">
@@ -665,15 +645,18 @@ function getAffiliationNumber(originalId: number): number {
               </div>
               <div class="item">
                 <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}</div>
+                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}
+                </div>
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
