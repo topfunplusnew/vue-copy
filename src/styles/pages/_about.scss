@@ -250,58 +250,58 @@
     }
   }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
-  100% {
-    transform: rotate(360deg);
-  }
-}
 
-.trusted-header {
-  text-align: center;
-  padding: rpx(40) rpx(20) rpx(30) rpx(20);
-  position: relative;
-  z-index: 2;
+  .trusted-header {
+    text-align: center;
+    padding: rpx(40) rpx(20) rpx(30) rpx(20);
+    position: relative;
+    z-index: 2;
 
-  h3 {
-    font-size: rpx(32);
-    font-weight: 700;
-    background: linear-gradient(135deg, #1a5490 0%, #2d6da8 50%, #1a5490 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    margin-bottom: rpx(10);
-    letter-spacing: rpx(0.5);
+    h3 {
+      font-size: rpx(32);
+      font-weight: 700;
+      background: linear-gradient(135deg, #1a5490 0%, #2d6da8 50%, #1a5490 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: rpx(10);
+      letter-spacing: rpx(0.5);
+
+      @include screen-pad {
+        font-size: rpx(28);
+      }
+
+      @include screen-mobile {
+        font-size: rpx(28);
+      }
+    }
+
+    .trusted-subtitle {
+      font-size: rpx(24);
+      color: #3a5683;
+      font-weight: 400;
+
+      @include screen-mobile {
+        font-size: rpx(20);
+      }
+    }
 
     @include screen-pad {
-      font-size: rpx(28);
+      padding: rpx(35) rpx(20) rpx(25) rpx(20);
     }
 
     @include screen-mobile {
-      font-size: rpx(28);
+      padding: rpx(30) rpx(15) rpx(20) rpx(15);
     }
   }
-
-  .trusted-subtitle {
-    font-size: rpx(24);
-    color: #3a5683;
-    font-weight: 400;
-
-    @include screen-mobile {
-      font-size: rpx(20);
-    }
-  }
-
-  @include screen-pad {
-    padding: rpx(35) rpx(20) rpx(25) rpx(20);
-  }
-
-  @include screen-mobile {
-    padding: rpx(30) rpx(15) rpx(20) rpx(15);
-  }
-}
 
   .logo-scroll-container {
     position: relative;
@@ -315,15 +315,15 @@
     }
   }
 
-.logo-scroll-track {
-  display: flex;
-  width: fit-content;
-  animation: scrollLogos 200s linear infinite;
+  .logo-scroll-track {
+    display: flex;
+    width: fit-content;
+    animation: scrollLogos 200s linear infinite;
 
-  &:hover {
-    animation-play-state: paused;
+    &:hover {
+      animation-play-state: paused;
+    }
   }
-}
 
   @keyframes scrollLogos {
     0% {
@@ -552,6 +552,7 @@
   .faq-container-about {
     max-width: rpx(900);
     width: 90%;
+    margin-bottom: 30px;
 
     @include screen-pad {
       width: 95%;
