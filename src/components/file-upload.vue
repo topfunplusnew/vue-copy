@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { deleteFile, getFileUploadAddress } from '@/services/common/files.ts';
-import { Plus, Document } from '@element-plus/icons-vue';
+import { Plus, Document, Reading } from '@element-plus/icons-vue';
 import { ElMessage, type UploadProps } from 'element-plus';
-import { auth } from '@/services/http.ts';
+import { auth, http } from '@/services/http.ts';
 import { computed, ref } from 'vue';
 import { getImageUrl, isVideoFile, isPdfFile, isImageFile, isZipFile, removeImagePrefix } from '@/utils';
 import type { UploadFiles, UploadUserFile } from 'element-plus';
@@ -102,14 +102,10 @@ const posterFileList = computed((): UploadUserFile[] => {
     },
   ];
 });
-const headers = ref({
-  Authorization: 'Bearer ' + auth.get(),
-});
 const file_type = computed(() => getFileTypeByTabKey(tabKey.value));
-const bodyParams = computed(() => ({
-  paper_id: paperId.value,
-  file_type: file_type.value,
-}));
+
+// 判断是否允许多上传：支持所有类型多文件上传
+const allowMultiple = computed(() => true);
 
 // 判断是否应该显示视频播放器
 const shouldShowVideoPlayer = computed(() => {
@@ -182,9 +178,18 @@ const getFileIcon = (url: string) => {
   return null;
 };
 
-const serverActionUrl = computed(() => import.meta.env.IPG_API_URL + getFileUploadAddress());
 const deleteLoading = ref(false);
 const uploadLoading = ref(false);
+// 用于存储待上传的文件队列
+interface PendingFile {
+  file: UploadFile;
+  rawFile: File; // 保存原始文件对象
+  onSuccess?: (response: unknown, uploadFile: UploadFile) => void;
+  onError?: UploadProps['onError'];
+  onProgress?: UploadProps['onProgress'];
+}
+const pendingFiles = ref<PendingFile[]>([]);
+const isUploadingBatch = ref(false);
 const isUploadDisabled = computed(() => {
   if (props.limit === -1) {
     return false; // 无限制时不禁用
@@ -287,6 +292,128 @@ const handleUploadProgress = () => {
   // 上传进度处理，保持loading状态
 };
 
+// 批量上传多个文件
+const uploadBatchFiles = async () => {
+  if (pendingFiles.value.length === 0 || isUploadingBatch.value) {
+    return;
+  }
+
+  isUploadingBatch.value = true;
+  uploadLoading.value = true;
+
+  try {
+    // 构建 FormData，包含所有待上传的文件
+    const formData = new FormData();
+    formData.append('paper_id', String(paperId.value));
+    formData.append('file_type', file_type.value);
+
+    // 添加所有文件到 FormData（每个文件使用 'file' 字段名，后端可以接收多个）
+    pendingFiles.value.forEach((item) => {
+      const file = item.rawFile;
+      if (file instanceof File) {
+        formData.append('file', file, file.name);
+      }
+    });
+
+    // 使用 axios 批量上传
+    // 注意：不要手动设置 Content-Type，让浏览器自动设置（包含 boundary）
+    const response = await http.post(getFileUploadAddress(), formData, {
+      headers: {
+        Authorization: 'Bearer ' + auth.get(),
+      },
+      onUploadProgress: (progressEvent) => {
+        if (progressEvent.total) {
+          const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          // 更新所有文件的上传进度
+          pendingFiles.value.forEach((item) => {
+            if (item.onProgress) {
+              // 构造符合 UploadProgressEvent 格式的事件对象
+              const uploadProgressEvent = {
+                percent: percent,
+                ...progressEvent,
+              } as unknown as Parameters<UploadProps['onProgress']>[0];
+              item.onProgress(uploadProgressEvent, item.file, posterFileList.value as UploadFiles);
+            }
+          });
+        }
+      },
+    });
+
+    // 所有文件上传成功
+    pendingFiles.value.forEach((item) => {
+      item.onSuccess?.(response.data, item.file);
+    });
+
+    // 清空待上传队列
+    pendingFiles.value = [];
+    handleUploadSuccess();
+  } catch (error: unknown) {
+    const err = error as { message?: string; response?: { data?: { error?: string }; status?: number }; config?: { method?: string; url?: string } };
+    const errorMessage = err.response?.data?.error || err.message || 'Upload failed';
+
+    // 所有文件上传失败
+    pendingFiles.value.forEach((item) => {
+      if (item.onError) {
+        // 构造符合 UploadAjaxError 格式的错误对象
+        const uploadError = new Error(errorMessage) as unknown as Parameters<UploadProps['onError']>[0];
+        if (err.response) {
+          (uploadError as { status?: number; method?: string; url?: string }).status = err.response.status;
+        }
+        if (err.config) {
+          (uploadError as { method?: string; url?: string }).method = err.config.method?.toUpperCase();
+          (uploadError as { url?: string }).url = err.config.url;
+        }
+        item.onError(uploadError, item.file, posterFileList.value as UploadFiles);
+      }
+    });
+
+    handleError(err as Error, pendingFiles.value[0]?.file as UploadFile, posterFileList.value as UploadFiles);
+    pendingFiles.value = [];
+  } finally {
+    isUploadingBatch.value = false;
+    uploadLoading.value = false;
+  }
+};
+
+// 自定义上传方法，支持多文件批量上传
+const handleHttpRequest: UploadProps['httpRequest'] = async (options) => {
+  const { file, onSuccess, onError, onProgress } = options;
+
+  // 获取原始文件对象
+  const rawFile = (file as { raw?: File }).raw || (file as File);
+  if (!(rawFile instanceof File)) {
+    console.error('Invalid file object:', file);
+    // 如果文件无效，不添加到队列，直接返回
+    return;
+  }
+
+  // 确保 file 对象有必要的属性
+  const uploadFile: UploadFile = {
+    ...file,
+    uid: file.uid || Date.now(),
+    name: file.name || rawFile.name || 'unknown',
+    status: 'uploading',
+  } as UploadFile;
+
+  // 将文件添加到待上传队列
+  pendingFiles.value.push({
+    file: uploadFile,
+    rawFile: rawFile, // 保存原始文件对象
+    onSuccess,
+    onError: onError as unknown as UploadProps['onError'],
+    onProgress: onProgress as unknown as UploadProps['onProgress'],
+  });
+
+  // 延迟执行批量上传，等待所有文件都添加到队列
+  // 使用 setTimeout 确保在当前事件循环结束后执行，这样可以收集到同一批次的所有文件
+  setTimeout(() => {
+    // 检查是否还有待上传的文件且当前没有正在上传
+    if (pendingFiles.value.length > 0 && !isUploadingBatch.value) {
+      uploadBatchFiles();
+    }
+  }, 100);
+};
+
 // 处理文件下载
 const handleFileDownload = (file: UploadUserFile) => {
   if (!file.url) return;
@@ -299,19 +426,25 @@ const handleFileDownload = (file: UploadUserFile) => {
   link.click();
   document.body.removeChild(link);
 };
+
+// 处理PDF预览 - 在新窗口打开
+const handlePdfPreview = () => {
+  if (pdfUrl.value) {
+    window.open(pdfUrl.value, '_blank');
+  }
+};
 </script>
 
 <template>
   <div>
-    <el-upload :data="bodyParams" :headers="headers" v-model:file-list="posterFileList" :action="serverActionUrl"
-      list-type="text" :on-remove="handleRemove" :on-error="handleError" :on-exceed="handleExceed"
-      :on-progress="handleUploadProgress" :before-upload="handleBeforeUpload" :on-success="handleUploadSuccess"
-      :limit="props.limit === -1 ? undefined : props.limit" :disabled="isUploadDisabled || uploadLoading"
-      :accept="acceptAttr" class="upload-area" :class="{
+    <el-upload v-model:file-list="posterFileList" list-type="text" :on-remove="handleRemove" :on-error="handleError"
+      :on-exceed="handleExceed" :on-progress="handleUploadProgress" :before-upload="handleBeforeUpload"
+      :http-request="handleHttpRequest" :limit="props.limit === -1 ? undefined : props.limit"
+      :disabled="isUploadDisabled || uploadLoading" :accept="acceptAttr" class="upload-area" :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)">
+      }" :multiple="allowMultiple" v-if="isItemShow && (props.limit === -1 || posterFileList.length < props.limit)">
       <div class="upload-block" :class="{
         'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-block-loading': uploadLoading,
@@ -336,16 +469,15 @@ const handleFileDownload = (file: UploadUserFile) => {
           </el-icon>
           <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
             {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' :
-              'Click to upload files' }}
+            'Click to upload files' }}
           </div>
         </template>
       </div>
     </el-upload>
 
     <!-- 文件尺寸提示 -->
-    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">
-      Maximum file size: 500MB
-    </div>
+    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">Maximum file
+      size: 500MB</div>
 
     <!-- 自定义文件列表显示 -->
     <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
@@ -379,16 +511,25 @@ const handleFileDownload = (file: UploadUserFile) => {
     </div>
     <!-- 视频播放器 -->
     <div v-if="shouldShowVideoPlayer" class="video-player-container">
-      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">
-        Your browser does not support video playback
-      </video>
+      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">Your browser does not support
+        video playback</video>
     </div>
 
     <!-- PDF预览 -->
-    <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf">
-        Your browser does not support PDF preview
-      </iframe>
+    <div v-if="shouldShowPdfPreview">
+      <div class="pdf-preview-container">
+        <div class="pdf-preview-button-wrapper">
+          <el-button type="primary" size="small" class="pdf-preview-button" @click="handlePdfPreview">
+            <el-icon>
+              <Reading />
+            </el-icon>
+            Preview
+          </el-button>
+        </div>
+        <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does
+          not
+          support PDF preview </iframe>
+      </div>
     </div>
   </div>
 </template>
@@ -695,10 +836,21 @@ const handleFileDownload = (file: UploadUserFile) => {
   background-color: #000;
 }
 
-.pdf-preview-container {
+.pdf-preview-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px;
+}
 
-  border: 1px solid #e4e7ed;
+.pdf-preview-button {
+  flex-shrink: 0;
+}
+
+.pdf-preview-container {
+  margin-top: 10px;
+  position: relative;
   border-radius: 4px;
+  background-color: #e2e5e6;
   overflow: hidden;
 }
 
@@ -706,6 +858,7 @@ const handleFileDownload = (file: UploadUserFile) => {
   width: 100%;
   height: calc(100vh - 8px);
   border: none;
+  display: block;
   // background-color: #f5f5f5;
 }
 

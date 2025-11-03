@@ -526,8 +526,7 @@ function getAffiliationNumber(originalId: number): number {
                       <div class="add-button-container">
                         <el-button @click="() => addKeyword()"
                           :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary"
-                          style="width: 100%">Add
-                        </el-button>
+                          style="width: 100%">Add </el-button>
                       </div>
                     </el-col>
                   </el-row>
@@ -551,7 +550,7 @@ function getAffiliationNumber(originalId: number): number {
             <div class="form-actions">
               <el-form-item>
                 <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button> -->
-                <save-button @click="saveDetails()" />
+                <save-button @click="saveDetails()" />``
               </el-form-item>
             </div>
           </el-form>
@@ -910,9 +909,15 @@ function getAffiliationNumber(originalId: number): number {
   // 确保触摸时标签有足够的点击区域
   :deep(.el-tag) {
     // 改善触摸交互
-    touch-action: none; // 禁用默认触摸行为，让我们完全控制
+    touch-action: pan-y; // 允许垂直滚动，但会处理水平拖动
     user-select: none; // 防止文本选择干扰拖动
     -webkit-user-select: none;
+
+    // 关闭按钮保持正常的触摸行为，允许点击
+    .el-tag__close {
+      touch-action: auto !important;
+      pointer-events: auto;
+    }
   }
 }
 

@@ -149,16 +149,58 @@ const togglePreference = (optionName: string) => {
   updateUserInput();
 };
 
-const submitItinerary = () => {
-  router.push({
-    name: 'generator',
-    query: {
-      prompt: userInput.value,
-      location: selectedLocation.value,
-      destination: selectedDestination.value,
-    },
-  });
-  userInput.value = '';
+const submitItinerary = async () => {
+  try {
+    const result = await ElMessageBox.prompt(
+      `
+        <div style="text-align: center; padding: 10px 0;">
+          <div style="font-size: 18px; font-weight: 600; color: #0D1A33; margin-bottom: 16px;">
+            Beta Feature Access
+          </div>
+          <div style="font-size: 14px; color: #606266; line-height: 1.6; margin-bottom: 12px;">
+            This feature is currently in <span style="color: #4A6FA5; font-weight: 500;">closed beta</span>.
+          </div>
+          <div style="font-size: 14px; color: #606266; line-height: 1.6; margin-bottom: 8px;">
+            Please contact us to get your activation code:
+          </div>
+          <div style="font-size: 15px; color: #4A6FA5; font-weight: 500; word-break: break-all; padding: 8px 12px; background: #E8ECF5; border-radius: 6px; margin-top: 12px;">
+            📧 ipologo.os@gmail.com
+          </div>
+        </div>
+      `,
+      'Activation Required',
+      {
+        confirmButtonText: 'Activate',
+        cancelButtonText: 'Cancel',
+        confirmButtonClass: 'custom-confirm-btn',
+        cancelButtonClass: 'custom-cancel-btn',
+        inputPlaceholder: 'Enter your activation code here...',
+        inputType: 'text',
+        inputPattern: /^.+$/,
+        inputErrorMessage: 'Please enter a valid activation code',
+        inputValidator: (value: string) => {
+          if (!value || value.trim().length === 0) {
+            return 'Please enter your activation code';
+          }
+          if (value.trim().length < 4) {
+            return 'Activation code is too short';
+          }
+          return true;
+        },
+        dangerouslyUseHTMLString: true,
+        customClass: 'activation-prompt-dialog',
+        center: true,
+        showClose: true,
+      }
+    );
+
+    // TODO: 实现确定后的逻辑
+    const activationCode = result.value;
+    console.log('Activation code:', activationCode);
+  } catch {
+    // TODO: 实现取消后的逻辑
+    // console.log('User cancelled');
+  }
 };
 
 const allPosts = computed(() => store.blogs);
@@ -725,7 +767,7 @@ watch(selectedLocation, () => {
           </div>
 
           <!-- Tools 工具选择器 -->
-          <div class="selector-widget" ref="toolsWidgetRef">
+          <!-- <div class="selector-widget" ref="toolsWidgetRef">
             <div class="selector-trigger" @click="toggleTools">
               <el-icon class="selector-icon">
                 <Setting />
@@ -737,7 +779,6 @@ watch(selectedLocation, () => {
               </el-icon>
             </div>
 
-            <!-- Tools 下拉菜单 -->
             <transition name="dropdown">
               <div class="selector-dropdown" v-if="toolsExpanded" @click.stop>
                 <div class="dropdown-content">
@@ -755,7 +796,7 @@ watch(selectedLocation, () => {
                 </div>
               </div>
             </transition>
-          </div>
+          </div> -->
         </div>
       </div>
 

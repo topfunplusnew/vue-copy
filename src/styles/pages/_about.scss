@@ -194,12 +194,13 @@
     padding: 0;
     position: relative;
     overflow: hidden;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 255, 0.10) 100%);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 255, 0.1) 100%);
     backdrop-filter: blur(15px);
     border-radius: rpx(20);
     border: 1px solid rgba(65, 145, 255, 0.25);
-    box-shadow: 0 rpx(10) rpx(40) rgba(100, 179, 244, 0.12),
-    inset 0 rpx(1) rpx(1) rgba(255, 255, 255, 0.3);
+    box-shadow:
+      0 rpx(10) rpx(40) rgba(100, 179, 244, 0.12),
+      inset 0 rpx(1) rpx(1) rgba(255, 255, 255, 0.3);
 
     /* 科技网格背景 */
     &::before {
@@ -209,8 +210,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: linear-gradient(90deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(0deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px);
+      background-image: linear-gradient(90deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px), linear-gradient(0deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px);
       background-size: rpx(30) rpx(30);
       z-index: 0;
       pointer-events: none;
@@ -395,13 +395,10 @@
         inset: -2px;
         border-radius: rpx(12);
         padding: 2px;
-        background: linear-gradient(45deg,
-                transparent,
-                rgba(65, 145, 255, 0.5),
-                transparent
-        );
-        -webkit-mask: linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
+        background: linear-gradient(45deg, transparent, rgba(65, 145, 255, 0.5), transparent);
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
+          linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         opacity: 0;
@@ -411,8 +408,9 @@
       &:hover {
         transform: translateY(rpx(-8)) scale(1.05);
         border-color: rgba(65, 145, 255, 0.6);
-        box-shadow: 0 rpx(15) rpx(40) rgba(65, 145, 255, 0.3),
-        inset 0 0 rpx(20) rgba(65, 145, 255, 0.1);
+        box-shadow:
+          0 rpx(15) rpx(40) rgba(65, 145, 255, 0.3),
+          inset 0 0 rpx(20) rgba(65, 145, 255, 0.1);
 
         &::before {
           opacity: 1;
@@ -532,20 +530,12 @@
 
   .scroll-fade-left {
     left: 0;
-    background: linear-gradient(90deg,
-            rgba(255, 255, 255, 0.12) 0%,
-            rgba(240, 245, 255, 0.10) 40%,
-            transparent 100%
-    );
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 255, 0.1) 40%, transparent 100%);
   }
 
   .scroll-fade-right {
     right: 0;
-    background: linear-gradient(270deg,
-            rgba(255, 255, 255, 0.12) 0%,
-            rgba(240, 245, 255, 0.10) 40%,
-            transparent 100%
-    );
+    background: linear-gradient(270deg, rgba(255, 255, 255, 0.12) 0%, rgba(240, 245, 255, 0.1) 40%, transparent 100%);
   }
 
   /* FAQ 部分样式 */
@@ -556,16 +546,15 @@
 
     @include screen-pad {
       width: 95%;
-
     }
 
     @include screen-mobile {
       width: 98%;
-
     }
   }
 
   .faq-header {
+    margin-top: rpx(40);
     text-align: center;
     margin-bottom: rpx(40);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
@@ -716,7 +705,9 @@
   .faq-answer {
     max-height: 0;
     overflow: hidden;
-    transition: max-height 0.4s ease, padding 0.3s ease;
+    transition:
+      max-height 0.4s ease,
+      padding 0.3s ease;
     background: rgba(255, 255, 255, 0.7);
 
     &.open {
@@ -847,8 +838,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image: linear-gradient(90deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(0deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px);
+      background-image: linear-gradient(90deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px), linear-gradient(0deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px);
       background-size: rpx(20) rpx(20);
       background-position: 0 0;
       z-index: 0;
@@ -992,7 +982,6 @@
     background: linear-gradient(135deg, #00cdac 0%, #8ddad5 100%);
   }
 
-
   /* 统计数据样式 */
   .stats-container-about {
     max-width: rpx(1000); // 限制最大宽度，PC端可能不需要滚动
@@ -1057,7 +1046,6 @@
       padding: rpx(15);
     }
 
-
     &:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
@@ -1082,7 +1070,9 @@
       background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
       opacity: 0;
       transform: scale(0.5);
-      transition: transform 0.6s ease, opacity 0.6s ease;
+      transition:
+        transform 0.6s ease,
+        opacity 0.6s ease;
       z-index: 0;
       pointer-events: none;
     }
@@ -1113,7 +1103,6 @@
       margin-bottom: rpx(5);
     }
 
-
     &::after {
       content: '';
       position: absolute;
@@ -1121,10 +1110,7 @@
       left: 10%;
       width: 80%;
       height: 1.5px;
-      background: linear-gradient(90deg,
-              rgba(100, 179, 244, 0) 0%,
-              rgba(100, 179, 244, 0.7) 50%,
-              rgba(100, 179, 244, 0) 100%);
+      background: linear-gradient(90deg, rgba(100, 179, 244, 0) 0%, rgba(100, 179, 244, 0.7) 50%, rgba(100, 179, 244, 0) 100%);
       transition: all 0.3s ease;
 
       @include screen-mobile {
@@ -1206,8 +1192,6 @@
     .features-grid-about {
       grid-template-columns: repeat(2, 1fr);
     }
-
-
   }
 }
 
