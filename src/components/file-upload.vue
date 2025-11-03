@@ -299,6 +299,10 @@ const handleFileDownload = (file: UploadUserFile) => {
   link.click();
   document.body.removeChild(link);
 };
+
+function openPdfPreview(){
+  window.open(pdfUrl.value || '', '_blank');
+}
 </script>
 
 <template>
@@ -385,8 +389,9 @@ const handleFileDownload = (file: UploadUserFile) => {
     </div>
 
     <!-- PDF预览 -->
-    <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf">
+    <div v-if="shouldShowPdfPreview" class="pdf-preview-container" >
+      <el-button type="primary" size="small" class="pdf-preview-button" @click="openPdfPreview">Preview</el-button>
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf" @click="openPdfPreview">
         Your browser does not support PDF preview
       </iframe>
     </div>
@@ -643,10 +648,17 @@ const handleFileDownload = (file: UploadUserFile) => {
 }
 
 .pdf-preview-container {
-
+  position: relative;
   border: 1px solid #e4e7ed;
   border-radius: 4px;
   overflow: hidden;
+}
+
+.pdf-preview-button {
+  position: absolute;
+  top: 2px;
+  right: 8px;
+  z-index: 10;
 }
 
 .pdf-preview {
