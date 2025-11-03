@@ -420,10 +420,11 @@ function getAffiliationNumber(originalId: number): number {
               <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
                 <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
                   {{ author.name
-                  }}<template v-if="author?.affiliations?.length"><sup
-                      v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{
-                        getAffiliationNumber(affiliation.id) }}</sup></template><span
-                    v-if="authorIndex < myPaperDetailInfo.authors.length - 1">, </span>
+                  }}<template v-if="author?.affiliations?.length"
+                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex"
+                      >{{ getAffiliationNumber(affiliation.id) }}<span v-if="affiliationsIndex < author.affiliations.length - 1">,</span></sup
+                    ></template
+                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">,</span>
                 </span>
               </div>
               <!-- 当论文作者为空的时候 渲染一个空状态 -->
@@ -531,6 +532,7 @@ function getAffiliationNumber(originalId: number): number {
                     </el-col>
                   </el-row>
                 </div>
+<<<<<<< HEAD
                 <div class="keywords-tips">Dragging tags can adjust the keyword order</div>
                 <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
                   @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
@@ -538,6 +540,21 @@ function getAffiliationNumber(originalId: number): number {
                     dragging: draggedIndex === index,
                     'drag-over': draggedOverIndex === index,
                   }" closable @close="removeKeyword(index)" :data-drag-index="index"
+=======
+                <div class="keywords-tips">Dragging tags can adjust the keyword order.</div>
+                <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
+                  <el-tag
+                    v-for="(keyword, index) in keywords"
+                    :key="keyword.id"
+                    :draggable="true"
+                    :class="{
+                      dragging: draggedIndex === index,
+                      'drag-over': draggedOverIndex === index,
+                    }"
+                    closable
+                    @close="removeKeyword(index)"
+                    :data-drag-index="index"
+>>>>>>> 4e12024e284f7df38666696ecb26925329789254
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
                     @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
                     @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"

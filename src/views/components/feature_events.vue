@@ -135,6 +135,7 @@ function registerInterest(conferenceId: number) {
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
 const paperNotFound = ref(false); // 标记文章是否不存在
 const paperId = ref<number>(0);
+
 async function openPaperModal(paper: SelectedPaperLite) {
   paperNotFound.value = false; // 重置错误状态
   paperId.value = paper.id;
@@ -615,11 +616,15 @@ a.tab-btn {
         </div>
 
         <div class="conference-list">
-          <router-link v-for="conf in featuredConferences" :key="conf.id"
-            :class="['conference-card', { active: selectedConference?.id === conf.id }]" :to="{
+          <router-link
+            v-for="conf in featuredConferences"
+            :key="conf.id"
+            :class="['conference-card', { active: selectedConference?.id === conf.id }]"
+            :to="{
               name: 'FeaturedEvents',
               params: { conferenceId: conf.id },
-            }">
+            }"
+          >
             <div class="card-logo">
               <img :src="getImageUrl(conf.logo)" :alt="conf.abbreviation" />
             </div>
@@ -646,8 +651,7 @@ a.tab-btn {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</span>
+                  <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -662,12 +666,9 @@ a.tab-btn {
           </div>
 
           <div class="conference-links">
-            <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span>
-              Official Website </a>
-            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span
-                class="link-icon">👥</span> Committee </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span
-                class="link-icon">📝</span> Registration </a>
+            <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span> Official Website </a>
+            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span class="link-icon">👥</span> Committee </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span class="link-icon">📝</span> Registration </a>
           </div>
 
           <!-- Conference Description -->
@@ -708,8 +709,7 @@ a.tab-btn {
                 <div class="date-icon">🎯</div>
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
-                  <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</div>
+                  <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time) }}</div>
                 </div>
               </div>
             </div>
@@ -717,13 +717,12 @@ a.tab-btn {
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)"
-              class="interest-btn"><span class="btn-icon">💡</span>
-              {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }} </el-button>
-            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span>
-              Visit Website </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span
-                class="btn-icon">📝</span> Register Now </a>
+            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)" class="interest-btn"
+              ><span class="btn-icon">💡</span>
+              {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }}
+            </el-button>
+            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span> Visit Website </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span class="btn-icon">📝</span> Register Now </a>
           </div>
         </header>
 
@@ -732,9 +731,7 @@ a.tab-btn {
           <div class="papers-header">
             <h3>Conference Papers</h3>
             <div class="search-container">
-              <input v-model="searchQuery" type="text"
-                placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input"
-                @keyup.enter="seachPaper()" />
+              <input v-model="searchQuery" type="text" placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" @keyup.enter="seachPaper()" />
               <el-button icon="Search" class="search-btn" @click="seachPaper()" />
             </div>
           </div>
@@ -743,7 +740,8 @@ a.tab-btn {
             <div v-for="paper in conferencePapers" :key="paper.id" class="paper-item" @click="openPaperModal(paper)">
               <div class="paper-title">{{ paper.paper_title }}</div>
               <template v-for="(authors, index) in paper.paper_authors" :key="authors.id">
-                <span class="paper-authors"><span class="author">{{ authors.name }}</span>
+                <span class="paper-authors"
+                  ><span class="author">{{ authors.name }}</span>
                   <span v-if="index < paper.paper_authors.length - 1">,</span>
                 </span>
                 <!-- <div class="paper-institutions">{{ authors.affiliation }}</div> -->
@@ -759,41 +757,39 @@ a.tab-btn {
     </section>
 
     <!-- Paper Detail Modal using Element Plus Dialog -->
-    <el-dialog v-model="showPaperModal" :title="paperDetail?.title || selectedPaper?.title || '论文详情'" width="80%"
-      :before-close="closePaperModal" class="paper-detail-dialog" :modal="true" modal-class="paper-modal-overlay"
-      :close-on-click-modal="false">
+    <el-dialog
+      v-model="showPaperModal"
+      :title="paperDetail?.title || selectedPaper?.title || '论文详情'"
+      width="80%"
+      :before-close="closePaperModal"
+      class="paper-detail-dialog"
+      :modal="true"
+      modal-class="paper-modal-overlay"
+      :close-on-click-modal="false"
+    >
       <!-- 文章不存在时的错误提示 -->
       <div v-if="paperNotFound" class="paper-not-found">
         <div class="not-found-icon">📄</div>
         <div class="not-found-title">The paper does not exist</div>
-        <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or
-          the ID is incorrect.</div>
+        <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or the ID is incorrect.</div>
       </div>
 
       <!-- 正常显示文章详情 -->
       <template v-else>
         <div class="tab-container">
           <div class="tab-navigation">
-            <button :class="['tab-btn', { active: activeTab === 'details' }]"
-              @click="switchTab('details')">Details</button>
-            <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-              :disabled="selectedPaper?.video_status !== 1">Video</button>
-            <button :class="['tab-btn', { active: activeTab === 'slides' }]"
-              @click="selectedPaper?.slide && switchTab('slides')" :disabled="selectedPaper?.slide_status !== 1">
-              Slides
-            </button>
-            <button :class="['tab-btn', { active: activeTab === 'poster' }]"
-              @click="selectedPaper?.poster && switchTab('poster')" :disabled="selectedPaper?.poster_status !== 1">
-              Poster
-            </button>
+            <button :class="['tab-btn', { active: activeTab === 'details' }]" @click="switchTab('details')">Details</button>
+            <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')" :disabled="selectedPaper?.video_status !== 1">Video</button>
+            <button :class="['tab-btn', { active: activeTab === 'slides' }]" @click="selectedPaper?.slide && switchTab('slides')" :disabled="selectedPaper?.slide_status !== 1">Slides</button>
+            <button :class="['tab-btn', { active: activeTab === 'poster' }]" @click="selectedPaper?.poster && switchTab('poster')" :disabled="selectedPaper?.poster_status !== 1">Poster</button>
             <button
               :class="['tab-btn', { active: activeTab === 'additional', disabled: !selectedPaper?.addition_files.length }]"
               @click="selectedPaper?.addition_files.length && switchTab('additional')"
-              :disabled="!selectedPaper?.addition_files.length">
+              :disabled="!selectedPaper?.addition_files.length"
+            >
               Additional Info
             </button>
-            <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" class="tab-btn"
-              v-if="selectedPaper?.can_edit">Edit</router-link>
+            <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" class="tab-btn" v-if="selectedPaper?.can_edit">Edit </router-link>
           </div>
 
           <div class="tab-content">
@@ -802,13 +798,14 @@ a.tab-btn {
                 <div class="info-section">
                   <h4>Authors</h4>
                   <div class="authors-list">
-                    <span v-for="(author, authorIndex) in selectedPaper?.authors" :key="authorIndex"
-                      class="author-name">
+                    <span v-for="(author, authorIndex) in selectedPaper?.authors" :key="authorIndex" class="author-name">
                       {{ author.name
-                      }}<template v-if="author?.affiliations?.length"><sup v-for="(aff, affIdx) in author.affiliations"
-                          :key="affIdx">{{ getAffiliationNumber(aff.id) }}</sup></template><span>
-                        {{ authorIndex < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
-                      </span>
+                      }}<template v-if="author?.affiliations?.length"
+                        ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
+                          >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup
+                        ></template
+                      ><span> {{ authorIndex < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
+                    </span>
                   </div>
                 </div>
 
@@ -816,10 +813,9 @@ a.tab-btn {
                   <h4>Affiliations</h4>
                   <div class="affiliations-list">
                     <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                      <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
-                        aff.department
-                          ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' +
-                        aff.state : ''
+                      <span class="affiliation-number"
+                        ><sup>{{ aff.id }}</sup></span
+                      >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
                       }}{{ aff.country ? ', ' + aff.country : '' }}
                     </div>
                   </div>
@@ -852,10 +848,16 @@ a.tab-btn {
 
             <div v-if="activeTab === 'video'" class="videos-content">
               <template v-if="selectedPaper?.video_status === 1">
-                <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
-                  :limit="1" :is-show="false" :is-file-list-show-config="{
+                <FileUpload
+                  :tab-key="activeTab"
+                  :paper-id="selectedPaper?.id || 0"
+                  :paper-detail="getPaperContent()"
+                  :limit="1"
+                  :is-show="false"
+                  :is-file-list-show-config="{
                     [activeTab]: false,
-                  }" />
+                  }"
+                />
               </template>
               <div v-else class="access-restricted">
                 <p>Video content is only available to open access.</p>
@@ -863,25 +865,38 @@ a.tab-btn {
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
-              <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
-                :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
+              <FileUpload
+                :tab-key="activeTab"
+                :paper-id="selectedPaper?.id || 0"
+                :paper-detail="getPaperContent()"
+                :limit="1"
+                class="slides-iframe"
+                :is-show="false"
+                :is-file-list-show-config="{
                   [activeTab]: false,
-                }" />
+                }"
+              />
             </div>
 
             <div v-if="activeTab === 'poster'" class="poster-content">
-              <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
-                :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
+              <FileUpload
+                :tab-key="activeTab"
+                :paper-id="selectedPaper?.id || 0"
+                :paper-detail="getPaperContent()"
+                :limit="1"
+                class="poster-image"
+                :is-show="false"
+                :is-file-list-show-config="{
                   [activeTab]: false,
-                }" />
+                }"
+              />
             </div>
 
             <div v-if="activeTab === 'additional'" class="additional-content">
               <template v-if="selectedPaper?.addition_files">
                 <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
                 class="additional-iframe" :limit="-1" :is-show="false" /> -->
-                <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id" :paper-detail="getPaperContent()"
-                  :limit="-1" :is-show="false" class="additional-iframe" />
+                <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id" :paper-detail="getPaperContent()" :limit="-1" :is-show="false" class="additional-iframe" />
               </template>
             </div>
           </div>

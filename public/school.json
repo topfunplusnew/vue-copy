@@ -1,6 +1,12 @@
 {
   "success": [
     {
+      "qs_rank": 0,
+      "school_name": "CASIA",
+      "image_url": "/school/logos/0-CASIA.png",
+      "filename": "0-CASIA.png"
+    },
+    {
       "qs_rank": 1,
       "school_name": "Massachusetts_Institute_of_Technology",
       "image_url": "/school/logos/1-Massachusetts_Institute_of_Technology.png",
