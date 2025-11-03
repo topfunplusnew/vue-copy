@@ -32,11 +32,11 @@ const keywords = ref<Array<{ name: string; id: number; order: number }>>([]);
 const formData = reactive({
   doi: '',
   abstract: '',
-  graphic_abstract: '',
+  graphic_abstract: [] as string[],
   video: '',
   slide: '',
   poster: '',
-  addition_files: '',
+  addition_files: [] as string[],
   keywords: [] as Array<{ name: string; id: number; order: number }>,
   poster_status: 0,
   slide_status: 0,
@@ -85,11 +85,11 @@ const initializeFormData = () => {
     // 后端返回的是对象数组，按order排序
     keywords.value = myPaperDetailInfo.value.keywords?.sort((a, b) => (a.order || 0) - (b.order || 0)) || [];
     formData.keywords = keywords.value;
-    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? '';
+    formData.graphic_abstract = myPaperDetailInfo.value.graphic_abstract ?? [];
     formData.video = myPaperDetailInfo.value.video ?? '';
     formData.slide = myPaperDetailInfo.value.slide ?? '';
     formData.poster = myPaperDetailInfo.value.poster ?? '';
-    formData.addition_files = myPaperDetailInfo.value.addition_files ?? '';
+    formData.addition_files = myPaperDetailInfo.value.addition_files ?? [];
     formData.poster_status = myPaperDetailInfo.value.poster_status ?? 0;
     formData.slide_status = myPaperDetailInfo.value.slide_status ?? 0;
     formData.video_status = myPaperDetailInfo.value.video_status ?? 0;
@@ -566,7 +566,7 @@ function getAffiliationNumber(originalId: number): number {
                   (event: Event) => {
                     const target = event.target as HTMLInputElement;
                     if (target) {
-                      formData.video_status = target.checked ? 2 : 1;
+                      formData.video_status = target.checked ? 1 : 2;
                       store.updateIsOpenAccess({
                         id: paperId,
                         video_status: formData.video_status,
@@ -592,8 +592,8 @@ function getAffiliationNumber(originalId: number): number {
                 v-model="formData.slide_status"
                 :active-value="1"
                 :inactive-value="2"
-                active-text="show"
-                inactive-text="hide"
+                active-text="release"
+                inactive-text="private"
                 @change="
                   (value: number | boolean | string) => {
                     const status = typeof value === 'number' ? value : value ? 2 : 1;
@@ -617,8 +617,8 @@ function getAffiliationNumber(originalId: number): number {
                 v-model="formData.poster_status"
                 :active-value="1"
                 :inactive-value="2"
-                active-text="show"
-                inactive-text="hide"
+                active-text="release"
+                inactive-text="private"
                 @change="
                   (value: number | boolean | string) => {
                     const status = typeof value === 'number' ? value : value ? 2 : 1;
@@ -651,8 +651,8 @@ function getAffiliationNumber(originalId: number): number {
             <div class="checklist">
               <div class="item">
                 <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!formData.graphic_abstract }">
-                  {{ formData.graphic_abstract ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.graphic_abstract.length }">
+                  {{ formData.graphic_abstract.length ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
               <div class="item">
@@ -669,8 +669,8 @@ function getAffiliationNumber(originalId: number): number {
               </div>
               <div class="item">
                 <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: !!formData.addition_files }">
-                  {{ formData.addition_files ? 'Uploaded' : 'Missing' }}
+                <div class="status" :class="{ ok: !!formData.addition_files.length }">
+                  {{ formData.addition_files.length ? 'Uploaded' : 'Missing' }}
                 </div>
               </div>
             </div>

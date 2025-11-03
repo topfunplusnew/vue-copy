@@ -147,11 +147,11 @@ export interface IPapers {
   session: ISession;
   url: string;
   keywords: IPapersKeyword[];
-  graphic_abstract?: string;
+  graphic_abstract?: string[];
   video?: string;
   slide?: string;
   poster?: string;
-  addition_files?: string;
+  addition_files?: string[];
   poster_status: number,
   slide_status: number,
   video_status: number,
