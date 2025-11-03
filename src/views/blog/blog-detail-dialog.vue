@@ -7,7 +7,6 @@ import { getImageUrl } from '@/utils';
 import { useRouter } from 'vue-router';
 import BlogDetailComment from './blog-detail-comment.vue';
 import { isImage, isVideo } from '@/constants/file';
-import type { AxiosError } from 'axios';
 
 const router = useRouter();
 const dialogWidth = ref('90%');
