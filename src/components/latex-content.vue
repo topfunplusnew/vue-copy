@@ -143,9 +143,10 @@ const cancelEdit = () => {
     min-height: 40px;
     /* 两端对齐 */
     text-align: justify;
-    text-align-last: justify;
+    // text-align-last: justify;
     /* 可选：防止英文单词断字出现大空隙 */
     word-break: break-all;
+    text-align-last: left; //最后一行文本左对齐
 
     /* 如果只有一行，也要顶格 */
     // 文本内容样式
