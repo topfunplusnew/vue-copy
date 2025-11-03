@@ -469,7 +469,7 @@ const handlePdfPreview = () => {
           </el-icon>
           <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
             {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' :
-            'Click to upload files' }}
+              'Click to upload files' }}
           </div>
         </template>
       </div>
@@ -481,7 +481,8 @@ const handlePdfPreview = () => {
 
     <!-- 自定义文件列表显示 -->
     <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
-      <div v-for="file in posterFileList" :key="file.uid" class="file-item">
+      <div v-for="file in posterFileList" :key="file.uid"
+        :class="tabKey !== 'additional' ? `file-item option-row` : `file-item option-columnn`">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
           <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="file.name" class="file-thumbnail" />
@@ -689,6 +690,22 @@ const handlePdfPreview = () => {
   margin-bottom: 60px;
 }
 
+.option-columnn {
+  @include screen-mobile {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+  }
+}
+
+.option-row {
+  @include screen-mobile {
+    flex-direction: row;
+    align-items: flex-start;
+    height: auto;
+  }
+}
+
 .file-item {
   display: flex;
   align-items: center;
@@ -697,14 +714,8 @@ const handlePdfPreview = () => {
   border-radius: 6px;
   background-color: #fafafa;
   margin-bottom: 4px;
-
-  @include screen-mobile {
-
-    flex-direction: column;
-    align-items: flex-start;
-    height: auto;
-  }
 }
+
 
 .file-preview {
   margin-right: 10px;
