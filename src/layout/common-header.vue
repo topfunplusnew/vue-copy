@@ -35,9 +35,11 @@ const navMenuActive = ref(false);
 
 // 可用景点数据（header中通常为空，但保持接口一致）
 const availableDestinations = ref<Destination[]>([]);
-
+const scheduleShow = ref(false)
 onMounted(() => {
-  userStore.getUserInfo();
+  userStore.getUserInfo().then(() => {
+    scheduleShow.value = true
+  });
   // 初始化钱包
   try {
     walletStore.init();
@@ -178,7 +180,7 @@ const handleClickOutside = (event: Event) => {
         <router-link :to="{ name: 'home' }" class="nav-btn toggle-nav desktop-nav">HOME</router-link>
         <router-link :to="{ name: 'about' }" class="nav-btn toggle-nav">ABOUT</router-link>
         <router-link :to="{ name: 'conference' }" class="nav-btn toggle-nav">EVENTS</router-link>
-        <router-link :to="{ name: 'news' }" class="nav-btn toggle-nav">NEWS</router-link>
+        <router-link v-if="false" :to="{ name: 'news' }" class="nav-btn toggle-nav">NEWS</router-link>
         <router-link :to="{ name: 'contact' }" class="nav-btn toggle-nav">CONTACT</router-link>
         <router-link v-if="false" :to="{ name: 'invitation' }" class="nav-btn toggle-nav">INVITATION</router-link>
 
@@ -232,7 +234,8 @@ const handleClickOutside = (event: Event) => {
   <HistoryComponent :visible="showHistoryModal" @close="showHistoryModal = false" @load-history="handleHistoryLoad" />
 
   <!-- 日历弹窗组件 -->
-  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave" />
+  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave"
+    v-if="scheduleShow" />
 </template>
 
 <style scoped>

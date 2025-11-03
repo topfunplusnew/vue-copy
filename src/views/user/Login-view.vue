@@ -115,7 +115,7 @@ const handleSocialLogin = (provider: string) => {
               <input type="checkbox" id="remember" v-model="rememberMe" />
               <label for="remember">Remember me</label>
             </div>
-            <router-link :to="{ name: 'forgetpassword' }" class="forgot-password">Forgot password ?</router-link>
+            <router-link :to="{ name: 'ResetPassword' }" class="forgot-password">Forgot password ?</router-link>
           </div>
 
           <button type="submit" class="login-button" :disabled="isLoading">
