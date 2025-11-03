@@ -50,6 +50,7 @@ export default {
   @include screen-mobile {
     padding-left: 20px;
     padding-right: 20px;
+    margin-right: 30px;
   }
 }
 

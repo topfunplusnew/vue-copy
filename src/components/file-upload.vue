@@ -503,7 +503,7 @@ const handleFileDownload = (file: UploadUserFile) => {
 .upload-size-hint {
   margin-top: 8px;
   font-size: 14px;
-  color: #ff2b2b;
+  color: #A9A9A9;
   text-align: center;
   line-height: 1.5;
 }

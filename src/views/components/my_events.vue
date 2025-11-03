@@ -437,9 +437,9 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
                   <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
                     affiliation.department ? ', ' +
-                  affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
                   }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
-                  affiliation.country : ''
+                    affiliation.country : ''
                   }}
                 </div>
               </div>
@@ -844,7 +844,7 @@ function getAffiliationNumber(originalId: number): number {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  margin-top: 10px;
+
   // 改善触摸拖动体验
   touch-action: pan-y; // 允许垂直滚动，但会处理水平拖动
   -webkit-overflow-scrolling: touch;
