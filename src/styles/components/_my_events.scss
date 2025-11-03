@@ -673,10 +673,24 @@
             margin-top: 24px;
             display: flex;
             justify-content: flex-end;
+            padding: 0 16px;
 
             @include screen-mobile {
               justify-content: center;
+              width: 300px;
+              margin-top: 20px;
+              padding: 0 12px;
+              box-sizing: border-box;
+            }
+
+            .el-form-item {
+              margin-bottom: 0;
               width: 100%;
+
+              @include screen-mobile {
+                display: flex;
+                justify-content: center;
+              }
             }
           }
         }
@@ -744,6 +758,27 @@
         @include screen-mobile {
           align-items: stretch;
           width: 100%;
+        }
+      }
+
+      // 关键词提示文本样式
+      .keywords-tips {
+        margin-top: 12px;
+        margin-bottom: 16px;
+        color: #64748b;
+        font-size: rpx(16);
+        font-style: italic;
+        text-align: left;
+
+        @include screen-mobile {
+          margin-top: 10px;
+          margin-bottom: 12px;
+          margin-left: -20px;
+          font-size: rpx(14);
+          text-align: center;
+          padding: 4px 2px;
+          box-sizing: border-box;
+          line-height: 1.4;
         }
       }
 

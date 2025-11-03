@@ -134,9 +134,10 @@ function registerInterest(conferenceId: number) {
 
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
 const paperNotFound = ref(false); // 标记文章是否不存在
-
+const paperId = ref<number>(0);
 async function openPaperModal(paper: SelectedPaperLite) {
   paperNotFound.value = false; // 重置错误状态
+  paperId.value = paper.id;
   try {
     const res = await getPaperDetail(paper.id + '');
     if (res.status === 200) {
@@ -314,6 +315,10 @@ function formatFirstLetterUppercase(str: string): string {
 .tab-btn:disabled:hover {
   background-color: #f5f7fa;
   cursor: not-allowed;
+}
+
+a.tab-btn {
+  text-decoration: none;
 }
 
 /* Element Plus Dialog 自定义样式 - 论文详情弹出框优化 */
@@ -642,7 +647,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -704,7 +709,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</div>
+                  }}</div>
                 </div>
               </div>
             </div>
@@ -728,7 +733,8 @@ function formatFirstLetterUppercase(str: string): string {
             <h3>Conference Papers</h3>
             <div class="search-container">
               <input v-model="searchQuery" type="text"
-                placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" />
+                placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input"
+                @keyup.enter="seachPaper()" />
               <el-button icon="Search" class="search-btn" @click="seachPaper()" />
             </div>
           </div>
@@ -785,6 +791,8 @@ function formatFirstLetterUppercase(str: string): string {
               :disabled="!selectedPaper?.addition_files.length">
               Additional Info
             </button>
+            <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" class="tab-btn"
+              v-if="selectedPaper?.can_edit">Edit</router-link>
           </div>
 
           <div class="tab-content">
@@ -809,7 +817,7 @@ function formatFirstLetterUppercase(str: string): string {
                     <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
                       <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
                         aff.department
-                      ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' +
+                          ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' +
                         aff.state : ''
                       }}{{ aff.country ? ', ' + aff.country : '' }}
                     </div>
