@@ -343,7 +343,7 @@ const handleFileDownload = (file: UploadUserFile) => {
 
     <!-- 文件尺寸提示 -->
     <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">
-      您最大可上传500MB的文件
+      Maximum file size: 500MB
     </div>
 
     <!-- 自定义文件列表显示 -->
@@ -496,7 +496,7 @@ const handleFileDownload = (file: UploadUserFile) => {
 .upload-size-hint {
   margin-top: 8px;
   font-size: 14px;
-  color: #ff2b2b;
+  color: #909399;
   text-align: center;
   line-height: 1.5;
 }

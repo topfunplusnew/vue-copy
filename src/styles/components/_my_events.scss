@@ -558,7 +558,7 @@
           gap: 12px;
           display: flex;
           flex-direction: column;
-          align-items: center;
+          align-items: stretch;
           width: 100%;
         }
 
@@ -574,7 +574,7 @@
 
           @include screen-mobile {
             width: 100%;
-            align-items: center;
+            align-items: stretch;
           }
 
           // 对于包含文件预览的表单项，在移动端使用全宽
@@ -588,12 +588,14 @@
           }
 
           label {
-            font-size: rpx(22);
+            font-size: 14px;
             font-weight: 600;
             color: #334155;
+            line-height: 1.5;
 
             @include screen-mobile {
-              text-align: center;
+              text-align: left;
+              font-size: 13px;
             }
           }
 
@@ -605,9 +607,15 @@
             width: 100%;
 
             @include screen-mobile {
-              text-align: center;
+              text-align: left;
               width: 100%;
-              max-width: 400px;
+              max-width: none;
+            }
+          }
+
+          textarea {
+            @include screen-mobile {
+              min-height: 150px;
             }
           }
 
@@ -622,7 +630,7 @@
               overflow-wrap: break-word;
               font-size: rpx(18);
               max-width: 100%;
-              text-align: center;
+              text-align: left;
               line-height: 1.4;
             }
           }
@@ -631,7 +639,7 @@
             @include screen-mobile {
               display: flex;
               flex-direction: column;
-              align-items: center;
+              align-items: flex-start;
               gap: 8px;
             }
 
@@ -641,7 +649,8 @@
               border: 1px solid rgba(226, 232, 240, 0.8);
 
               @include screen-mobile {
-                max-width: 250px;
+                max-width: 100%;
+                width: 100%;
               }
             }
           }
@@ -656,7 +665,7 @@
               display: flex;
               flex-direction: column;
               gap: 12px;
-              align-items: center;
+              align-items: stretch;
               width: 100%;
             }
 
@@ -666,9 +675,9 @@
               width: 100%;
 
               @include screen-mobile {
-                text-align: center;
+                text-align: left;
                 width: 100%;
-                max-width: 400px;
+                max-width: none;
               }
             }
           }
@@ -679,8 +688,13 @@
             justify-content: flex-end;
 
             @include screen-mobile {
-              justify-content: center;
+              justify-content: stretch;
               width: 100%;
+              
+              .el-form-item {
+                width: 100%;
+                margin: 0;
+              }
             }
           }
         }
@@ -698,7 +712,7 @@
           align-items: center;
 
           @include screen-mobile {
-            justify-content: center;
+            justify-content: flex-start;
           }
         }
 
@@ -708,7 +722,7 @@
           align-items: center;
 
           @include screen-mobile {
-            justify-content: center;
+            justify-content: flex-start;
           }
         }
 
@@ -725,7 +739,7 @@
         align-items: center;
 
         @include screen-mobile {
-          justify-content: center;
+          justify-content: flex-start;
         }
       }
 
@@ -735,7 +749,7 @@
         border-radius: 8px;
 
         @include screen-mobile {
-          text-align: center;
+          text-align: left;
         }
       }
 
@@ -759,7 +773,7 @@
         cursor: pointer;
 
         @include screen-mobile {
-          text-align: center;
+          text-align: left;
           width: 100%;
           box-sizing: border-box;
         }
@@ -963,7 +977,7 @@
     gap: 8px;
 
     @include screen-mobile {
-      justify-content: center;
+      justify-content: flex-start;
     }
 
     input[type='checkbox'] {
@@ -998,10 +1012,10 @@
     box-sizing: border-box;
 
     @include screen-mobile {
-      justify-content: center;
+      justify-content: flex-start;
       flex-direction: column;
       gap: 8px;
-      text-align: center;
+      text-align: left;
       max-width: none;
       width: 100%;
       margin: 8px 0;
@@ -1013,9 +1027,10 @@
       gap: 12px;
 
       @include screen-mobile {
-        justify-content: center;
-        flex-direction: column;
+        justify-content: flex-start;
+        flex-direction: row;
         gap: 8px;
+        width: 100%;
       }
 
       .file-icon {
