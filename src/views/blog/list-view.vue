@@ -149,16 +149,28 @@ const togglePreference = (optionName: string) => {
   updateUserInput();
 };
 
-const submitItinerary = () => {
-  router.push({
-    name: 'generator',
-    query: {
-      prompt: userInput.value,
-      location: selectedLocation.value,
-      destination: selectedDestination.value,
-    },
-  });
-  userInput.value = '';
+const submitItinerary = async () => {
+  try {
+    const result = await ElMessageBox.prompt('', 'This feature is in closed beta.\n\nPlease contact us at ipologo.os@gmail.com\n\nto get your activation code.', {
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+      inputPlaceholder: 'Enter your activation code',
+      inputType: 'text',
+      inputValidator: (value: string) => {
+        if (!value || value.trim().length === 0) {
+          return 'Please enter an activation code';
+        }
+        return true;
+      },
+    });
+
+    // TODO: 实现确定后的逻辑
+    const activationCode = result.value;
+    console.log('Activation code:', activationCode);
+  } catch {
+    // TODO: 实现取消后的逻辑
+    // console.log('User cancelled');
+  }
 };
 
 const allPosts = computed(() => store.blogs);
@@ -725,7 +737,7 @@ watch(selectedLocation, () => {
           </div>
 
           <!-- Tools 工具选择器 -->
-          <div class="selector-widget" ref="toolsWidgetRef">
+          <!-- <div class="selector-widget" ref="toolsWidgetRef">
             <div class="selector-trigger" @click="toggleTools">
               <el-icon class="selector-icon">
                 <Setting />
@@ -737,7 +749,6 @@ watch(selectedLocation, () => {
               </el-icon>
             </div>
 
-            <!-- Tools 下拉菜单 -->
             <transition name="dropdown">
               <div class="selector-dropdown" v-if="toolsExpanded" @click.stop>
                 <div class="dropdown-content">
@@ -755,7 +766,7 @@ watch(selectedLocation, () => {
                 </div>
               </div>
             </transition>
-          </div>
+          </div> -->
         </div>
       </div>
 
