@@ -299,28 +299,43 @@ const handleFileDownload = (file: UploadUserFile) => {
   link.click();
   document.body.removeChild(link);
 };
-
-function openPdfPreview(){
-  window.open(pdfUrl.value || '', '_blank');
-}
 </script>
 
 <template>
   <div>
-    <el-upload :data="bodyParams" :headers="headers" v-model:file-list="posterFileList" :action="serverActionUrl"
-      list-type="text" :on-remove="handleRemove" :on-error="handleError" :on-exceed="handleExceed"
-      :on-progress="handleUploadProgress" :before-upload="handleBeforeUpload" :on-success="handleUploadSuccess"
-      :limit="props.limit === -1 ? undefined : props.limit" :disabled="isUploadDisabled || uploadLoading"
-      :accept="acceptAttr" class="upload-area" :class="{
+    <el-upload
+      :data="bodyParams"
+      :headers="headers"
+      v-model:file-list="posterFileList"
+      :action="serverActionUrl"
+      list-type="text"
+      :on-remove="handleRemove"
+      :on-error="handleError"
+      :on-exceed="handleExceed"
+      :on-progress="handleUploadProgress"
+      :before-upload="handleBeforeUpload"
+      :on-success="handleUploadSuccess"
+      :limit="props.limit === -1 ? undefined : props.limit"
+      :disabled="isUploadDisabled || uploadLoading"
+      :accept="acceptAttr"
+      class="upload-area"
+      :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="true" v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)">
-      <div class="upload-block" :class="{
-        'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
-        'upload-block-loading': uploadLoading,
-        'upload-block-image-preview': shouldShowImagePreview,
-      }" :style="{ height: uploadBlockHeight }">
+      }"
+      :multiple="true"
+      v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)"
+    >
+      <div
+        class="upload-block"
+        :class="{
+          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
+          'upload-block-loading': uploadLoading,
+          'upload-block-image-preview': shouldShowImagePreview,
+        }"
+        :style="{ height: uploadBlockHeight }"
+      >
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
@@ -339,17 +354,14 @@ function openPdfPreview(){
             <Plus />
           </el-icon>
           <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
-            {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' :
-              'Click to upload files' }}
+            {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' : 'Click to upload files' }}
           </div>
         </template>
       </div>
     </el-upload>
 
     <!-- 文件尺寸提示 -->
-    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">
-      Maximum file size: 500MB
-    </div>
+    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">Maximum file size: 500MB</div>
 
     <!-- 自定义文件列表显示 -->
     <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
@@ -368,32 +380,23 @@ function openPdfPreview(){
           </div>
         </div>
         <div class="file-info">
-          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)"
-            style="cursor: pointer">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
-            <el-button type="danger" size="small" :loading="deleteLoading"
-              @click="handleRemove(file as any, posterFileList as any)">
-              Delete
-            </el-button>
+            <el-button type="danger" size="small" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)"> Delete </el-button>
           </div>
         </div>
       </div>
     </div>
     <!-- 视频播放器 -->
     <div v-if="shouldShowVideoPlayer" class="video-player-container">
-      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">
-        Your browser does not support video playback
-      </video>
+      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">Your browser does not support video playback</video>
     </div>
 
     <!-- PDF预览 -->
-    <div v-if="shouldShowPdfPreview" class="pdf-preview-container" >
-      <el-button type="primary" size="small" class="pdf-preview-button" @click="openPdfPreview">Preview</el-button>
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf" @click="openPdfPreview">
-        Your browser does not support PDF preview
-      </iframe>
+    <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
     </div>
   </div>
 </template>

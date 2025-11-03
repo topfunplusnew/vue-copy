@@ -362,6 +362,24 @@ function getAffiliationNumber(originalId: number): number {
   const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
   return affiliation ? affiliation.id : 0;
 }
+
+// 获取当前 tab 的 PDF URL（用于预览）
+const previewPdfUrl = computed(() => {
+  if (activeTab.value === 'slides' && myPaperDetailInfo.value?.slide) {
+    return getImageUrl(myPaperDetailInfo.value.slide);
+  }
+  if (activeTab.value === 'poster' && myPaperDetailInfo.value?.poster) {
+    return getImageUrl(myPaperDetailInfo.value.poster);
+  }
+  return null;
+});
+
+function openPdfPreview() {
+  const url = previewPdfUrl.value;
+  if (url) {
+    window.open(url, '_blank');
+  }
+}
 </script>
 
 <template>
@@ -597,6 +615,7 @@ function getAffiliationNumber(originalId: number): number {
                     });
                   }
                 " />
+              <el-button type="primary" size="small" class="pdf-preview-button" @click="openPdfPreview" icon="Reading">Preview</el-button>
             </div>
           </div>
           <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
@@ -617,6 +636,7 @@ function getAffiliationNumber(originalId: number): number {
                     });
                   }
                 " />
+              <el-button type="primary" size="small" class="pdf-preview-button" @click="openPdfPreview" icon="Reading">Preview</el-button>
             </div>
           </div>
           <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
@@ -843,6 +863,11 @@ function getAffiliationNumber(originalId: number): number {
     @include screen-mobile {
       font-size: 13px;
     }
+  }
+
+  .pdf-preview-button {
+    flex-shrink: 0;
+    margin-left: auto;
   }
 }
 
