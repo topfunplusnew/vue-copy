@@ -420,11 +420,11 @@ function getAffiliationNumber(originalId: number): number {
               <div v-if="myPaperDetailInfo?.authors?.length" class="authors-list">
                 <span class="author-name" v-for="(author, authorIndex) in myPaperDetailInfo.authors" :key="authorIndex">
                   {{ author.name
-                  }}<template v-if="author?.affiliations?.length"
-                    ><sup v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex"
-                      >{{ getAffiliationNumber(affiliation.id) }}<span v-if="affiliationsIndex < author.affiliations.length - 1">,</span></sup
-                    ></template
-                  ><span v-if="authorIndex < myPaperDetailInfo.authors.length - 1">,</span>
+                  }}<template v-if="author?.affiliations?.length"><sup
+                      v-for="(affiliation, affiliationsIndex) in author.affiliations" :key="affiliationsIndex">{{
+                        getAffiliationNumber(affiliation.id) }}<span
+                        v-if="affiliationsIndex < author.affiliations.length - 1">,</span></sup></template><span
+                    v-if="authorIndex < myPaperDetailInfo.authors.length - 1">,</span>
                 </span>
               </div>
               <!-- 当论文作者为空的时候 渲染一个空状态 -->
@@ -516,34 +516,29 @@ function getAffiliationNumber(originalId: number): number {
               class="form-item full">
               <div class="keywords-container">
                 <div class="keywords-input-row">
-                  <el-row>
-                    <el-col :span="18">
+                  <el-row :gutter="8">
+                    <el-col :xs="24" :sm="18">
                       <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
                         placeholder="please input keywords..." @select="handleSelect" @keyup.enter="addKeyword"
-                        @blur="onKeywordBlur" />
+                        @blur="onKeywordBlur" style="width: 100%" />
                     </el-col>
-                    <el-col :span="6">
+                    <el-col :xs="24" :sm="6">
                       <div class="add-button-container">
                         <el-button @click="() => addKeyword()"
-                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">add
+                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary"
+                          style="width: 100%">Add
                         </el-button>
                       </div>
                     </el-col>
                   </el-row>
                 </div>
                 <div class="keywords-tips">Dragging tags can adjust the keyword order.</div>
-                <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
-                  <el-tag
-                    v-for="(keyword, index) in keywords"
-                    :key="keyword.id"
-                    :draggable="true"
-                    :class="{
+                <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
+                  @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
+                  <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
                       dragging: draggedIndex === index,
                       'drag-over': draggedOverIndex === index,
-                    }"
-                    closable
-                    @close="removeKeyword(index)"
-                    :data-drag-index="index"
+                    }" closable @close="removeKeyword(index)" :data-drag-index="index"
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
                     @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
                     @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"
@@ -698,17 +693,32 @@ function getAffiliationNumber(originalId: number): number {
 </template>
 
 <style scoped lang="scss">
+@use '@/styles/utils/mixins' as *;
+
+// 统一所有 form-item label 的样式
+:deep(.el-form-item__label) {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  line-height: 1.5;
+
+  @include screen-mobile {
+    font-size: 13px;
+  }
+}
+
 .keywords-tips {
-  margin: 10px 0;
-  padding: 8px 12px;
-  background-color: #f0f9ff;
-  border-left: 4px solid #409eff;
-  color: #606266;
-  font-size: 12px;
-  border-radius: 4px;
-  position: absolute;
-  top: -25px;
-  left: 290px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  padding: 6px 0;
+  color: #909399;
+  font-size: 13px;
+  line-height: 1.5;
+
+  @include screen-mobile {
+    font-size: 12px;
+    text-align: left;
+  }
 }
 
 .pdf-modal-overlay {
@@ -805,8 +815,35 @@ function getAffiliationNumber(originalId: number): number {
   padding: 0;
   background-color: transparent;
   border: none;
-  display: inline-block;
-  width: auto;
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+
+  @include screen-mobile {
+    width: 100%;
+  }
+}
+
+.consent-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+
+  @include screen-mobile {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  span {
+    font-size: 14px;
+    color: #333;
+
+    @include screen-mobile {
+      font-size: 13px;
+    }
+  }
 }
 
 .checkbox {
@@ -821,6 +858,11 @@ function getAffiliationNumber(originalId: number): number {
   border-radius: 6px;
   transition: background-color 0.2s ease;
   width: auto;
+
+  @include screen-mobile {
+    padding: 8px 0;
+    width: 100%;
+  }
 
   &:hover {
     background-color: rgba(99, 102, 241, 0.05);
@@ -838,12 +880,24 @@ function getAffiliationNumber(originalId: number): number {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
 }
 
 .keywords-input-row {
   display: flex;
   gap: 8px;
   align-items: center;
+  width: 100%;
+
+  :deep(.el-row) {
+    width: 100%;
+  }
+
+  :deep(.el-col) {
+    @include screen-mobile {
+      margin-bottom: 8px;
+    }
+  }
 }
 
 .keywords-tags {
@@ -851,7 +905,7 @@ function getAffiliationNumber(originalId: number): number {
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  margin-top: 10px;
+
   // 改善触摸拖动体验
   touch-action: pan-y; // 允许垂直滚动，但会处理水平拖动
   -webkit-overflow-scrolling: touch;

@@ -1,16 +1,20 @@
 <template>
-  <div>
+  <div class="button-wrapper">
     <button class="confirm-button" role="button">Save Details</button>
   </div>
 </template>
-<script lang="ts">
-export default {
-  name: 'ConfirmButton',
-};
-</script>
+<style>
+.button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
 
-<style lang="scss">
-@use '../styles/utils/mixins' as *;
+@media (max-width: 768px) {
+  .button-wrapper {
+    justify-content: stretch;
+  }
+}
 
 .confirm-button {
   align-items: center;
@@ -35,7 +39,7 @@ export default {
   padding-left: 176px;
   padding-right: 176px;
   position: relative;
-  text-align: left;
+  text-align: center;
   text-decoration: none;
   transition:
     box-shadow 0.15s,
@@ -47,9 +51,20 @@ export default {
   will-change: box-shadow, transform;
   font-size: 18px;
 
-  @include screen-mobile {
+  /* @include screen-mobile {
     padding-left: 20px;
     padding-right: 20px;
+    margin-right: 30px;
+  } */
+}
+
+@media (max-width: 768px) {
+  .confirm-button {
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 20px;
+    font-size: 16px;
+    height: 48px;
   }
 }
 
