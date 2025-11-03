@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
+import galleryPlugin from './plugins/vite-plugin-gallery';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,6 +18,10 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
+    }),
+    galleryPlugin({
+      dir: 'public/QS LOGO', // 扫描的图片目录
+      virtualId: 'virtual:gallery', // 虚拟模块名
     }),
   ],
   // css: {

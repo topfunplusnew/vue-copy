@@ -7,3 +7,9 @@ declare global {
     ethereum: MetaMaskInpageProvider;
   }
 }
+
+// 声明虚拟模块
+declare module 'virtual:gallery' {
+  const gallery: string[];
+  export default gallery;
+}
