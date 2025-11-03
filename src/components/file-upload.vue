@@ -363,14 +363,14 @@ const handleFileDownload = (file: UploadUserFile) => {
             </div>
           </div>
         </div>
-        <div class="file-info">
+        <div class="file-info" :class="{ 'single-file': props.limit !== -1 }">
           <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)"
             style="cursor: pointer">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
-            <el-button type="danger" size="small" :loading="deleteLoading"
-              @click="handleRemove(file as any, posterFileList as any)">
+            <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="small"
+              :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
               Delete
             </el-button>
           </div>
@@ -394,6 +394,8 @@ const handleFileDownload = (file: UploadUserFile) => {
 </template>
 
 <style scoped lang="scss">
+@use '../styles/utils/_mixins.scss' as *;
+
 .upload-area {
   :deep(.el-upload) {
     border: 2px dashed #d9d9d9;
@@ -543,6 +545,7 @@ const handleFileDownload = (file: UploadUserFile) => {
 
 .custom-file-list {
   margin-top: 16px;
+  margin-bottom: 60px;
 }
 
 .file-item {
@@ -553,6 +556,13 @@ const handleFileDownload = (file: UploadUserFile) => {
   border-radius: 6px;
   background-color: #fafafa;
   margin-bottom: 4px;
+
+  @include screen-mobile {
+
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+  }
 }
 
 .file-preview {
@@ -563,6 +573,11 @@ const handleFileDownload = (file: UploadUserFile) => {
   border-radius: 4px;
   overflow: hidden;
   background-color: #f5f5f5;
+
+  @include screen-mobile {
+    margin-right: 0;
+    margin-bottom: 2px;
+  }
 }
 
 .file-thumbnail {
@@ -574,6 +589,10 @@ const handleFileDownload = (file: UploadUserFile) => {
 
   &:hover {
     transform: scale(1.05);
+  }
+
+  @include screen-mobile {
+    width: 100%;
   }
 }
 
@@ -588,11 +607,17 @@ const handleFileDownload = (file: UploadUserFile) => {
 .file-icon {
   width: 24px;
   height: 24px;
+
+
 }
 
 .default-file-icon {
   font-size: 18px;
   color: #999;
+
+  @include screen-mobile {
+    font-size: 10px;
+  }
 }
 
 .file-info {
@@ -601,18 +626,28 @@ const handleFileDownload = (file: UploadUserFile) => {
   align-items: center;
   justify-content: flex-end;
   min-height: 36px;
+
+  @include screen-mobile {
+    width: 100%;
+    text-align: center;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    min-height: 16px;
+  }
 }
 
 .file-name {
-  font-size: 13px;
-  font-weight: 500;
   color: #409eff;
   /* 改为蓝色，表示可点击 */
   word-break: break-all;
-  line-height: 1.3;
   flex: 1;
   margin-right: 8px;
   transition: color 0.3s ease;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; // 一行显示，超出隐藏
 
   &:hover {
     color: #66b1ff;
@@ -620,13 +655,31 @@ const handleFileDownload = (file: UploadUserFile) => {
     text-decoration: underline;
     /* 悬停时显示下划线 */
   }
+
+  @include screen-mobile {
+    margin-right: 0;
+    margin-bottom: 8px;
+    width: 100%;
+  }
 }
 
 .file-actions {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+
+
+  @include screen-mobile {
+    width: 100%;
+    justify-content: flex-end;
+    align-items: flex-end;
+    flex-direction: column;
+    margin-top: 0;
+  }
+
+
 }
+
 
 .video-player-container {
   margin-top: 16px;

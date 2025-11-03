@@ -438,9 +438,9 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
                   <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
                     affiliation.department ? ', ' +
-                  affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
                   }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
-                  affiliation.country : ''
+                    affiliation.country : ''
                   }}
                 </div>
               </div>
@@ -536,9 +536,9 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
                   @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
                   <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
-                      dragging: draggedIndex === index,
-                      'drag-over': draggedOverIndex === index,
-                    }" closable @close="removeKeyword(index)" :data-drag-index="index"
+                    dragging: draggedIndex === index,
+                    'drag-over': draggedOverIndex === index,
+                  }" closable @close="removeKeyword(index)" :data-drag-index="index"
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
                     @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
                     @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"
@@ -560,21 +560,18 @@ function getAffiliationNumber(originalId: number): number {
         <div v-else-if="activeTab === 'video'" class="tab-content">
           <!-- 当视频已存在时显示同意条款复选框 -->
           <div v-if="myPaperDetailInfo?.video" class="consent-section">
-            <label class="checkbox">
-              <input type="checkbox" :checked="formData.video_status === 2" @change="
-                (event: Event) => {
-                  const target = event.target as HTMLInputElement;
-                  if (target) {
-                    formData.video_status = target.checked ? 1 : 2;
+            <div class="consent-row">
+              <el-switch v-model="formData.video_status" :active-value="1" :inactive-value="2" active-text="release"
+                inactive-text="private" @change="
+                  (value: number | boolean | string) => {
+                    const status = typeof value === 'number' ? value : value ? 2 : 1;
                     store.updateIsOpenAccess({
                       id: paperId,
-                      video_status: formData.video_status,
+                      video_status: status,
                     });
                   }
-                }
-              " />
-              <span>I understand and agree to keep the video private.</span>
-            </label>
+                " />
+            </div>
           </div>
           <!-- 总是显示上传组件 -->
           <div class="video-upload">
