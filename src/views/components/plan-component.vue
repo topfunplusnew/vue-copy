@@ -1,16 +1,15 @@
-
-    <!-- 查看用户所有计划 -->
+<!-- 查看用户所有计划 -->
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
+import { reactive, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { 
-  Plus, 
+import {
+  Plus,
   StarFilled,
   Right,
   Delete,
   Check
 } from '@element-plus/icons-vue';
-import type { Destination, TravelPlan, SavedPlanData, DayPlan, Attraction } from '@/types/base';
+import type { Destination, TravelPlan, SavedPlanData, Attraction } from '@/types/base';
 
 // Props
 interface Props {
@@ -95,7 +94,7 @@ function addDestinationToPlan(destination: Destination) {
   if (planData.days.length === 0) {
     addNewDay();
   }
-  
+
   // 添加到最后一天
   const lastDayIndex = planData.days.length - 1;
   const newAttraction: Attraction = {
@@ -107,7 +106,7 @@ function addDestinationToPlan(destination: Destination) {
     placeName: destination.name
   };
   planData.days[lastDayIndex].attractions.push(newAttraction);
-  
+
   ElMessage.success(`Added ${destination.name} to Day ${planData.days[lastDayIndex].day}`);
 }
 
@@ -137,7 +136,7 @@ function savePlan() {
       }))
     }))
   };
-  
+
   emit('save', plan);
   ElMessage.success('Plan saved successfully!');
 }
@@ -156,249 +155,182 @@ watch(() => props.visible, (newVisible) => {
 
 
 <template>
-    <transition name="slide-from-left">
-      <div v-if="visible" class="plan-overlay">
-        <div class="plan-panel"> 
-          
-          <!-- 弹窗头部 -->
-          <div class="plan-header">
-            <div class="plan-header-left">
-              <h2>
-                <el-icon><StarFilled /></el-icon>
-                My Travel Plan
-              </h2>
+  <transition name="slide-from-left">
+    <div v-if="visible" class="plan-overlay">
+      <div class="plan-panel">
+
+        <!-- 弹窗头部 -->
+        <div class="plan-header">
+          <div class="plan-header-left">
+            <h2>
+              <el-icon>
+                <StarFilled />
+              </el-icon>
+              My Travel Plan
+            </h2>
+          </div>
+          <div class="plan-header-actions">
+            <el-button size="small" @click="$emit('close')" class="close-btn">
+              <el-icon>
+                <Right />
+              </el-icon>
+            </el-button>
+          </div>
+        </div>
+
+        <!-- 弹窗内容 -->
+        <div class="plan-content">
+
+          <!-- 基本信息部分 -->
+          <div class="plan-section">
+            <h3>Basic Information</h3>
+            <div class="basic-info-grid">
+              <!-- 计划名称 -->
+              <div class="info-row">
+                <label>Plan Name</label>
+                <el-input v-model="planData.title" placeholder="Enter your travel plan name" size="small" />
+              </div>
+
+              <!-- 描述 -->
+              <div class="info-row">
+                <label>Description</label>
+                <el-input v-model="planData.content" type="textarea" :rows="2" placeholder="Describe your travel plan"
+                  size="small" />
+              </div>
+
+              <!-- 日期和人数 -->
+              <div class="info-row-group">
+                <div class="numbers-group">
+                  <div class="number-item">
+                    <label>People</label>
+                    <el-input-number v-model="planData.people" :min="1" :max="20" size="small" />
+                  </div>
+                  <div class="number-item">
+                    <label>Budget (¥)</label>
+                    <el-input-number v-model="planData.budget" :min="0" :step="100" size="small" />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="plan-header-actions">
-              <el-button 
-                size="small" 
-                @click="$emit('close')"
-                class="close-btn"
-              >
-                <el-icon><Right /></el-icon>
+          </div>
+
+          <!-- 行程安排部分 -->
+          <div class="plan-section">
+            <div class="section-header">
+              <h3>Daily Itinerary</h3>
+              <el-button size="small" type="primary" @click="addNewDay" class="add-day-btn">
+                <el-icon>
+                  <Plus />
+                </el-icon>
+                Add Day
               </el-button>
             </div>
-          </div>
-  
-          <!-- 弹窗内容 -->
-          <div class="plan-content">
-            
-            <!-- 基本信息部分 -->
-            <div class="plan-section">
-              <h3>Basic Information</h3>
-              <div class="basic-info-grid">
-                <!-- 计划名称 -->
-                <div class="info-row">
-                  <label>Plan Name</label>
-                  <el-input 
-                    v-model="planData.title" 
-                    placeholder="Enter your travel plan name"
-                    size="small"
-                  />
-                </div>
-                
-                <!-- 描述 -->
-                <div class="info-row">
-                  <label>Description</label>
-                  <el-input 
-                    v-model="planData.content" 
-                    type="textarea"
-                    :rows="2"
-                    placeholder="Describe your travel plan"
-                    size="small"
-                  />
-                </div>
-  
-                <!-- 日期和人数 -->
-                <div class="info-row-group">
-                  <div class="numbers-group">
-                    <div class="number-item">
-                      <label>People</label>
-                      <el-input-number 
-                        v-model="planData.people" 
-                        :min="1"
-                        :max="20"
-                        size="small"
-                      />
-                    </div>
-                    <div class="number-item">
-                      <label>Budget (¥)</label>
-                      <el-input-number 
-                        v-model="planData.budget" 
-                        :min="0"
-                        :step="100"
-                        size="small"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+
+            <div v-if="planData.days.length === 0" class="empty-state">
+              <div class="empty-icon">📅</div>
+              <p>No days planned yet</p>
+              <p class="hint">Click "Add Day" to start planning your itinerary</p>
             </div>
-  
-            <!-- 行程安排部分 -->
-            <div class="plan-section">
-              <div class="section-header">
-                <h3>Daily Itinerary</h3>
-                <el-button 
-                  size="small" 
-                  type="primary" 
-                  @click="addNewDay"
-                  class="add-day-btn"
-                >
-                  <el-icon><Plus /></el-icon>
-                  Add Day
-                </el-button>
-              </div>
-  
-              <div v-if="planData.days.length === 0" class="empty-state">
-                <div class="empty-icon">📅</div>
-                <p>No days planned yet</p>
-                <p class="hint">Click "Add Day" to start planning your itinerary</p>
-              </div>
-  
-              <div v-else class="days-container">
-                <div 
-                  v-for="(day, dayIndex) in planData.days" 
-                  :key="dayIndex"
-                  class="day-card"
-                >
-                  <!-- 天数标题栏 -->
-                  <div class="day-header">
-                    <div class="day-title">
-                      <span class="day-number">Day {{ day.day }}</span>
-                      <span class="attractions-count">{{ day.attractions.length }} stops</span>
-                    </div>
-                    <el-button 
-                      size="small" 
-                      type="danger"
-                      text
-                      @click="removeDay(dayIndex)"
-                      class="remove-day-btn"
-                    >
-                      <el-icon><Delete /></el-icon>
-                    </el-button>
+
+            <div v-else class="days-container">
+              <div v-for="(day, dayIndex) in planData.days" :key="dayIndex" class="day-card">
+                <!-- 天数标题栏 -->
+                <div class="day-header">
+                  <div class="day-title">
+                    <span class="day-number">Day {{ day.day }}</span>
+                    <span class="attractions-count">{{ day.attractions.length }} stops</span>
                   </div>
-                  
-                  <!-- 景点列表 -->
-                  <div class="attractions-container">
-                    <div 
-                      v-for="(attraction, attractionIndex) in day.attractions"
-                      :key="attractionIndex" 
-                      class="attraction-card"
-                    >
-                      <div class="attraction-time">
-                        <el-time-select
-                          v-model="attraction.timeFormatted"
-                          start="06:00"
-                          step="00:30"
-                          end="23:30"
-                          placeholder="Time"
-                          size="small"
-                          @change="updateAttractionTime(dayIndex, attractionIndex, $event)"
-                        />
-                      </div>
-                      
-                      <div class="attraction-details">
-                        <el-input 
-                          v-model="attraction.placeName" 
-                          placeholder="Enter attraction name"
-                          size="small"
-                          class="place-input"
-                        />
-                        <div class="budget-row">
-                          <el-input-number 
-                            v-model="attraction.budget" 
-                            :min="0"
-                            :step="10"
-                            placeholder="Budget"
-                            size="small"
-                            class="budget-input"
-                          />
-                          <el-select 
-                            v-model="attraction.currency" 
-                            size="small"
-                            class="currency-select"
-                          >
-                            <el-option label="¥" value="CNY" />
-                            <el-option label="$" value="USD" />
-                            <el-option label="€" value="EUR" />
-                            <el-option label="¥" value="JPY" />
-                          </el-select>
-                        </div>
-                      </div>
-                      
-                      <el-button 
-                        size="small" 
-                        type="danger"
-                        text
-                        @click="removeAttraction(dayIndex, attractionIndex)"
-                        class="remove-attraction-btn"
-                      >
-                        <el-icon><Delete /></el-icon>
-                      </el-button>
-                    </div>
-                    
-                    <!-- 添加景点按钮 -->
-                    <div class="add-attraction-container">
-                      <el-button 
-                        size="small" 
-                        type="primary"
-                        text
-                        @click="addAttraction(dayIndex)"
-                        class="add-attraction-btn"
-                      >
-                        <el-icon><Plus /></el-icon>
-                        Add Stop
-                      </el-button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-  
-            <!-- 可选景点部分 -->
-            <div class="plan-section" v-if="availableDestinations.length > 0">
-              <h3>Suggested Destinations</h3>
-              <div class="destinations-grid">
-                <div 
-                  v-for="(destination, index) in availableDestinations"
-                  :key="index" 
-                  class="destination-card"
-                >
-                  <div class="destination-info">
-                    <div class="destination-name">{{ destination.name }}</div>
-                    <div class="destination-desc">{{ truncateText(destination.content, 60) }}</div>
-                  </div>
-                  <el-button 
-                    size="small" 
-                    type="primary"
-                    @click="addDestinationToPlan(destination)"
-                    class="add-destination-btn"
-                  >
-                    <el-icon><Plus /></el-icon>
+                  <el-button size="small" type="danger" text @click="removeDay(dayIndex)" class="remove-day-btn">
+                    <el-icon>
+                      <Delete />
+                    </el-icon>
                   </el-button>
                 </div>
+
+                <!-- 景点列表 -->
+                <div class="attractions-container">
+                  <div v-for="(attraction, attractionIndex) in day.attractions" :key="attractionIndex"
+                    class="attraction-card">
+                    <div class="attraction-time">
+                      <el-time-select v-model="attraction.timeFormatted" start="06:00" step="00:30" end="23:30"
+                        placeholder="Time" size="small"
+                        @change="updateAttractionTime(dayIndex, attractionIndex, $event)" />
+                    </div>
+
+                    <div class="attraction-details">
+                      <el-input v-model="attraction.placeName" placeholder="Enter attraction name" size="small"
+                        class="place-input" />
+                      <div class="budget-row">
+                        <el-input-number v-model="attraction.budget" :min="0" :step="10" placeholder="Budget"
+                          size="small" class="budget-input" />
+                        <el-select v-model="attraction.currency" size="small" class="currency-select">
+                          <el-option label="¥" value="CNY" />
+                          <el-option label="$" value="USD" />
+                          <el-option label="€" value="EUR" />
+                          <el-option label="¥" value="JPY" />
+                        </el-select>
+                      </div>
+                    </div>
+
+                    <el-button size="small" type="danger" text @click="removeAttraction(dayIndex, attractionIndex)"
+                      class="remove-attraction-btn">
+                      <el-icon>
+                        <Delete />
+                      </el-icon>
+                    </el-button>
+                  </div>
+
+                  <!-- 添加景点按钮 -->
+                  <div class="add-attraction-container">
+                    <el-button size="small" type="primary" text @click="addAttraction(dayIndex)"
+                      class="add-attraction-btn">
+                      <el-icon>
+                        <Plus />
+                      </el-icon>
+                      Add Stop
+                    </el-button>
+                  </div>
+                </div>
               </div>
             </div>
-  
           </div>
-  
-          <!-- 弹窗底部操作 -->
-          <div class="plan-footer">
-            <el-button @click="$emit('close')" size="small">
-              Cancel
-            </el-button>
-            <el-button 
-              type="primary" 
-              @click="savePlan"
-              :disabled="!planData.title.trim() || planData.days.length === 0"
-              size="small"
-            >
-              <el-icon><Check /></el-icon>
-              Save Plan
-            </el-button>
+
+          <!-- 可选景点部分 -->
+          <div class="plan-section" v-if="availableDestinations.length > 0">
+            <h3>Suggested Destinations</h3>
+            <div class="destinations-grid">
+              <div v-for="(destination, index) in availableDestinations" :key="index" class="destination-card">
+                <div class="destination-info">
+                  <div class="destination-name">{{ destination.name }}</div>
+                  <div class="destination-desc">{{ truncateText(destination.content, 60) }}</div>
+                </div>
+                <el-button size="small" type="primary" @click="addDestinationToPlan(destination)"
+                  class="add-destination-btn">
+                  <el-icon>
+                    <Plus />
+                  </el-icon>
+                </el-button>
+              </div>
+            </div>
           </div>
-  
+
         </div>
+
+        <!-- 弹窗底部操作 -->
+        <div class="plan-footer">
+          <el-button @click="$emit('close')" size="small">
+            Cancel
+          </el-button>
+          <el-button type="primary" @click="savePlan" :disabled="!planData.title.trim() || planData.days.length === 0"
+            size="small">
+            <el-icon>
+              <Check />
+            </el-icon>
+            Save Plan
+          </el-button>
+        </div>
+
       </div>
-    </transition>
-  </template>
+    </div>
+  </transition>
+</template>
