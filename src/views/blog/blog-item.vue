@@ -2,22 +2,13 @@
   <!-- 点击整个博客项时，触发 onClick 事件 -->
   <div class="blog-item" :class="{ 'nft-blog': post.isNFT }" @click="onClick">
     <!-- 轮播图：如果有文件则显示 -->
-    <el-carousel
-      v-if="post.files && post.files.length > 0"
-      indicator-position="outside"
-      class="post-carousel"
-      :autoplay="false"
-      :touchable="true"
-      :loop="true"
-    >
+    <el-carousel v-if="post.files && post.files.length > 0" indicator-position="outside" class="post-carousel" :autoplay="false" :touchable="true" :loop="true">
       <!-- 遍历所有文件 -->
       <el-carousel-item v-for="(file, index) in post.files" :key="index">
         <!-- 使用动态绑定的 src -->
-        <img
-          :src="getDisplayUrl(file)"
-          :alt="isVideo(file) ? 'Video Thumbnail' : 'Post Image'"
-          class="post-image"
-        />
+        <template #default>
+          <img :src="getDisplayUrl(file)" :alt="isVideo(file) ? 'Video Thumbnail' : 'Post Image'" class="post-image" />
+        </template>
       </el-carousel-item>
     </el-carousel>
 
@@ -32,12 +23,7 @@
     <div class="post-footer-userpage">
       <!-- 作者信息 -->
       <div class="author-info">
-        <img
-          v-if="post.user?.avatar"
-          :src="getImageUrl(post.user.avatar)"
-          alt="Avatar"
-          class="post-avatar"
-        />
+        <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
         <span class="author-name" :title="post.user?.name">
           {{ post.user?.name }}
         </span>
@@ -76,12 +62,7 @@ const videoElements = ref<HTMLVideoElement[]>([]);
 function isVideo(url: string): boolean {
   if (!url) return false;
   const lowerUrl = url.toLowerCase();
-  return (
-    lowerUrl.includes('.mp4') ||
-    lowerUrl.includes('.avi') ||
-    lowerUrl.includes('.mov') ||
-    lowerUrl.includes('.webm')
-  );
+  return lowerUrl.includes('.mp4') || lowerUrl.includes('.avi') || lowerUrl.includes('.mov') || lowerUrl.includes('.webm');
 }
 
 /**
@@ -203,7 +184,7 @@ watch(
   () => props.post.files,
   (newFiles) => {
     processVideoFiles(newFiles);
-  }
+  },
 );
 
 // 组件卸载前，清理所有创建的 video 元素，防止内存泄漏
@@ -246,10 +227,20 @@ function onClick() {
   width: 100%;
 }
 
+/* 让轮播项高度自适应图片 */
+.post-carousel :deep(.el-carousel__item) {
+  height: auto;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .post-image {
   width: 100%;
-  height: 100%;
-  object-fit: cover; /* 保持图片/封面的宽高比并填满容器 */
+  max-height: 600px;
+  object-fit: contain;
+  display: block;
   background-color: #f0f0f0; /* 默认背景色，在封面生成前显示 */
 }
 

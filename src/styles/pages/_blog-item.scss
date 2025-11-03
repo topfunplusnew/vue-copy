@@ -54,19 +54,6 @@
         height: rpx(350) !important;
         /* 确保与userpage一致的高度 */
       }
-
-      .post-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        flex-shrink: 0;
-        display: block;
-        /* 确保图片是块级元素 */
-        margin: 0;
-        /* 移除可能的外边距 */
-        border-radius: 0;
-        /* 确保没有圆角 */
-      }
     }
 
     .post-content-userpage {

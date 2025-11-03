@@ -3,7 +3,7 @@ import { ref, computed, watch, onMounted, nextTick, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useBlogStore } from '@/stores/blog';
 import { usecomponentsStore } from '@/stores/components';
-import {  ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import commonHeader from '@/layout/common-header.vue';
 import blogItem from './blog-item.vue';
@@ -31,7 +31,7 @@ const previewData = ref({
   tags: [] as string[],
   preferences: [] as number[],
   location: [] as string[],
-  isNFT: false
+  isNFT: false,
 });
 const props = defineProps({
   id: {
@@ -47,7 +47,7 @@ const closeBlogDetail = () => {
 };
 
 watch(blogID, (val, old) => {
-  if(val != old) showBlogDetail(Number(val));
+  if (val != old) showBlogDetail(Number(val));
 });
 // -------------------
 // Trip Options 部分
@@ -73,7 +73,6 @@ const originWeather = computed(() => componentsStore.originWeather);
 // const destinationWeatherIcon = computed(() => componentsStore.destinationWeatherIcon);
 
 const socialFilters = computed(() => store.socialFilters); // 社会过滤器
-
 
 // 用户选择的旅游偏好
 const selectedOptions = ref<string[]>([]);
@@ -150,22 +149,20 @@ const togglePreference = (optionName: string) => {
   updateUserInput();
 };
 
-
 const submitItinerary = () => {
   router.push({
     name: 'generator',
     query: {
       prompt: userInput.value,
       location: selectedLocation.value,
-      destination: selectedDestination.value
-    }
+      destination: selectedDestination.value,
+    },
   });
   userInput.value = '';
 };
 
 const allPosts = computed(() => store.blogs);
 // const condition = computed(() => store.condition);
-
 
 const selectedBlog = computed(() => store.blog);
 
@@ -178,13 +175,12 @@ function nextPage() {
   store.getBlogList();
 }
 
-onMounted(async() => {
-
+onMounted(async () => {
   await store.getSocialFilter();
   // 页面载入时，自动获取一次定位和加载博客列表
   await store.getBlogList(true);
 
-  if(blogID.value) {
+  if (blogID.value) {
     showBlogDetail(Number(blogID.value));
   }
   handleLocationClick();
@@ -208,7 +204,7 @@ onMounted(async() => {
         nextPage();
       }
     },
-    { threshold: 0.1 } // 当10%的目标元素可见时触发
+    { threshold: 0.1 }, // 当10%的目标元素可见时触发
   );
 
   // 开始观察底部触发元素
@@ -241,18 +237,15 @@ const showBlogDetail = async (id: number) => {
   // })
   // 重置图片索引
 
-
   try {
     // 添加参数指示后端返回所有回复，不分页
     await store.getBlogByID(id);
-
 
     // 重置评论区状态
     expandedReplies.value = [];
     expandedComments.value = []; // 重置已展开的评论列表
     replyContent.value = '';
     replyTarget.value = null;
-
 
     // 显示博客详情对话框
     dialogBlog.value = true;
@@ -267,19 +260,18 @@ const showBlogDetail = async (id: number) => {
   } catch (error) {
     console.error('加载博客详情失败:', error);
     // 只在确实无法加载主要内容时显示错误
-          if (!store.blog || !store.blog.id) {
-        ElMessage.error('Failed to load blog details');
-      }
+    if (!store.blog || !store.blog.id) {
+      ElMessage.error('Failed to load blog details');
     }
-  };
-
+  }
+};
 
 const selectedFilters = ref<number[]>([]);
 const isFilterMenuOpen = ref(false);
 
 const toggleSocialFilter = (filter: number) => {
   if (selectedFilters.value.includes(filter)) {
-    selectedFilters.value = selectedFilters.value.filter(f => f !== filter);
+    selectedFilters.value = selectedFilters.value.filter((f) => f !== filter);
   } else {
     selectedFilters.value.push(filter);
   }
@@ -293,12 +285,10 @@ const toggleFilterMenu = () => {
 
 const searchQuery = ref('');
 
-
 function handleSearch() {
-  allPosts.value.args.keyword =  searchQuery.value;
+  allPosts.value.args.keyword = searchQuery.value;
   store.getBlogList(true);
 }
-
 
 // 关注状态
 const isFollowing = ref(false);
@@ -317,27 +307,30 @@ const isOwnPost = computed(() => {
 });
 
 // 在博客详情打开时，检查关注状态
-watch(() => selectedBlog.value, (newBlog) => {
-  // 重新评估是否为自己的帖子
-  console.log('Is own post:', isOwnPost.value);
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    // 重新评估是否为自己的帖子
+    console.log('Is own post:', isOwnPost.value);
 
-  // 如果选中了博客且不是自己的博客，则检查关注状态
-  if (newBlog && newBlog.user && !isOwnPost.value) {
-    // 这里可以调用API检查是否已关注
-    if(newBlog.user.id) checkFollowStatus(newBlog.user.id);
-  } else {
-    // 自己的博客或无博客选中，重置关注状态
-    isFollowing.value = false;
-  }
-}, { immediate: true });
+    // 如果选中了博客且不是自己的博客，则检查关注状态
+    if (newBlog && newBlog.user && !isOwnPost.value) {
+      // 这里可以调用API检查是否已关注
+      if (newBlog.user.id) checkFollowStatus(newBlog.user.id);
+    } else {
+      // 自己的博客或无博客选中，重置关注状态
+      isFollowing.value = false;
+    }
+  },
+  { immediate: true },
+);
 
 // 添加一个函数来检查关注状态
-const checkFollowStatus = async (userId:number) => {
+const checkFollowStatus = async (userId: number) => {
   try {
     // 假设API返回一个布尔值表示是否已关注
     const isFollowed = await userStore.isFollowing(userId);
     isFollowing.value = isFollowed.data.is_following;
-
   } catch (error) {
     console.error('Failed to check follow status:', error);
   }
@@ -353,18 +346,12 @@ const replyContent = ref('');
 const expandedReplies = ref<number[]>([]);
 
 // 添加回复目标状态
-const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
-
-
-
+const replyTarget = ref<{ id: number; type: string; parentId?: number } | null>(null);
 
 // 添加"查看更多回复"功能
 const expandedComments = ref<number[]>([]);
 
 // 决定显示哪些回复 - 默认只显示前2条
-
-
-
 
 // 长按结束处理函数
 
@@ -398,9 +385,7 @@ const filteredLocations = computed(() => {
     return destinations.slice(0, 8); // 默认显示前8个
   }
 
-  return destinations.filter(location =>
-    location.label.toLowerCase().includes(locationSearchQuery.value.toLowerCase())
-  );
+  return destinations.filter((location) => location.label.toLowerCase().includes(locationSearchQuery.value.toLowerCase()));
 });
 
 const handleLocationSearch = () => {
@@ -446,13 +431,13 @@ const availableTools = ref([
   {
     name: 'Meetings',
     icon: '🏛️',
-    description: 'Meetings and Workshops'
+    description: 'Meetings and Workshops',
   },
   {
     name: 'iPoloGO Planner',
     icon: '✨',
-    description: ''
-  }
+    description: '',
+  },
 ]);
 
 // 切换Interests菜单
@@ -491,9 +476,9 @@ const toggleTool = (toolName: string) => {
     toolsExpanded.value = false; // 关闭工具菜单
     return;
   }
-  
+
   if (selectedTools.value.includes(toolName)) {
-    selectedTools.value = selectedTools.value.filter(t => t !== toolName);
+    selectedTools.value = selectedTools.value.filter((t) => t !== toolName);
   } else {
     selectedTools.value.push(toolName);
   }
@@ -526,15 +511,11 @@ const handlePostClick = async () => {
   // 检查用户是否已登录
   if (!userStore.isLogin()) {
     try {
-      await ElMessageBox.confirm(
-        'You need to login first to post a blog. Would you like to login now?',
-        'Login Required',
-        {
-          confirmButtonText: 'Go to Login',
-          cancelButtonText: 'Cancel',
-          type: 'warning',
-        }
-      );
+      await ElMessageBox.confirm('You need to login first to post a blog. Would you like to login now?', 'Login Required', {
+        confirmButtonText: 'Go to Login',
+        cancelButtonText: 'Cancel',
+        type: 'warning',
+      });
       // 用户确认，跳转到登录页面
       router.push({ name: 'login' });
     } catch {
@@ -548,15 +529,7 @@ const handlePostClick = async () => {
 };
 
 // 处理预览显示
-const handleShowPreview = (data: {
-  title: string;
-  content: string;
-  images: string[];
-  tags: string[];
-  preferences: number[];
-  location: string[];
-  isNFT: boolean;
-}) => {
+const handleShowPreview = (data: { title: string; content: string; images: string[]; tags: string[]; preferences: number[]; location: string[]; isNFT: boolean }) => {
   previewData.value = {
     title: data.title,
     content: data.content,
@@ -564,7 +537,7 @@ const handleShowPreview = (data: {
     tags: data.tags,
     preferences: data.preferences,
     location: data.location,
-    isNFT: data.isNFT
+    isNFT: data.isNFT,
   };
   showPreview.value = true;
 };
@@ -616,21 +589,14 @@ watch(selectedLocation, () => {
     }, 1000);
   }
 });
-
 </script>
 
 <template>
-  <div class="background-layer" :class="{ 'visible': !isLoading }"></div>
+  <div class="background-layer" :class="{ visible: !isLoading }"></div>
   <div class="home" :class="{ 'content-visible': !isLoading }">
     <common-header />
     <section class="welcome-section">
-      <blur-text
-        text="Welcome to iPoloGO"
-        :delay="180"
-        animateBy="words"
-        direction="top"
-        class="welcome-text"
-      />
+      <blur-text text="Welcome to iPoloGO" :delay="180" animateBy="words" direction="top" class="welcome-text" />
       <!-- <blur-text
         text="To Explore, To Share, To Earn"
         :delay="180"
@@ -644,7 +610,6 @@ watch(selectedLocation, () => {
     <main class="main">
       <!-- 行程规划模块 - 重新设计 -->
       <div class="trip-planning-container">
-
         <!-- 主输入区域 -->
         <div class="chat-input-container">
           <div class="input-wrapper">
@@ -687,7 +652,7 @@ watch(selectedLocation, () => {
               <!-- 没有选择地点时的默认文本 -->
               <span class="selector-text" v-else>Add Location</span>
 
-              <el-icon class="dropdown-icon" :class="{ 'rotated': locationExpanded }">
+              <el-icon class="dropdown-icon" :class="{ rotated: locationExpanded }">
                 <ArrowDown />
               </el-icon>
             </div>
@@ -697,13 +662,7 @@ watch(selectedLocation, () => {
               <div class="selector-dropdown" v-if="locationExpanded" @click.stop>
                 <div class="dropdown-content">
                   <div class="search-section">
-                    <el-input
-                      v-model="locationSearchQuery"
-                      placeholder="Search for a location..."
-                      class="location-search"
-                      clearable
-                      @input="handleLocationSearch"
-                    >
+                    <el-input v-model="locationSearchQuery" placeholder="Search for a location..." class="location-search" clearable @input="handleLocationSearch">
                       <template #prefix>
                         <el-icon><Search /></el-icon>
                       </template>
@@ -712,12 +671,7 @@ watch(selectedLocation, () => {
 
                   <div class="results-section">
                     <div class="result-list">
-                      <div
-                        v-for="(location, index) in filteredLocations"
-                        :key="index"
-                        class="location-item"
-                        @click="selectLocation(location.value)"
-                      >
+                      <div v-for="(location, index) in filteredLocations" :key="index" class="location-item" @click="selectLocation(location.value)">
                         <div class="location-item-content">
                           <el-icon class="item-icon"><Location /></el-icon>
                           <div class="item-info">
@@ -746,7 +700,7 @@ watch(selectedLocation, () => {
               </el-icon>
               <span class="selector-text">Interests</span>
               <span class="selected-count" v-if="selectedOptions.length > 0">({{ selectedOptions.length }})</span>
-              <el-icon class="dropdown-icon" :class="{ 'rotated': interestsExpanded }">
+              <el-icon class="dropdown-icon" :class="{ rotated: interestsExpanded }">
                 <ArrowDown />
               </el-icon>
             </div>
@@ -760,13 +714,7 @@ watch(selectedLocation, () => {
                   </div>
 
                   <div class="options-grid">
-                    <div
-                      v-for="option in socialFilters"
-                      :key="option.name"
-                      class="option-item"
-                      :class="{ 'selected': selectedOptions.includes(option.name) }"
-                      @click="togglePreference(option.name)"
-                    >
+                    <div v-for="option in socialFilters" :key="option.name" class="option-item" :class="{ selected: selectedOptions.includes(option.name) }" @click="togglePreference(option.name)">
                       <span class="option-icon">{{ option.icon }}</span>
                       <span class="option-name">{{ option.name }}</span>
                     </div>
@@ -784,7 +732,7 @@ watch(selectedLocation, () => {
               </el-icon>
               <span class="selector-text">Tools</span>
               <span class="selected-count" v-if="selectedTools.length > 0">({{ selectedTools.length }})</span>
-              <el-icon class="dropdown-icon" :class="{ 'rotated': toolsExpanded }">
+              <el-icon class="dropdown-icon" :class="{ rotated: toolsExpanded }">
                 <ArrowDown />
               </el-icon>
             </div>
@@ -798,13 +746,7 @@ watch(selectedLocation, () => {
                   </div>
 
                   <div class="tools-grid">
-                    <div
-                      v-for="tool in availableTools"
-                      :key="tool.name"
-                      class="tool-item"
-                      :class="{ 'selected': selectedTools.includes(tool.name) }"
-                      @click="toggleTool(tool.name)"
-                    >
+                    <div v-for="tool in availableTools" :key="tool.name" class="tool-item" :class="{ selected: selectedTools.includes(tool.name) }" @click="toggleTool(tool.name)">
                       <span class="tool-icon">{{ tool.icon }}</span>
                       <span class="tool-name">{{ tool.name }}</span>
                       <span class="tool-desc">{{ tool.description }}</span>
@@ -825,11 +767,8 @@ watch(selectedLocation, () => {
 
           <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
           <div class="social-header-controls">
-             <!-- 搜索框 -->
-            <input type="text" v-model="searchQuery"
-            placeholder="Explore Anything..."
-            class="search-input-home"
-            @keyup.enter="handleSearch" />
+            <!-- 搜索框 -->
+            <input type="text" v-model="searchQuery" placeholder="Explore Anything..." class="search-input-home" @keyup.enter="handleSearch" />
 
             <!-- 筛选选项汉堡菜单按钮 (移动端显示) -->
             <button class="filter-menu-toggle" @click="toggleFilterMenu">
@@ -839,14 +778,8 @@ watch(selectedLocation, () => {
             </button>
 
             <!-- 横排筛选选项 -->
-            <div class="social-filter-panel-horizontal"
-            :class="{ 'expanded': isFilterMenuOpen }">
-              <button
-                v-for="item in socialFilters"
-                :key="item.id"
-                :class="{ active: selectedFilters.includes(item.id) }"
-                @click="toggleSocialFilter(item.id)"
-              >
+            <div class="social-filter-panel-horizontal" :class="{ expanded: isFilterMenuOpen }">
+              <button v-for="item in socialFilters" :key="item.id" :class="{ active: selectedFilters.includes(item.id) }" @click="toggleSocialFilter(item.id)">
                 <span class="filter-icon">{{ item.icon }}</span>
                 <span class="filter-label">{{ item.name }}</span>
               </button>
@@ -862,24 +795,11 @@ watch(selectedLocation, () => {
 
         <!-- 博客展示区域 -->
         <div class="social-scroll">
-          <div class="social-posts-panel" ref="postsPanel"
-          style="overflow-y: auto; max-height: none;">
-            <blog-item
-              v-for="(item, index) in allPosts?.items"
-              :key="index"
-              :post="item"
-              @detail="openBlogDetail"
-            ></blog-item>
+          <div class="social-posts-panel" ref="postsPanel" style="overflow-y: auto; max-height: none">
+            <blog-item v-for="(item, index) in allPosts?.items" :key="index" :post="item" @detail="openBlogDetail"></blog-item>
             <div ref="bottomTrigger" class="bottom-load-container">
-              <div v-if="allPosts.loading"
-              class="loading-indicator">Loading more posts...</div>
-              <button
-                v-else-if="allPosts?.has_next"
-                class="load-more-btn-home"
-                @click="nextPage"
-              >
-                Load More
-              </button>
+              <div v-if="allPosts.loading" class="loading-indicator">Loading more posts...</div>
+              <button v-else-if="allPosts?.has_next" class="load-more-btn-home" @click="nextPage">Load More</button>
               <div v-else>No more posts to show</div>
             </div>
           </div>
@@ -891,12 +811,7 @@ watch(selectedLocation, () => {
     <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
 
     <!-- 博客详情弹出层 -->
-    <blog-detail-dialog
-      v-model:visible="dialogBlog"
-      :blog-id="Number(blogID)"
-      :is-following="isFollowing"
-      @close="closeBlogDetail"
-    />
+    <blog-detail-dialog v-model:visible="dialogBlog" :blog-id="Number(blogID)" :is-following="isFollowing" @close="closeBlogDetail" />
 
     <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
   </div>
@@ -921,17 +836,10 @@ watch(selectedLocation, () => {
   />
 
   <!-- 会议组件弹窗 -->
-  <MeetingComponent
-    v-if="showMeetingDialog"
-    @close="showMeetingDialog = false"
-  />
+  <MeetingComponent v-if="showMeetingDialog" @close="showMeetingDialog = false" />
 
   <!-- iPoloGO 自动生成旅行计划 -->
-  <iPoloGOPlanComponent
-    v-if="showIPoloGOPlanDialog"
-    :visible="showIPoloGOPlanDialog"
-    @close="showIPoloGOPlanDialog = false"
-  />
+  <iPoloGOPlanComponent v-if="showIPoloGOPlanDialog" :visible="showIPoloGOPlanDialog" @close="showIPoloGOPlanDialog = false" />
 </template>
 
 <style scoped>
@@ -982,4 +890,3 @@ watch(selectedLocation, () => {
   }
 }
 </style>
-
