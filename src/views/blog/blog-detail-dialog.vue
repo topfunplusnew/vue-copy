@@ -6,18 +6,19 @@ import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 import { useRouter } from 'vue-router';
 import BlogDetailComment from './blog-detail-comment.vue';
+import { isImage, isVideo } from '@/constants/file';
 
 const router = useRouter();
 const dialogWidth = ref('90%');
 const props = defineProps({
   visible: {
     type: Boolean,
-    required: true
-  },// 接收 v-model 传递的 visible
+    required: true,
+  }, // 接收 v-model 传递的 visible
   blogId: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 });
 // const currentBlogId = ref(1); // 博客ID
 const emit = defineEmits(['update:visible', 'close']);
@@ -40,23 +41,27 @@ const blogImages = computed(() => {
 // 评论相关的状态
 const replyContent = ref('');
 const expandedReplies = ref<number[]>([]);
-const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
+const replyTarget = ref<{ id: number; type: string; parentId?: number } | null>(null);
 const expandedComments = ref<number[]>([]);
 
 const isLiked = ref(false);
 const likesCount = ref(0);
 // 初始化点赞状态
-watch(() => selectedBlog.value, (newBlog) => {
-  if (newBlog?.id) {
-    likesCount.value = newBlog.likes || 0;
-    // 检查用户是否已经点赞
-    checkLikeStatus(newBlog.id);
-  }
-}, { immediate: true });
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    if (newBlog?.id) {
+      likesCount.value = newBlog.likes || 0;
+      // 检查用户是否已经点赞
+      checkLikeStatus(newBlog.id);
+    }
+  },
+  { immediate: true },
+);
 
 // 检查点赞状态
 const checkLikeStatus = async (blogId: number | undefined) => {
-   if (!blogId || !userStore.isLogin()) {
+  if (!blogId || !userStore.isLogin()) {
     isLiked.value = false;
     return;
   }
@@ -75,15 +80,11 @@ const handleLike = async () => {
   if (!selectedBlog.value?.id) return;
 
   if (!userStore.isLogin()) {
-    ElMessageBox.confirm(
-      'You need to login to like this post. Would you like to login now?',
-      'Login Required',
-      {
-        confirmButtonText: 'Go to Login',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-      }
-    ).then(() => {
+    ElMessageBox.confirm('You need to login to like this post. Would you like to login now?', 'Login Required', {
+      confirmButtonText: 'Go to Login',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }).then(() => {
       router.push({ name: 'login' });
     });
     return;
@@ -115,39 +116,46 @@ const isOwnPost = computed(() => {
   return String(userStore.user.id) === String(selectedBlog.value.user.id);
 });
 
-watch(() => props.blogId, async (newVal) => {
-  if (newVal > 0) {
-    console.log('通过获取博客ID:', newVal);
-    await store.getBlogByID(newVal);
-    console.log('博客已获取:', selectedBlog.value);
+watch(
+  () => props.blogId,
+  async (newVal) => {
+    if (newVal > 0) {
+      console.log('通过获取博客ID:', newVal);
+      await store.getBlogByID(newVal);
+      console.log('博客已获取:', selectedBlog.value);
 
-    // 重置评论区状态
-    expandedReplies.value = [];
-    expandedComments.value = [];
-    replyContent.value = '';
-    replyTarget.value = null;
+      // 重置评论区状态
+      expandedReplies.value = [];
+      expandedComments.value = [];
+      replyContent.value = '';
+      replyTarget.value = null;
 
-    // 检查关注状态
-    if (selectedBlog.value?.user?.id && !isOwnPost.value) {
-      checkFollowStatus(selectedBlog.value.user.id);
-    }
-
-    nextTick(() => {
-      const detailBox = document.querySelector('.blog-details-home');
-      if (detailBox) {
-        detailBox.scrollTop = 0;
+      // 检查关注状态
+      if (selectedBlog.value?.user?.id && !isOwnPost.value) {
+        checkFollowStatus(selectedBlog.value.user.id);
       }
-    });
-  }
-});
 
-watch(() => selectedBlog.value, (newBlog) => {
-  if (newBlog?.user?.id && !isOwnPost.value) {
-    checkFollowStatus(newBlog.user.id);
-  } else {
-    isFollowing.value = false;
-  }
-}, { immediate: true });
+      nextTick(() => {
+        const detailBox = document.querySelector('.blog-details-home');
+        if (detailBox) {
+          detailBox.scrollTop = 0;
+        }
+      });
+    }
+  },
+);
+
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    if (newBlog?.user?.id && !isOwnPost.value) {
+      checkFollowStatus(newBlog.user.id);
+    } else {
+      isFollowing.value = false;
+    }
+  },
+  { immediate: true },
+);
 
 const checkFollowStatus = async (userId: number) => {
   try {
@@ -159,7 +167,7 @@ const checkFollowStatus = async (userId: number) => {
 };
 
 const closeDialog = () => {
-  emit('update:visible', false);// 通知父组件隐藏对话框
+  emit('update:visible', false); // 通知父组件隐藏对话框
   emit('close');
 };
 
@@ -180,15 +188,11 @@ const submitComment = async () => {
   if (!selectedBlog.value?.id) return;
 
   if (!userStore.isLogin()) {
-    ElMessageBox.confirm(
-      'You need to login first to comment. Would you like to login now?',
-      'Login Required',
-      {
-        confirmButtonText: 'Go to Login',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-      }
-    ).then(() => {
+    ElMessageBox.confirm('You need to login first to comment. Would you like to login now?', 'Login Required', {
+      confirmButtonText: 'Go to Login',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }).then(() => {
       router.push({ name: 'login' });
     });
     return;
@@ -219,7 +223,7 @@ const scrollToComments = () => {
     // 直接使用scrollIntoView方法，将评论区域滚动到视图顶部
     commentsSection.scrollIntoView({
       behavior: 'smooth',
-      block: 'start'
+      block: 'start',
     });
   }
 };
@@ -259,7 +263,7 @@ const handleMassageClick = (id?: number) => {
 // 处理头像和用户名点击事件
 const handleUserClick = (event?: Event) => {
   console.log('handleUserClick 被调用');
-  
+
   // 阻止事件冒泡，避免其他事件干扰
   if (event) {
     event.preventDefault();
@@ -288,20 +292,20 @@ const handleUserClick = (event?: Event) => {
     setTimeout(() => {
       console.log('🚀 start to jump to user page...');
 
-             // 跳转到对应的用户页面
-       const jumpToUserPage = async () => {
-         try {
-           // 如果是当前用户自己的博客，跳转到自己的用户页面
-           if (isOwnPost.value) {
-             console.log('jump to my user page (userpage)');
-             await router.push({ name: 'userpage' });
-             console.log('✅ success to jump to my user page');
-           } else {
-             // 如果是其他用户的博客，跳转到其他用户页面
-             console.log('jump to other user page (otheruser), user id:', targetUserId);
-             await router.push({ name: 'otheruser', params: { id: targetUserId.toString() } });
-             console.log('✅ success to jump to other user page');
-           }
+      // 跳转到对应的用户页面
+      const jumpToUserPage = async () => {
+        try {
+          // 如果是当前用户自己的博客，跳转到自己的用户页面
+          if (isOwnPost.value) {
+            console.log('jump to my user page (userpage)');
+            await router.push({ name: 'userpage' });
+            console.log('✅ success to jump to my user page');
+          } else {
+            // 如果是其他用户的博客，跳转到其他用户页面
+            console.log('jump to other user page (otheruser), user id:', targetUserId);
+            await router.push({ name: 'otheruser', params: { id: targetUserId.toString() } });
+            console.log('✅ success to jump to other user page');
+          }
 
           // 跳转成功后滚动到页面顶部
           nextTick(() => {
@@ -309,7 +313,6 @@ const handleUserClick = (event?: Event) => {
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
           });
-
         } catch (error) {
           console.error('❌ jump failed:', error);
           const errorMessage = error instanceof Error ? error.message : 'unknown error';
@@ -319,7 +322,6 @@ const handleUserClick = (event?: Event) => {
 
       jumpToUserPage();
     }, 100); // 100ms延迟确保弹窗关闭
-
   } catch (error) {
     console.error('❌ jump failed:', error);
     ElMessage.error('jump failed');
@@ -328,14 +330,7 @@ const handleUserClick = (event?: Event) => {
 </script>
 
 <template>
-  <el-dialog
-    :model-value="visible"
-    :fullscreen="false"
-    class="blog-detail-dialog"
-    @close="closeDialog"
-    :style="{ '--el-dialog-width': dialogWidth }"
-    :show-close="false"
-  >
+  <el-dialog :model-value="visible" :fullscreen="false" class="blog-detail-dialog" @close="closeDialog" :style="{ '--el-dialog-width': dialogWidth }" :show-close="false">
     <div class="blog-detail-container" :class="{ 'nft-post': selectedBlog?.isNFT }">
       <!-- 关闭按钮 -->
       <button class="close-button" @click="closeDialog">×</button>
@@ -343,24 +338,12 @@ const handleUserClick = (event?: Event) => {
       <!-- 左侧区域：图片 -->
       <div class="detail-left">
         <!-- 图片轮播 -->
-        <el-carousel
-          v-if="blogImages && blogImages.length > 0"
-          :interval="5000"
-          class="image-section"
-          height="100%"
-          :touchable="true"
-          :loop="true"
-          :autoplay="false"
-        >
+        <el-carousel v-if="blogImages && blogImages.length > 0" :interval="5000" class="image-section" height="100%" :touchable="true" :loop="true" :autoplay="false">
           <el-carousel-item v-for="(image, index) in blogImages" :key="index">
             <div class="image-slider">
               <div class="image-wrapper">
-                <img
-                  :src="getImageUrl(image)"
-                  alt="Blog Image"
-                  class="detail-image"
-                  @error="handleImageError"
-                />
+                <img v-if="isImage(image)" :src="getImageUrl(image)" alt="Blog Image" class="blog-image" @error="handleImageError" />
+                <video v-else-if="isVideo(image)" :src="getImageUrl(image)" @error="handleImageError" controls class="detail-video" />
               </div>
             </div>
           </el-carousel-item>
@@ -373,36 +356,17 @@ const handleUserClick = (event?: Event) => {
           <!-- 用户信息和标题 -->
           <div class="user-header">
             <div class="author-info">
-              <div
-                class="user-click-area clickable"
-                @click="handleUserClick($event)"
-                :title="isOwnPost ? 'Click to jump to my user page' : `Click to jump to ${selectedBlog?.user?.name}'s user page`"
-              >
-                <img
-                  :src="getImageUrl(selectedBlog?.user?.avatar || '')"
-                  alt="Author Avatar"
-                  class="author-avatar"
-                />
+              <div class="user-click-area clickable" @click="handleUserClick($event)" :title="isOwnPost ? 'Click to jump to my user page' : `Click to jump to ${selectedBlog?.user?.name}'s user page`">
+                <img :src="getImageUrl(selectedBlog?.user?.avatar || '')" alt="Author Avatar" class="author-avatar" />
                 <span class="author-name">{{ selectedBlog?.user?.name }}</span>
               </div>
               <!-- Edit/Follow按钮直接跟在用户名后面 -->
-              <el-button
-                v-if="!isOwnPost"
-                class="follow-btn inline-btn"
-                size="small"
-                :class="{ 'following': isFollowing }"
-                @click.stop="handleFollowClick(selectedBlog?.user?.id)"
-              >
+              <el-button v-if="!isOwnPost" class="follow-btn inline-btn" size="small" :class="{ following: isFollowing }" @click.stop="handleFollowClick(selectedBlog?.user?.id)">
                 <span class="follow-icon">+</span>
                 <span class="follow-text">{{ isFollowing ? 'Following' : 'Follow' }}</span>
               </el-button>
               <!-- Massage按钮 -->
-              <el-button
-                v-if="!isOwnPost"
-                class="massage-btn inline-btn"
-                size="small"
-                @click.stop="handleMassageClick(selectedBlog?.user?.id)"
-              >
+              <el-button v-if="!isOwnPost" class="massage-btn inline-btn" size="small" @click.stop="handleMassageClick(selectedBlog?.user?.id)">
                 <span class="massage-icon">💬</span>
                 <span class="massage-text">Message</span>
               </el-button>
@@ -410,9 +374,7 @@ const handleUserClick = (event?: Event) => {
             </div>
             <!-- 分类 -->
             <div class="tags-section-pref" v-if="selectedBlog?.social_filters">
-              <span v-for="(item, index) in selectedBlog.social_filters" :key="index" class="tag-pref">
-                {{ item.icon }}{{ item.name }}
-              </span>
+              <span v-for="(item, index) in selectedBlog.social_filters" :key="index" class="tag-pref"> {{ item.icon }}{{ item.name }} </span>
             </div>
             <h2 class="blog-title">{{ selectedBlog?.title }}</h2>
           </div>
@@ -431,20 +393,14 @@ const handleUserClick = (event?: Event) => {
           </div>
 
           <!-- 评论组件 -->
-          <BlogDetailComment
-            :blog-id="blogId"
-          />
+          <BlogDetailComment :blog-id="blogId" />
         </div>
 
         <!-- 统计信息栏 -->
         <div class="stats-bar">
           <!-- 统计信息 -->
           <div class="stats-info">
-            <span
-              class="likes"
-              @click="handleLike"
-              :class="{ 'liked': isLiked }"
-            >
+            <span class="likes" @click="handleLike" :class="{ liked: isLiked }">
               <span class="heart-icon">{{ isLiked ? '❤️' : '🤍' }}</span> <span class="count">{{ likesCount }}</span>
             </span>
             <span class="comments" @click="scrollToComments">
@@ -456,18 +412,8 @@ const handleUserClick = (event?: Event) => {
           </div>
           <!-- 简化的评论输入框 -->
           <div class="quick-comment-input">
-            <input
-              type="text"
-              v-model="newComment"
-              placeholder="Add a comment..."
-              @keyup.enter="submitComment"
-              class="comment-input comment-input-home"
-            />
-            <button
-              class="submit-quick-comment"
-              @click="submitComment"
-              :disabled="!newComment.trim()"
-            >
+            <input type="text" v-model="newComment" placeholder="Add a comment..." @keyup.enter="submitComment" class="comment-input comment-input-home" />
+            <button class="submit-quick-comment" @click="submitComment" :disabled="!newComment.trim()">
               <span>➤</span>
             </button>
           </div>
@@ -476,5 +422,26 @@ const handleUserClick = (event?: Event) => {
     </div>
   </el-dialog>
 </template>
+<style scoped>
+.el-carousel__item {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
+/* 确保图片完整显示 */
+:deep(.image-wrapper) {
+  overflow: hidden !important;
+  background-color: #f5f5f5 !important;
+}
 
+:deep(.blog-image),
+:deep(.detail-image),
+:deep(.detail-video) {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  box-sizing: border-box !important;
+}
+</style>

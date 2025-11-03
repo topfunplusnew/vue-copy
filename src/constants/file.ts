@@ -99,3 +99,21 @@ export function isFileCategory(fileName: string, category: string): boolean {
   const fileType = getFileType(fileName);
   return FILE_CATEGORIES[category]?.includes(fileType) || false;
 }
+
+/**
+ * 判断文件是否为图片
+ * @param fileName 文件名
+ * @returns boolean 是否为图片
+ */
+export function isImage(fileName: string): boolean {
+  return isFileCategory(fileName, 'IMAGES');
+}
+
+/**
+ * 判断文件是否为视频
+ * @param fileName 文件名
+ * @returns boolean 是否为视频
+ */
+export function isVideo(fileName: string): boolean {
+  return isFileCategory(fileName, 'VIDEOS');
+}
