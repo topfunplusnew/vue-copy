@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { deleteFile, getFileUploadAddress } from '@/services/common/files.ts';
-import { Plus, Document } from '@element-plus/icons-vue';
+import { Plus, Document, Reading } from '@element-plus/icons-vue';
 import { ElMessage, type UploadProps } from 'element-plus';
 import { auth } from '@/services/http.ts';
 import { computed, ref } from 'vue';
@@ -299,6 +299,13 @@ const handleFileDownload = (file: UploadUserFile) => {
   link.click();
   document.body.removeChild(link);
 };
+
+// 处理PDF预览 - 在新窗口打开
+const handlePdfPreview = () => {
+  if (pdfUrl.value) {
+    window.open(pdfUrl.value, '_blank');
+  }
+};
 </script>
 
 <template>
@@ -395,8 +402,16 @@ const handleFileDownload = (file: UploadUserFile) => {
     </div>
 
     <!-- PDF预览 -->
-    <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
+    <div v-if="shouldShowPdfPreview">
+      <div class="pdf-preview-container">
+        <div class="pdf-preview-button-wrapper">
+          <el-button type="primary" size="small" class="pdf-preview-button" @click="handlePdfPreview">
+            <el-icon><Reading /></el-icon>
+            Preview
+          </el-button>
+        </div>
+        <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
+      </div>
     </div>
   </div>
 </template>
@@ -650,24 +665,29 @@ const handleFileDownload = (file: UploadUserFile) => {
   background-color: #000;
 }
 
-.pdf-preview-container {
-  position: relative;
-  border: 1px solid #e4e7ed;
-  border-radius: 4px;
-  overflow: hidden;
+.pdf-preview-button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px;
 }
 
 .pdf-preview-button {
-  position: absolute;
-  top: 2px;
-  right: 8px;
-  z-index: 10;
+  flex-shrink: 0;
+}
+
+.pdf-preview-container {
+  margin-top: 10px;
+  position: relative;
+  border-radius: 4px;
+  background-color: #d7e0e1;
+  overflow: hidden;
 }
 
 .pdf-preview {
   width: 100%;
   height: calc(100vh - 8px);
   border: none;
+  display: block;
   // background-color: #f5f5f5;
 }
 

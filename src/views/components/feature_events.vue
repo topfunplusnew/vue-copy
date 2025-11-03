@@ -277,24 +277,6 @@ function formatFirstLetterUppercase(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-// PDF Preview 相关功能
-// 获取当前 tab 的 PDF URL（用于预览）
-const previewPdfUrl = computed(() => {
-  if (activeTab.value === 'slides' && selectedPaper.value?.slide) {
-    return getImageUrl(selectedPaper.value.slide);
-  }
-  if (activeTab.value === 'poster' && selectedPaper.value?.poster) {
-    return getImageUrl(selectedPaper.value.poster);
-  }
-  return null;
-});
-
-function openPdfPreview() {
-  const url = previewPdfUrl.value;
-  if (url) {
-    window.open(url, '_blank');
-  }
-}
 </script>
 
 <style scoped>
@@ -642,18 +624,6 @@ a.tab-btn {
   max-width: 500px;
 }
 
-/* Preview Section Styles */
-.preview-section {
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #e4e7ed;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.pdf-preview-button {
-  flex-shrink: 0;
-}
 </style>
 
 <template>
@@ -922,10 +892,6 @@ a.tab-btn {
             </div>
 
             <div v-if="activeTab === 'slides'" class="slides-content">
-              <!-- 当幻灯片已存在时显示预览按钮 -->
-              <div v-if="selectedPaper?.slide" class="preview-section">
-                <el-button type="primary" size="small" class="pdf-preview-button" @click="openPdfPreview" icon="Reading">Preview</el-button>
-              </div>
               <FileUpload
                 :tab-key="activeTab"
                 :paper-id="selectedPaper?.id || 0"
@@ -940,10 +906,6 @@ a.tab-btn {
             </div>
 
             <div v-if="activeTab === 'poster'" class="poster-content">
-              <!-- 当海报已存在时显示预览按钮 -->
-              <div v-if="selectedPaper?.poster" class="preview-section">
-                <el-button type="primary" size="small" class="pdf-preview-button" @click="openPdfPreview" icon="Reading">Preview</el-button>
-              </div>
               <FileUpload
                 :tab-key="activeTab"
                 :paper-id="selectedPaper?.id || 0"
