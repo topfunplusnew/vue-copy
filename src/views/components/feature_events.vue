@@ -1,6 +1,6 @@
 FileUpload
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import commonHeader from '@/layout/common-header.vue';
@@ -39,6 +39,7 @@ type AffiliationLite = {
 };
 const conferenceStore = useConferenceStore();
 const userStore = useUserStore();
+const isFullScreenWidth = ref(false);
 const router = useRouter();
 const props = defineProps({
   conferenceId: {
@@ -46,8 +47,33 @@ const props = defineProps({
     required: true,
   },
 });
+
+// 检测是否为手机端
+const checkIsMobile = () => {
+  return window.innerWidth <= 768;
+};
+
+// 更新全屏宽度状态
+const updateFullScreenWidth = () => {
+  isFullScreenWidth.value = checkIsMobile();
+};
+
+// 窗口大小变化监听器
+const handleResize = () => {
+  updateFullScreenWidth();
+};
+
 onMounted(() => {
   conferenceStore.getConferencesList();
+  // 初始化时检测
+  updateFullScreenWidth();
+  // 监听窗口大小变化
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  // 清理事件监听器
+  window.removeEventListener('resize', handleResize);
 });
 
 watch(
@@ -795,6 +821,7 @@ a.tab-btn {
       width="80%"
       :before-close="closePaperModal"
       class="paper-detail-dialog"
+      :style="{ '--el-dialog-width': isFullScreenWidth ? '100%' : '80%' }"
       :modal="true"
       modal-class="paper-modal-overlay"
       :close-on-click-modal="false"
@@ -833,9 +860,7 @@ a.tab-btn {
                     <span v-for="(author, authorIndex) in selectedPaper?.authors" :key="authorIndex" class="author-name">
                       {{ author.name
                       }}<template v-if="author?.affiliations?.length"
-                        ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
-                          >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup
-                        ></template
+                        ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup></template
                       ><span> {{ authorIndex < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
                     </span>
                   </div>
