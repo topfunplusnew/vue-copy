@@ -3,16 +3,6 @@
     <button class="confirm-button" role="button">Save Details</button>
   </div>
 </template>
-<<<<<<< HEAD
-<script lang="ts">
-export default {
-  name: 'ConfirmButton',
-};
-</script>
-
-<style lang="scss">
-@use '../styles/utils/mixins' as *;
-=======
 <style>
 .button-wrapper {
   width: 100%;
@@ -25,7 +15,6 @@ export default {
     justify-content: stretch;
   }
 }
->>>>>>> origin/bugofblog-wy
 
 .confirm-button {
   align-items: center;
@@ -62,11 +51,11 @@ export default {
   will-change: box-shadow, transform;
   font-size: 18px;
 
-  @include screen-mobile {
+  /* @include screen-mobile {
     padding-left: 20px;
     padding-right: 20px;
     margin-right: 30px;
-  }
+  } */
 }
 
 @media (max-width: 768px) {

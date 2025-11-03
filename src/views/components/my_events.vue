@@ -524,24 +524,16 @@ function getAffiliationNumber(originalId: number): number {
                     <el-col :xs="24" :sm="6">
                       <div class="add-button-container">
                         <el-button @click="() => addKeyword()"
-<<<<<<< HEAD
-                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">add
-=======
-                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary" style="width: 100%">Add
->>>>>>> origin/bugofblog-wy
+                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary"
+                          style="width: 100%">Add
                         </el-button>
                       </div>
                     </el-col>
                   </el-row>
                 </div>
-<<<<<<< HEAD
-                <div class="keywords-tips">Dragging tags can adjust the keyword order.</div>
+                <div class="keywords-tips">Dragging tags can adjust the keyword order</div>
                 <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
                   @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
-=======
-                <div class="keywords-tips">Drag and drop tags to adjust keyword order</div>
-                <div class="keywords-tags" v-if="keywords.length > 0">
->>>>>>> origin/bugofblog-wy
                   <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
                     dragging: draggedIndex === index,
                     'drag-over': draggedOverIndex === index,
@@ -708,7 +700,7 @@ function getAffiliationNumber(originalId: number): number {
   font-weight: 600;
   color: #334155;
   line-height: 1.5;
-  
+
   @include screen-mobile {
     font-size: 13px;
   }
