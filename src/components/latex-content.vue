@@ -141,7 +141,13 @@ const cancelEdit = () => {
     overflow-x: auto;
     overflow-y: auto;
     min-height: 40px;
+    /* 两端对齐 */
+    text-align: justify;
+    text-align-last: justify;
+    /* 可选：防止英文单词断字出现大空隙 */
+    word-break: break-all;
 
+    /* 如果只有一行，也要顶格 */
     // 文本内容样式
     .latex-text-content {
       margin: 0.5em 0;
