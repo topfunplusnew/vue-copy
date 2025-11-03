@@ -282,7 +282,7 @@ function onClick() {
   max-height: 600px;
   object-fit: contain;
   display: block;
-  background-color: #f0f0f0; /* 默认背景色，在封面生成前显示 */
+  background-color: transparent; /* 默认背景色，在封面生成前显示 */
 }
 
 .post-content-userpage {

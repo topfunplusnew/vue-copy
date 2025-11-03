@@ -35,10 +35,10 @@ const navMenuActive = ref(false);
 
 // 可用景点数据（header中通常为空，但保持接口一致）
 const availableDestinations = ref<Destination[]>([]);
-const scheduleShow = ref(false)
+const scheduleShow = ref(false);
 onMounted(() => {
   userStore.getUserInfo().then(() => {
-    scheduleShow.value = true
+    scheduleShow.value = true;
   });
   // 初始化钱包
   try {
@@ -102,7 +102,8 @@ const handleHistoryLoad = (conversationId: number) => {
 
   if (currentRoute.name === 'generator') {
     // 如果已经在generator页面，直接加载对话
-    chatStore.getChatsByConversationID(conversationId)
+    chatStore
+      .getChatsByConversationID(conversationId)
       .then(() => {
         ElMessage.success('Conversation loaded successfully');
       })
@@ -113,13 +114,15 @@ const handleHistoryLoad = (conversationId: number) => {
   } else {
     // 如果在其他页面，跳转到generator页面并传递conversationId
     ElMessage.info('Redirecting to chat page...');
-    router.push({
-      name: 'generator',
-      query: { conversationId: conversationId.toString() }
-    }).catch((e: unknown) => {
-      console.error('Failed to navigate:', e);
-      ElMessage.error('Failed to navigate to chat page');
-    });
+    router
+      .push({
+        name: 'generator',
+        query: { conversationId: conversationId.toString() },
+      })
+      .catch((e: unknown) => {
+        console.error('Failed to navigate:', e);
+        ElMessage.error('Failed to navigate to chat page');
+      });
   }
 };
 
@@ -183,7 +186,6 @@ const handleClickOutside = (event: Event) => {
         <router-link v-if="false" :to="{ name: 'news' }" class="nav-btn toggle-nav">NEWS</router-link>
         <router-link :to="{ name: 'contact' }" class="nav-btn toggle-nav">CONTACT</router-link>
         <router-link v-if="false" :to="{ name: 'invitation' }" class="nav-btn toggle-nav">INVITATION</router-link>
-
       </nav>
 
       <!-- 用户区域 -->
@@ -202,13 +204,13 @@ const handleClickOutside = (event: Event) => {
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="profile">My Profile</el-dropdown-item>
-                  <el-dropdown-item command="wallet">Wallet</el-dropdown-item>
+                  <!-- <el-dropdown-item command="wallet">Wallet</el-dropdown-item>
                   <el-dropdown-item command="schedule">My Schedule</el-dropdown-item>
                   <el-dropdown-item command="plan">My Plan</el-dropdown-item>
                   <el-dropdown-item command="message">Message</el-dropdown-item>
                   <el-dropdown-item command="history">Chat History</el-dropdown-item>
                   <el-dropdown-item command="cart">Cart</el-dropdown-item>
-                  <el-dropdown-item command="orders">Orders</el-dropdown-item>
+                  <el-dropdown-item command="orders">Orders</el-dropdown-item> -->
                   <el-dropdown-item command="logout">Logout</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -227,15 +229,13 @@ const handleClickOutside = (event: Event) => {
   <UserMessage v-model:visible="showMessageModal" />
 
   <!-- 计划弹窗组件 -->
-  <PlanComponent :visible="showPlanModal" :available-destinations="availableDestinations" @close="showPlanModal = false"
-    @save="handlePlanSave" />
+  <PlanComponent :visible="showPlanModal" :available-destinations="availableDestinations" @close="showPlanModal = false" @save="handlePlanSave" />
 
   <!-- 历史弹窗组件 -->
   <HistoryComponent :visible="showHistoryModal" @close="showHistoryModal = false" @load-history="handleHistoryLoad" />
 
   <!-- 日历弹窗组件 -->
-  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave"
-    v-if="scheduleShow" />
+  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave" v-if="scheduleShow" />
 </template>
 
 <style scoped>

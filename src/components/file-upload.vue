@@ -384,7 +384,7 @@ const handleHttpRequest: UploadProps['httpRequest'] = async (options) => {
   if (!(rawFile instanceof File)) {
     console.error('Invalid file object:', file);
     // 如果文件无效，不添加到队列，直接返回
-    return;
+    return;  
   }
 
   // 确保 file 对象有必要的属性

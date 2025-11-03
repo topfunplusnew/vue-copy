@@ -191,7 +191,7 @@ const submitItinerary = async () => {
         customClass: 'activation-prompt-dialog',
         center: true,
         showClose: true,
-      }
+      },
     );
 
     // TODO: 实现确定后的逻辑

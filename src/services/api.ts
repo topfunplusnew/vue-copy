@@ -240,3 +240,10 @@ export const searchKeywords = (query: string) => http.get(`/keyword?search=${enc
 
 //获取论文详情
 export const getPaperDetail = (id: string) => http.get(`/paper/${id}`);
+
+export const cancelCollection = (blogId: number | string) =>
+  http.delete('/blog/collection', {
+    params: {
+      id: blogId,
+    },
+  });

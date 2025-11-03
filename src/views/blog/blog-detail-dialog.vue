@@ -7,6 +7,7 @@ import { getImageUrl } from '@/utils';
 import { useRouter } from 'vue-router';
 import BlogDetailComment from './blog-detail-comment.vue';
 import { isImage, isVideo } from '@/constants/file';
+import { cancelCollection } from '@/services/api';
 
 const router = useRouter();
 const dialogWidth = ref('90%');
@@ -89,15 +90,23 @@ const handleCollect = async () => {
 
   const previousState = isCollected.value;
   try {
-    await store.likeBlog(selectedBlog.value.id);
-    // 重新检查收藏状态以确保准确性
-    await checkCollectionStatus(selectedBlog.value.id);
-    if (isCollected.value !== previousState) {
-      ElMessage.success(isCollected.value ? 'Collected successfully' : 'Uncollected successfully');
+    // 根据当前收藏状态调用不同的接口
+    if (isCollected.value) {
+      // 如果已收藏，则取消收藏
+      await cancelCollection(selectedBlog.value.id);
+      isCollected.value = false;
+      ElMessage.success('Uncollected successfully');
+    } else {
+      // 如果未收藏，则进行收藏
+      await store.likeBlog(selectedBlog.value.id);
+      isCollected.value = true;
+      ElMessage.success('Collected successfully');
     }
   } catch (error) {
     console.error('Failed to toggle collection:', error);
     ElMessage.error('Failed to update collection status');
+    // 如果失败，恢复到之前的状态
+    isCollected.value = previousState;
   }
 };
 
@@ -397,7 +406,7 @@ const handleUserClick = (event?: Event) => {
           <div class="stats-info">
             <span class="collect-btn" @click="handleCollect" :class="{ collected: isCollected }">
               <span class="star-icon">{{ isCollected ? '⭐' : '☆' }}</span>
-              <span class="collect-text">{{ isCollected ? '已收藏' : '收藏' }}</span>
+              <span class="collect-text">{{ isCollected ? 'collected' : 'collect' }}</span>
             </span>
             <span class="comments" @click="scrollToComments">
               <span class="comment-icon">💬</span> <span class="count">{{ selectedBlog?.comments_count }}</span>
