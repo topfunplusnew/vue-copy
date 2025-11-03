@@ -9,11 +9,15 @@ import { useUserStore } from '@/stores/user';
 import { getImageUrl } from '@/utils';
 import { destinations } from '@/utils/destinations';
 
-const props = defineProps({
-  id: {
-    type: Number,
+const props = withDefaults(
+  defineProps<{
+    id?: number;
+    shouldNavigateOnClose?: boolean;
+  }>(),
+  {
+    shouldNavigateOnClose: true,
   },
-});
+);
 const emit = defineEmits(['close', 'show-preview']);
 
 const store = useBlogStore();
@@ -30,7 +34,11 @@ const formRef = ref<FormInstance>();
 
 // 添加关闭组件方法
 const closeDialog = () => {
-  router.push('/userpage');
+  if (props.shouldNavigateOnClose) {
+    router.push('/userpage');
+  } else {
+    emit('close');
+  }
 };
 
 // 处理目的地选择变更
