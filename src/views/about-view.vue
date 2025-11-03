@@ -3,13 +3,21 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { auth } from '@/services/http';
 import commonHeader from '@/layout/common-header.vue';
-import gallery from 'virtual:gallery';
+import { getImageUrl } from '@/utils/index';
 
 // 初始化router和userStore
 const userStore = useUserStore();
 
-// 大学 logo 列表（从虚拟模块获取）
-const universityLogos = ref<string[]>(gallery);
+// 学校信息接口
+interface SchoolInfo {
+  qs_rank: number;
+  school_name: string;
+  image_url: string;
+  filename: string;
+}
+
+// 大学 logo 列表（从 school.json 获取）
+const universityLogos = ref<string[]>([]);
 
 // 图片懒加载：记录已加载的图片
 const loadedImages = ref<Set<number>>(new Set());
@@ -59,16 +67,41 @@ const initObserver = () => {
   });
 };
 
-// 处理登录点击
+// 加载学校数据
+const loadSchoolData = async () => {
+  try {
+    const response = await fetch('/school.json');
+    const data = await response.json();
+
+    if (data.success && Array.isArray(data.success)) {
+      // 按 qs_rank 降序排序
+      const sortedSchools = [...data.success].sort((a: SchoolInfo, b: SchoolInfo) => {
+        return b.qs_rank - a.qs_rank;
+      });
+
+      // 使用 getImageUrl 转换 image_url
+      universityLogos.value = sortedSchools.map((school: SchoolInfo) => {
+        return getImageUrl(school.image_url);
+      });
+    }
+  } catch (error) {
+    console.error('Failed to load school data:', error);
+  }
+};
 
 // 页面加载时获取用户信息（如果已登录）
 onMounted(async () => {
   if (auth.get() && !userStore.user) {
     userStore.getUserInfo();
   }
+  // 加载学校数据
+  await loadSchoolData();
   // 等待 DOM 渲染完成后初始化懒加载观察器
   await nextTick();
-  initObserver();
+  // 确保数据加载完成后再初始化观察器
+  if (universityLogos.value.length > 0) {
+    initObserver();
+  }
 });
 
 // 组件卸载时清理观察器
