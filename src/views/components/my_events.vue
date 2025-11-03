@@ -243,13 +243,13 @@ async function saveDetails() {
     };
 
     await updateMyPaperDetail(updateData);
-    ElMessage.success('保存成功！');
+    ElMessage.success('Save Successful!');
 
     // 保存成功后刷新数据
     await refreshPaperData();
   } catch (error) {
     console.error('保存失败：', error);
-    ElMessage.error('保存失败，请重试');
+    ElMessage.error('Save Failed, please try again');
   }
   fullscreenLoading.value = false;
 }
@@ -500,7 +500,7 @@ function getAffiliationNumber(originalId: number): number {
             </el-form-item>
             <el-form-item label="Abstract" class="form-item full">
               <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="true"
-                :placeholder="myPaperDetailInfo?.abstract || '点击编辑 Abstract'" :rows="6"
+                :placeholder="myPaperDetailInfo?.abstract || 'Click to Edit Abstract'" :rows="6"
                 @change="handleAbstractChange" />
             </el-form-item>
             <el-form-item label="Graphical Abstract" class="form-item">
@@ -520,7 +520,7 @@ function getAffiliationNumber(originalId: number): number {
                     <el-col :span="6">
                       <div class="add-button-container">
                         <el-button @click="() => addKeyword()"
-                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">添加
+                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary">add
                         </el-button>
                       </div>
                     </el-col>

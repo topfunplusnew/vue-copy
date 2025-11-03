@@ -2,22 +2,16 @@
   <div class="latex-content-wrapper">
     <div v-if="!isEditing" class="latex-view-mode" @click="enterEditMode" :class="{ 'is-clickable': editable }">
       <div class="latex-content" v-html="renderedContent"></div>
-      <div v-if="!props.latex" class="latex-placeholder">{{ placeholder || '点击编辑' }}</div>
-      <div v-if="editable && props.latex" class="edit-hint">点击编辑</div>
+      <div v-if="!props.latex" class="latex-placeholder">{{ placeholder || 'Click to Edit' }}</div>
+      <div v-if="editable && props.latex" class="edit-hint">Click to Edit</div>
     </div>
     <div v-else class="latex-edit-mode">
-      <el-input
-        ref="textareaRef"
-        v-model="editValue"
-        type="textarea"
-        :rows="rows"
-        :placeholder="placeholder || '请输入 Markdown 内容（支持 LaTeX 公式）...'"
-        resize="vertical"
-        class="latex-textarea"
-      />
+      <el-input ref="textareaRef" v-model="editValue" type="textarea" :rows="rows"
+        :placeholder="placeholder || 'Please input Markdown content (LaTeX formulas are supported)...'"
+        resize="vertical" class="latex-textarea" />
       <div class="latex-edit-actions">
-        <el-button size="small" @click="cancelEdit">取消</el-button>
-        <el-button type="primary" size="small" @click="saveEdit">保存</el-button>
+        <el-button size="small" @click="cancelEdit">Cancel</el-button>
+        <el-button type="primary" size="small" @click="saveEdit">Save</el-button>
       </div>
     </div>
   </div>

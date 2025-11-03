@@ -647,7 +647,7 @@ a.tab-btn {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</span>
+                    }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -709,7 +709,7 @@ a.tab-btn {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</div>
+                    }}</div>
                 </div>
               </div>
             </div>
@@ -765,8 +765,9 @@ a.tab-btn {
       <!-- 文章不存在时的错误提示 -->
       <div v-if="paperNotFound" class="paper-not-found">
         <div class="not-found-icon">📄</div>
-        <div class="not-found-title">该文章不存在</div>
-        <div class="not-found-desc">抱歉，无法找到您请求的文章信息。可能是文章已被删除或ID不正确。</div>
+        <div class="not-found-title">The paper does not exist</div>
+        <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or
+          the ID is incorrect.</div>
       </div>
 
       <!-- 正常显示文章详情 -->

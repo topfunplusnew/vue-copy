@@ -279,7 +279,7 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
 
 const handleUploadSuccess = () => {
   uploadLoading.value = false;
-  ElMessage.success('上传成功!');
+  ElMessage.success('Upload Successful!');
   emit('refresh');
 };
 
