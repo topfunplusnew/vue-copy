@@ -679,7 +679,7 @@ const handlePdfPreview = () => {
   margin-top: 10px;
   position: relative;
   border-radius: 4px;
-  background-color: #d7e0e1;
+  background-color: #e2e5e6;
   overflow: hidden;
 }
 
