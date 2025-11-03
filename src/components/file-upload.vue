@@ -204,11 +204,11 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
   };
   deleteFile(deleteBody)
     .then(() => {
-      ElMessage.success('删除文件成功~');
+      ElMessage.success('The file has been successfully deleted~');
       emit('refresh');
     })
     .catch((error) => {
-      ElMessage.error('删除文件失败');
+      ElMessage.error('The file failed to be deleted');
       console.error('Delete file error:', error);
     })
     .finally(() => {
@@ -217,7 +217,7 @@ const handleRemove: UploadProps['onRemove'] = (uploadFile, uploadFiles) => {
 };
 const handleError: UploadProps['onError'] = (error: Error, uploadFile: UploadFile, uploadFiles: UploadFiles) => {
   console.log(uploadFile, uploadFiles);
-  ElMessage.error('上传失败,' + JSON.parse(error.message).error);
+  ElMessage.error('The file upload failed,' + JSON.parse(error.message).error);
   uploadLoading.value = false;
 };
 
@@ -260,7 +260,7 @@ const handleBeforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
   // 检查文件大小，限制为500MB
   const maxSize = 500 * 1024 * 1024; // 500MB in bytes
   if (file.size > maxSize) {
-    ElMessage.error('文件大小不能超过500MB，请选择较小的文件');
+    ElMessage.error('The file size cannot exceed 500MB, please select a smaller file');
     return false;
   }
 
@@ -320,13 +320,13 @@ const handleFileDownload = (file: UploadUserFile) => {
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
-          <div class="upload-loading-text">上传中...</div>
+          <div class="upload-loading-text">Uploading...</div>
         </div>
         <!-- 图片预览状态 -->
         <div v-else-if="shouldShowImagePreview" class="image-preview-container">
           <img :src="imageUrl || ''" :alt="posterFileList[0]?.name" class="preview-image" />
           <div class="image-overlay">
-            <div class="image-overlay-text">点击预览</div>
+            <div class="image-overlay-text">Click to preview</div>
           </div>
         </div>
         <!-- 正常状态 -->
@@ -335,7 +335,8 @@ const handleFileDownload = (file: UploadUserFile) => {
             <Plus />
           </el-icon>
           <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
-            {{ isUploadDisabled ? '已达到上传限制' : props.limit === -1 ? '点击上传文件' : '点击上传文件' }}
+            {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' :
+              'Click to upload files' }}
           </div>
         </template>
       </div>
@@ -369,19 +370,24 @@ const handleFileDownload = (file: UploadUserFile) => {
           </div>
           <div class="file-actions" v-if="isItemShow">
             <el-button type="danger" size="small" :loading="deleteLoading"
-              @click="handleRemove(file as any, posterFileList as any)"> 删除 </el-button>
+              @click="handleRemove(file as any, posterFileList as any)">
+              Delete
+            </el-button>
           </div>
         </div>
       </div>
     </div>
     <!-- 视频播放器 -->
     <div v-if="shouldShowVideoPlayer" class="video-player-container">
-      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">您的浏览器不支持视频播放</video>
+      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">
+        Your browser does not support video playback
+      </video>
     </div>
 
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview" class="pdf-preview-container">
-      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> 您的浏览器不支持PDF预览
+      <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf">
+        Your browser does not support PDF preview
       </iframe>
     </div>
   </div>
