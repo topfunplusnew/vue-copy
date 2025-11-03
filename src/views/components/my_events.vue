@@ -75,7 +75,11 @@ const detailsRules: FormRules = {
 };
 
 // 使用拖拽排序hook
-const { draggedIndex, draggedOverIndex, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd } = useDragSort(keywords);
+const { draggedIndex, draggedOverIndex, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel } =
+  useDragSort(keywords);
+
+// 关键词容器引用，用于触摸拖动
+const keywordsContainerRef = ref<HTMLElement | null>(null);
 
 // 初始化表单数据
 const initializeFormData = () => {
@@ -433,9 +437,9 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="affiliation" v-for="affiliation in affiliations" :key="affiliation.id">
                   <sup>{{ affiliation.id }}</sup>{{ affiliation.university || affiliation.name }}{{
                     affiliation.department ? ', ' +
-                      affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
+                  affiliation.department : '' }}{{ affiliation.city ? ', ' + affiliation.city : ''
                   }}{{ affiliation.state ? ', ' + affiliation.state : '' }}{{ affiliation.country ? ', ' +
-                    affiliation.country : ''
+                  affiliation.country : ''
                   }}
                 </div>
               </div>
@@ -527,14 +531,16 @@ function getAffiliationNumber(originalId: number): number {
                   </el-row>
                 </div>
                 <div class="keywords-tips">Dragging tags can adjust the keyword order.</div>
-                <div class="keywords-tags" v-if="keywords.length > 0">
+                <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
+                  @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
                   <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
                     dragging: draggedIndex === index,
                     'drag-over': draggedOverIndex === index,
-                  }" closable @close="removeKeyword(index)"
+                  }" closable @close="removeKeyword(index)" :data-drag-index="index"
                     @dragstart="(event: DragEvent) => handleDragStart(event, index)"
                     @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
-                    @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd">
+                    @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"
+                    @touchstart="(event: TouchEvent) => keywordsContainerRef && handleTouchStart(event, index, keywordsContainerRef)">
                     {{ keyword.name }}
                   </el-tag>
                 </div>
@@ -839,6 +845,17 @@ function getAffiliationNumber(originalId: number): number {
   gap: 8px;
   align-items: center;
   margin-top: 10px;
+  // 改善触摸拖动体验
+  touch-action: pan-y; // 允许垂直滚动，但会处理水平拖动
+  -webkit-overflow-scrolling: touch;
+
+  // 确保触摸时标签有足够的点击区域
+  :deep(.el-tag) {
+    // 改善触摸交互
+    touch-action: none; // 禁用默认触摸行为，让我们完全控制
+    user-select: none; // 防止文本选择干扰拖动
+    -webkit-user-select: none;
+  }
 }
 
 .add-button-container {

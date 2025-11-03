@@ -30,17 +30,7 @@ const formRef = ref<FormInstance>();
 
 // 添加关闭组件方法
 const closeDialog = () => {
-  ElMessageBox.confirm('Are you sure you want to close this window?', 'Confirm Close', {
-    confirmButtonText: 'Close',
-    cancelButtonText: 'Cancel',
-    type: 'warning',
-  })
-    .then(() => {
-      emit('close');
-    })
-    .catch(() => {
-      // 用户取消关闭
-    });
+  router.push('/userpage');
 };
 
 // 处理目的地选择变更

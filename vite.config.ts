@@ -6,6 +6,7 @@ import Components from 'unplugin-vue-components/vite';
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
+import galleryPlugin from './plugins/vite-plugin-gallery';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,6 +18,10 @@ export default defineConfig({
     }),
     Components({
       resolvers: [ElementPlusResolver({ importStyle: 'sass' })],
+    }),
+    galleryPlugin({
+      dir: 'public/QS LOGO', // 扫描的图片目录
+      virtualId: 'virtual:gallery', // 虚拟模块名
     }),
   ],
   // css: {
@@ -33,9 +38,9 @@ export default defineConfig({
     port: 9021,
     proxy: {
       '/api': {
-        // target: 'http://ipologo.com/', //jyh
+        target: 'http://ipologo.com/', //jyh
         // target: 'http://127.0.0.1:9211',
-        target: 'https://119.84.246.217:56104',//测试环境
+        // target: 'https://119.84.246.217:56104',//测试环境
         changeOrigin: true,
         secure: false,   // ← 关闭 TLS 证书校验
       },

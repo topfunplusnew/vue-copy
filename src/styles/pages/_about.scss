@@ -198,9 +198,8 @@
     backdrop-filter: blur(15px);
     border-radius: rpx(20);
     border: 1px solid rgba(65, 145, 255, 0.25);
-    box-shadow:
-      0 rpx(10) rpx(40) rgba(100, 179, 244, 0.12),
-      inset 0 rpx(1) rpx(1) rgba(255, 255, 255, 0.3);
+    box-shadow: 0 rpx(10) rpx(40) rgba(100, 179, 244, 0.12),
+    inset 0 rpx(1) rpx(1) rgba(255, 255, 255, 0.3);
 
     /* 科技网格背景 */
     &::before {
@@ -210,9 +209,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image:
-        linear-gradient(90deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(0deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px);
+      background-image: linear-gradient(90deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(65, 145, 255, 0.03) 1px, transparent 1px);
       background-size: rpx(30) rpx(30);
       z-index: 0;
       pointer-events: none;
@@ -249,6 +247,15 @@
 
     100% {
       left: 100%;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
     }
   }
 
@@ -311,7 +318,7 @@
   .logo-scroll-track {
     display: flex;
     width: fit-content;
-    animation: scrollLogos 40s linear infinite;
+    animation: scrollLogos 200s linear infinite;
 
     &:hover {
       animation-play-state: paused;
@@ -322,7 +329,6 @@
     0% {
       transform: translateX(0);
     }
-
     100% {
       transform: translateX(-50%);
     }
@@ -390,12 +396,12 @@
         border-radius: rpx(12);
         padding: 2px;
         background: linear-gradient(45deg,
-            transparent,
-            rgba(65, 145, 255, 0.5),
-            transparent);
-        -webkit-mask:
-          linear-gradient(#fff 0 0) content-box,
-          linear-gradient(#fff 0 0);
+                transparent,
+                rgba(65, 145, 255, 0.5),
+                transparent
+        );
+        -webkit-mask: linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         opacity: 0;
@@ -405,9 +411,8 @@
       &:hover {
         transform: translateY(rpx(-8)) scale(1.05);
         border-color: rgba(65, 145, 255, 0.6);
-        box-shadow:
-          0 rpx(15) rpx(40) rgba(65, 145, 255, 0.3),
-          inset 0 0 rpx(20) rgba(65, 145, 255, 0.1);
+        box-shadow: 0 rpx(15) rpx(40) rgba(65, 145, 255, 0.3),
+        inset 0 0 rpx(20) rgba(65, 145, 255, 0.1);
 
         &::before {
           opacity: 1;
@@ -459,6 +464,37 @@
         }
       }
 
+      .university-logo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        padding: rpx(10);
+        transition: transform 0.3s ease;
+        z-index: 1;
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+
+      .logo-loading-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(65, 145, 255, 0.05);
+
+        .loading-spinner {
+          width: rpx(30);
+          height: rpx(30);
+          border: 3px solid rgba(65, 145, 255, 0.2);
+          border-top-color: rgba(65, 145, 255, 0.6);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+      }
+
       .logo-rank {
         font-size: rpx(11);
         color: rgba(65, 90, 130, 0.7);
@@ -497,17 +533,19 @@
   .scroll-fade-left {
     left: 0;
     background: linear-gradient(90deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(240, 245, 255, 0.10) 40%,
-        transparent 100%);
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(240, 245, 255, 0.10) 40%,
+            transparent 100%
+    );
   }
 
   .scroll-fade-right {
     right: 0;
     background: linear-gradient(270deg,
-        rgba(255, 255, 255, 0.12) 0%,
-        rgba(240, 245, 255, 0.10) 40%,
-        transparent 100%);
+            rgba(255, 255, 255, 0.12) 0%,
+            rgba(240, 245, 255, 0.10) 40%,
+            transparent 100%
+    );
   }
 
   /* FAQ 部分样式 */
@@ -737,8 +775,7 @@
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-weight: bold;
     margin-bottom: rpx(40);
-    color: #1a3566;
-    /* 深蓝色，适合浅色背景 */
+    color: #1a3566; /* 深蓝色，适合浅色背景 */
 
     position: relative;
 
@@ -810,9 +847,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-image:
-        linear-gradient(90deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(0deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px);
+      background-image: linear-gradient(90deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(65, 145, 255, 0.05) 1px, transparent 1px);
       background-size: rpx(20) rpx(20);
       background-position: 0 0;
       z-index: 0;
@@ -964,12 +1000,10 @@
     backdrop-filter: blur(15px);
     border-radius: rpx(16);
     box-shadow: 0 rpx(8) rpx(20) rgba(0, 40, 100, 0.1);
-    display: flex;
-    /* 保持 flex 布局 */
+    display: flex; /* 保持 flex 布局 */
     gap: rpx(20);
     align-items: stretch;
-    overflow-x: auto;
-    /* 始终允许水平滚动 */
+    overflow-x: auto; /* 始终允许水平滚动 */
     scrollbar-width: thin;
     scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 
@@ -989,20 +1023,15 @@
 
     /* 可以保留移动端的内外边距和间距调整，如果需要的话 */
     @include screen-mobile {
-      gap: rpx(15);
-      /* 调整移动端间距 */
-      padding: rpx(20) rpx(15);
-      /* 调整移动端内边距 */
-      margin: rpx(40) auto;
-      /* 调整移动端外边距 */
+      gap: rpx(15); /* 调整移动端间距 */
+      padding: rpx(20) rpx(15); /* 调整移动端内边距 */
+      margin: rpx(40) auto; /* 调整移动端外边距 */
     }
   }
 
   .stat-item-about {
-    flex: 0 0 auto;
-    /* 改回：不允许项目收缩或拉伸，基于其内容宽度 */
-    min-width: rpx(180);
-    /* 设置一个合适的最小宽度，确保内容可见 */
+    flex: 0 0 auto; /* 改回：不允许项目收缩或拉伸，基于其内容宽度 */
+    min-width: rpx(180); /* 设置一个合适的最小宽度，确保内容可见 */
     text-align: center;
     padding: rpx(20);
     background: rgba(255, 255, 255, 0.08);
@@ -1024,8 +1053,7 @@
     @include screen-mobile {
       /* 移除 calc(50%...) 规则 */
       /* flex: 1 1 calc(50% - rpx(15)); */
-      min-width: rpx(140);
-      /* 调整移动设备上的最小宽度，以适应横向滚动 */
+      min-width: rpx(140); /* 调整移动设备上的最小宽度，以适应横向滚动 */
       padding: rpx(15);
     }
 
@@ -1094,9 +1122,9 @@
       width: 80%;
       height: 1.5px;
       background: linear-gradient(90deg,
-          rgba(100, 179, 244, 0) 0%,
-          rgba(100, 179, 244, 0.7) 50%,
-          rgba(100, 179, 244, 0) 100%);
+              rgba(100, 179, 244, 0) 0%,
+              rgba(100, 179, 244, 0.7) 50%,
+              rgba(100, 179, 244, 0) 100%);
       transition: all 0.3s ease;
 
       @include screen-mobile {

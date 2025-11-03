@@ -1,0 +1,673 @@
+{
+  "success": [
+    {
+      "qs_rank": 1,
+      "school_name": "Massachusetts_Institute_of_Technology",
+      "image_url": "/school/logos/1-Massachusetts_Institute_of_Technology.png",
+      "filename": "1-Massachusetts_Institute_of_Technology.png"
+    },
+    {
+      "qs_rank": 2,
+      "school_name": "Imperial_College_London",
+      "image_url": "/school/logos/2-Imperial_College_London.png",
+      "filename": "2-Imperial_College_London.png"
+    },
+    {
+      "qs_rank": 4,
+      "school_name": "University_of_Oxford",
+      "image_url": "/school/logos/4-University_of_Oxford.png",
+      "filename": "4-University_of_Oxford.png"
+    },
+    {
+      "qs_rank": 5,
+      "school_name": "Harvard_University",
+      "image_url": "/school/logos/5-Harvard_University.png",
+      "filename": "5-Harvard_University.png"
+    },
+    {
+      "qs_rank": 6,
+      "school_name": "University_of_Cambridge",
+      "image_url": "/school/logos/6-University_of_Cambridge.png",
+      "filename": "6-University_of_Cambridge.png"
+    },
+    {
+      "qs_rank": 7,
+      "school_name": "ETH_Zurich",
+      "image_url": "/school/logos/7-ETH_Zurich.png",
+      "filename": "7-ETH_Zurich.png"
+    },
+    {
+      "qs_rank": 8,
+      "school_name": "National_University_of_Singapore",
+      "image_url": "/school/logos/8-National_University_of_Singapore.png",
+      "filename": "8-National_University_of_Singapore.png"
+    },
+    {
+      "qs_rank": 9,
+      "school_name": "UCL",
+      "image_url": "/school/logos/9-UCL.png",
+      "filename": "9-UCL.png"
+    },
+    {
+      "qs_rank": 10,
+      "school_name": "California_Institute_of_Technology",
+      "image_url": "/school/logos/10-California_Institute_of_Technology.png",
+      "filename": "10-California_Institute_of_Technology.png"
+    },
+    {
+      "qs_rank": 11,
+      "school_name": "University_of_HongKong",
+      "image_url": "/school/logos/11-University_of_HongKong.png",
+      "filename": "11-University_of_HongKong.png"
+    },
+    {
+      "qs_rank": 12,
+      "school_name": "NTU_Singapore",
+      "image_url": "/school/logos/12-NTU_Singapore.png",
+      "filename": "12-NTU_Singapore.png"
+    },
+    {
+      "qs_rank": 13,
+      "school_name": "University_of_Chicago",
+      "image_url": "/school/logos/13-University_of_Chicago.png",
+      "filename": "13-University_of_Chicago.png"
+    },
+    {
+      "qs_rank": 14,
+      "school_name": "Peking_University",
+      "image_url": "/school/logos/14-Peking_University.png",
+      "filename": "14-Peking_University.png"
+    },
+    {
+      "qs_rank": 15,
+      "school_name": "University_of_Pennsylvania",
+      "image_url": "/school/logos/15-University_of_Pennsylvania.png",
+      "filename": "15-University_of_Pennsylvania.png"
+    },
+    {
+      "qs_rank": 16,
+      "school_name": "Cornell_University",
+      "image_url": "/school/logos/16-Cornell_University.png",
+      "filename": "16-Cornell_University.png"
+    },
+    {
+      "qs_rank": 17,
+      "school_name": "Tsinghua_University",
+      "image_url": "/school/logos/17-Tsinghua_University.png",
+      "filename": "17-Tsinghua_University.png"
+    },
+    {
+      "qs_rank": 17,
+      "school_name": "University_of_California_Berkeley",
+      "image_url": "/school/logos/17-University_of_California_Berkeley.png",
+      "filename": "17-University_of_California_Berkeley.png"
+    },
+    {
+      "qs_rank": 19,
+      "school_name": "University_of_Melbourne",
+      "image_url": "/school/logos/19-University_of_Melbourne.png",
+      "filename": "19-University_of_Melbourne.png"
+    },
+    {
+      "qs_rank": 20,
+      "school_name": "University_of_New_South_Wales",
+      "image_url": "/school/logos/20-University_of_New_South_Wales.png",
+      "filename": "20-University_of_New_South_Wales.png"
+    },
+    {
+      "qs_rank": 21,
+      "school_name": "Yale_University",
+      "image_url": "/school/logos/21-Yale_University.png",
+      "filename": "21-Yale_University.png"
+    },
+    {
+      "qs_rank": 22,
+      "school_name": "EPFL",
+      "image_url": "/school/logos/22-EPFL.png",
+      "filename": "22-EPFL.png"
+    },
+    {
+      "qs_rank": 22,
+      "school_name": "Technical_University_of_Munich",
+      "image_url": "/school/logos/22-Technical_University_of_Munich.png",
+      "filename": "22-Technical_University_of_Munich.png"
+    },
+    {
+      "qs_rank": 24,
+      "school_name": "Johns_Hopkins_University",
+      "image_url": "/school/logos/24-Johns_Hopkins_University.png",
+      "filename": "24-Johns_Hopkins_University.png"
+    },
+    {
+      "qs_rank": 25,
+      "school_name": "Princeton_University",
+      "image_url": "/school/logos/25-Princeton_University.png",
+      "filename": "25-Princeton_University.png"
+    },
+    {
+      "qs_rank": 25,
+      "school_name": "University_of_Sydney",
+      "image_url": "/school/logos/25-University_of_Sydney.png",
+      "filename": "25-University_of_Sydney.png"
+    },
+    {
+      "qs_rank": 27,
+      "school_name": "Mcgill_University",
+      "image_url": "/school/logos/27-Mcgill_University.png",
+      "filename": "27-Mcgill_University.png"
+    },
+    {
+      "qs_rank": 28,
+      "school_name": "Universite_PSL",
+      "image_url": "/school/logos/28-Universite_PSL.png",
+      "filename": "28-Universite_PSL.png"
+    },
+    {
+      "qs_rank": 29,
+      "school_name": "University_of_Toronto",
+      "image_url": "/school/logos/29-University_of_Toronto.png",
+      "filename": "29-University_of_Toronto.png"
+    },
+    {
+      "qs_rank": 30,
+      "school_name": "Fudan_University",
+      "image_url": "/school/logos/30-Fudan_University.png",
+      "filename": "30-Fudan_University.png"
+    },
+    {
+      "qs_rank": 31,
+      "school_name": "Kings_College_London",
+      "image_url": "/school/logos/31-Kings_College_London.png",
+      "filename": "31-Kings_College_London.png"
+    },
+    {
+      "qs_rank": 32,
+      "school_name": "Australian_National_University",
+      "image_url": "/school/logos/32-Australian_National_University.png",
+      "filename": "32-Australian_National_University.png"
+    },
+    {
+      "qs_rank": 32,
+      "school_name": "Chinese_University_HongKong",
+      "image_url": "/school/logos/32-Chinese_University_HongKong.png",
+      "filename": "32-Chinese_University_HongKong.png"
+    },
+    {
+      "qs_rank": 34,
+      "school_name": "University_of_Edinburgh",
+      "image_url": "/school/logos/34-University_of_Edinburgh.png",
+      "filename": "34-University_of_Edinburgh.png"
+    },
+    {
+      "qs_rank": 35,
+      "school_name": "University_of_Manchester",
+      "image_url": "/school/logos/35-University_of_Manchester.png",
+      "filename": "35-University_of_Manchester.png"
+    },
+    {
+      "qs_rank": 36,
+      "school_name": "Monash_University",
+      "image_url": "/school/logos/36-Monash_University.png",
+      "filename": "36-Monash_University.png"
+    },
+    {
+      "qs_rank": 36,
+      "school_name": "University_of_Tokyo",
+      "image_url": "/school/logos/36-University_of_Tokyo.png",
+      "filename": "36-University_of_Tokyo.png"
+    },
+    {
+      "qs_rank": 38,
+      "school_name": "Columbia_University",
+      "image_url": "/school/logos/38-Columbia_University.png",
+      "filename": "38-Columbia_University.png"
+    },
+    {
+      "qs_rank": 38,
+      "school_name": "Seoul_National_University",
+      "image_url": "/school/logos/38-Seoul_National_University.png",
+      "filename": "38-Seoul_National_University.png"
+    },
+    {
+      "qs_rank": 38,
+      "school_name": "UBC",
+      "image_url": "/school/logos/38-UBC.png",
+      "filename": "38-UBC.png"
+    },
+    {
+      "qs_rank": 41,
+      "school_name": "Institut_Polytechnique_de_Paris",
+      "image_url": "/school/logos/41-Institut_Polytechnique_de_Paris.png",
+      "filename": "41-Institut_Polytechnique_de_Paris.png"
+    },
+    {
+      "qs_rank": 42,
+      "school_name": "Northwestern_University",
+      "image_url": "/school/logos/42-Northwestern_University.png",
+      "filename": "42-Northwestern_University.png"
+    },
+    {
+      "qs_rank": 42,
+      "school_name": "University_of_Queensland",
+      "image_url": "/school/logos/42-University_of_Queensland.png",
+      "filename": "42-University_of_Queensland.png"
+    },
+    {
+      "qs_rank": 44,
+      "school_name": "HongKong_University_of_Science_and_Technology",
+      "image_url": "/school/logos/44-HongKong_University_of_Science_and_Technology.png",
+      "filename": "44-HongKong_University_of_Science_and_Technology.png"
+    },
+    {
+      "qs_rank": 45,
+      "school_name": "University_Michigan",
+      "image_url": "/school/logos/45-University_Michigan.png",
+      "filename": "45-University_Michigan.png"
+    },
+    {
+      "qs_rank": 46,
+      "school_name": "University_of_California_Los_Angeles",
+      "image_url": "/school/logos/46-University_of_California_Los_Angeles.png",
+      "filename": "46-University_of_California_Los_Angeles.png"
+    },
+    {
+      "qs_rank": 47,
+      "school_name": "Delft_University_of_Technology",
+      "image_url": "/school/logos/47-Delft_University_of_Technology.png",
+      "filename": "47-Delft_University_of_Technology.png"
+    },
+    {
+      "qs_rank": 47,
+      "school_name": "Shanghai_Jiao_Tong_University",
+      "image_url": "/school/logos/47-Shanghai_Jiao_Tong_University.png",
+      "filename": "47-Shanghai_Jiao_Tong_University.png"
+    },
+    {
+      "qs_rank": 49,
+      "school_name": "Zhejiang_University",
+      "image_url": "/school/logos/49-Zhejiang_University.png",
+      "filename": "49-Zhejiang_University.png"
+    },
+    {
+      "qs_rank": 50,
+      "school_name": "Yonsei_University",
+      "image_url": "/school/logos/50-Yonsei_University.png",
+      "filename": "50-Yonsei_University.png"
+    },
+    {
+      "qs_rank": 51,
+      "school_name": "University_of_Bristol",
+      "image_url": "/school/logos/51-University_of_Bristol.png",
+      "filename": "51-University_of_Bristol.png"
+    },
+    {
+      "qs_rank": 52,
+      "school_name": "Carnegie_Mellon_University",
+      "image_url": "/school/logos/52-Carnegie_Mellon_University.png",
+      "filename": "52-Carnegie_Mellon_University.png"
+    },
+    {
+      "qs_rank": 53,
+      "school_name": "University_of_Amsterdam",
+      "image_url": "/school/logos/53-University_of_Amsterdam.png",
+      "filename": "53-University_of_Amsterdam.png"
+    },
+    {
+      "qs_rank": 54,
+      "school_name": "The_HongKong_Polytechnic_University",
+      "image_url": "/school/logos/54-The_HongKong_Polytechnic_University.png",
+      "filename": "54-The_HongKong_Polytechnic_University.png"
+    },
+    {
+      "qs_rank": 55,
+      "school_name": "New_York_University",
+      "image_url": "/school/logos/55-New_York_University.png",
+      "filename": "55-New_York_University.png"
+    },
+    {
+      "qs_rank": 56,
+      "school_name": "London_School_of_Economics_And_Political_Science",
+      "image_url": "/school/logos/56-London_School_of_Economics_And_Political_Science.png",
+      "filename": "56-London_School_of_Economics_And_Political_Science.png"
+    },
+    {
+      "qs_rank": 57,
+      "school_name": "Kyoto_University",
+      "image_url": "/school/logos/57-Kyoto_University.png",
+      "filename": "57-Kyoto_University.png"
+    },
+    {
+      "qs_rank": 58,
+      "school_name": "University_of_Malaya",
+      "image_url": "/school/logos/58-University_of_Malaya.png",
+      "filename": "58-University_of_Malaya.png"
+    },
+    {
+      "qs_rank": 58,
+      "school_name": "University_of_Munich",
+      "image_url": "/school/logos/58-University_of_Munich.png",
+      "filename": "58-University_of_Munich.png"
+    },
+    {
+      "qs_rank": 61,
+      "school_name": "Korea_University",
+      "image_url": "/school/logos/61-Korea_University.png",
+      "filename": "61-Korea_University.png"
+    },
+    {
+      "qs_rank": 62,
+      "school_name": "Duke_University",
+      "image_url": "/school/logos/62-Duke_University.png",
+      "filename": "62-Duke_University.png"
+    },
+    {
+      "qs_rank": 63,
+      "school_name": "City_University_of_HongKong",
+      "image_url": "/school/logos/63-City_University_of_HongKong.png",
+      "filename": "63-City_University_of_HongKong.png"
+    },
+    {
+      "qs_rank": 63,
+      "school_name": "National_Taiwan_University",
+      "image_url": "/school/logos/63-National_Taiwan_University.png",
+      "filename": "63-National_Taiwan_University.png"
+    },
+    {
+      "qs_rank": 65,
+      "school_name": "University_Auckland",
+      "image_url": "/school/logos/65-University_Auckland.png",
+      "filename": "65-University_Auckland.png"
+    },
+    {
+      "qs_rank": 66,
+      "school_name": "University_of_California_San_Diego",
+      "image_url": "/school/logos/66-University_of_California_San_Diego.png",
+      "filename": "66-University_of_California_San_Diego.png"
+    },
+    {
+      "qs_rank": 68,
+      "school_name": "The_University_of_Texas_At_Austin",
+      "image_url": "/school/logos/68-The_University_of_Texas_At_Austin.png",
+      "filename": "68-The_University_of_Texas_At_Austin.png"
+    },
+    {
+      "qs_rank": 70,
+      "school_name": "Korea_Advanced_Institute_of_Science_And_Technology",
+      "image_url": "/school/logos/70-Korea_Advanced_Institute_of_Science_And_Technology.png",
+      "filename": "70-Korea_Advanced_Institute_of_Science_And_Technology.png"
+    },
+    {
+      "qs_rank": 70,
+      "school_name": "Universite_Paris_Saclay",
+      "image_url": "/school/logos/70-Universite_Paris_Saclay.png",
+      "filename": "70-Universite_Paris_Saclay.png"
+    },
+    {
+      "qs_rank": 70,
+      "school_name": "University_Illinois_Urbana_Champaign",
+      "image_url": "/school/logos/70-University_Illinois_Urbana_Champaign.png",
+      "filename": "70-University_Illinois_Urbana_Champaign.png"
+    },
+    {
+      "qs_rank": 72,
+      "school_name": "Lund_University",
+      "image_url": "/school/logos/72-Lund_University.png",
+      "filename": "72-Lund_University.png"
+    },
+    {
+      "qs_rank": 72,
+      "school_name": "Sorbonne_University",
+      "image_url": "/school/logos/72-Sorbonne_University.png",
+      "filename": "72-Sorbonne_University.png"
+    },
+    {
+      "qs_rank": 74,
+      "school_name": "University_of_Warwick",
+      "image_url": "/school/logos/74-University_of_Warwick.png",
+      "filename": "74-University_of_Warwick.png"
+    },
+    {
+      "qs_rank": 75,
+      "school_name": "Trinity_College_Dublin",
+      "image_url": "/school/logos/75-Trinity_College_Dublin.png",
+      "filename": "75-Trinity_College_Dublin.png"
+    },
+    {
+      "qs_rank": 76,
+      "school_name": "University_of_Birmingham",
+      "image_url": "/school/logos/76-University_of_Birmingham.png",
+      "filename": "76-University_of_Birmingham.png"
+    },
+    {
+      "qs_rank": 77,
+      "school_name": "University_of_Western_Australia",
+      "image_url": "/school/logos/77-University_of_Western_Australia.png",
+      "filename": "77-University_of_Western_Australia.png"
+    },
+    {
+      "qs_rank": 78,
+      "school_name": "KTH_Royal_Institute_of_Technology",
+      "image_url": "/school/logos/78-KTH_Royal_Institute_of_Technology.png",
+      "filename": "78-KTH_Royal_Institute_of_Technology.png"
+    },
+    {
+      "qs_rank": 79,
+      "school_name": "Brown_University",
+      "image_url": "/school/logos/79-Brown_University.png",
+      "filename": "79-Brown_University.png"
+    },
+    {
+      "qs_rank": 79,
+      "school_name": "University_of_Glasgow",
+      "image_url": "/school/logos/79-University_of_Glasgow.png",
+      "filename": "79-University_of_Glasgow.png"
+    },
+    {
+      "qs_rank": 80,
+      "school_name": "Heidelberg_University",
+      "image_url": "/school/logos/80-Heidelberg_University.png",
+      "filename": "80-Heidelberg_University.png"
+    },
+    {
+      "qs_rank": 80,
+      "school_name": "Ku_Leuven",
+      "image_url": "/school/logos/80-Ku_Leuven.png",
+      "filename": "80-Ku_Leuven.png"
+    },
+    {
+      "qs_rank": 81,
+      "school_name": "University_of_Washington",
+      "image_url": "/school/logos/81-University_of_Washington.png",
+      "filename": "81-University_of_Washington.png"
+    },
+    {
+      "qs_rank": 82,
+      "school_name": "Pennsylvania_State_University",
+      "image_url": "/school/logos/82-Pennsylvania_State_University.png",
+      "filename": "82-Pennsylvania_State_University.png"
+    },
+    {
+      "qs_rank": 82,
+      "school_name": "University_of_Adelaide",
+      "image_url": "/school/logos/82-University_of_Adelaide.png",
+      "filename": "82-University_of_Adelaide.png"
+    },
+    {
+      "qs_rank": 84,
+      "school_name": "Universidad_de_Buenos_Aires",
+      "image_url": "/school/logos/84-Universidad_de_Buenos_Aires.png",
+      "filename": "84-Universidad_de_Buenos_Aires.png"
+    },
+    {
+      "qs_rank": 85,
+      "school_name": "Tokyo_Institute_of_Technology",
+      "image_url": "/school/logos/85-Tokyo_Institute_of_Technology.png",
+      "filename": "85-Tokyo_Institute_of_Technology.png"
+    },
+    {
+      "qs_rank": 86,
+      "school_name": "Osaka_University",
+      "image_url": "/school/logos/86-Osaka_University.png",
+      "filename": "86-Osaka_University.png"
+    },
+    {
+      "qs_rank": 86,
+      "school_name": "University_of_Leeds",
+      "image_url": "/school/logos/86-University_of_Leeds.png",
+      "filename": "86-University_of_Leeds.png"
+    },
+    {
+      "qs_rank": 87,
+      "school_name": "University_of_Southampton",
+      "image_url": "/school/logos/87-University_of_Southampton.png",
+      "filename": "87-University_of_Southampton.png"
+    },
+    {
+      "qs_rank": 88,
+      "school_name": "Freie_Universitaet_Berlin",
+      "image_url": "/school/logos/88-Freie_Universitaet_Berlin.png",
+      "filename": "88-Freie_Universitaet_Berlin.png"
+    },
+    {
+      "qs_rank": 88,
+      "school_name": "Purdue_University",
+      "image_url": "/school/logos/88-Purdue_University.png",
+      "filename": "88-Purdue_University.png"
+    },
+    {
+      "qs_rank": 94,
+      "school_name": "Durham_University",
+      "image_url": "/school/logos/94-Durham_University.png",
+      "filename": "94-Durham_University.png"
+    },
+    {
+      "qs_rank": 94,
+      "school_name": "University_of_Alberta",
+      "image_url": "/school/logos/94-University_of_Alberta.png",
+      "filename": "94-University_of_Alberta.png"
+    },
+    {
+      "qs_rank": 96,
+      "school_name": "University_of_Technology_Sydney",
+      "image_url": "/school/logos/96-University_of_Technology_Sydney.png",
+      "filename": "96-University_of_Technology_Sydney.png"
+    },
+    {
+      "qs_rank": 101,
+      "school_name": "University_of_Copenhagen",
+      "image_url": "/school/logos/101-University_of_Copenhagen.png",
+      "filename": "101-University_of_Copenhagen.png"
+    },
+    {
+      "qs_rank": 102,
+      "school_name": "POSTECH",
+      "image_url": "/school/logos/102-POSTECH.png",
+      "filename": "102-POSTECH.png"
+    },
+    {
+      "qs_rank": 105,
+      "school_name": "Moscow_State_University",
+      "image_url": "/school/logos/105-Moscow_State_University.png",
+      "filename": "105-Moscow_State_University.png"
+    },
+    {
+      "qs_rank": 105,
+      "school_name": "RWTH_Aachen_University",
+      "image_url": "/school/logos/105-RWTH_Aachen_University.png",
+      "filename": "105-RWTH_Aachen_University.png"
+    },
+    {
+      "qs_rank": 108,
+      "school_name": "Universidade_de_Sao_Paulo",
+      "image_url": "/school/logos/108-Universidade_de_Sao_Paulo.png",
+      "filename": "108-Universidade_de_Sao_Paulo.png"
+    },
+    {
+      "qs_rank": 116,
+      "school_name": "Pontificia_Universidad_Catolica_de_Chile",
+      "image_url": "/school/logos/116-Pontificia_Universidad_Catolica_de_Chile.png",
+      "filename": "116-Pontificia_Universidad_Catolica_de_Chile.png"
+    },
+    {
+      "qs_rank": 136,
+      "school_name": "National_Autonomous_University_of_Mexico",
+      "image_url": "/school/logos/136-National_Autonomous_University_of_Mexico.png",
+      "filename": "136-National_Autonomous_University_of_Mexico.png"
+    },
+    {
+      "qs_rank": 259,
+      "school_name": "Beijing_Institute_of_Technology",
+      "image_url": "/school/logos/259-Beijing_Institute_of_Technology.png",
+      "filename": "259-Beijing_Institute_of_Technology.png"
+    },
+    {
+      "qs_rank": 285,
+      "school_name": "University_of_Macau",
+      "image_url": "/school/logos/285-University_of_Macau.png",
+      "filename": "285-University_of_Macau.png"
+    },
+    {
+      "qs_rank": 377,
+      "school_name": "South_China_University_of_Technology",
+      "image_url": "/school/logos/377-South_China_University_of_Technology.png",
+      "filename": "377-South_China_University_of_Technology.png"
+    },
+    {
+      "qs_rank": 388,
+      "school_name": "Beihang_University",
+      "image_url": "/school/logos/388-Beihang_University.png",
+      "filename": "388-Beihang_University.png"
+    },
+    {
+      "qs_rank": 433,
+      "school_name": "East_China_Normal_University",
+      "image_url": "/school/logos/433-East_China_Normal_University.png",
+      "filename": "433-East_China_Normal_University.png"
+    },
+    {
+      "qs_rank": 440,
+      "school_name": "Macau_University_Science_Technology",
+      "image_url": "/school/logos/440-Macau_University_Science_Technology.png",
+      "filename": "440-Macau_University_Science_Technology.png"
+    },
+    {
+      "qs_rank": 480,
+      "school_name": "University_of_Science_and_Technology_Beijing",
+      "image_url": "/school/logos/480-University_of_Science_and_Technology_Beijing.png",
+      "filename": "480-University_of_Science_and_Technology_Beijing.png"
+    },
+    {
+      "qs_rank": 851,
+      "school_name": "Beijing_Jiaotong_University",
+      "image_url": "/school/logos/851-Beijing_Jiaotong_University.png",
+      "filename": "851-Beijing_Jiaotong_University.png"
+    },
+    {
+      "qs_rank": 1001,
+      "school_name": "Northwest_University_China",
+      "image_url": "/school/logos/1001-Northwest_University_China.png",
+      "filename": "1001-Northwest_University_China.png"
+    },
+    {
+      "qs_rank": 2000,
+      "school_name": "Chongqing_Univerisity",
+      "image_url": "/school/logos/2000-Chongqing_Univerisity.png",
+      "filename": "2000-Chongqing_Univerisity.png"
+    },
+    {
+      "qs_rank": 2001,
+      "school_name": "AnHui_University",
+      "image_url": "/school/logos/2001-AnHui_University.png",
+      "filename": "2001-AnHui_University.png"
+    },
+    {
+      "qs_rank": 2002,
+      "school_name": "St_Paul_University_Philippines",
+      "image_url": "/school/logos/2002-St_Paul_University_Philippines.png",
+      "filename": "2002-St_Paul_University_Philippines.png"
+    }
+  ],
+  "errors": [],
+  "success_count": 111,
+  "error_count": 0
+}
