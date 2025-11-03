@@ -31,7 +31,7 @@ export interface IBlogPostCreate {
   id?: number;
   title: string;
   content: string;
-  image: string[];
+  files: string[];
   tags: string[];
   location: string[];
   social_filters: number[];
@@ -69,7 +69,7 @@ export interface IBlogEdit {
 export const INIT_BLOG_POST = {
   title: '',
   content: '',
-  image: [],
+  files: [],
   tags: [],
   location: [],
   social_filters: [],

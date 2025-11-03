@@ -11,8 +11,8 @@ import { destinations } from '@/utils/destinations';
 
 const props = defineProps({
   id: {
-    type: Number
-  }
+    type: Number,
+  },
 });
 const emit = defineEmits(['close', 'show-preview']);
 
@@ -74,22 +74,20 @@ const showLoginConfirm = () => {
 const rules = {
   title: [
     { required: true, message: 'Please enter a title for your post', trigger: 'blur' },
-    { max: 50, message: 'Title should not exceed 50 characters', trigger: 'blur' }
+    { max: 50, message: 'Title should not exceed 50 characters', trigger: 'blur' },
   ],
-  content: [
-    { required: true, message: 'Please add some content to your post', trigger: 'blur' }
-  ],
-  image: [
+  content: [{ required: true, message: 'Please add some content to your post', trigger: 'blur' }],
+  files: [
     {
       validator: (rule: object, value: string[], callback: (error?: Error) => void) => {
-        if (createData.value.image.length === 0) {
+        if (createData.value.files.length === 0) {
           callback(new Error('Please upload at least one image'));
         } else {
           callback();
         }
       },
-      trigger: 'change'
-    }
+      trigger: 'change',
+    },
   ],
   social_filters: [
     {
@@ -100,9 +98,9 @@ const rules = {
           callback();
         }
       },
-      trigger: 'change'
-    }
-  ]
+      trigger: 'change',
+    },
+  ],
 };
 
 // 修改预览按钮点击处理
@@ -121,7 +119,7 @@ const handlePreviewClick = async () => {
   }
 
   // 检查图片
-  if (createData.value.image.length === 0) {
+  if (createData.value.files.length === 0) {
     missingFields.push('At least one image');
   }
 
@@ -149,11 +147,11 @@ const handlePreviewClick = async () => {
     emit('show-preview', {
       title: createData.value.title,
       content: createData.value.content,
-      images: createData.value.image,
+      images: createData.value.files,
       tags: createData.value.tags,
       preferences: createData.value.social_filters,
       location: createData.value.location,
-      isNFT: createData.value.isNFT
+      isNFT: createData.value.isNFT,
     });
   } catch (error) {
     // 如果还有其他验证错误，显示通用提示
@@ -178,7 +176,7 @@ const handleImageUpload = async (file: UploadFile) => {
     return;
   }
 
-  if (createData.value.image.length >= 9) {
+  if (createData.value.files.length >= 9) {
     ElMessage({
       message: 'Maximum 9 images allowed',
       type: 'warning',
@@ -188,34 +186,29 @@ const handleImageUpload = async (file: UploadFile) => {
   }
 
   // 然后上传到服务器
-  store.userPostimage(file).then(() =>{
-    ElMessage({
-      message: 'Image uploaded successfully',
-      type: 'success',
-      duration: 2000,
-    });
-    formRef.value?.validateField('image');
-  }).catch(error =>{
-    if (error.response?.status === 401) {
+  store
+    .userPostimage(file)
+    .then(() => {
       ElMessage({
-        message: 'Please login first',
-        type: 'error',
+        message: 'Image uploaded successfully',
+        type: 'success',
         duration: 2000,
       });
-      router.push({ name: 'login' });
-      return;
-    }
-    ElMessage({
-      message: 'Failed to upload image',
-      type: 'error',
-      duration: 2000,
+      formRef.value?.validateField('files');
+    })
+    .catch((error) => {
+      console.error('Upload error:', error);
+      ElMessage({
+        message: 'Failed to upload image',
+        type: 'error',
+        duration: 3000,
+      });
     });
-  })
 };
 
 const removeImage = (index: number) => {
-  createData.value.image.splice(index, 1);
-  formRef.value?.validateField('image');
+  createData.value.files.splice(index, 1);
+  formRef.value?.validateField('files');
 };
 
 // 修改：标签处理函数
@@ -270,7 +263,7 @@ async function postTweet() {
   }
 
   // 检查图片
-  if (createData.value.image.length === 0) {
+  if (createData.value.files.length === 0) {
     missingFields.push('At least one image');
   }
 
@@ -298,16 +291,19 @@ async function postTweet() {
       cancelButtonText: 'Continue Editing',
       type: 'info',
     }).then(() => {
-      store.userPostblog().then(() => {
-        ElMessage.success('Blog posted successfully');
-        router.push({ name: 'userpage' });
-      }).catch(error => {
-        if (error.response?.status === 401) {
-          ElMessage.error('Session expired, please login again');
-          router.push({ name: 'login' });
-        }
-        ElMessage.error('Failed to post blog');
-      });
+      store
+        .userPostblog()
+        .then(() => {
+          ElMessage.success('Blog posted successfully');
+          router.push({ name: 'userpage' });
+        })
+        .catch((error) => {
+          if (error.response?.status === 401) {
+            ElMessage.error('Session expired, please login again');
+            router.push({ name: 'login' });
+          }
+          ElMessage.error('Failed to post blog');
+        });
     });
   } catch (error) {
     ElMessage({
@@ -317,7 +313,7 @@ async function postTweet() {
     });
     console.error('Error', error);
   }
-};
+}
 
 async function editTweet() {
   // 首先检查各个必填字段并收集缺失信息
@@ -334,7 +330,7 @@ async function editTweet() {
   }
 
   // 检查图片
-  if (createData.value.image.length === 0) {
+  if (createData.value.files.length === 0) {
     missingFields.push('At least one image');
   }
 
@@ -362,16 +358,19 @@ async function editTweet() {
       cancelButtonText: 'Continue Editing',
       type: 'info',
     }).then(() => {
-      store.editmyblog().then(() => {
-        ElMessage.success('Blog posted successfully');
-        router.push({ name: 'userpage' });
-      }).catch(error => {
-        if (error.response?.status === 401) {
-          ElMessage.error('Session expired, please login again');
-          router.push({ name: 'login' });
-        }
-        ElMessage.error('Failed to post blog');
-      });
+      store
+        .editmyblog()
+        .then(() => {
+          ElMessage.success('Blog posted successfully');
+          router.push({ name: 'userpage' });
+        })
+        .catch((error) => {
+          if (error.response?.status === 401) {
+            ElMessage.error('Session expired, please login again');
+            router.push({ name: 'login' });
+          }
+          ElMessage.error('Failed to post blog');
+        });
     });
   } catch (error) {
     ElMessage({
@@ -381,14 +380,11 @@ async function editTweet() {
     });
     console.error('Error', error);
   }
-};
+}
 
 // 添加计算属性来判断是否可以预览
 const canPreview = computed(() => {
-  return createData.value.title.trim() !== '' &&
-         createData.value.content.trim() !== '' &&
-         createData.value.image.length > 0 &&
-         createData.value.social_filters.length > 0;
+  return createData.value.title.trim() !== '' && createData.value.content.trim() !== '' && createData.value.files.length > 0 && createData.value.social_filters.length > 0;
 });
 
 // 添加判断是否为移动端视图的计算属性
@@ -401,21 +397,21 @@ const touchCurrentX = ref(0);
 const isSwipingToClose = ref(false);
 const swipeThreshold = 100; // 滑动阈值（像素）
 
-  // 拖拽排序相关的响应式数据
-  const draggedIndex = ref<number | null>(null);
-  const isDragging = ref(false);
-  const draggedElement = ref<HTMLElement | null>(null);
-  const galleryElement = ref<HTMLElement | null>(null);
+// 拖拽排序相关的响应式数据
+const draggedIndex = ref<number | null>(null);
+const isDragging = ref(false);
+const draggedElement = ref<HTMLElement | null>(null);
+const galleryElement = ref<HTMLElement | null>(null);
 
-  // 移动端长按拖拽相关数据
-  const isLongPressing = ref(false);
-  const longPressTimer = ref<number | null>(null);
-  const touchStartPos = ref({ x: 0, y: 0 });
-  const currentTouchPos = ref({ x: 0, y: 0 });
-  const longPressThreshold = 600; // 长按阈值（毫秒）
-  const moveThreshold = 10; // 移动阈值（像素）
+// 移动端长按拖拽相关数据
+const isLongPressing = ref(false);
+const longPressTimer = ref<number | null>(null);
+const touchStartPos = ref({ x: 0, y: 0 });
+const currentTouchPos = ref({ x: 0, y: 0 });
+const longPressThreshold = 600; // 长按阈值（毫秒）
+const moveThreshold = 10; // 移动阈值（像素）
 
-  // 窗口大小变化处理函数
+// 窗口大小变化处理函数
 const handleResize = () => {
   isMobileView.value = window.innerWidth <= 768;
 };
@@ -497,7 +493,7 @@ const handleTouchCancel = () => {
 
 // 拖拽排序相关函数
 const handleDragStart = (event: DragEvent, index: number) => {
-  if (createData.value.image.length < 2) return;
+  if (createData.value.files.length < 2) return;
 
   draggedIndex.value = index;
   isDragging.value = true;
@@ -565,7 +561,7 @@ const handleDrop = (event: DragEvent) => {
   }
 
   // 重新排列图片数组
-  const images = [...createData.value.image];
+  const images = [...createData.value.files];
   const draggedImage = images[draggedIndex.value];
 
   // 移除原位置的图片
@@ -577,12 +573,12 @@ const handleDrop = (event: DragEvent) => {
   // 在新位置插入图片
   images.splice(adjustedTargetIndex, 0, draggedImage);
 
-  createData.value.image = images;
+  createData.value.files = images;
 };
 
 // 移动端长按拖拽相关函数
 const handleTouchStartForDrag = (event: TouchEvent, index: number) => {
-  if (!isMobileView.value || createData.value.image.length < 2) return;
+  if (!isMobileView.value || createData.value.files.length < 2) return;
 
   const touch = event.touches[0];
   touchStartPos.value = { x: touch.clientX, y: touch.clientY };
@@ -653,7 +649,7 @@ const handleTouchEndForDrag = (event: TouchEvent) => {
     const fakeDropEvent = {
       preventDefault: () => {},
       clientX: touch.clientX,
-      clientY: touch.clientY
+      clientY: touch.clientY,
     } as DragEvent;
 
     handleDrop(fakeDropEvent);
@@ -680,13 +676,7 @@ onUnmounted(() => {
 
 <template>
   <!-- 内容卡片 - 直接作为组件内容 -->
-  <el-card
-    class="post-card"
-    @touchstart="handleTouchStart"
-    @touchmove="handleTouchMove"
-    @touchend="handleTouchEnd"
-    @touchcancel="handleTouchCancel"
-  >
+  <el-card class="post-card" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
     <!-- 添加新的关闭按钮到卡片头部 - 只在桌面端显示 -->
     <div v-if="!isMobileView" class="card-close-btn" @click="closeDialog()">
       <el-icon><Close /></el-icon>
@@ -695,29 +685,14 @@ onUnmounted(() => {
     <template #header>
       <div class="post-card-header">
         <div class="post-title">Post Your Blog</div>
-        <el-button
-          type="primary"
-          @click="handlePreviewClick"
-          :disabled="!canPreview"
-          class="preview-btn"
-        >
-          Preview
-        </el-button>
+        <el-button type="primary" @click="handlePreviewClick" :disabled="!canPreview" class="preview-btn"> Preview </el-button>
       </div>
     </template>
 
     <!-- 博客创建表单 -->
-    <el-form
-      :model="createData"
-      label-position="top"
-      :rules="rules"
-      ref="formRef"
-    >
+    <el-form :model="createData" label-position="top" :rules="rules" ref="formRef">
       <!-- 标题输入 -->
-      <el-form-item
-        label="Title"
-        prop="title"
-      >
+      <el-form-item label="Title" prop="title">
         <el-input
           v-model="createData.title"
           type="textarea"
@@ -730,10 +705,7 @@ onUnmounted(() => {
       </el-form-item>
 
       <!-- 社交筛选器 -->
-      <el-form-item
-        label="Categories"
-        prop="social_filters"
-      >
+      <el-form-item label="Categories" prop="social_filters">
         <div class="filter-tags">
           <el-tag
             v-for="option in socialFilters"
@@ -750,10 +722,7 @@ onUnmounted(() => {
       </el-form-item>
 
       <!-- 内容输入 -->
-      <el-form-item
-        label="Content"
-        prop="content"
-      >
+      <el-form-item label="Content" prop="content">
         <el-input
           v-model="createData.content"
           type="textarea"
@@ -763,43 +732,25 @@ onUnmounted(() => {
       </el-form-item>
 
       <!-- 图片上传 -->
-      <el-form-item
-        label="Photos"
-        prop="image"
-      >
+      <el-form-item label="Photos" prop="files">
         <div class="upload-section">
-          <el-upload
-            class="image-uploader"
-            :show-file-list="false"
-            :on-change="handleImageUpload"
-            :auto-upload="false"
-            :multiple="true"
-            accept="image/*"
-          >
+          <el-upload class="image-uploader" :show-file-list="false" :on-change="handleImageUpload" :auto-upload="false" :multiple="true" accept="image/*">
             <el-button type="primary" size="large">
               <el-icon><Plus /></el-icon>
               Select Images
             </el-button>
           </el-upload>
-          <span class="upload-hint"
-            v-if="!createData.image.length">Upload up to 9 images,
-            double click to delete</span>
+          <span class="upload-hint" v-if="!createData.files.length">Upload up to 9 images, double click to delete</span>
         </div>
 
         <!-- 图片展示区域 -->
-        <div
-          class="images-gallery"
-          v-if="createData.image.length"
-          ref="galleryElement"
-          @dragover="handleDragOver"
-          @drop="handleDrop"
-        >
+        <div class="images-gallery" v-if="createData.files.length" ref="galleryElement" @dragover="handleDragOver" @drop="handleDrop">
           <div
-            v-for="(image, index) in createData.image"
+            v-for="(image, index) in createData.files"
             :key="index"
             class="image-item"
             :class="{ 'long-pressing': isLongPressing && draggedIndex === index }"
-            :draggable="!isMobileView && createData.image.length >= 2"
+            :draggable="!isMobileView && createData.files.length >= 2"
             @dragstart="!isMobileView && handleDragStart($event, index)"
             @dragend="!isMobileView && handleDragEnd"
             @touchstart="handleTouchStartForDrag($event, index)"
@@ -808,16 +759,15 @@ onUnmounted(() => {
           >
             <img :src="getImageUrl(image)" :alt="`Image ${index + 1}`" />
             <div class="image-overlay">
-              <button class="delete-btn"
-              @click.stop="removeImage(index)" title="Remove image">
+              <button class="delete-btn" @click.stop="removeImage(index)" title="Remove image">
                 <el-icon><Delete /></el-icon>
               </button>
             </div>
           </div>
           <div class="images-counter">
-            {{ createData.image.length }}/9 images
-            <span v-if="createData.image.length >= 2 && !isMobileView" class="drag-hint">• Drag to reorder</span>
-            <span v-if="createData.image.length >= 2 && isMobileView" class="drag-hint">• Long press to reorder</span>
+            {{ createData.files.length }}/9 images
+            <span v-if="createData.files.length >= 2 && !isMobileView" class="drag-hint">• Drag to reorder</span>
+            <span v-if="createData.files.length >= 2 && isMobileView" class="drag-hint">• Long press to reorder</span>
           </div>
         </div>
       </el-form-item>
@@ -840,16 +790,7 @@ onUnmounted(() => {
         <div class="tags-display">
           <div v-if="createData.tags.length === 0" class="no-tags-hint">No tags added yet</div>
           <div v-else class="tags-list">
-            <el-tag
-              v-for="(tag, index) in createData.tags"
-              :key="index"
-              closable
-              @close="removeTag(index)"
-              effect="plain"
-              class="post-tag"
-            >
-              #{{ tag }}
-            </el-tag>
+            <el-tag v-for="(tag, index) in createData.tags" :key="index" closable @close="removeTag(index)" effect="plain" class="post-tag"> #{{ tag }} </el-tag>
             <span class="tag-counter">{{ createData.tags.length }}/5</span>
           </div>
         </div>
@@ -857,28 +798,15 @@ onUnmounted(() => {
 
       <!-- 选择目的地 -->
       <el-form-item label="Destination">
-        <el-select
-          v-model="createData.location"
-          multiple
-          filterable
-          placeholder="Select destinations"
-          @change="handleDestinationsChange"
-          style="max-width: 500px; width: 100%;">
-          <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label"
-          :value="dest.value" />
+        <el-select v-model="createData.location" multiple filterable placeholder="Select destinations" @change="handleDestinationsChange" style="max-width: 500px; width: 100%">
+          <el-option v-for="dest in destinations" :key="dest.value" :label="dest.label" :value="dest.value" />
         </el-select>
       </el-form-item>
 
       <!-- 评论权限 -->
       <el-form-item label="Who can reply?">
         <el-radio-group v-model="createData.comment_permission">
-          <el-radio
-            v-for="option in commentPermission"
-            :key="option.id"
-            :label="option.id"
-          >
-            {{ option.name }} can reply
-          </el-radio>
+          <el-radio v-for="option in commentPermission" :key="option.id" :label="option.id"> {{ option.name }} can reply </el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -903,4 +831,3 @@ onUnmounted(() => {
     </el-form>
   </el-card>
 </template>
-

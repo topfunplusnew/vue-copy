@@ -68,7 +68,9 @@ export const useBlogStore = defineStore('blog', () => {
     if (id) {
       getBlogPost(id.toString()).then(({ data }) => {
         data.social_filters = data.social_filters.map((item: ISocialFilter) => item.id);
-        createData.value = data;
+        // 将后端返回的 image 或 files 字段映射到 files
+        const files = data.files || data.image || [];
+        createData.value = { ...data, files };
       });
     }
   }
@@ -84,9 +86,11 @@ export const useBlogStore = defineStore('blog', () => {
     return new Promise((resolve, reject) => {
       Postimage({ image: formData })
         .then((res) => {
-          const arr = res.data.success as string[];
-          for (const url of arr) {
-            createData.value.image.push(url);
+          // 从 uploaded_files 数组中提取 media 字段
+          const uploadedFiles = res.data.uploaded_files || [];
+          const imageUrls = uploadedFiles.map((item: { media: string }) => item.media);
+          for (const url of imageUrls) {
+            createData.value.files.push(url);
           }
           resolve(res);
         })

@@ -509,10 +509,44 @@ $accent-color: #64b3f4;
                         &:hover {
                             transform: translateY(-2px);
                         }
+                    }
 
-                        &.liked {
-                            .heart-icon {
-                                color: #e74c3c;
+                    /* 收藏按钮样式 */
+                    .collect-btn {
+                        padding: 0;
+                        background: transparent;
+                        border: none;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        cursor: pointer;
+                        font-size: 16px;
+                        font-weight: 500;
+                        color: #666;
+
+                        &:hover {
+                            transform: translateY(-2px);
+                        }
+
+                        .star-icon {
+                            font-size: 18px;
+                            transition: all 0.2s ease;
+                        }
+
+                        .collect-text {
+                            font-size: 16px;
+                            color: #666;
+                            transition: all 0.2s ease;
+                        }
+
+                        &.collected {
+                            .star-icon {
+                                filter: none;
+                            }
+
+                            .collect-text {
+                                color: #666;
                             }
                         }
                     }

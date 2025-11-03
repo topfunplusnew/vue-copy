@@ -44,42 +44,40 @@ const expandedReplies = ref<number[]>([]);
 const replyTarget = ref<{ id: number; type: string; parentId?: number } | null>(null);
 const expandedComments = ref<number[]>([]);
 
-const isLiked = ref(false);
-const likesCount = ref(0);
-// 初始化点赞状态
+const isCollected = ref(false);
+// 初始化收藏状态
 watch(
   () => selectedBlog.value,
   (newBlog) => {
     if (newBlog?.id) {
-      likesCount.value = newBlog.likes || 0;
-      // 检查用户是否已经点赞
-      checkLikeStatus(newBlog.id);
+      // 检查用户是否已经收藏
+      checkCollectionStatus(newBlog.id);
     }
   },
   { immediate: true },
 );
 
-// 检查点赞状态
-const checkLikeStatus = async (blogId: number | undefined) => {
+// 检查收藏状态
+const checkCollectionStatus = async (blogId: number | undefined) => {
   if (!blogId || !userStore.isLogin()) {
-    isLiked.value = false;
+    isCollected.value = false;
     return;
   }
 
   try {
     const response = await store.checkUserLike(blogId);
-    isLiked.value = response.is_collected;
+    isCollected.value = response.is_collected;
   } catch (error) {
-    console.error('Failed to check like status:', error);
-    isLiked.value = false;
+    console.error('Failed to check collection status:', error);
+    isCollected.value = false;
   }
 };
 
-// 处理点赞
-const handleLike = async () => {
+// 处理收藏
+const handleCollect = async () => {
   if (!selectedBlog.value?.id) return;
   if (!userStore.isLogin()) {
-    ElMessageBox.confirm('You need to login to like this post. Would you like to login now?', 'Login Required', {
+    ElMessageBox.confirm('You need to login to collect this post. Would you like to login now?', 'Login Required', {
       confirmButtonText: 'Go to Login',
       cancelButtonText: 'Cancel',
       type: 'warning',
@@ -89,14 +87,18 @@ const handleLike = async () => {
     return;
   }
 
-  if (isLiked.value) {
-    ElMessage.info('You have already liked this post');
-    return;
+  const previousState = isCollected.value;
+  try {
+    await store.likeBlog(selectedBlog.value.id);
+    // 重新检查收藏状态以确保准确性
+    await checkCollectionStatus(selectedBlog.value.id);
+    if (isCollected.value !== previousState) {
+      ElMessage.success(isCollected.value ? 'Collected successfully' : 'Uncollected successfully');
+    }
+  } catch (error) {
+    console.error('Failed to toggle collection:', error);
+    ElMessage.error('Failed to update collection status');
   }
-  await store.likeBlog(selectedBlog.value.id);
-  isLiked.value = true;
-  likesCount.value += 1;
-  ElMessage.success('Liked successfully');
 };
 
 // 关注状态
@@ -393,8 +395,9 @@ const handleUserClick = (event?: Event) => {
         <div class="stats-bar">
           <!-- 统计信息 -->
           <div class="stats-info">
-            <span class="likes" @click="handleLike" :class="{ liked: isLiked }">
-              <span class="heart-icon">{{ isLiked ? '❤️' : '🤍' }}</span> <span class="count">{{ likesCount }}</span>
+            <span class="collect-btn" @click="handleCollect" :class="{ collected: isCollected }">
+              <span class="star-icon">{{ isCollected ? '⭐' : '☆' }}</span>
+              <span class="collect-text">{{ isCollected ? '已收藏' : '收藏' }}</span>
             </span>
             <span class="comments" @click="scrollToComments">
               <span class="comment-icon">💬</span> <span class="count">{{ selectedBlog?.comments_count }}</span>

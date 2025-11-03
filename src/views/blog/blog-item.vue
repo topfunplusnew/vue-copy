@@ -31,7 +31,10 @@
 
       <!-- 统计信息 -->
       <div class="post-stats">
-        <span class="likes">❤️ {{ post.likes }}</span>
+        <span class="collect" :class="{ collected: isCollected }">
+          <span class="star-icon">{{ isCollected ? '⭐' : '☆' }}</span>
+          <span class="collect-text">{{ isCollected ? '已收藏' : '收藏' }}</span>
+        </span>
         <span class="comments">💬 {{ post.comments_count }}</span>
         <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
       </div>
@@ -43,16 +46,24 @@
 import { ref, onMounted, watch, onBeforeUnmount } from 'vue';
 import type { IBlog } from '@/types/blog';
 import { getImageUrl } from '@/utils';
+import { useBlogStore } from '@/stores/blog';
+import { useUserStore } from '@/stores/user';
 
 // --- Props & Emits ---
 const props = defineProps<{ post: IBlog }>();
 const emits = defineEmits<{ detail: [id: number] }>();
+
+// --- Stores ---
+const store = useBlogStore();
+const userStore = useUserStore();
 
 // --- State Management ---
 // 使用 Map 存储视频封面，性能优于普通对象
 const videoCovers = ref<Map<string, string>>(new Map());
 // 存储创建的 video 元素引用，用于组件卸载时清理，防止内存泄漏
 const videoElements = ref<HTMLVideoElement[]>([]);
+// 收藏状态
+const isCollected = ref(false);
 
 // --- Helper Functions ---
 /**
@@ -171,11 +182,31 @@ function processVideoFiles(files: string[] = []) {
   });
 }
 
+// 检查收藏状态
+const checkCollectionStatus = async (blogId: number | undefined) => {
+  if (!blogId || !userStore.isLogin()) {
+    isCollected.value = false;
+    return;
+  }
+
+  try {
+    const response = await store.checkUserLike(blogId);
+    isCollected.value = response.is_collected;
+  } catch (error) {
+    console.error('Failed to check collection status:', error);
+    isCollected.value = false;
+  }
+};
+
 // --- Lifecycle Hooks ---
 // 组件挂载后，立即处理视频文件
 onMounted(() => {
   if (props.post.files) {
     processVideoFiles(props.post.files);
+  }
+  // 检查收藏状态
+  if (props.post.id) {
+    checkCollectionStatus(props.post.id);
   }
 });
 
@@ -184,6 +215,16 @@ watch(
   () => props.post.files,
   (newFiles) => {
     processVideoFiles(newFiles);
+  },
+);
+
+// 监听 post.id 的变化，检查收藏状态
+watch(
+  () => props.post.id,
+  (newId) => {
+    if (newId) {
+      checkCollectionStatus(newId);
+    }
   },
 );
 
@@ -293,10 +334,25 @@ function onClick() {
   gap: 12px;
 }
 
-.likes,
+.collect,
 .comments,
 .coins {
   display: flex;
   align-items: center;
+  gap: 4px;
+}
+
+.collect {
+  font-size: 14px;
+  color: #666;
+}
+
+.star-icon {
+  font-size: 16px;
+}
+
+.collect-text {
+  font-size: 14px;
+  color: #666;
 }
 </style>
