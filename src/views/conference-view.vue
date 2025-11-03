@@ -60,9 +60,9 @@ const uploadedCV = ref<{ file: File; uploadDate: string; url: string } | null>(n
 
 const user = computed(() => store.user);
 
-const isWalletConnected = computed(() => {
-  return false;
-});
+// const isWalletConnected = computed(() => {
+//   return false;
+// });
 
 const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
@@ -92,15 +92,15 @@ onMounted(() => {
 
 });
 
-function handleLogout() {
-  store.logout();
-  router.push({ name: 'login' });
-}
+// function handleLogout() {
+//   store.logout();
+//   router.push({ name: 'login' });
+// }
 
-function showSocialModal() {
-  store.getFollowings();
-  store.getFollowers();
-}
+// function showSocialModal() {
+//   store.getFollowings();
+//   store.getFollowers();
+// }
 
 function onUpload() {
   showCropper.value = true;
@@ -169,10 +169,10 @@ function stopDrag() {
   isDragging.value = false;
 }
 
-function openContactModal() {
-  showContactModal.value = true;
-  document.body.style.overflow = 'hidden';
-}
+// function openContactModal() {
+//   showContactModal.value = true;
+//   document.body.style.overflow = 'hidden';
+// }
 
 function closeContactModal() {
   showContactModal.value = false;
@@ -185,10 +185,10 @@ function submitContactInfo() {
   closeContactModal();
 }
 
-function openCVModal() {
-  showCVModal.value = true;
-  document.body.style.overflow = 'hidden';
-}
+// function openCVModal() {
+//   showCVModal.value = true;
+//   document.body.style.overflow = 'hidden';
+// }
 
 function closeCVModal() {
   showCVModal.value = false;
@@ -222,12 +222,12 @@ function submitCV() {
   cvFile.value = null;
 }
 
-function openCVPreview() {
-  if (uploadedCV.value) {
-    showCVPreviewModal.value = true;
-    document.body.style.overflow = 'hidden';
-  }
-}
+// function openCVPreview() {
+//   if (uploadedCV.value) {
+//     showCVPreviewModal.value = true;
+//     document.body.style.overflow = 'hidden';
+//   }
+// }
 
 function closeCVPreview() {
   showCVPreviewModal.value = false;
