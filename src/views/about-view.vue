@@ -112,54 +112,6 @@ onUnmounted(() => {
   }
 });
 
-// 特点数据
-const features = ref([
-  {
-    icon: '🌍',
-    title: 'Personalized Itineraries',
-    description: 'Create custom travel plans tailored to your preferences and interests with AI assistance.',
-    class: 'blue-gradient',
-  },
-  {
-    icon: '💰',
-    title: 'Earn While Traveling',
-    description: 'Earn iPoloCoins by sharing your experiences and knowledge with the community.',
-    class: 'purple-gradient',
-  },
-  {
-    icon: '��',
-    title: 'Web3 Integration',
-    description: 'Connect your wallet to create and trade travel experiences as NFTs.',
-    class: 'green-gradient',
-  },
-  {
-    icon: '🤝',
-    title: 'Community Driven',
-    description: 'Join a global community of travelers sharing insights and recommendations.',
-    class: 'orange-gradient',
-  },
-  {
-    icon: '🔒',
-    title: 'Secure & Transparent',
-    description: 'All transactions and interactions are secured by blockchain technology.',
-    class: 'red-gradient',
-  },
-  {
-    icon: '🧠',
-    title: 'AI Powered',
-    description: 'Large language models help optimize your travel planning and experiences.',
-    class: 'teal-gradient',
-  },
-]);
-
-// 统计数据
-const stats = ref([
-  { value: '10K+', label: 'Active Users' },
-  { value: '50K+', label: 'Itineraries Created' },
-  { value: '120+', label: 'Countries Covered' },
-  // { value: '1M+', label: 'iPoloCoins Earned' }
-]);
-
 // FAQ 数据
 const faqs = ref([
   {
