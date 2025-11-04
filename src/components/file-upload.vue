@@ -685,11 +685,6 @@ const handlePdfPreview = () => {
   }
 }
 
-.custom-file-list {
-  margin-top: 16px;
-  margin-bottom: 60px;
-}
-
 .option-columnn {
   @include screen-mobile {
     flex-direction: column;
