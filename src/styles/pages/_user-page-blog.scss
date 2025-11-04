@@ -19,8 +19,8 @@
     z-index: 1000;
 
     .blog-detail-container {
-      width: 96%;
-      height: 100%;
+      width: 86%;
+      height: 90%;
       display: flex;
       border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -34,6 +34,7 @@
 
       /* 在窄屏幕上调整为垂直布局并允许整体滚动 */
       @include screen-mobile {
+        width: 100%;
         flex-direction: column;
         height: 95vh;
         overflow-y: auto; /* 允许整个容器滚动 */
