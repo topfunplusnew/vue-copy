@@ -1,0 +1,92 @@
+@use '@/styles/utils/mixins' as *;
+@use '@/styles/utils/utils' as *;
+
+.not-found {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: rpx(40) rpx(20);
+}
+
+.not-found-content {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(240, 245, 255, 0.064) 100%);
+  backdrop-filter: blur(15px);
+  border-radius: rpx(20);
+  box-shadow: 0px rpx(8) rpx(16) rgba(100, 179, 244, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: rpx(60) rpx(40);
+  text-align: center;
+  max-width: rpx(600);
+  width: 100%;
+
+  @include screen-mobile {
+    padding: rpx(40) rpx(30);
+  }
+}
+
+.error-code {
+  font-size: rpx(120);
+  font-weight: 700;
+  background: linear-gradient(90deg, #0f315a, #042e62);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+  margin-bottom: rpx(20);
+
+  @include screen-mobile {
+    font-size: rpx(80);
+  }
+}
+
+.error-title {
+  font-size: rpx(36);
+  font-weight: 600;
+  color: #0f315a;
+  margin-bottom: rpx(20);
+
+  @include screen-mobile {
+    font-size: rpx(28);
+  }
+}
+
+.error-description {
+  font-size: rpx(18);
+  color: #0f315a;
+  line-height: 1.6;
+  margin-bottom: rpx(40);
+
+  @include screen-mobile {
+    font-size: rpx(16);
+    margin-bottom: rpx(30);
+  }
+}
+
+.home-button {
+  background: linear-gradient(90deg, #0f315a, #042e62);
+  color: #fff;
+  border: none;
+  border-radius: rpx(8);
+  padding: rpx(14) rpx(32);
+  font-size: rpx(16);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px rpx(4) rpx(12) rgba(100, 179, 244, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px rpx(6) rpx(16) rgba(100, 179, 244, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  @include screen-mobile {
+    padding: rpx(12) rpx(28);
+    font-size: rpx(14);
+  }
+}

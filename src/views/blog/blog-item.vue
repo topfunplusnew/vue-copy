@@ -33,7 +33,7 @@
       <div class="post-stats">
         <span class="collect" :class="{ collected: isCollected }">
           <span class="star-icon">{{ isCollected ? '⭐' : '☆' }}</span>
-          <span class="collect-text">{{ isCollected ? '已收藏' : '收藏' }}</span>
+          <span class="collect-text">{{ isCollected ? 'collected' : 'collect' }}</span>
         </span>
         <span class="comments">💬 {{ post.comments_count }}</span>
         <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
@@ -282,7 +282,7 @@ function onClick() {
   max-height: 600px;
   object-fit: contain;
   display: block;
-  background-color: #f0f0f0; /* 默认背景色，在封面生成前显示 */
+  background-color: transparent; /* 默认背景色，在封面生成前显示 */
 }
 
 .post-content-userpage {

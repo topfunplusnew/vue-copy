@@ -147,9 +147,14 @@ const router = createRouter({
       name: 'ResetPassword',
       component: () => import('@/views/user/reset-password-email.vue'),
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: () => import('@/views/not-found.vue'),
+    },
   ],
 });
-const whiteList = ['invitation', 'forgetpassword', 'active'];
+const whiteList = ['invitation', 'forgetpassword', 'active', 'NotFound'];
 router.beforeEach((to, from, next) => {
   console.log(from, to);
   const user = useUserStore().user;

@@ -191,7 +191,7 @@ const submitItinerary = async () => {
         customClass: 'activation-prompt-dialog',
         center: true,
         showClose: true,
-      }
+      },
     );
 
     // TODO: 实现确定后的逻辑
@@ -859,7 +859,7 @@ watch(selectedLocation, () => {
 
   <!-- 将 post-view 组件移到这里，作为整个页面的子元素 -->
   <div v-if="showPostView" class="post-view-overlay" @click.self="showPostView = false">
-    <post-view @close="showPostView = false" @show-preview="handleShowPreview" />
+    <post-view :should-navigate-on-close="false" @close="showPostView = false" @show-preview="handleShowPreview" />
   </div>
 
   <!-- 将 preview 组件移到这里，作为整个页面的子元素 -->
