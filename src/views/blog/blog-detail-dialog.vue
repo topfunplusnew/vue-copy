@@ -46,17 +46,6 @@ const replyTarget = ref<{ id: number; type: string; parentId?: number } | null>(
 const expandedComments = ref<number[]>([]);
 
 const isCollected = ref(false);
-// 初始化收藏状态
-watch(
-  () => selectedBlog.value,
-  (newBlog) => {
-    if (newBlog?.id) {
-      // 检查用户是否已经收藏
-      checkCollectionStatus(newBlog.id);
-    }
-  },
-  { immediate: true },
-);
 
 // 检查收藏状态
 const checkCollectionStatus = async (blogId: number | undefined) => {
@@ -73,6 +62,18 @@ const checkCollectionStatus = async (blogId: number | undefined) => {
     isCollected.value = false;
   }
 };
+
+// 初始化收藏状态
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    if (newBlog?.id) {
+      // 检查用户是否已经收藏
+      checkCollectionStatus(newBlog.id);
+    }
+  },
+  { immediate: true },
+);
 
 // 处理收藏
 const handleCollect = async () => {
@@ -120,6 +121,16 @@ const isOwnPost = computed(() => {
   return String(userStore.user.id) === String(selectedBlog.value.user.id);
 });
 
+// 检查关注状态
+const checkFollowStatus = async (userId: number) => {
+  try {
+    const isFollowed = await userStore.isFollowing(userId);
+    isFollowing.value = isFollowed.data.is_following;
+  } catch (error) {
+    console.error('Failed to check follow status:', error);
+  }
+};
+
 watch(
   () => props.blogId,
   async (newVal) => {
@@ -160,15 +171,6 @@ watch(
   },
   { immediate: true },
 );
-
-const checkFollowStatus = async (userId: number) => {
-  try {
-    const isFollowed = await userStore.isFollowing(userId);
-    isFollowing.value = isFollowed.data.is_following;
-  } catch (error) {
-    console.error('Failed to check follow status:', error);
-  }
-};
 
 const closeDialog = () => {
   emit('update:visible', false); // 通知父组件隐藏对话框
@@ -427,7 +429,13 @@ const handleUserClick = (event?: Event) => {
     </div>
   </el-dialog>
 </template>
-<style scoped>
+<style lang="scss">
+@use '@/styles/pages/home-blog-dialog' as dialog;
+
+// 应用博客详情弹窗样式
+@include dialog.detail;
+
+// 组件特定的样式
 .el-carousel__item {
   height: 100%;
   display: flex;

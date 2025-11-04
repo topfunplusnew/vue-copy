@@ -9,7 +9,7 @@ import type { IBlog } from '@/types/blog';
 import BlogDetailDialog from '@/views/blog/blog-detail-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
 import { useBlogStore } from '@/stores/blog';
-import axios from 'axios';
+import { http } from '@/services/http';
 
 const store = useUserStore();
 const blogStore = useBlogStore();
@@ -24,10 +24,10 @@ const userId = computed(() => {
 
 // 其他用户信息
 const otherUser = ref<IUser | null>(null);
-const otherUserPosts = ref<{items: IBlog[], loading: boolean, has_next: boolean}>({
+const otherUserPosts = ref<{ items: IBlog[]; loading: boolean; has_next: boolean }>({
   items: [],
   loading: false,
-  has_next: false
+  has_next: false,
 });
 
 // 关注状态
@@ -64,24 +64,24 @@ const loadOtherUserData = async () => {
 
   try {
     // 加载用户基本信息 - 使用后端API
-    const userResponse = await axios.get(`/api/user/id/${userId.value}`);
+    const userResponse = await http.get(`/user/id/${userId.value}`);
     otherUser.value = userResponse.data;
 
     // 加载用户的博客列表 - 使用博客API过滤特定用户
-    const blogsResponse = await axios.get('/api/blogs', {
+    const blogsResponse = await http.get('/blogs', {
       params: {
         user_id: userId.value,
         page: 1,
-        per_page: 20
-      }
+        per_page: 20,
+      },
     });
-    
+
     // 过滤出该用户的博客
     const userBlogs = blogsResponse.data.items.filter((blog: any) => blog.user.id === userId.value);
     otherUserPosts.value = {
       items: userBlogs,
       loading: false,
-      has_next: false
+      has_next: false,
     };
 
     // 检查当前用户是否关注了这个用户
@@ -125,14 +125,14 @@ const handleFollowToggle = async () => {
 // 显示博客详情
 const showBlogDetail = async (blogId?: number) => {
   if (!blogId) return;
-  
+
   try {
     console.log('Showing blog detail for ID:', blogId);
-    
+
     // 使用blogStore获取博客详情
     await blogStore.getBlogByID(blogId);
     console.log('BlogStore.blog loaded:', blogStore.blog);
-    
+
     if (blogStore.blog) {
       selectedBlog.value = blogStore.blog;
       showBlogDialog.value = true;
@@ -192,13 +192,7 @@ const isCurrentUser = computed(() => {
                 <span class="btn-text">BACK</span>
               </button>
               <!-- 关注按钮（如果不是当前用户自己） -->
-              <button 
-                v-if="!isCurrentUser && store.isLogin()"
-                class="logout-btn"
-                :class="{ 'following': isFollowing }"
-                :disabled="followingLoading"
-                @click="handleFollowToggle"
-              >
+              <button v-if="!isCurrentUser && store.isLogin()" class="logout-btn" :class="{ following: isFollowing }" :disabled="followingLoading" @click="handleFollowToggle">
                 <span class="btn-icon">{{ isFollowing ? '✓' : '+' }}</span>
                 <span class="btn-text">{{ isFollowing ? 'FOLLOWING' : 'FOLLOW' }}</span>
               </button>
@@ -213,7 +207,7 @@ const isCurrentUser = computed(() => {
               <div class="username">{{ otherUser.name }}</div>
               <div class="user-id">ID: {{ otherUser.id }}</div>
               <div class="registration-time">Joined: {{ otherUser.created_at }}</div>
-              
+
               <!-- Likes / Coins -->
               <div class="stats">
                 <div class="stat">
@@ -225,7 +219,7 @@ const isCurrentUser = computed(() => {
                   <span class="label">Coins</span>
                 </div> -->
               </div>
-              
+
               <!-- Following / Followers -->
               <div class="follow-stats-row">
                 <div class="follow-item">
@@ -259,42 +253,16 @@ const isCurrentUser = computed(() => {
           <!-- 博客区域顶部操作栏 -->
           <div class="blog-area-header">
             <!-- 搜索框 -->
-            <input
-              class="blog-search-input"
-              type="text"
-              :placeholder="`Search ${otherUser?.name || 'user'}'s blog`"
-              v-model="searchKeyword"
-              @input="handleSearch"
-            />
+            <input class="blog-search-input" type="text" :placeholder="`Search ${otherUser?.name || 'user'}'s blog`" v-model="searchKeyword" @input="handleSearch" />
             <!-- 博客数量显示 -->
-            <div class="blog-count">
-              {{ otherUserPosts.items.length }} posts
-            </div>
+            <div class="blog-count">{{ otherUserPosts.items.length }} posts</div>
           </div>
 
           <div class="blog-posts">
-            <div
-              v-for="post in otherUserPosts.items"
-              :key="post.id"
-              class="blog-post"
-              :class="{ 'nft-post': post.isNFT }"
-              @click="showBlogDetail(post.id)"
-            >
+            <div v-for="post in otherUserPosts.items" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
               <!-- 使用 el-carousel 代替单张图片显示 -->
-              <el-carousel
-                v-if="post.image && post.image.length > 0"
-                :interval="3000"
-                arrow="hover"
-                height="200px"
-                class="post-carousel"
-                :touchable="true"
-                :loop="true"
-                :autoplay="false"
-              >
-                <el-carousel-item
-                  v-for="(img, index) in post.image"
-                  :key="index"
-                >
+              <el-carousel v-if="post.image && post.image.length > 0" :interval="3000" arrow="hover" height="200px" class="post-carousel" :touchable="true" :loop="true" :autoplay="false">
+                <el-carousel-item v-for="(img, index) in post.image" :key="index">
                   <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
                 </el-carousel-item>
               </el-carousel>
@@ -328,7 +296,7 @@ const isCurrentUser = computed(() => {
               <p>{{ otherUser?.name }} hasn't posted anything yet</p>
             </div>
           </div>
-          
+
           <!-- 底部加载提示 -->
           <div v-if="otherUserPosts.loading" class="loading">Loading more posts...</div>
           <div v-if="!otherUserPosts.has_next && otherUserPosts.items.length > 0" class="no-more">No more posts</div>
@@ -338,14 +306,6 @@ const isCurrentUser = computed(() => {
 
     <!-- 博客详情弹出层 -->
     <!-- Debug info: showBlogDialog={{ showBlogDialog }}, selectedBlog={{ selectedBlog?.id }} -->
-    <BlogDetailDialog
-      v-if="showBlogDialog && selectedBlog && selectedBlog.id"
-      :blog-id="selectedBlog.id"
-      :visible="showBlogDialog"
-      @update:visible="closeBlogDetail"
-      @close="closeBlogDetail"
-    />
+    <BlogDetailDialog v-if="showBlogDialog && selectedBlog && selectedBlog.id" :blog-id="selectedBlog.id" :visible="showBlogDialog" @update:visible="closeBlogDetail" @close="closeBlogDetail" />
   </div>
 </template>
-
-
