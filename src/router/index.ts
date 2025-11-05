@@ -148,6 +148,11 @@ const router = createRouter({
       component: () => import('@/views/user/reset-password-email.vue'),
     },
     {
+      path: '/conferenceMap',
+      name: 'conferenceMap',
+      component: () => import('@/views/map/conferenceMap.vue'),
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'NotFound',
       component: () => import('@/views/not-found.vue'),
