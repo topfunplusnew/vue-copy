@@ -25,6 +25,7 @@
     "element-plus": "^2.9.5",
     "i": "^0.3.7",
     "lodash": "^4.17.21",
+    "mapbox-gl": "^3.16.0",
     "markdown-it": "^14.1.0",
     "markdown-it-katex": "^2.0.3",
     "openai": "^4.83.0",
