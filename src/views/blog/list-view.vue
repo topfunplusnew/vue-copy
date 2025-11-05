@@ -197,6 +197,9 @@ const submitItinerary = async () => {
     // TODO: 实现确定后的逻辑
     const activationCode = result.value;
     console.log('Activation code:', activationCode);
+    router.push({
+      name: 'conferenceMap',
+    })
   } catch {
     // TODO: 实现取消后的逻辑
     // console.log('User cancelled');
@@ -655,22 +658,20 @@ watch(selectedLocation, () => {
         <!-- 主输入区域 -->
         <div class="chat-input-container">
           <div class="input-wrapper">
-            <el-input
-              v-model="userInput"
-              placeholder="Plan your perfect trip... Where would you like to go?"
-              class="trip-input"
-              type="textarea"
-              :rows="1"
-              :autosize="{ minRows: 3, maxRows: 6 }"
-              @keydown.enter.ctrl.stop.prevent="submitItinerary"
-            />
+            <el-input v-model="userInput" placeholder="Plan your perfect trip... Where would you like to go?"
+              class="trip-input" type="textarea" :rows="1" :autosize="{ minRows: 3, maxRows: 6 }"
+              @keydown.enter.ctrl.stop.prevent="submitItinerary" />
 
             <div class="input-actions">
               <button class="action-btn microphone-btn" @click="startVoiceInput" title="Voice Input">
-                <el-icon><Microphone /></el-icon>
+                <el-icon>
+                  <Microphone />
+                </el-icon>
               </button>
               <button class="action-btn send-btn" @click="submitItinerary" title="Start Planning">
-                <el-icon><Position /></el-icon>
+                <el-icon>
+                  <Position />
+                </el-icon>
               </button>
             </div>
           </div>
@@ -704,18 +705,24 @@ watch(selectedLocation, () => {
               <div class="selector-dropdown" v-if="locationExpanded" @click.stop>
                 <div class="dropdown-content">
                   <div class="search-section">
-                    <el-input v-model="locationSearchQuery" placeholder="Search for a location..." class="location-search" clearable @input="handleLocationSearch">
+                    <el-input v-model="locationSearchQuery" placeholder="Search for a location..."
+                      class="location-search" clearable @input="handleLocationSearch">
                       <template #prefix>
-                        <el-icon><Search /></el-icon>
+                        <el-icon>
+                          <Search />
+                        </el-icon>
                       </template>
                     </el-input>
                   </div>
 
                   <div class="results-section">
                     <div class="result-list">
-                      <div v-for="(location, index) in filteredLocations" :key="index" class="location-item" @click="selectLocation(location.value)">
+                      <div v-for="(location, index) in filteredLocations" :key="index" class="location-item"
+                        @click="selectLocation(location.value)">
                         <div class="location-item-content">
-                          <el-icon class="item-icon"><Location /></el-icon>
+                          <el-icon class="item-icon">
+                            <Location />
+                          </el-icon>
                           <div class="item-info">
                             <span class="item-name">{{ location.label }}</span>
                           </div>
@@ -724,7 +731,9 @@ watch(selectedLocation, () => {
 
                       <!-- 无搜索结果 -->
                       <div class="no-results" v-if="filteredLocations.length === 0 && locationSearchQuery">
-                        <el-icon><Warning /></el-icon>
+                        <el-icon>
+                          <Warning />
+                        </el-icon>
                         <span>No locations found</span>
                       </div>
                     </div>
@@ -756,7 +765,9 @@ watch(selectedLocation, () => {
                   </div>
 
                   <div class="options-grid">
-                    <div v-for="option in socialFilters" :key="option.name" class="option-item" :class="{ selected: selectedOptions.includes(option.name) }" @click="togglePreference(option.name)">
+                    <div v-for="option in socialFilters" :key="option.name" class="option-item"
+                      :class="{ selected: selectedOptions.includes(option.name) }"
+                      @click="togglePreference(option.name)">
                       <span class="option-icon">{{ option.icon }}</span>
                       <span class="option-name">{{ option.name }}</span>
                     </div>
@@ -809,7 +820,8 @@ watch(selectedLocation, () => {
           <!-- 搜索框、筛选选项和Post按钮放在下一行 -->
           <div class="social-header-controls">
             <!-- 搜索框 -->
-            <input type="text" v-model="searchQuery" placeholder="Explore Anything..." class="search-input-home" @keyup.enter="handleSearch" />
+            <input type="text" v-model="searchQuery" placeholder="Explore Anything..." class="search-input-home"
+              @keyup.enter="handleSearch" />
 
             <!-- 筛选选项汉堡菜单按钮 (移动端显示) -->
             <button class="filter-menu-toggle" @click="toggleFilterMenu">
@@ -820,7 +832,8 @@ watch(selectedLocation, () => {
 
             <!-- 横排筛选选项 -->
             <div class="social-filter-panel-horizontal" :class="{ expanded: isFilterMenuOpen }">
-              <button v-for="item in socialFilters" :key="item.id" :class="{ active: selectedFilters.includes(item.id) }" @click="toggleSocialFilter(item.id)">
+              <button v-for="item in socialFilters" :key="item.id"
+                :class="{ active: selectedFilters.includes(item.id) }" @click="toggleSocialFilter(item.id)">
                 <span class="filter-icon">{{ item.icon }}</span>
                 <span class="filter-label">{{ item.name }}</span>
               </button>
@@ -837,7 +850,8 @@ watch(selectedLocation, () => {
         <!-- 博客展示区域 -->
         <div class="social-scroll">
           <div class="social-posts-panel" ref="postsPanel" style="overflow-y: auto; max-height: none">
-            <blog-item v-for="(item, index) in allPosts?.items" :key="index" :post="item" @detail="openBlogDetail"></blog-item>
+            <blog-item v-for="(item, index) in allPosts?.items" :key="index" :post="item"
+              @detail="openBlogDetail"></blog-item>
             <div ref="bottomTrigger" class="bottom-load-container">
               <div v-if="allPosts.loading" class="loading-indicator">Loading more posts...</div>
               <button v-else-if="allPosts?.has_next" class="load-more-btn-home" @click="nextPage">Load More</button>
@@ -852,7 +866,8 @@ watch(selectedLocation, () => {
     <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
 
     <!-- 博客详情弹出层 -->
-    <blog-detail-dialog v-model:visible="dialogBlog" :blog-id="Number(blogID)" :is-following="isFollowing" @close="closeBlogDetail" />
+    <blog-detail-dialog v-model:visible="dialogBlog" :blog-id="Number(blogID)" :is-following="isFollowing"
+      @close="closeBlogDetail" />
 
     <div v-if="allPosts.total === 0" class="no-results">No posts found for "{{ allPosts.args }}"</div>
   </div>
@@ -863,24 +878,16 @@ watch(selectedLocation, () => {
   </div>
 
   <!-- 将 preview 组件移到这里，作为整个页面的子元素 -->
-  <post-preview
-    v-if="showPreview"
-    :title="previewData.title"
-    :content="previewData.content"
-    :images="previewData.images"
-    :tags="previewData.tags"
-    :preferences="previewData.preferences"
-    :socialFilters="socialFilters"
-    :location="previewData.location"
-    :isNFT="previewData.isNFT"
-    @close="closePreview"
-  />
+  <post-preview v-if="showPreview" :title="previewData.title" :content="previewData.content"
+    :images="previewData.images" :tags="previewData.tags" :preferences="previewData.preferences"
+    :socialFilters="socialFilters" :location="previewData.location" :isNFT="previewData.isNFT" @close="closePreview" />
 
   <!-- 会议组件弹窗 -->
   <MeetingComponent v-if="showMeetingDialog" @close="showMeetingDialog = false" />
 
   <!-- iPoloGO 自动生成旅行计划 -->
-  <iPoloGOPlanComponent v-if="showIPoloGOPlanDialog" :visible="showIPoloGOPlanDialog" @close="showIPoloGOPlanDialog = false" />
+  <iPoloGOPlanComponent v-if="showIPoloGOPlanDialog" :visible="showIPoloGOPlanDialog"
+    @close="showIPoloGOPlanDialog = false" />
 </template>
 
 <style scoped>
@@ -908,7 +915,7 @@ watch(selectedLocation, () => {
 }
 
 /* 确保post-view组件在遮罩层中正确显示 */
-.post-view-overlay > * {
+.post-view-overlay>* {
   flex-shrink: 0;
   width: 100%;
   max-width: 1200px;
@@ -925,7 +932,7 @@ watch(selectedLocation, () => {
     overflow-x: hidden;
   }
 
-  .post-view-overlay > * {
+  .post-view-overlay>* {
     width: 100%;
     max-width: 100%;
   }
