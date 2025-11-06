@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, nextTick, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useBlogStore } from '@/stores/blog';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IBlogComment } from '@/types/blog';
 import { getImageUrl } from '@/utils';
 import { isImage, isVideo } from '@/constants/file';
+import { cancelCollection } from '@/services/api';
+import { useRouter } from 'vue-router';
+import BlogDetailComment from '@/views/blog/blog-detail-comment.vue';
 
 // 定义props和emit
 const props = defineProps<{
@@ -14,6 +18,8 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'toggle-follow']);
 
 const store = useUserStore();
+const blogStore = useBlogStore();
+const router = useRouter();
 
 const selectedBlog = computed(() => store.selectedPost);
 
@@ -33,6 +39,73 @@ watch(
     isFollowing.value = newVal;
   },
 );
+
+// 收藏状态
+const isCollected = ref(false);
+
+// 检查收藏状态
+const checkCollectionStatus = async (blogId: number | undefined) => {
+  if (!blogId || !store.isLogin()) {
+    isCollected.value = false;
+    return;
+  }
+
+  try {
+    const response = await blogStore.checkUserLike(blogId);
+    isCollected.value = response.is_collected;
+  } catch (error) {
+    console.error('Failed to check collection status:', error);
+    isCollected.value = false;
+  }
+};
+
+// 初始化收藏状态
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    if (newBlog?.id) {
+      // 检查用户是否已经收藏
+      checkCollectionStatus(newBlog.id);
+    }
+  },
+  { immediate: true },
+);
+
+// 处理收藏
+const handleCollect = async () => {
+  if (!selectedBlog.value?.id) return;
+  if (!store.isLogin()) {
+    ElMessageBox.confirm('You need to login to collect this post. Would you like to login now?', 'Login Required', {
+      confirmButtonText: 'Go to Login',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }).then(() => {
+      router.push({ name: 'login' });
+    });
+    return;
+  }
+
+  const previousState = isCollected.value;
+  try {
+    // 根据当前收藏状态调用不同的接口
+    if (isCollected.value) {
+      // 如果已收藏，则取消收藏
+      await cancelCollection(selectedBlog.value.id);
+      isCollected.value = false;
+      ElMessage.success('Uncollected successfully');
+    } else {
+      // 如果未收藏，则进行收藏
+      await blogStore.likeBlog(selectedBlog.value.id);
+      isCollected.value = true;
+      ElMessage.success('Collected successfully');
+    }
+  } catch (error) {
+    console.error('Failed to toggle collection:', error);
+    ElMessage.error('Failed to update collection status');
+    // 如果失败，恢复到之前的状态
+    isCollected.value = previousState;
+  }
+};
 
 // Comment functionality
 const newComment = ref('');
@@ -334,11 +407,14 @@ const handleImageError = (event: Event) => {
           </div>
 
           <!-- 评论组件 -->
-          <BlogDetailComment :blog-id="selectedBlog?.id" />
+          <BlogDetailComment v-if="selectedBlog?.id" :blog-id="selectedBlog.id" />
         </div>
         <div class="stats-bar">
           <div class="stats-info">
-            <span class="likes">❤️ {{ selectedBlog?.likes }}</span>
+            <span class="collect-btn" @click="handleCollect" :class="{ collected: isCollected }">
+              <span class="star-icon">{{ isCollected ? '⭐' : '☆' }}</span>
+              <span class="collect-text">{{ isCollected ? 'collected' : 'collect' }}</span>
+            </span>
             <span class="comments" @click="scrollToComments">💬 {{ selectedBlog?.comments_count }}</span>
             <span class="coins" v-if="selectedBlog?.isNFT">₿ {{ selectedBlog?.coins }}</span>
           </div>
