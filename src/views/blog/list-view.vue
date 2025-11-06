@@ -368,7 +368,7 @@ watch(
 );
 
 // 添加一个函数来检查关注状态
-const checkFollowStatus = async (userId: number) => {
+async function checkFollowStatus(userId: number) {
   try {
     // 假设API返回一个布尔值表示是否已关注
     const isFollowed = await userStore.isFollowing(userId);
@@ -376,7 +376,7 @@ const checkFollowStatus = async (userId: number) => {
   } catch (error) {
     console.error('Failed to check follow status:', error);
   }
-};
+}
 // 添加评论功能到博客弹窗
 // const showCommentInput = ref(false)
 

@@ -244,6 +244,10 @@
           }
   
           .post-stats {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+
             span {
               font-size: rpx(15); /* 减小字体大小 */
               color: #1a3566; /* 深蓝色 */
@@ -251,6 +255,49 @@
               @include screen-mobile {
                 font-size: rpx(25);
               }
+            }
+
+            .collect {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              font-size: rpx(15);
+              color: #666;
+              cursor: default;
+
+              @include screen-mobile {
+                font-size: rpx(25);
+              }
+
+              .star-icon {
+                font-size: rpx(18);
+              }
+
+              .collect-text {
+                font-size: rpx(15);
+                color: #666;
+
+                @include screen-mobile {
+                  font-size: rpx(25);
+                }
+              }
+
+              &.collected {
+                .star-icon {
+                  filter: none;
+                }
+
+                .collect-text {
+                  color: #666;
+                }
+              }
+            }
+
+            .comments,
+            .coins {
+              display: flex;
+              align-items: center;
+              gap: 4px;
             }
           }
         }

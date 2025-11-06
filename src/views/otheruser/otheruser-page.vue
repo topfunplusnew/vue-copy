@@ -38,6 +38,9 @@ const followingLoading = ref(false);
 const selectedBlog = ref<IBlog | null>(null);
 const showBlogDialog = ref(false);
 
+// 收藏状态管理 - 使用 Map 存储每个博客的收藏状态
+const collectionStatusMap = ref<Map<number, boolean>>(new Map());
+
 // 搜索功能
 const searchKeyword = ref('');
 
@@ -77,7 +80,7 @@ const loadOtherUserData = async () => {
     });
 
     // 过滤出该用户的博客
-    const userBlogs = blogsResponse.data.items.filter((blog: any) => blog.user.id === userId.value);
+    const userBlogs = blogsResponse.data.items.filter((blog: IBlog) => blog.user.id === userId.value);
     otherUserPosts.value = {
       items: userBlogs,
       loading: false,
@@ -88,6 +91,13 @@ const loadOtherUserData = async () => {
     if (store.isLogin()) {
       const followResponse = await store.isFollowing(userId.value);
       isFollowing.value = followResponse.data.is_following;
+
+      // 检查每个博客的收藏状态
+      for (const blog of userBlogs) {
+        if (blog.id) {
+          await checkCollectionStatus(blog.id);
+        }
+      }
     }
   } catch (error) {
     console.error('Failed to load user data:', error);
@@ -172,6 +182,28 @@ const goBack = () => {
 const isCurrentUser = computed(() => {
   return store.user?.id === otherUser.value?.id;
 });
+
+// 检查收藏状态
+const checkCollectionStatus = async (blogId: number) => {
+  if (!blogId || !store.isLogin()) {
+    collectionStatusMap.value.set(blogId, false);
+    return;
+  }
+
+  try {
+    const response = await blogStore.checkUserLike(blogId);
+    collectionStatusMap.value.set(blogId, response.is_collected);
+  } catch (error) {
+    console.error('Failed to check collection status:', error);
+    collectionStatusMap.value.set(blogId, false);
+  }
+};
+
+// 获取博客的收藏状态
+const isCollected = (blogId: number | undefined): boolean => {
+  if (!blogId) return false;
+  return collectionStatusMap.value.get(blogId) || false;
+};
 </script>
 
 <template>
@@ -261,8 +293,8 @@ const isCurrentUser = computed(() => {
           <div class="blog-posts">
             <div v-for="post in otherUserPosts.items" :key="post.id" class="blog-post" :class="{ 'nft-post': post.isNFT }" @click="showBlogDetail(post.id)">
               <!-- 使用 el-carousel 代替单张图片显示 -->
-              <el-carousel v-if="post.image && post.image.length > 0" :interval="3000" arrow="hover" height="200px" class="post-carousel" :touchable="true" :loop="true" :autoplay="false">
-                <el-carousel-item v-for="(img, index) in post.image" :key="index">
+              <el-carousel v-if="post.files && post.files.length > 0" :interval="3000" arrow="hover" height="200px" class="post-carousel" :touchable="true" :loop="true" :autoplay="false">
+                <el-carousel-item v-for="(img, index) in post.files" :key="index">
                   <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
                 </el-carousel-item>
               </el-carousel>
@@ -283,7 +315,10 @@ const isCurrentUser = computed(() => {
 
                 <!-- 统计信息 -->
                 <div class="post-stats">
-                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <span class="collect" :class="{ collected: isCollected(post.id) }">
+                    <span class="star-icon">{{ isCollected(post.id) ? '⭐' : '☆' }}</span>
+                    <span class="collect-text">{{ isCollected(post.id) ? 'collected' : 'collect' }}</span>
+                  </span>
                   <span class="comments">💬 {{ post.comments_count }}</span>
                   <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
                 </div>
@@ -306,6 +341,6 @@ const isCurrentUser = computed(() => {
 
     <!-- 博客详情弹出层 -->
     <!-- Debug info: showBlogDialog={{ showBlogDialog }}, selectedBlog={{ selectedBlog?.id }} -->
-    <BlogDetailDialog v-if="showBlogDialog && selectedBlog && selectedBlog.id" :blog-id="selectedBlog.id" :visible="showBlogDialog" @update:visible="closeBlogDetail" @close="closeBlogDetail" />
+    <blog-detail-dialog v-if="showBlogDialog && selectedBlog && selectedBlog.id" :blog-id="selectedBlog.id" :visible="showBlogDialog" @update:visible="closeBlogDetail" @close="closeBlogDetail" />
   </div>
 </template>

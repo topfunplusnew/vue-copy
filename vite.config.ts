@@ -7,6 +7,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers';
 import vue from '@vitejs/plugin-vue';
 import vueDevTools from 'vite-plugin-vue-devtools';
 import galleryPlugin from './plugins/vite-plugin-gallery';
+import removeConsolePlugin from './plugins/vite-plugin-remove-console';
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -23,6 +24,8 @@ export default defineConfig({
       dir: 'public/QS LOGO', // 扫描的图片目录
       virtualId: 'virtual:gallery', // 虚拟模块名
     }),
+    // 生产环境移除 console.log
+    removeConsolePlugin(),
   ],
   // css: {
   //   preprocessorOptions: {
