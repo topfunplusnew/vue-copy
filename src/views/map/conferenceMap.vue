@@ -1,24 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElMessage } from 'element-plus';
-
+import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElMessage, ElMessageBox } from 'element-plus';
+import { useUserStore } from '@/stores/user';
+import router from '@/router';
 const inputContent = ref('');
 
-// 模拟图片数据，包含不同宽度的图片
-const images = [
-    { id: 1, url: 'https://picsum.photos/id/237/300/400', width: '300px' },
-    { id: 2, url: 'https://picsum.photos/id/239/450/300', width: '450px' },
-    { id: 3, url: 'https://picsum.photos/id/240/350/500', width: '350px' },
-    { id: 4, url: 'https://picsum.photos/id/241/500/350', width: '500px' },
-    { id: 5, url: 'https://picsum.photos/id/242/380/420', width: '380px' },
-    { id: 6, url: 'https://picsum.photos/id/243/420/380', width: '420px' },
-    { id: 7, url: 'https://picsum.photos/id/244/320/480', width: '320px' },
-    { id: 8, url: 'https://picsum.photos/id/245/480/320', width: '480px' },
-    { id: 9, url: 'https://picsum.photos/id/246/360/440', width: '360px' },
-    { id: 10, url: 'https://picsum.photos/id/247/440/360', width: '440px' },
-    { id: 11, url: 'https://picsum.photos/id/248/340/460', width: '340px' },
-    { id: 12, url: 'https://picsum.photos/id/249/460/340', width: '460px' },
-];
 
 // 处理输入内容变化
 const handleInputChange = () => {
@@ -42,40 +28,95 @@ const handleTagChange = (val: string) => {
     console.log(val);
 
 }
-
+const userStore = useUserStore();
 // 语音输入功能
 const startVoiceInput = () => {
-    // 检查浏览器是否支持语音识别
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-        const recognition = new SpeechRecognition();
 
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        recognition.lang = 'en-US';
 
-        recognition.onstart = () => {
-            ElMessage.info('Listening... Speak now!');
-        };
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        recognition.onresult = (event: any) => {
-            const transcript = event.results[0][0].transcript;
-            inputContent.value = transcript;
-            ElMessage.success('Voice input captured!');
-        };
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        recognition.onerror = (event: any) => {
-            ElMessage.error('Voice recognition error: ' + event.error);
-        };
-
-        recognition.start();
+    // 检查用户是否登录
+    if (!userStore.isLogin()) {
+        // 显示登录确认框
+        ElMessageBox.confirm(
+            'You need to log in to use voice input feature. Would you like to go to login page?',
+            'Login Required',
+            {
+                confirmButtonText: 'Go to Login',
+                cancelButtonText: 'Cancel',
+                type: 'warning',
+            }
+        )
+            .then(() => {
+                // 确认后跳转到登录页面
+                router.push({
+                    name: 'login',
+                });
+            })
+            .catch(() => {
+                // 取消操作
+                ElMessage.info('Voice input canceled');
+            });
     } else {
-        ElMessage.warning('Voice recognition not supported in this browser');
+        // 已登录用户执行语音识别
+        // 检查浏览器是否支持语音识别
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+            const recognition = new SpeechRecognition();
+
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                ElMessage.info('Listening... Speak now!');
+            };
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            recognition.onresult = (event: any) => {
+                const transcript = event.results[0][0].transcript;
+                inputContent.value = transcript;
+                ElMessage.success('Voice input captured!');
+            };
+
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            recognition.onerror = (event: any) => {
+                ElMessage.error('Voice recognition error: ' + event.error);
+            };
+
+            recognition.start();
+        } else {
+            ElMessage.warning('Voice recognition not supported in this browser');
+        }
     }
 };
+const uploadAttachment = () => {
+    // 检查用户是否登录
+    if (!userStore.isLogin()) {
+        // 显示登录确认框
+        ElMessageBox.confirm(
+            'You need to log in to use upload input feature. Would you like to go to login page?',
+            'Login Required',
+            {
+                confirmButtonText: 'Go to Login',
+                cancelButtonText: 'Cancel',
+                type: 'warning',
+            }
+        )
+            .then(() => {
+                // 确认后跳转到登录页面
+                router.push({
+                    name: 'login',
+                });
+            })
+            .catch(() => {
+                // 取消操作
+                ElMessage.info('Upload input canceled');
+            });
+    } else {
+        ElMessage.warning('File upload not supported in this browser');
+    }
+
+}
 </script>
 
 <template>
@@ -94,7 +135,7 @@ const startVoiceInput = () => {
                         <span class="icon">🚣</span>
                     </button>
                     <button class="action-icon">
-                        <span class="icon">📎</span>
+                        <span class="icon" @click="uploadAttachment">📎</span>
                     </button>
                     <div class="spacer"></div>
                     <button class="action-icon">
@@ -136,7 +177,7 @@ const startVoiceInput = () => {
                         <el-dropdown-menu>
                             <el-dropdown-item v-for="location in locationOptions" :key="location" :command="location">{{
                                 location
-                                }}</el-dropdown-item>
+                            }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
