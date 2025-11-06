@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
+import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElMessage } from 'element-plus';
 
 const inputContent = ref('');
 
@@ -30,6 +30,52 @@ const handleSubmit = () => {
     console.log('Submitted:', inputContent.value);
 };
 
+const selectedLocation = ref('Singapore');
+const locationOptions = ref(['Singapore', 'Taipei', 'Tokyo', 'Hong Kong']);
+const handleLocationChange = (val: string) => {
+    selectedLocation.value = val;
+}
+const selectTags = ref('More Topics')
+const tagOptions = ref(['Food', 'Drink', 'Events', 'Local Attractions'])
+const handleTagChange = (val: string) => {
+    selectTags.value = val
+    console.log(val);
+
+}
+
+// 语音输入功能
+const startVoiceInput = () => {
+    // 检查浏览器是否支持语音识别
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+        const recognition = new SpeechRecognition();
+
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            ElMessage.info('Listening... Speak now!');
+        };
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recognition.onresult = (event: any) => {
+            const transcript = event.results[0][0].transcript;
+            inputContent.value = transcript;
+            ElMessage.success('Voice input captured!');
+        };
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        recognition.onerror = (event: any) => {
+            ElMessage.error('Voice recognition error: ' + event.error);
+        };
+
+        recognition.start();
+    } else {
+        ElMessage.warning('Voice recognition not supported in this browser');
+    }
+};
 </script>
 
 <template>
@@ -52,7 +98,7 @@ const handleSubmit = () => {
                     </button>
                     <div class="spacer"></div>
                     <button class="action-icon">
-                        <span class="icon">🎤</span>
+                        <span class="icon" @click="startVoiceInput">🎤</span>
                     </button>
                     <button @click="handleSubmit" class="submit-button">
                         <span class="arrow-icon">↑</span>
@@ -80,18 +126,17 @@ const handleSubmit = () => {
             <!-- 顶部Discover标题和位置选择器 -->
             <div class="discover-header">
                 <h2 class="discover-title">Discover</h2>
-                <el-dropdown>
+                <el-dropdown @command="handleLocationChange">
                     <span class="location-selector">
                         <span class="location-icon">📍</span>
-                        <span class="location-name">Singapore</span>
+                        <span class="location-name">{{ selectedLocation }}</span>
                         <span class="dropdown-icon">▼</span>
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>Singapore</el-dropdown-item>
-                            <el-dropdown-item>Taipei</el-dropdown-item>
-                            <el-dropdown-item>Tokyo</el-dropdown-item>
-                            <el-dropdown-item>Hong Kong</el-dropdown-item>
+                            <el-dropdown-item v-for="location in locationOptions" :key="location" :command="location">{{
+                                location
+                                }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -105,15 +150,12 @@ const handleSubmit = () => {
 
                 <span class="topic-tag">Late-Night Bites </span>
 
-                <el-dropdown>
-                    <span class="topic-tag more">More Topics ▼</span>
+                <el-dropdown @command="handleTagChange">
+                    <span class="topic-tag more">{{ selectTags }} ▼</span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item>Arts & Culture</el-dropdown-item>
-                            <el-dropdown-item>Shopping</el-dropdown-item>
-                            <el-dropdown-item>Sports & Activities</el-dropdown-item>
-                            <el-dropdown-item>Nightlife</el-dropdown-item>
-                            <el-dropdown-item>Family Fun</el-dropdown-item>
+                            <el-dropdown-item v-for="tag in tagOptions" :key="tag" :command="tag">{{ tag
+                            }}</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -188,506 +230,3 @@ const handleSubmit = () => {
         </div>
     </div>
 </template>
-
-<style scoped lang="scss">
-.conference-map-container {
-    display: flex;
-    height: 100vh;
-    background-color: #f8f9fa;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-// 左侧输入区域 - 占页面5分之2
-.input-section {
-    width: 40%; // 5分之2 = 40%
-    background-color: #ffffff;
-    border-right: 1px solid #e1e4e8;
-    display: flex;
-    flex-direction: column;
-    padding: 30px;
-    align-items: center;
-    box-sizing: border-box;
-
-    .wanderboat-header {
-        text-align: center;
-        margin-bottom: 40px;
-        width: 100%;
-
-        .brand-name {
-            font-size: 32px;
-            font-weight: 700;
-            color: #24292e;
-            margin: 0 0 10px 0;
-        }
-
-        .greeting {
-            font-size: 18px;
-            color: #586069;
-            margin: 0;
-
-            .wander-text {
-                color: #34a853; // 绿色文本
-                font-weight: 500;
-            }
-        }
-    }
-
-    .input-wrapper {
-
-        width: 100%;
-        margin-bottom: 40px;
-
-        .main-input {
-            width: 100%;
-            padding: 16px 10px;
-            border: 1px solid #d1d5da;
-            border-radius: 30px;
-            font-size: 16px;
-            line-height: 1.5;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-            &:focus {
-                outline: none;
-                border-color: #1a73e8;
-                box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
-            }
-
-            &::placeholder {
-                color: #9ca3af;
-            }
-        }
-
-        .input-actions {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-
-            .spacer {
-                flex: 1;
-            }
-
-            .action-icon {
-                width: 40px;
-                height: 40px;
-                border: none;
-                border-radius: 50%;
-                background-color: transparent;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-right: 10px;
-                transition: background-color 0.2s ease;
-
-                &:hover {
-                    background-color: #f3f4f6;
-                }
-
-                &.yellow-icon {
-                    background-color: #fbbc04;
-                    color: white;
-
-                    &:hover {
-                        background-color: #ea9b00;
-                    }
-                }
-
-                .icon {
-                    font-size: 20px;
-                }
-            }
-
-            .submit-button {
-                width: 40px;
-                height: 40px;
-                border: none;
-                border-radius: 50%;
-                background-color: #1a73e8;
-                color: white;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: background-color 0.2s ease;
-
-                &:hover {
-                    background-color: #1557b0;
-                }
-
-                &:active {
-                    background-color: #0d47a1;
-                }
-
-                .arrow-icon {
-                    font-size: 18px;
-                }
-            }
-        }
-    }
-
-    .main-actions {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-
-        .action-button {
-            width: 100%;
-            padding: 12px 20px;
-            border: 1px solid #d1d5da;
-            border-radius: 8px;
-            background-color: white;
-            color: #1a73e8;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-
-            &:hover {
-                background-color: #f8f9fa;
-                border-color: #1a73e8;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            }
-
-            .action-icon {
-                font-size: 18px;
-            }
-        }
-    }
-}
-
-// 右侧内容展示区域 - 占页面5分之3
-.image-section {
-    width: 60%; // 5分之3 = 60%
-    background-color: #ffffff;
-    overflow-y: auto;
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px;
-
-    // Discover标题和位置选择器
-    .discover-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #e5e7eb;
-
-        .discover-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #374151;
-            margin: 0;
-        }
-
-        .location-selector {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-
-            &:hover {
-                border-color: #1a73e8;
-                background-color: #f8f9fa;
-            }
-
-            .location-icon {
-                font-size: 14px;
-            }
-
-            .location-name {
-                font-size: 14px;
-                color: #374151;
-                font-weight: 500;
-            }
-
-            .dropdown-icon {
-                font-size: 12px;
-                color: #6b7280;
-            }
-        }
-    }
-
-    // 顶部主题标签
-    .topic-tags {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-
-        .topic-tag {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 20px;
-            background-color: #f3f4f6;
-            color: #374151;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-block;
-            user-select: none;
-
-            &:hover {
-                background-color: #e5e7eb;
-                color: #1f2937;
-            }
-
-            &.active {
-                background-color: #fbbc04;
-                color: white;
-            }
-
-            &.more {
-                background-color: transparent;
-                color: #1a73e8;
-                padding: 8px 12px;
-
-                &:hover {
-                    background-color: #e8f0fe;
-                }
-            }
-        }
-
-        /* Element Plus Dropdown 样式调整 */
-        .el-dropdown {
-            display: inline-block;
-        }
-
-        .el-dropdown-menu {
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .el-dropdown-item {
-            transition: all 0.2s ease;
-
-            &:hover {
-                background-color: #f8f9fa;
-            }
-        }
-    }
-
-    // 卡片网格布局
-    .card-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: auto;
-        gap: 16px;
-        padding-bottom: 40px;
-
-        // 网格布局结构
-        grid-template-areas:
-            "large large"
-            "medium1 medium2"
-            "medium3 small1"
-            "small2 small3"
-            "small4 small5";
-    }
-
-    // 基础卡片样式
-    .card {
-        position: relative;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        cursor: pointer;
-
-        &:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            transition: transform 0.3s ease;
-
-            &:hover {
-                transform: scale(1.05);
-            }
-        }
-
-        .card-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 16px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 100%);
-            color: white;
-
-            h3 {
-                margin: 0;
-                font-size: 20px;
-                font-weight: 600;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-            }
-
-            p {
-                margin: 0;
-                font-size: 14px;
-                font-weight: 500;
-                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-            }
-        }
-    }
-
-    // 卡片尺寸和网格位置
-    .large-card {
-        grid-area: large;
-        aspect-ratio: 16/9;
-    }
-
-    .medium-card {
-        aspect-ratio: 4/3;
-    }
-
-    .medium-card:nth-child(2) {
-        grid-area: medium1;
-    }
-
-    .medium-card:nth-child(3) {
-        grid-area: medium2;
-    }
-
-    .medium-card:nth-child(4) {
-        grid-area: medium3;
-    }
-
-    .small-card {
-        aspect-ratio: 3/2;
-    }
-
-    .small-card:nth-child(5) {
-        grid-area: small1;
-    }
-
-    .small-card:nth-child(6) {
-        grid-area: small2;
-    }
-
-    .small-card:nth-child(7) {
-        grid-area: small3;
-    }
-
-    .small-card:nth-child(8) {
-        grid-area: small4;
-    }
-
-    .small-card:nth-child(9) {
-        grid-area: small5;
-    }
-}
-
-// 响应式设计
-@media (max-width: 768px) {
-    .conference-map-container {
-        flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-    }
-
-    .input-section {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #e1e4e8;
-        height: 40vh;
-    }
-
-    .image-section {
-        width: 100%;
-        min-height: 60vh;
-        margin: 0;
-        border-radius: 0;
-        border-top: 1px solid #e1e4e8;
-    }
-
-    .card-grid {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-            "large"
-            "medium1"
-            "medium2"
-            "medium3"
-            "small1"
-            "small2"
-            "small3"
-            "small4"
-            "small5";
-        gap: 12px;
-    }
-
-    .topic-tags {
-        justify-content: center;
-    }
-
-    .topic-tag {
-        font-size: 12px !important;
-        padding: 6px 12px !important;
-    }
-
-    // 移动端调整Discover标题和位置选择器
-    .discover-header {
-        flex-direction: column;
-        align-items: flex-start !important;
-        gap: 12px;
-
-        .discover-title {
-            font-size: 20px !important;
-        }
-
-        .location-selector {
-            width: 100%;
-            justify-content: center;
-        }
-    }
-
-    .main-input {
-        font-size: 14px !important;
-    }
-}
-
-// 滚动条样式
-.image-section::-webkit-scrollbar {
-    width: 8px;
-}
-
-.image-section::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.image-section::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 4px;
-}
-
-.image-section::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-</style>
