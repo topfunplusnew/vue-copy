@@ -1334,6 +1334,11 @@ a.tab-btn {
   line-height: 1.4;
 }
 
+.el-dialog__header.show-close {
+  padding-right: 0 !important;
+  /* 或你想要的值 */
+}
+
 .paper-detail-dialog .el-dialog__headerbtn {
   position: absolute;
   right: 20px;
