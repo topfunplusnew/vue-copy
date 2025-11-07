@@ -332,7 +332,7 @@ function getUserLocation() {
 
 // 地理编码：将地点名称转换为坐标
 async function geocodeLocation(placeName: string): Promise<{ lat: number; lng: number } | null> {
-  if (!window.google || !window.google.maps) {
+  if (!(window as any).google || !(window as any).google.maps) {
     console.error('Google Maps API not loaded');
     return null;
   }
@@ -632,31 +632,41 @@ onUnmounted(() => {
           <div class="nav-button-group" @click.stop>
             <el-tooltip content="Chatbox" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="focusOnChat">
-                <el-icon class="nav-icon"><ChatDotRound /></el-icon>
+                <el-icon class="nav-icon">
+                  <ChatDotRound />
+                </el-icon>
                 <span v-if="!isLeftPanelCollapsed">Chatbox</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="Generate Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleAutoprompt">
-                <el-icon class="nav-icon"><MagicStick /></el-icon>
+                <el-icon class="nav-icon">
+                  <MagicStick />
+                </el-icon>
                 <span v-if="!isLeftPanelCollapsed">Auto Prompt</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="History" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleHistory">
-                <el-icon class="nav-icon"><Document /></el-icon>
+                <el-icon class="nav-icon">
+                  <Document />
+                </el-icon>
                 <span v-if="!isLeftPanelCollapsed">History</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="My Plan" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click.stop="toggleMyPlan">
-                <el-icon class="nav-icon"><StarFilled /></el-icon>
+                <el-icon class="nav-icon">
+                  <StarFilled />
+                </el-icon>
                 <span v-if="!isLeftPanelCollapsed">My Plan</span>
               </el-button>
             </el-tooltip>
             <el-tooltip content="New Chat" placement="right" :disabled="!isLeftPanelCollapsed" :open-delay="300">
               <el-button class="nav-item-btn" @click="finishConversation">
-                <el-icon class="nav-icon"><Plus /></el-icon>
+                <el-icon class="nav-icon">
+                  <Plus />
+                </el-icon>
                 <span v-if="!isLeftPanelCollapsed">New Chat</span>
               </el-button>
             </el-tooltip>
@@ -670,7 +680,8 @@ onUnmounted(() => {
               <div v-for="(msg, index) in messages" :key="index" class="chat-message" :class="msg.role">
                 <!-- 如果是用户消息且正在编辑 -->
                 <div v-if="msg.role === 'user' && editingMessageId === index">
-                  <el-input v-model="editedMessageContent" type="textarea" :rows="3" autofocus @blur="cancelEdit" @keydown.enter.prevent="saveEdit(index)" />
+                  <el-input v-model="editedMessageContent" type="textarea" :rows="3" autofocus @blur="cancelEdit"
+                    @keydown.enter.prevent="saveEdit(index)" />
                   <div class="edit-actions">
                     <el-button size="small" @click="cancelEdit">Cancel</el-button>
                     <el-button size="small" type="primary" @click="saveEdit(index)">Save</el-button>
@@ -678,19 +689,24 @@ onUnmounted(() => {
                 </div>
 
                 <!-- 正常显示消息 - 使用processMessageContent处理AI回复 -->
-                <div v-else v-html="msg.role === 'assistant' ? processMessageContent(msg.content) : md.render(msg.content)"></div>
+                <div v-else
+                  v-html="msg.role === 'assistant' ? processMessageContent(msg.content) : md.render(msg.content)"></div>
 
                 <!-- 用户消息的操作按钮 -->
                 <div v-if="msg.role === 'user'" class="message-actions">
                   <el-tooltip content="Copy" placement="top" :show-after="300">
                     <div class="action-btn" @click="copyMessage(msg.content)">
-                      <el-icon><CopyDocument /></el-icon>
+                      <el-icon>
+                        <CopyDocument />
+                      </el-icon>
                     </div>
                   </el-tooltip>
 
                   <el-tooltip content="Edit Message" placement="top" :show-after="300">
                     <div class="action-btn" @click="editMessage(index, msg.content)">
-                      <el-icon><Edit /></el-icon>
+                      <el-icon>
+                        <Edit />
+                      </el-icon>
                     </div>
                   </el-tooltip>
                 </div>
@@ -698,7 +714,8 @@ onUnmounted(() => {
               <div v-if="message.length > 0" class="chat-message ai">{{ message }}</div>
             </div>
             <div class="chat-input">
-              <el-input v-model="userChatInput" placeholder="Type your message..." class="chat-input-box" type="textarea" :rows="2" clearable @keydown.enter.prevent="handleUserInput" />
+              <el-input v-model="userChatInput" placeholder="Type your message..." class="chat-input-box"
+                type="textarea" :rows="2" clearable @keydown.enter.prevent="handleUserInput" />
             </div>
           </div>
         </div>
@@ -718,7 +735,8 @@ onUnmounted(() => {
   <AutopromptComponent :visible="showAutoprompt" @close="showAutoprompt = false" @insert-prompt="handleInsertPrompt" />
 
   <!-- My Plan弹窗 -->
-  <PlanComponent :visible="showMyPlan" :available-destinations="availableDestinations" @close="showMyPlan = false" @save="handlePlanSave" />
+  <PlanComponent :visible="showMyPlan" :available-destinations="availableDestinations" @close="showMyPlan = false"
+    @save="handlePlanSave" />
 </template>
 
 <style scoped>
@@ -728,6 +746,7 @@ onUnmounted(() => {
   text-decoration: underline;
   font-weight: 500;
 }
+
 .location-tag:hover {
   text-decoration: none;
   color: #0b66c3;
