@@ -34,22 +34,29 @@ const selectedBlog = computed(() => store.blog);
 const commentsData = computed(() => selectedBlog.value?.comments || []);
 
 // 监控博客数据变化以便调试
-watch(() => selectedBlog.value, (newBlog) => {
-  if (newBlog) {
-    console.log('Blog loaded:', newBlog.id, 'Comments count:', newBlog.comments?.length);
-  }
-}, { immediate: true });
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    if (newBlog) {
+      console.log('Blog loaded:', newBlog.id, 'Comments count:', newBlog.comments?.length);
+    }
+  },
+  { immediate: true },
+);
 
 // 监控博客数据变化
-watch(() => props.blogId, (newBlogId) => {
-  console.log('BlogId prop changed:', newBlogId);
-}, { immediate: true });
+watch(
+  () => props.blogId,
+  (newBlogId) => {
+    console.log('BlogId prop changed:', newBlogId);
+  },
+  { immediate: true },
+);
 
 // 评论相关的状态
 const replyContent = ref('');
 const isSubmittingReply = ref(false);
-const replyTarget = ref<{id: number, type: string, parentId?: number} | null>(null);
-
+const replyTarget = ref<{ id: number; type: string; parentId?: number } | null>(null);
 
 // 长按删除相关
 const longPressTimeout = ref();
@@ -66,8 +73,6 @@ const isOwnPost = computed(() => {
   return String(userStore.user.id) === String(selectedBlog.value.user.id);
 });
 
-
-
 const checkFollowStatus = async (userId: number) => {
   try {
     const isFollowed = await userStore.isFollowing(userId);
@@ -77,14 +82,17 @@ const checkFollowStatus = async (userId: number) => {
   }
 };
 
-watch(() => selectedBlog.value, (newBlog) => {
-  if (newBlog?.user?.id && !isOwnPost.value) {
-    checkFollowStatus(newBlog.user.id);
-  } else {
-    isFollowing.value = false;
-  }
-}, { immediate: true });
-
+watch(
+  () => selectedBlog.value,
+  (newBlog) => {
+    if (newBlog?.user?.id && !isOwnPost.value) {
+      checkFollowStatus(newBlog.user.id);
+    } else {
+      isFollowing.value = false;
+    }
+  },
+  { immediate: true },
+);
 
 const toggleReplyInput = (id: number, type: string = 'comment', parentId?: number) => {
   if (!id) return;
@@ -101,7 +109,7 @@ const toggleReplyInput = (id: number, type: string = 'comment', parentId?: numbe
     replyTarget.value = {
       id,
       type,
-      parentId
+      parentId,
     };
 
     nextTick(() => {
@@ -155,7 +163,7 @@ const collapseComments = async (commentId: number) => {
 };
 
 const handleTouchStart = (comment: IBlogComment) => {
-  const currentUser = userStore.user;  //获取当前的用户信息
+  const currentUser = userStore.user; //获取当前的用户信息
   if (!comment || !currentUser || comment.user.id !== currentUser.id) {
     return;
   }
@@ -198,12 +206,10 @@ const confirmDeleteComment = async (commentId?: number) => {
 const cancelDeleteComment = () => {
   activeComment.value = undefined;
 };
-
-
 </script>
 
 <template>
- <div class="comments-container" ref="commentsSection">
+  <div class="comments-container" ref="commentsSection">
     <div class="comments-header">
       <h3>Comments</h3>
       <div class="comments-actions">
@@ -212,7 +218,7 @@ const cancelDeleteComment = () => {
     </div>
 
     <!-- 调试信息 -->
-    <div v-if="!commentsData || commentsData.length === 0" style="padding: 20px; text-align: center; color: #666;">
+    <div v-if="!commentsData || commentsData.length === 0" style="padding: 20px; text-align: center; color: #666">
       <p v-if="!selectedBlog">No blog selected</p>
       <p v-else-if="!selectedBlog.comments">No comments data</p>
       <p v-else-if="selectedBlog.comments.length === 0">No comments yet</p>
@@ -221,31 +227,28 @@ const cancelDeleteComment = () => {
 
     <div class="comments-list">
       <div v-for="comment in [...commentsData].reverse()" :key="comment.id" class="comment-item">
-        <div class="comment-row"
-              :class="{'long-press-active': activeComment === comment.id}"
-              @touchstart.prevent="handleTouchStart(comment)"
-              @touchend.prevent="handleTouchEnd"
-              @touchmove.prevent="handleTouchMove"
-              @mousedown="handleTouchStart(comment)"
-              @mouseup="handleTouchEnd"
-              @mouseleave="handleTouchEnd">
-          <img
-            :src="getImageUrl(comment.user.avatar)"
-            alt="Commenter Avatar"
-            class="comment-avatar"
-          />
+        <div
+          class="comment-row"
+          :class="{ 'long-press-active': activeComment === comment.id }"
+          @touchstart.prevent="handleTouchStart(comment)"
+          @touchend.prevent="handleTouchEnd"
+          @touchmove.prevent="handleTouchMove"
+          @mousedown="handleTouchStart(comment)"
+          @mouseup="handleTouchEnd"
+          @mouseleave="handleTouchEnd"
+        >
+          <img :src="getImageUrl(comment.user.avatar)" alt="Commenter Avatar" class="comment-avatar" />
           <div class="comment-content-wrapper">
             <span class="comment-username">{{ comment.user.name }}</span>
-            <p class="comment-text" style="text-align: start;"
-            @click="comment.id && toggleReplyInput(comment.id)">{{ comment.content }}</p>
+            <p class="comment-text" style="text-align: start" @click="comment.id && toggleReplyInput(comment.id)">{{ comment.content }}</p>
           </div>
           <!-- 删除指示器 -->
-          <div class="delete-indicator" :class="{'visible': activeComment === comment.id}">
-            <i class="el-icon-delete" ></i>
+          <div class="delete-indicator" :class="{ visible: activeComment === comment.id }">
+            <i class="el-icon-delete"></i>
           </div>
 
           <!-- 删除确认浮层 -->
-          <div class="delete-confirm-overlay" :class="{'visible': activeComment === comment.id}">
+          <div class="delete-confirm-overlay" :class="{ visible: activeComment === comment.id }">
             <div class="delete-message">Delete this comment?</div>
             <div class="delete-actions">
               <button class="delete-btn-rp" @click="confirmDeleteComment(comment.id)">Delete</button>
@@ -255,24 +258,19 @@ const cancelDeleteComment = () => {
         </div>
 
         <!-- 显示评论的回复 -->
-        <div v-if="comment.replies && comment.replies.length > 0"
-          class="comment-replies">
-          <div v-for="reply in comment.replies" :key="reply.id"
-                class="reply-item">
-            <div class="reply-row"
-            :class="{'long-press-active': activeComment === reply.id}"
+        <div v-if="comment.replies && comment.replies.length > 0" class="comment-replies">
+          <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
+            <div
+              class="reply-row"
+              :class="{ 'long-press-active': activeComment === reply.id }"
               @touchstart.prevent="handleTouchStart(reply)"
               @touchend.prevent="handleTouchEnd"
               @touchmove.prevent="handleTouchMove"
               @mousedown="handleTouchStart(reply)"
               @mouseup="handleTouchEnd"
-              @mouseleave="handleTouchEnd">
-
-              <img
-                :src="getImageUrl(reply.user.avatar)"
-                alt="Replier Avatar"
-                class="reply-avatar"
-              />
+              @mouseleave="handleTouchEnd"
+            >
+              <img :src="getImageUrl(reply.user.avatar)" alt="Replier Avatar" class="reply-avatar" />
               <div class="reply-info">
                 <!-- 顶部显示用户名和 replying to -->
                 <div class="reply-header-line">
@@ -282,8 +280,7 @@ const cancelDeleteComment = () => {
 
                 <!-- 回复内容 -->
                 <div class="reply-content-wrapper">
-                  <p class="reply-text"
-                    @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">
+                  <p class="reply-text" @click.stop.prevent="reply.id && comment.id && toggleReplyInput(reply.id, 'reply', comment.id)">
                     {{ reply.content }}
                   </p>
                 </div>
@@ -291,64 +288,33 @@ const cancelDeleteComment = () => {
             </div>
           </div>
           <!-- 展开 -->
-          <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length"
-              class="view-more-replies" @click="comment.id && expandReplies(comment.id)">
-            <span class="view-more-text">
-            View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}
-            </span>
+          <div v-if="comment.total_replies > 2 && comment.total_replies !== comment.replies.length" class="view-more-replies" @click="comment.id && expandReplies(comment.id)">
+            <span class="view-more-text"> View {{ comment.total_replies - 2 }} more {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }} </span>
             <span class="view-more-icon">↓</span>
           </div>
           <!-- 收起 -->
-          <div v-if="comment.total_replies > 2 && comment.replies.length === comment.total_replies"
-              class="view-more-replies"
-              @click="comment.id && collapseComments(comment.id)">
+          <div v-if="comment.total_replies > 2 && comment.replies.length === comment.total_replies" class="view-more-replies" @click="comment.id && collapseComments(comment.id)">
             <span class="hide-replies-text">Hide {{ comment.total_replies - 2 === 1 ? 'reply' : 'replies' }}</span>
             <span class="hide-replies-icon">↑</span>
           </div>
         </div>
 
         <!-- 回复输入框 -->
-        <div class="reply-input-container" v-if="replyTarget &&
-          ((replyTarget.type === 'comment' && replyTarget.id === comment.id) ||
-          (replyTarget.type === 'reply' && replyTarget.parentId === comment.id))">
+        <div
+          class="reply-input-container"
+          v-if="replyTarget && ((replyTarget.type === 'comment' && replyTarget.id === comment.id) || (replyTarget.type === 'reply' && replyTarget.parentId === comment.id))"
+        >
           <div class="replying-to-label">
             <span>Replying to</span>
-            <span class="target-name">@{{
-              replyTarget.type === 'comment'
-                ? comment.user.name
-                : comment.replies.find(r => r.id === replyTarget?.id)?.user.name
-            }}</span>
+            <span class="target-name">@{{ replyTarget.type === 'comment' ? comment.user.name : comment.replies.find((r) => r.id === replyTarget?.id)?.user.name }}</span>
           </div>
-          <el-input
-            v-model="replyContent"
-            type="textarea"
-            :rows="1"
-            resize="none"
-            placeholder="Reply to this comment..."
-            maxlength="200"
-            show-word-limit
-            class="reply-textarea"
-          ></el-input>
+          <el-input v-model="replyContent" type="textarea" :rows="1" resize="none" placeholder="Reply to this comment..." maxlength="200" show-word-limit class="reply-textarea"></el-input>
           <div class="reply-actions">
-            <el-button
-              size="small"
-              @click="cancelReply"
-              class="cancel-reply-btn"
-            >Cancel</el-button>
-            <el-button
-              type="primary"
-              size="small"
-              @click="submitReply"
-              :loading="isSubmittingReply"
-              :disabled="!replyContent.trim()"
-              class="submit-reply-btn"
-            >Reply</el-button>
+            <el-button size="small" @click="cancelReply" class="cancel-reply-btn">Cancel</el-button>
+            <el-button type="primary" size="small" @click="submitReply" :loading="isSubmittingReply" :disabled="!replyContent.trim()" class="submit-reply-btn">Reply</el-button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </template>
-
-
-

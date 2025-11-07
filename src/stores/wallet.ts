@@ -24,7 +24,7 @@ export const useWalletStore = defineStore('wallet', () => {
         status.value = WALLET_STATUS.CONNECTED;
         address.value = window.ethereum.selectedAddress;
       }
-      web3.eth.getAccounts().then((res) => console.log(res));
+      web3.eth.getAccounts().then((res) => {console.log(res)});
       console.log('end');
     } else {
       status.value = WALLET_STATUS.NO_PROVIDER;

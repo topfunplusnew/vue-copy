@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick } from 'vue';
-import walletItem from '@/components/wallet-item.vue';
+import { ref, reactive, onMounted, computed, nextTick, watch } from 'vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
@@ -13,6 +12,7 @@ import type { IBlogComment } from '@/types/blog';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import type { IBlog } from '@/types/blog';
 import commonHeader from '@/layout/common-header.vue';
+import { useBlogStore } from '@/stores/blog';
 
 const selectedBlog = ref<IBlog | null>(null); // 当前选中的博客详情
 // 关闭博客详情弹出层
@@ -21,6 +21,7 @@ const closeBlogDetail = () => {
   document.body.style.overflow = '';
 };
 const store = useUserStore();
+const blogStore = useBlogStore();
 const router = useRouter();
 
 // const userProfile = computed(() => store.user); // user改成这种用法
@@ -62,6 +63,9 @@ const postsContainer = ref<HTMLElement | null>(null);
 
 // 用户博客数据
 const userPosts = computed(() => store.blogs);
+
+// 收藏状态管理 - 使用 Map 存储每个博客的收藏状态
+const collectionStatusMap = ref<Map<number, boolean>>(new Map());
 
 const isFollowing = ref(false);
 
@@ -459,6 +463,43 @@ const menuActive = ref(false);
 const toggleMenu = () => {
   menuActive.value = !menuActive.value;
 };
+
+// 检查收藏状态
+const checkCollectionStatus = async (blogId: number) => {
+  if (!blogId || !store.isLogin()) {
+    collectionStatusMap.value.set(blogId, false);
+    return;
+  }
+
+  try {
+    const response = await blogStore.checkUserLike(blogId);
+    collectionStatusMap.value.set(blogId, response.is_collected);
+  } catch (error) {
+    console.error('Failed to check collection status:', error);
+    collectionStatusMap.value.set(blogId, false);
+  }
+};
+
+// 获取博客的收藏状态
+const isCollected = (blogId: number | undefined): boolean => {
+  if (!blogId) return false;
+  return collectionStatusMap.value.get(blogId) || false;
+};
+
+// 监听博客列表变化，检查收藏状态
+watch(
+  () => userPosts.value.items,
+  (newItems) => {
+    if (newItems && newItems.length > 0 && store.isLogin()) {
+      for (const blog of newItems) {
+        if (blog.id && !collectionStatusMap.value.has(blog.id)) {
+          checkCollectionStatus(blog.id);
+        }
+      }
+    }
+  },
+  { immediate: true, deep: true },
+);
 </script>
 
 <template>
@@ -578,7 +619,10 @@ const toggleMenu = () => {
 
                 <!-- 统计信息 -->
                 <div class="post-stats">
-                  <span class="likes">❤️ {{ post.likes }}</span>
+                  <span class="collect" :class="{ collected: isCollected(post.id) }">
+                    <span class="star-icon">{{ isCollected(post.id) ? '⭐' : '☆' }}</span>
+                    <span class="collect-text">{{ isCollected(post.id) ? 'collected' : 'collect' }}</span>
+                  </span>
                   <span class="comments">💬 {{ post.comments_count }}</span>
                   <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
                 </div>
