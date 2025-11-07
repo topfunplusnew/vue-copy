@@ -1210,3 +1210,337 @@
     }
   }
 }
+
+.access-restricted {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: #f5f7fa;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
+  color: #909399;
+}
+
+.access-restricted p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* 文章不存在时的错误提示样式 */
+.paper-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.not-found-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  opacity: 0.6;
+}
+
+.not-found-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.not-found-desc {
+  font-size: 16px;
+  color: #909399;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+/* 禁用状态的video按钮样式 */
+.tab-btn:disabled {
+  position: relative;
+  opacity: 0.6;
+  background-color: #f5f7fa;
+  border: 1px solid #ebeef5;
+}
+
+.tab-btn:disabled:before {
+  content: '🔒';
+  margin-right: 4px;
+}
+
+.tab-btn:disabled:hover {
+  background-color: #f5f7fa;
+  cursor: not-allowed;
+}
+
+a.tab-btn {
+  text-decoration: none;
+}
+
+/* Element Plus Dialog 自定义样式 - 论文详情弹出框优化 */
+.paper-detail-dialog {
+  max-width: 90vw;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: dialogSlideIn 0.3s ease-out;
+  z-index: 9999;
+
+}
+
+/* 自定义页面蒙版层样式 */
+.paper-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+  /* 半透明黑色背景 */
+  animation: overlayFadeIn 0.3s ease-out;
+  /* 淡入动画 */
+  backdrop-filter: blur(2px);
+  /* 背景模糊效果 */
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.paper-detail-dialog .el-dialog__header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  padding-right: -32px;
+  position: relative;
+  border-bottom: 1px solid #eaeaea;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 12px 12px 0 0;
+}
+
+.paper-detail-dialog .el-dialog__title {
+  text-align: center;
+  color: #1a365d;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0;
+  padding: 0 10px;
+  word-wrap: break-word;
+  max-width: 100%;
+  line-height: 1.4;
+}
+
+.paper-detail-dialog .el-dialog__headerbtn {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #f0f2f5;
+  transition: all 0.2s ease;
+}
+
+.paper-detail-dialog .el-dialog__headerbtn:hover {
+  background-color: #e6e8eb;
+  color: #606266;
+}
+
+.paper-detail-dialog .el-dialog__body {
+  padding: 15px 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  background-color: #ffffff;
+}
+
+/* 滚动条样式优化 */
+.paper-detail-dialog .el-dialog__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.paper-detail-dialog .el-dialog__body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.paper-detail-dialog .el-dialog__body::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.paper-detail-dialog .el-dialog__body::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 标签页导航样式优化 */
+.paper-detail-dialog .tab-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #eaeaea;
+}
+
+.paper-detail-dialog .tab-btn {
+  padding: 10px 20px;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  background-color: #f8f9fa;
+  color: #606266;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.paper-detail-dialog .tab-btn:hover:not(:disabled) {
+  background-color: #e9ecef;
+  border-color: #c0c4cc;
+  color: #409eff;
+}
+
+.paper-detail-dialog .tab-btn.active {
+  background-color: #409eff;
+  border-color: #409eff;
+  color: white;
+}
+
+.paper-detail-dialog .tab-btn:disabled {
+  opacity: 0.6;
+  background-color: #f5f7fa;
+  border: 1px solid #ebeef5;
+  cursor: not-allowed;
+}
+
+/* 内容区域样式优化 */
+.paper-detail-dialog .details-content {
+  color: #303133;
+  line-height: 1.8;
+}
+
+.paper-detail-dialog .paper-info {
+  margin-bottom: 24px;
+}
+
+.paper-detail-dialog .info-section {
+  margin-bottom: 20px;
+}
+
+.paper-detail-dialog .info-section h4 {
+  color: #1a365d;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.paper-detail-dialog .authors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.paper-detail-dialog .author-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.paper-detail-dialog .affiliations-list {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.paper-detail-dialog .affiliation {
+  margin-bottom: 8px;
+  padding-left: 16px;
+  text-indent: -16px;
+}
+
+.paper-detail-dialog .affiliation-number {
+  font-weight: 600;
+  color: #409eff;
+}
+
+.paper-detail-dialog .detail-item {
+  margin-bottom: 24px;
+
+}
+
+.paper-detail-dialog .detail-item h5 {
+  color: #1a365d;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.paper-detail-dialog .detail-item p {
+  color: #4a5568;
+  font-size: 15px;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.paper-detail-dialog .graphical-abstract {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 16px 0;
+}
+
+.paper-detail-dialog .keywords-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.paper-detail-dialog .keyword-tag {
+  padding: 6px 12px;
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* 文章不存在提示样式优化 */
+.paper-detail-dialog .paper-not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.paper-detail-dialog .not-found-icon {
+  font-size: 80px;
+  margin-bottom: 24px;
+  opacity: 0.7;
+}
+
+.paper-detail-dialog .not-found-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 12px;
+}
+
+.paper-detail-dialog .not-found-desc {
+  font-size: 16px;
+  color: #909399;
+  line-height: 1.6;
+  max-width: 500px;
+}
