@@ -197,9 +197,9 @@ const submitItinerary = async () => {
     // TODO: 实现确定后的逻辑
     const activationCode = result.value;
     console.log('Activation code:', activationCode);
-    router.push({
-      name: 'conferenceMap',
-    })
+    // router.push({
+    //   name: 'conferenceMap',
+    // })
   } catch {
     // TODO: 实现取消后的逻辑
     // console.log('User cancelled');
