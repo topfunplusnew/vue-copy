@@ -384,7 +384,7 @@ const handleHttpRequest: UploadProps['httpRequest'] = async (options) => {
   if (!(rawFile instanceof File)) {
     console.error('Invalid file object:', file);
     // 如果文件无效，不添加到队列，直接返回
-    return;  
+    return;
   }
 
   // 确保 file 对象有必要的属性
@@ -437,19 +437,36 @@ const handlePdfPreview = () => {
 
 <template>
   <div>
-    <el-upload v-model:file-list="posterFileList" list-type="text" :on-remove="handleRemove" :on-error="handleError"
-      :on-exceed="handleExceed" :on-progress="handleUploadProgress" :before-upload="handleBeforeUpload"
-      :http-request="handleHttpRequest" :limit="props.limit === -1 ? undefined : props.limit"
-      :disabled="isUploadDisabled || uploadLoading" :accept="acceptAttr" class="upload-area" :class="{
+    <el-upload
+      v-model:file-list="posterFileList"
+      list-type="text"
+      :on-remove="handleRemove"
+      :on-error="handleError"
+      :on-exceed="handleExceed"
+      :on-progress="handleUploadProgress"
+      :before-upload="handleBeforeUpload"
+      :http-request="handleHttpRequest"
+      :limit="props.limit === -1 ? undefined : props.limit"
+      :disabled="isUploadDisabled || uploadLoading"
+      :accept="acceptAttr"
+      class="upload-area"
+      :class="{
         'upload-disabled': isUploadDisabled && !shouldShowImagePreview,
         'upload-loading': uploadLoading,
         'upload-image-preview': shouldShowImagePreview,
-      }" :multiple="allowMultiple" v-if="isItemShow && (props.limit === -1 || posterFileList.length < props.limit)">
-      <div class="upload-block" :class="{
-        'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
-        'upload-block-loading': uploadLoading,
-        'upload-block-image-preview': shouldShowImagePreview,
-      }" :style="{ height: uploadBlockHeight }">
+      }"
+      :multiple="allowMultiple"
+      v-if="isItemShow && (props.limit === -1 || posterFileList.length < props.limit)"
+    >
+      <div
+        class="upload-block"
+        :class="{
+          'upload-block-disabled': isUploadDisabled && !shouldShowImagePreview,
+          'upload-block-loading': uploadLoading,
+          'upload-block-image-preview': shouldShowImagePreview,
+        }"
+        :style="{ height: uploadBlockHeight }"
+      >
         <!-- Loading状态 -->
         <div v-if="uploadLoading" class="upload-loading-container">
           <div class="upload-spinner"></div>
@@ -468,21 +485,18 @@ const handlePdfPreview = () => {
             <Plus />
           </el-icon>
           <div class="upload-text" :class="{ 'upload-text-disabled': isUploadDisabled }">
-            {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' :
-              'Click to upload files' }}
+            {{ isUploadDisabled ? 'Upload limit has been reached' : props.limit === -1 ? 'Click to upload files' : 'Click to upload files' }}
           </div>
         </template>
       </div>
     </el-upload>
 
     <!-- 文件尺寸提示 -->
-    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">Maximum file
-      size: 500MB</div>
+    <div v-if="isItemShow && (props.limit === -1 || posterFileList.length === 0)" class="upload-size-hint">Maximum file size: 500MB</div>
 
     <!-- 自定义文件列表显示 -->
     <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
-      <div v-for="file in posterFileList" :key="file.uid"
-        :class="tabKey !== 'additional' ? `file-item option-row` : `file-item option-columnn`">
+      <div v-for="file in posterFileList" :key="file.uid" :class="tabKey !== 'additional' ? `file-item option-row` : `file-item option-columnn`">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
           <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="file.name" class="file-thumbnail" />
@@ -497,13 +511,11 @@ const handlePdfPreview = () => {
           </div>
         </div>
         <div class="file-info" :class="{ 'single-file': props.limit !== -1 }">
-          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)"
-            style="cursor: pointer">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
-            <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large"
-              :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
+            <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
               Delete
             </el-button>
           </div>
@@ -512,8 +524,7 @@ const handlePdfPreview = () => {
     </div>
     <!-- 视频播放器 -->
     <div v-if="shouldShowVideoPlayer" class="video-player-container">
-      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">Your browser does not support
-        video playback</video>
+      <video :src="videoUrl || undefined" controls class="video-player" preload="metadata">Your browser does not support video playback</video>
     </div>
 
     <!-- PDF预览 -->
@@ -527,9 +538,7 @@ const handlePdfPreview = () => {
             Preview
           </el-button>
         </div>
-        <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does
-          not
-          support PDF preview </iframe>
+        <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
       </div>
     </div>
   </div>
@@ -709,7 +718,6 @@ const handlePdfPreview = () => {
   margin-bottom: 4px;
 }
 
-
 .file-preview {
   margin-right: 10px;
   display: flex;
@@ -752,8 +760,6 @@ const handlePdfPreview = () => {
 .file-icon {
   width: 24px;
   height: 24px;
-
-
 }
 
 .default-file-icon {
@@ -773,7 +779,7 @@ const handlePdfPreview = () => {
   min-height: 36px;
 
   @include screen-mobile {
-  width: 100%;
+    width: 100%;
     text-align: center;
     flex-direction: column;
     align-items: flex-start;
@@ -813,7 +819,6 @@ const handlePdfPreview = () => {
   gap: 8px;
   flex-shrink: 0;
 
-
   @include screen-mobile {
     width: 100%;
     justify-content: flex-end;
@@ -821,10 +826,7 @@ const handlePdfPreview = () => {
     flex-direction: column;
     margin-top: 0;
   }
-
-
 }
-
 
 .video-player-container {
   margin-top: 16px;
@@ -835,7 +837,7 @@ const handlePdfPreview = () => {
 
 .video-player {
   width: 100%;
-  height: 450px;
+  height: 100%;
   object-fit: contain;
   background-color: #000;
 }
