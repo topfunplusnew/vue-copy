@@ -56,4 +56,5 @@ export interface IModifyPaperShow {
     poster_status?: number;
     slide_status?: number;
     video_status?: number;
+    key_points?: string[];
 }

@@ -41,7 +41,17 @@ const formData = reactive({
   poster_status: 0,
   slide_status: 0,
   video_status: 0,
+  key_points: [] as string[]
 });
+
+// Key Points 状态管理
+const keyPoints = reactive([
+  { id: 1, title: 'Key Point One', content: '' },
+  { id: 2, title: 'Key Point Two', content: '' },
+  { id: 3, title: 'Key Point Three', content: '' },
+  { id: 4, title: 'Key Point Four', content: '' },
+  { id: 5, title: 'Key Point Five', content: '' },
+]);
 const fullscreenLoading = ref(false); //全局loading
 const detailsFormRef = ref<FormInstance>();
 
@@ -97,6 +107,7 @@ const initializeFormData = () => {
     formData.poster_status = myPaperDetailInfo.value.poster_status ?? 0;
     formData.slide_status = myPaperDetailInfo.value.slide_status ?? 0;
     formData.video_status = myPaperDetailInfo.value.video_status ?? 0;
+    formData.key_points = myPaperDetailInfo.value.key_points ?? [];
   }
 };
 
@@ -222,6 +233,21 @@ function onKeywordBlur() {
     detailsFormRef.value?.validateField('keywords');
     ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
   }
+}
+
+// 保存 Key Points 功能
+async function saveKeyPoints() {
+  fullscreenLoading.value = true;
+  try {
+    ElMessage.success('Key Points Saved Successfully!');
+    // 这里可以添加保存到后端的逻辑
+
+    console.log('Saving key points:', keyPoints);
+  } catch (error) {
+    console.error('保存失败：', error);
+    ElMessage.error('Save Failed, please try again');
+  }
+  fullscreenLoading.value = false;
 }
 
 async function saveDetails() {
@@ -398,20 +424,6 @@ function getAffiliationNumber(originalId: number): number {
               </div>
             </div>
           </div>
-          <div class="conference-links">
-            <a :href="myPaperDetailInfo?.conference.website" target="_blank" class="conf-link">
-              <span class="link-icon">🌐</span>
-              Official Website
-            </a>
-            <a :href="myPaperDetailInfo?.conference.committee_website" target="_blank" class="conf-link">
-              <span class="link-icon">👥</span>
-              Committee
-            </a>
-            <a :href="myPaperDetailInfo?.conference.registration_website" target="_blank" class="conf-link">
-              <span class="link-icon">📝</span>
-              Registration
-            </a>
-          </div>
           <div class="meta">
             <div class="title">{{ myPaperDetailInfo?.title }}</div>
 
@@ -432,6 +444,7 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="empty-text">No authors information available</div>
               </div>
             </div>
+
             <!-- 渲染机构列表以及下标 -->
             <div class="affiliations">
               <div v-if="affiliations.length" class="affiliations-list">
@@ -449,6 +462,22 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="empty-text">No affiliation information available</div>
               </div>
             </div>
+          </div>
+          <div class="conference-links">
+            <a :href="myPaperDetailInfo?.conference.website" target="_blank" class="conf-link">
+              <span class="link-icon">🌐</span>
+              Official Website
+            </a>
+            <a :href="myPaperDetailInfo?.conference.committee_website" target="_blank" class="conf-link">
+              <span class="link-icon">👥</span>
+              Committee
+            </a>
+            <a :href="myPaperDetailInfo?.conference.registration_website" target="_blank" class="conf-link">
+              <span class="link-icon">📝</span>
+              Registration
+            </a>
+          </div>
+          <div class="meta">
             <div class="session-notice">
               <div class="session-header">
                 <div class="notice-title">Important Conference Schedule</div>
@@ -487,173 +516,169 @@ function getAffiliationNumber(originalId: number): number {
           </div>
         </header>
         <!-- detail video Slides Poster Additional Info Full Fils -->
-        <div class="left-nav">
-          <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
-          <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
-          <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
-          <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-          <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
-            Info</button>
-          <button :class="{ active: activeTab === 'fulltext' }" @click="setActiveTab('fulltext')">Full Files</button>
-        </div>
-        <!-- 展示区 -->
-        <div v-if="activeTab === 'details'" class="tab-content">
-          <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
-            @submit.prevent>
-            <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
-              <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
-            </el-form-item>
-            <el-form-item label="Abstract" class="form-item full">
-              <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="true"
-                :placeholder="myPaperDetailInfo?.abstract || 'Click to Edit Abstract'" :rows="6"
-                @change="handleAbstractChange" />
-            </el-form-item>
-            <el-form-item label="Graphical Abstract" class="form-item">
-              <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
-                @refresh="refreshPaperData" :is-show="true" />
-            </el-form-item>
-            <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords"
-              class="form-item full">
-              <div class="keywords-container">
-                <div class="keywords-input-row">
-                  <el-row :gutter="8">
-                    <el-col :xs="24" :sm="18">
-                      <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
-                        placeholder="please input keywords..." @select="handleSelect" @keyup.enter="addKeyword"
-                        @blur="onKeywordBlur" style="width: 100%" />
-                    </el-col>
-                    <el-col :xs="24" :sm="6">
-                      <div class="add-button-container">
-                        <el-button @click="() => addKeyword()"
-                          :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary"
-                          style="width: 100%">Add </el-button>
-                      </div>
-                    </el-col>
-                  </el-row>
-                </div>
-                <div class="keywords-tips">Dragging tags can adjust the keyword order.</div>
-                <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
-                  @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
-                  <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
-                    dragging: draggedIndex === index,
-                    'drag-over': draggedOverIndex === index,
-                  }" closable @close="removeKeyword(index)" :data-drag-index="index"
-                    @dragstart="(event: DragEvent) => handleDragStart(event, index)"
-                    @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
-                    @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"
-                    @touchstart="(event: TouchEvent) => keywordsContainerRef && handleTouchStart(event, index, keywordsContainerRef)">
-                    {{ keyword.name }}
-                  </el-tag>
-                </div>
-              </div>
-            </el-form-item>
-            <div class="form-actions">
-              <el-form-item>
-                <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button> -->
-                <save-button @click="saveDetails()" />``
+        <div class="tab-container">
+          <div class="left-nav">
+            <button :class="{ active: activeTab === 'details' }" @click="setActiveTab('details')">Details</button>
+            <button :class="{ active: activeTab === 'video' }" @click="setActiveTab('video')">Video</button>
+            <button :class="{ active: activeTab === 'Key Point' }" @click="setActiveTab('Key Point')">Key Point</button>
+            <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
+            <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
+            <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+              Info</button>
+          </div>
+          <!-- 展示区 -->
+          <div v-if="activeTab === 'details'" class="tab-content">
+            <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
+              @submit.prevent>
+              <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
+                <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
               </el-form-item>
-            </div>
-          </el-form>
-        </div>
+              <el-form-item label="Abstract" class="form-item full">
+                <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="true"
+                  :placeholder="myPaperDetailInfo?.abstract || 'Click to Edit Abstract'" :rows="6"
+                  @change="handleAbstractChange" />
+              </el-form-item>
+              <el-form-item label="Graphical Abstract" class="form-item">
+                <file-upload :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
+                  @refresh="refreshPaperData" :is-show="true" />
+              </el-form-item>
+              <div class="form-item full"></div>
+              <!-- <el-form-item :label="`Keywords (${keywords.length}/${MAX_KEYWORDS})`" prop="keywords"
+                class="form-item full">
+                <div class="keywords-container">
+                  <div class="keywords-input-row">
+                    <el-row :gutter="8">
+                      <el-col :xs="24" :sm="18">
+                        <el-autocomplete v-model="keywordInput" :fetch-suggestions="querySearchAsync"
+                          placeholder="please input keywords..." @select="handleSelect" @keyup.enter="addKeyword"
+                          @blur="onKeywordBlur" style="width: 100%" />
+                      </el-col>
+                      <el-col :xs="24" :sm="6">
+                        <div class="add-button-container">
+                          <el-button @click="() => addKeyword()"
+                            :disabled="!keywordInput.trim() || keywords.length >= MAX_KEYWORDS" type="primary"
+                            style="width: 100%">Add </el-button>
+                        </div>
+                      </el-col>
+                    </el-row>
+                  </div>
+                  <div class="keywords-tips">Dragging tags can adjust the keyword order.</div>
+                  <div class="keywords-tags" v-if="keywords.length > 0" ref="keywordsContainerRef"
+                    @touchmove="handleTouchMove" @touchend="handleTouchEnd" @touchcancel="handleTouchCancel">
+                    <el-tag v-for="(keyword, index) in keywords" :key="keyword.id" :draggable="true" :class="{
+                      dragging: draggedIndex === index,
+                      'drag-over': draggedOverIndex === index,
+                    }" closable @close="removeKeyword(index)" :data-drag-index="index"
+                      @dragstart="(event: DragEvent) => handleDragStart(event, index)"
+                      @dragover="(event: DragEvent) => handleDragOver(event, index)" @dragleave="handleDragLeave"
+                      @drop="(event: DragEvent) => handleDrop(event, index)" @dragend="handleDragEnd"
+                      @touchstart="(event: TouchEvent) => keywordsContainerRef && handleTouchStart(event, index, keywordsContainerRef)">
+                      {{ keyword.name }}
+                    </el-tag>
+                  </div>
+                </div>
+              </el-form-item> -->
+              <div class="form-actions">
+                <el-form-item>
+                  <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button> -->
+                  <save-button @click="saveDetails()" />``
+                </el-form-item>
+              </div>
+            </el-form>
+          </div>
 
-        <div v-else-if="activeTab === 'video'" class="tab-content">
-          <!-- 当视频已存在时显示同意条款复选框 -->
-          <div v-if="myPaperDetailInfo?.video" class="consent-section">
-            <div class="consent-row">
-              <el-switch v-model="formData.video_status" :active-value="1" :inactive-value="2" active-text="release"
-                inactive-text="private" @change="
-                  (value: number | boolean | string) => {
-                    const status = typeof value === 'number' ? value : value ? 2 : 1;
-                    store.updateIsOpenAccess({
-                      id: paperId,
-                      video_status: status,
-                    });
-                  }
-                " />
+          <div v-else-if="activeTab === 'video'" class="tab-content">
+            <!-- 当视频已存在时显示同意条款复选框 -->
+            <div v-if="myPaperDetailInfo?.video" class="consent-section">
+              <div class="consent-row">
+                <el-switch v-model="formData.video_status" :active-value="1" :inactive-value="2" active-text="release"
+                  inactive-text="private" @change="
+                    (value: number | boolean | string) => {
+                      const status = typeof value === 'number' ? value : value ? 2 : 1;
+                      store.updateIsOpenAccess({
+                        id: paperId,
+                        video_status: status,
+                      });
+                    }
+                  " />
+              </div>
+            </div>
+            <!-- 总是显示上传组件 -->
+            <div class="video-upload">
+              <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
+                :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
             </div>
           </div>
-          <!-- 总是显示上传组件 -->
-          <div class="video-upload">
-            <file-upload :accept="getVideoFormats()" :tab-key="activeTab" :paper-id="paperId"
+
+          <div v-else-if="activeTab === 'slides'" class="tab-content">
+            <!-- 当幻灯片已存在时显示可见性控制滑块 -->
+            <div v-if="myPaperDetailInfo?.slide" class="consent-section">
+              <div class="consent-row">
+                <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="release"
+                  inactive-text="private" @change="
+                    (value: number | boolean | string) => {
+                      const status = typeof value === 'number' ? value : value ? 2 : 1;
+                      store.updateIsOpenAccess({
+                        id: paperId,
+                        slide_status: status,
+                      });
+                    }
+                  " />
+              </div>
+            </div>
+            <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
               :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
           </div>
-        </div>
 
-        <div v-else-if="activeTab === 'slides'" class="tab-content">
-          <!-- 当幻灯片已存在时显示可见性控制滑块 -->
-          <div v-if="myPaperDetailInfo?.slide" class="consent-section">
-            <div class="consent-row">
-              <el-switch v-model="formData.slide_status" :active-value="1" :inactive-value="2" active-text="release"
-                inactive-text="private" @change="
-                  (value: number | boolean | string) => {
-                    const status = typeof value === 'number' ? value : value ? 2 : 1;
+          <div v-else-if="activeTab === 'poster'" class="tab-content">
+            <!-- 当海报已存在时显示可见性控制滑块 -->
+            <div v-if="myPaperDetailInfo?.poster" class="consent-section">
+              <div class="consent-row">
+                <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="release"
+                  inactive-text="private" @change="
+                    (value: number | boolean | string) => {
+                      const status = typeof value === 'number' ? value : value ? 2 : 1;
+                      store.updateIsOpenAccess({
+                        id: paperId,
+                        poster_status: status,
+                      });
+                    }
+                  " />
+              </div>
+            </div>
+            <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent"
+              :limit="1" @refresh="refreshPaperData" :is-show="true" />
+          </div>
+
+          <div v-else-if="activeTab === 'additional'" class="tab-content">
+            <file-upload
+              :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
+              :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1"
+              @refresh="refreshPaperData" :is-show="true" />
+          </div>
+          <div v-else-if="activeTab === 'Key Point'" class="tab-content">
+
+            <div class="key-takeaways-container">
+              <div class="key-takeaways-header">
+                <h2>Key Takeaways</h2>
+                <p>Please provide the key points of your paper</p>
+              </div>
+
+              <div class="key-points-list">
+                <div v-for="point in keyPoints" :key="point.id" class="key-point-item">
+                  <h3>{{ point.title }}</h3>
+                  <input type="text" class="key-point-input" v-model="formData.key_points[point.id - 1]"
+                    :placeholder="formData.key_points[point.id - 1]">
+                </div>
+              </div>
+              <div class="save-button-container">
+                <el-button class="save-button" @click="
+                  () => {
                     store.updateIsOpenAccess({
                       id: paperId,
-                      slide_status: status,
+                      key_points: formData.key_points,
                     });
-                  }
-                " />
-            </div>
-          </div>
-          <file-upload :accept="[`.pdf`, ...getImageFormats()]" :tab-key="activeTab" :paper-id="paperId"
-            :paper-detail="paperContent" :limit="1" @refresh="refreshPaperData" :is-show="true" />
-        </div>
-
-        <div v-else-if="activeTab === 'poster'" class="tab-content">
-          <!-- 当海报已存在时显示可见性控制滑块 -->
-          <div v-if="myPaperDetailInfo?.poster" class="consent-section">
-            <div class="consent-row">
-              <el-switch v-model="formData.poster_status" :active-value="1" :inactive-value="2" active-text="release"
-                inactive-text="private" @change="
-                  (value: number | boolean | string) => {
-                    const status = typeof value === 'number' ? value : value ? 2 : 1;
-                    store.updateIsOpenAccess({
-                      id: paperId,
-                      poster_status: status,
-                    });
-                  }
-                " />
-            </div>
-          </div>
-          <file-upload :accept="`.pdf`" :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="1"
-            @refresh="refreshPaperData" :is-show="true" />
-        </div>
-
-        <div v-else-if="activeTab === 'additional'" class="tab-content">
-          <file-upload :accept="[`.tar`, `.gz`, `.docx`, `.txt`, `.zip`, `.rar`, `.pdf`, `.doc`, ...getImageFormats()]"
-            :tab-key="activeTab" :paper-id="paperId" :paper-detail="paperContent" :limit="-1"
-            @refresh="refreshPaperData" :is-show="true" />
-        </div>
-
-        <div v-else-if="activeTab === 'fulltext'" class="tab-content">
-          <div class="fulltext-section">
-            <div class="checklist">
-              <div class="item">
-                <div class="label">Graphical Abstract</div>
-                <div class="status" :class="{ ok: !!formData.graphic_abstract.length }">
-                  {{ formData.graphic_abstract.length ? 'Uploaded' : 'Missing' }}
-                </div>
-              </div>
-              <div class="item">
-                <div class="label">Slides</div>
-                <div class="status" :class="{ ok: !!formData.slide }">{{ formData.slide ? 'Uploaded' : 'Missing' }}
-                </div>
-              </div>
-              <div class="item">
-                <div class="label">Video</div>
-                <div class="status" :class="{ ok: !!formData.video }">{{ formData.video ? 'Uploaded' : 'Missing' }}
-                </div>
-              </div>
-              <div class="item">
-                <div class="label">Poster</div>
-                <div class="status" :class="{ ok: !!formData.poster }">{{ formData.poster ? 'Uploaded' : 'Missing' }}
-                </div>
-              </div>
-              <div class="item">
-                <div class="label">Additional Info (optional)</div>
-                <div class="status" :class="{ ok: !!formData.addition_files.length }">
-                  {{ formData.addition_files.length ? 'Uploaded' : 'Missing' }}
-                </div>
+                  }">Save</el-button>
               </div>
             </div>
           </div>
@@ -677,7 +702,8 @@ function getAffiliationNumber(originalId: number): number {
               </div>
             </object>
             <div class="mobile-pdf-actions">
-              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF </a>
+              <a :href="currentPdfUrl" :download="getCurrentFileName()" class="download-btn"> Download PDF
+              </a>
               <button @click="openInNewTab" class="open-btn">Open in New Tab</button>
             </div>
           </div>
@@ -942,5 +968,115 @@ function getAffiliationNumber(originalId: number): number {
 .drag-over {
   border: 2px dashed #409eff !important;
   background-color: #f0f9ff !important;
+}
+
+
+
+//keypoint
+
+.key-takeaways-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.key-takeaways-header {
+  margin-bottom: 40px;
+}
+
+.key-takeaways-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+}
+
+.key-takeaways-header h2::before {
+  content: '📋';
+  margin-right: 12px;
+  font-size: 30px;
+}
+
+.key-takeaways-header p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.key-points-list {
+  margin-bottom: 40px;
+}
+
+.key-point-item {
+  margin-bottom: 35px;
+}
+
+.key-point-item h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #2c3e50;
+  line-height: 1.4;
+}
+
+.key-point-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid #e1e8ed;
+  border-radius: 6px;
+  font-size: 16px;
+  line-height: 1.5;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+.key-point-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.key-point-input::placeholder {
+  color: #bdc3c7;
+  font-size: 16px;
+}
+
+.save-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.save-button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.save-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.save-button:active {
+  background-color: #21618c;
+  transform: translateY(0);
 }
 </style>

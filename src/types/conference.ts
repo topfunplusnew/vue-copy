@@ -155,6 +155,7 @@ export interface IPapers {
   poster_status: number,
   slide_status: number,
   video_status: number,
+  key_points: string[]
 }
 
 export interface Ivideo {
@@ -182,5 +183,5 @@ export interface IModifyPaper {
 
 }
 
-export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'fulltext';
+export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'Key Point';
 export type FileType = 'graphic_abstract' | 'video' | 'slide' | 'poster' | 'addition_files';
