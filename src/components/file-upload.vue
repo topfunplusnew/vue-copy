@@ -502,7 +502,7 @@ const handlePdfPreview = () => {
             {{ file.name }}
           </div>
           <div class="file-actions" v-if="isItemShow">
-            <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="small"
+            <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large"
               :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
               Delete
             </el-button>
@@ -520,7 +520,7 @@ const handlePdfPreview = () => {
     <div v-if="shouldShowPdfPreview">
       <div class="pdf-preview-container">
         <div class="pdf-preview-button-wrapper">
-          <el-button type="primary" size="small" class="pdf-preview-button" @click="handlePdfPreview">
+          <el-button type="primary" size="large" class="pdf-preview-button" @click="handlePdfPreview">
             <el-icon>
               <Reading />
             </el-icon>
@@ -705,9 +705,7 @@ const handlePdfPreview = () => {
   display: flex;
   align-items: center;
   padding: 6px 10px;
-  border: 1px solid #e4e7ed;
   border-radius: 6px;
-  background-color: #fafafa;
   margin-bottom: 4px;
 }
 
@@ -775,7 +773,7 @@ const handlePdfPreview = () => {
   min-height: 36px;
 
   @include screen-mobile {
-    width: 100%;
+  width: 100%;
     text-align: center;
     flex-direction: column;
     align-items: flex-start;
