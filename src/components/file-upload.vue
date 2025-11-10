@@ -802,9 +802,7 @@ const handlePdfPreview = () => {
 
   &:hover {
     color: #66b1ff;
-    /* 悬停时颜色变浅 */
     text-decoration: underline;
-    /* 悬停时显示下划线 */
   }
 
   @include screen-mobile {
