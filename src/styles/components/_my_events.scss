@@ -27,16 +27,14 @@
   .tab-container {
     display: flex;
     justify-content: space-between;
-    margin-top: 50px;
     align-items: flex-start;
-    gap: 50px;
+    gap: 20px;
 
     .left-nav {
       display: flex;
       flex-direction: column;
       justify-content: space-around;
       gap: 8px;
-      margin-bottom: 24px;
       padding: 8px;
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(168, 85, 247, 0.06) 100%);
       border: 1px solid rgba(99, 102, 241, 0.15);
