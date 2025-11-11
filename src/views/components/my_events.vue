@@ -7,13 +7,14 @@ import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { convertUTCToTimezone, formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
-import { updateMyPaperDetail, searchKeywords as searchKeywordsAPI } from '@/services/api';
+import { updateMyPaperDetail } from '@/services/api';
+//, searchKeywords as searchKeywordsAPI
 import FileUpload from '@/components/file-upload.vue';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
-import { useDragSort } from '@/hooks/useDragSort';
+// import { useDragSort } from '@/hooks/useDragSort';
 import { getImageFormats, getVideoFormats } from '@/utils/file';
-import SaveButton from '@/components/save-button.vue';
+// import SaveButton from '@/components/save-button.vue';
 import LatexContent from '@/components/latex-content.vue';
 
 const store = useConferenceStore();
@@ -84,12 +85,12 @@ const detailsRules: FormRules = {
   ],
 };
 
-// 使用拖拽排序hook
-const { draggedIndex, draggedOverIndex, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel } =
-  useDragSort(keywords);
+// // 使用拖拽排序hook
+// const { draggedIndex, draggedOverIndex, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, handleTouchStart, handleTouchMove, handleTouchEnd, handleTouchCancel } =
+//   useDragSort(keywords);
 
-// 关键词容器引用，用于触摸拖动
-const keywordsContainerRef = ref<HTMLElement | null>(null);
+// // 关键词容器引用，用于触摸拖动
+// const keywordsContainerRef = ref<HTMLElement | null>(null);
 
 // 初始化表单数据
 const initializeFormData = () => {
@@ -154,101 +155,101 @@ watch(
   { immediate: true },
 );
 // 关键词搜索相关
-const keywordInput = ref('');
-let searchTimeout: NodeJS.Timeout | null = null;
+// const keywordInput = ref('');
+// let searchTimeout: NodeJS.Timeout | null = null;
 
 // 搜索关键词的异步函数
-const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) => void) => {
-  // 清除之前的定时器
-  if (searchTimeout) {
-    clearTimeout(searchTimeout);
-  }
+// const querySearchAsync = (queryString: string, cb: (arg: { value: string }[]) => void) => {
+//   // 清除之前的定时器
+//   if (searchTimeout) {
+//     clearTimeout(searchTimeout);
+//   }
 
-  if (!queryString.trim()) {
-    cb([]);
-    return;
-  }
+//   if (!queryString.trim()) {
+//     cb([]);
+//     return;
+//   }
 
-  // 添加防抖，避免频繁请求
-  searchTimeout = setTimeout(() => {
-    searchKeywordsAPI(queryString)
-      .then((response) => {
-        // 从响应中提取items数组，并获取关键词名称
-        const items = response.data?.items || [];
-        const suggestions = items
-          .map((item: { name?: string; keyword?: string;[key: string]: unknown }) => ({
-            value: item.name || item.keyword || String(item),
-          }))
-          .filter((item: { value: string }) => item.value);
+//   // 添加防抖，避免频繁请求
+//   searchTimeout = setTimeout(() => {
+//     searchKeywordsAPI(queryString)
+//       .then((response) => {
+//         // 从响应中提取items数组，并获取关键词名称
+//         const items = response.data?.items || [];
+//         const suggestions = items
+//           .map((item: { name?: string; keyword?: string;[key: string]: unknown }) => ({
+//             value: item.name || item.keyword || String(item),
+//           }))
+//           .filter((item: { value: string }) => item.value);
 
-        cb(suggestions);
-      })
-      .catch((error) => {
-        console.error('搜索关键词失败:', error);
-        cb([]);
-      });
-  }, 200); // 300ms防抖
-};
+//         cb(suggestions);
+//       })
+//       .catch((error) => {
+//         console.error('搜索关键词失败:', error);
+//         cb([]);
+//       });
+//   }, 200); // 300ms防抖
+// };
 
 // 选择建议项
-const handleSelect = (item: Record<string, unknown>) => {
-  if (item.value && typeof item.value === 'string') {
-    addKeyword(item.value);
-  }
-};
+// const handleSelect = (item: Record<string, unknown>) => {
+//   if (item.value && typeof item.value === 'string') {
+//     addKeyword(item.value);
+//   }
+// };
 
 // 添加关键词
-const addKeyword = (keyword?: string) => {
-  const keywordToAdd = keyword || keywordInput.value.trim();
+// const addKeyword = (keyword?: string) => {
+//   const keywordToAdd = keyword || keywordInput.value.trim();
 
-  // 检查是否已达到最大数量限制
-  if (keywords.value.length >= MAX_KEYWORDS) {
-    ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
-    detailsFormRef.value?.validateField('keywords');
-    return;
-  }
+//   // 检查是否已达到最大数量限制
+//   if (keywords.value.length >= MAX_KEYWORDS) {
+//     ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
+//     detailsFormRef.value?.validateField('keywords');
+//     return;
+//   }
 
-  if (keywordToAdd && !keywords.value.some((k) => k.name === keywordToAdd)) {
-    const newKeyword = {
-      name: keywordToAdd,
-      id: keywords.value.length + 1,
-      order: keywords.value.length + 1,
-    };
-    keywords.value.push(newKeyword);
-    keywordInput.value = '';
-  }
-};
+//   if (keywordToAdd && !keywords.value.some((k) => k.name === keywordToAdd)) {
+//     const newKeyword = {
+//       name: keywordToAdd,
+//       id: keywords.value.length + 1,
+//       order: keywords.value.length + 1,
+//     };
+//     keywords.value.push(newKeyword);
+//     keywordInput.value = '';
+//   }
+// };
 
 // 删除关键词
-const removeKeyword = (index: number) => {
-  keywords.value.splice(index, 1);
-  // 重新分配order
-  keywords.value.forEach((keyword, idx) => {
-    keyword.order = idx + 1;
-  });
-};
+// const removeKeyword = (index: number) => {
+//   keywords.value.splice(index, 1);
+//   // 重新分配order
+//   keywords.value.forEach((keyword, idx) => {
+//     keyword.order = idx + 1;
+//   });
+// };
 
-function onKeywordBlur() {
-  if (keywords.value.length >= MAX_KEYWORDS) {
-    detailsFormRef.value?.validateField('keywords');
-    ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
-  }
-}
+// function onKeywordBlur() {
+//   if (keywords.value.length >= MAX_KEYWORDS) {
+//     detailsFormRef.value?.validateField('keywords');
+//     ElMessage.warning(`You can add up to ${MAX_KEYWORDS} keywords.`);
+//   }
+// }
 
 // 保存 Key Points 功能
-async function saveKeyPoints() {
-  fullscreenLoading.value = true;
-  try {
-    ElMessage.success('Key Points Saved Successfully!');
-    // 这里可以添加保存到后端的逻辑
+// async function saveKeyPoints() {
+//   fullscreenLoading.value = true;
+//   try {
+//     ElMessage.success('Key Points Saved Successfully!');
+//     // 这里可以添加保存到后端的逻辑
 
-    console.log('Saving key points:', keyPoints);
-  } catch (error) {
-    console.error('保存失败：', error);
-    ElMessage.error('Save Failed, please try again');
-  }
-  fullscreenLoading.value = false;
-}
+//     console.log('Saving key points:', keyPoints);
+//   } catch (error) {
+//     console.error('保存失败：', error);
+//     ElMessage.error('Save Failed, please try again');
+//   }
+//   fullscreenLoading.value = false;
+// }
 
 async function saveDetails() {
   fullscreenLoading.value = true;
@@ -524,6 +525,9 @@ function getAffiliationNumber(originalId: number): number {
             <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
             <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
               Info</button>
+            <router-link :to="'javascript: ;'">
+              view Presentation
+            </router-link>
           </div>
           <!-- 展示区 -->
           <div v-if="activeTab === 'details'" class="tab-content">
