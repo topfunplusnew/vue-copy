@@ -525,8 +525,8 @@ function getAffiliationNumber(originalId: number): number {
             <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
             <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
               Info</button>
-            <router-link :to="'javascript: ;'">
-              view Presentation
+            <router-link :to="{ name: 'PaperDetail', params: { paperId: paperId } }">
+              View Presentation
             </router-link>
           </div>
           <!-- 展示区 -->

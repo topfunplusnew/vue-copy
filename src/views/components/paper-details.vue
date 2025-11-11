@@ -35,7 +35,7 @@ type AffiliationLite = {
 const conferenceStore = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
-const activeTab = ref<TabKey>('details');
+const activeTab = ref<TabKey | 'keypoints' | 'fulltext'>('details');
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
 const paperNotFound = ref(false);
 const loading = ref(false);
@@ -78,7 +78,7 @@ watch(
   { immediate: true },
 );
 
-function switchTab(tab: TabKey) {
+function switchTab(tab: TabKey | 'keypoints' | 'fulltext') {
   activeTab.value = tab;
 }
 
@@ -88,7 +88,10 @@ function getPaperContent(): PaperDetail {
       fileUrl: paperDetail.value?.addition_files || [],
     };
   }
-  const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value)];
+  if (activeTab.value === 'keypoints' || activeTab.value === 'fulltext') {
+    return { fileUrl: '' };
+  }
+  const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value as TabKey)];
   return { fileUrl: raw };
 }
 
@@ -166,88 +169,112 @@ function getAffiliationNumber(originalId: number) {
               </div>
             </div>
             <div class="meta">
-              <div class="title">{{ paperDetail?.title }}</div>
-
-              <!-- 渲染论文作者列表以及下标 -->
-              <div class="authors">
-                <div v-if="paperDetail?.authors?.length" class="authors-list">
-                  <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
-                    {{ author.name
-                    }}<template v-if="author?.affiliations?.length"
-                      ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
-                        >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1"
-                          >,</span
-                        ></sup
-                      ></template
-                    ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
-                  </span>
+              <div class="paper-info-section">
+                <!-- 左侧：Graphical Abstract (Desktop only) -->
+                <div class="graphical-abstract-desktop" v-if="paperDetail?.graphic_abstract?.length">
+                  <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
+                    <img :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract-image" />
+                  </template>
                 </div>
-                <div v-else class="empty-state">
-                  <div class="empty-text">No authors information available</div>
+
+                <!-- 右侧：title、authors、affiliations 整体 -->
+                <div class="text-content">
+                  <div class="title">{{ paperDetail?.title }}</div>
+                  
+                  <div class="authors">
+                    <div v-if="paperDetail?.authors?.length" class="authors-list">
+                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                        {{ author.name
+                        }}<template v-if="author?.affiliations?.length"
+                          ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
+                            >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1"
+                              >,</span
+                            ></sup
+                          ></template
+                        ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
+                      </span>
+                    </div>
+                    <div v-else class="empty-state">
+                      <div class="empty-text">No authors information available</div>
+                    </div>
+                  </div>
+
+                  <div class="affiliations">
+                    <div v-if="affiliations.length" class="affiliations-list">
+                      <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
+                        <sup>{{ aff.id }}</sup
+                        >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : ''
+                        }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
+                        }}{{ aff.country ? ', ' + aff.country : '' }}
+                      </div>
+                    </div>
+                    <div v-else class="empty-state">
+                      <div class="empty-text">No affiliation information available</div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- 渲染机构列表以及下标 -->
-              <div class="affiliations">
-                <div v-if="affiliations.length" class="affiliations-list">
-                  <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                    <sup>{{ aff.id }}</sup
-                    >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : ''
-                    }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
-                    }}{{ aff.country ? ', ' + aff.country : '' }}
-                  </div>
-                </div>
-                <div v-else class="empty-state">
-                  <div class="empty-text">No affiliation information available</div>
-                </div>
+              <!-- Graphical Abstract (Mobile only) -->
+              <div class="graphical-abstract-mobile" v-if="paperDetail?.graphic_abstract?.length">
+                <div class="mobile-title">Graphical Abstract</div>
+                <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
+                  <img :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract-image-mobile" />
+                </template>
               </div>
             </div>
           </header>
 
           <!-- Tab Container -->
           <div class="tab-container">
-            <div class="left-nav">
-              <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
-              <button
-                :class="{ active: activeTab === 'video' }"
-                @click="switchTab('video')"
-                :disabled="paperDetail?.video_status !== 1"
-              >
-                Video
-              </button>
-              <button
-                :class="{ active: activeTab === 'slides' }"
-                @click="paperDetail?.slide && switchTab('slides')"
-                :disabled="paperDetail?.slide_status !== 1"
-              >
-                Slides
-              </button>
-              <button
-                :class="{ active: activeTab === 'poster' }"
-                @click="paperDetail?.poster && switchTab('poster')"
-                :disabled="paperDetail?.poster_status !== 1"
-              >
-                Poster
-              </button>
-              <button
-                :class="{ active: activeTab === 'additional' }"
-                @click="paperDetail?.addition_files.length && switchTab('additional')"
-                :disabled="!paperDetail?.addition_files.length"
-              >
-                Additional Info
-              </button>
-              <router-link
-                :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
-                v-if="paperDetail?.can_edit"
-              >
-                Edit
-              </router-link>
+            <div class="left-nav-wrapper">
+
+              <!-- Navigation Buttons -->
+              <div class="left-nav">
+                <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
+                <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
+                <button
+                  :class="{ active: activeTab === 'video' }"
+                  @click="switchTab('video')"
+                  :disabled="paperDetail?.video_status !== 1"
+                >
+                  Video
+                </button>
+                <button :class="{ active: activeTab === 'keypoints' }" @click="switchTab('keypoints')">Key Points</button>
+                <button
+                  :class="{ active: activeTab === 'slides' }"
+                  @click="paperDetail?.slide && switchTab('slides')"
+                  :disabled="paperDetail?.slide_status !== 1"
+                >
+                  Slides
+                </button>
+                <button
+                  :class="{ active: activeTab === 'poster' }"
+                  @click="paperDetail?.poster && switchTab('poster')"
+                  :disabled="paperDetail?.poster_status !== 1"
+                >
+                  Poster
+                </button>
+                <button
+                  :class="{ active: activeTab === 'additional' }"
+                  @click="paperDetail?.addition_files.length && switchTab('additional')"
+                  :disabled="!paperDetail?.addition_files.length"
+                >
+                  Additional Info
+                </button>
+                <router-link
+                  :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
+                  v-if="paperDetail?.can_edit"
+                >
+                  Edit
+                </router-link>
+              </div>
             </div>
 
             <!-- Tab Content -->
             <div class="tab-content">
               <div v-if="activeTab === 'details'" class="details-content">
-                <div class="paper-info">
+                <!-- <div class="paper-info">
                   <div class="info-section">
                     <h4>Authors</h4>
                     <div class="authors-list">
@@ -275,7 +302,7 @@ function getAffiliationNumber(originalId: number) {
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> -->
 
                 <div class="detail-item">
                   <h5>DOI</h5>
@@ -288,19 +315,24 @@ function getAffiliationNumber(originalId: number) {
                 </div>
 
                 <div class="detail-item">
-                  <h5>Graphical Abstract</h5>
-                  <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
-                    <img v-if="1" :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract" />
-                  </template>
-                </div>
-
-                <div class="detail-item">
                   <h5>Keywords</h5>
                   <div class="keywords-list">
                     <span v-for="keyword in paperDetail?.keywords" :key="keyword.order" class="keyword-tag">
                       {{ keyword.name }}
                     </span>
                   </div>
+                </div>
+              </div>
+
+              <div v-if="activeTab === 'keypoints'" class="keypoints-content">
+                <div class="empty-placeholder">
+                  <p>Key points are not available for this paper.</p>
+                </div>
+              </div>
+
+              <div v-if="activeTab === 'fulltext'" class="fulltext-content">
+                <div class="empty-placeholder">
+                  <p>Full text is not available for this paper.</p>
                 </div>
               </div>
 
