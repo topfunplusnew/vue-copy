@@ -510,14 +510,14 @@ const handlePdfPreview = () => {
             </div>
           </div>
         </div>
+        <div class="file-actions" v-if="isItemShow">
+          <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
+            Delete
+          </el-button>
+        </div>
         <div class="file-info" :class="{ 'single-file': props.limit !== -1 }">
           <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
             {{ file.name }}
-          </div>
-          <div class="file-actions" v-if="isItemShow">
-            <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
-              Delete
-            </el-button>
           </div>
         </div>
       </div>
@@ -733,6 +733,22 @@ const handlePdfPreview = () => {
   }
 }
 
+.file-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-right: 10px;
+
+  @include screen-mobile {
+    width: 100%;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    margin-right: 0;
+    margin-bottom: 8px;
+  }
+}
+
 .file-thumbnail {
   max-width: 400px;
   height: auto;
@@ -775,7 +791,7 @@ const handlePdfPreview = () => {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: flex-start;
   min-height: 36px;
 
   @include screen-mobile {
@@ -812,19 +828,6 @@ const handlePdfPreview = () => {
   }
 }
 
-.file-actions {
-  display: flex;
-  gap: 8px;
-  flex-shrink: 0;
-
-  @include screen-mobile {
-    width: 100%;
-    justify-content: flex-end;
-    align-items: flex-end;
-    flex-direction: column;
-    margin-top: 0;
-  }
-}
 
 .video-player-container {
   margin-top: 16px;
