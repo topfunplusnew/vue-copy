@@ -324,7 +324,7 @@ function getAffiliationNumber(originalId: number) {
                 </div>
               </div>
 
-              <div v-if="activeTab === 'keypoints'" class="keypoints-content">
+              <!-- <div v-if="activeTab === 'keypoints'" class="keypoints-content">
                 <div class="empty-placeholder">
                   <p>Key points are not available for this paper.</p>
                 </div>
@@ -334,7 +334,7 @@ function getAffiliationNumber(originalId: number) {
                 <div class="empty-placeholder">
                   <p>Full text is not available for this paper.</p>
                 </div>
-              </div>
+              </div> -->
 
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
