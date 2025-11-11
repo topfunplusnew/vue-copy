@@ -406,22 +406,6 @@ function getAffiliationNumber(originalId: number): number {
             <div class="conference-info">
               <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
               <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
-              <div class="conference-details">
-                <div class="detail-row">
-                  <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
-                    myPaperDetailInfo?.conference.end_time) }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-icon">📍</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
-                    myPaperDetailInfo?.conference.country }}</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-icon">🏢</span>
-                  <span class="detail-text">{{ myPaperDetailInfo?.conference.address }}</span>
-                </div>
-              </div>
             </div>
           </div>
           <div class="meta">
@@ -480,7 +464,22 @@ function getAffiliationNumber(originalId: number): number {
           <div class="meta">
             <div class="session-notice">
               <div class="session-header">
-                <div class="notice-title">Important Conference Schedule</div>
+                <div class="conference-details">
+                  <div class="detail-row">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text">{{ formatRange(myPaperDetailInfo?.conference.start_time,
+                      myPaperDetailInfo?.conference.end_time) }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-icon">📍</span>
+                    <span class="detail-text">{{ myPaperDetailInfo?.conference.city }}, {{
+                      myPaperDetailInfo?.conference.country }}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="detail-icon">🏢</span>
+                    <span class="detail-text">{{ myPaperDetailInfo?.conference.address }}</span>
+                  </div>
+                </div>
               </div>
               <div class="session-content">
                 <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
@@ -579,10 +578,11 @@ function getAffiliationNumber(originalId: number): number {
                 </div>
               </el-form-item> -->
               <div class="form-actions">
-                <el-form-item>
-                  <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button" @click="saveDetails()"> Save Details </el-button> -->
-                  <save-button @click="saveDetails()" />``
-                </el-form-item>
+
+                <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button"
+                  @click="saveDetails()"> Save Details </el-button>
+                <!-- <save-button @click="saveDetails()" /> -->
+
               </div>
             </el-form>
           </div>
@@ -968,115 +968,5 @@ function getAffiliationNumber(originalId: number): number {
 .drag-over {
   border: 2px dashed #409eff !important;
   background-color: #f0f9ff !important;
-}
-
-
-
-//keypoint
-
-.key-takeaways-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 30px 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.key-takeaways-header {
-  margin-bottom: 40px;
-}
-
-.key-takeaways-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 15px;
-  color: #2c3e50;
-  display: flex;
-  align-items: center;
-}
-
-.key-takeaways-header h2::before {
-  content: '📋';
-  margin-right: 12px;
-  font-size: 30px;
-}
-
-.key-takeaways-header p {
-  color: #7f8c8d;
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.key-points-list {
-  margin-bottom: 40px;
-}
-
-.key-point-item {
-  margin-bottom: 35px;
-}
-
-.key-point-item h3 {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #2c3e50;
-  line-height: 1.4;
-}
-
-.key-point-input {
-  width: 100%;
-  padding: 15px 20px;
-  border: 2px solid #e1e8ed;
-  border-radius: 6px;
-  font-size: 16px;
-  line-height: 1.5;
-  transition: all 0.3s ease;
-  box-sizing: border-box;
-  background-color: #ffffff;
-}
-
-.key-point-input:focus {
-  outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-.key-point-input::placeholder {
-  color: #bdc3c7;
-  font-size: 16px;
-}
-
-.save-button-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 50px;
-}
-
-.save-button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  padding: 14px 40px;
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.save-button:hover {
-  background-color: #2980b9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-
-.save-button:active {
-  background-color: #21618c;
-  transform: translateY(0);
 }
 </style>
