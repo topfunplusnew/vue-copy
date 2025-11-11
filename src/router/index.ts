@@ -143,6 +143,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: '/conference/paper/:paperId',
+      name: 'PaperDetail',
+      component: () => import('@/views/components/paper-details.vue'),
+      props: true,
+    },
+    {
       path: '/reset-password',
       name: 'ResetPassword',
       component: () => import('@/views/user/reset-password-email.vue'),

@@ -22,6 +22,13 @@ export interface IAffiliations {
     country: string;
     state?: string;
 }
+export interface IConferenceInfo {
+    id: number;
+    name: string;
+    abbreviation: string;
+    logo: string;
+}
+
 export interface IpaperDetail {//论文详情
     id: string;
     title: string;
@@ -40,6 +47,7 @@ export interface IpaperDetail {//论文详情
     video_status: number,
     is_open_access?: boolean,
     can_edit?: boolean,
+    conference?: IConferenceInfo,
 }
 export interface Ikeywords {
     id: number;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { useRouter } from 'vue-router';
 import commonHeader from '@/layout/common-header.vue';
@@ -7,37 +7,11 @@ import { useConferenceStore } from '@/stores/conference';
 import { useUserStore } from '@/stores/user';
 import { formatRange } from '@/utils/date';
 import { getImageUrl } from '@/utils';
-import type { TabKey } from '@/types/conference.ts';
-import { getFileTypeByTabKey } from '@/utils/conference.ts';
-import FileUpload from '@/components/file-upload.vue';
-import type { IpaperDetail } from '@/types/paper';
 import { addFavorite } from '@/services/conference';
 import type { IAddFavoriteRequest } from '@/services/conference/type.ts';
-import { getPaperDetail } from '@/services/api.ts';
-import type { PaperDetail } from '@/components';
 type SelectedPaperLite = { id: number; title?: string };
-type AffRaw = {
-  id: number;
-  name?: string;
-  department?: string;
-  university?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-};
-type AffiliationLite = {
-  id: number;
-  originalId: number;
-  name?: string;
-  department?: string;
-  university?: string;
-  city?: string;
-  state?: string;
-  country?: string;
-};
 const conferenceStore = useConferenceStore();
 const userStore = useUserStore();
-const isFullScreenWidth = ref(false);
 const router = useRouter();
 const props = defineProps({
   conferenceId: {
@@ -46,33 +20,8 @@ const props = defineProps({
   },
 });
 
-// 检测是否为手机端
-const checkIsMobile = () => {
-  return window.innerWidth <= 768;
-};
-
-// 更新全屏宽度状态
-const updateFullScreenWidth = () => {
-  isFullScreenWidth.value = checkIsMobile();
-};
-
-// 窗口大小变化监听器
-const handleResize = () => {
-  updateFullScreenWidth();
-};
-
 onMounted(() => {
   conferenceStore.getConferencesList();
-  // 初始化时检测
-
-  updateFullScreenWidth();
-  // 监听窗口大小变化
-  window.addEventListener('resize', handleResize);
-});
-
-onUnmounted(() => {
-  // 清理事件监听器
-  window.removeEventListener('resize', handleResize);
 });
 
 watch(
@@ -92,13 +41,6 @@ const conferenceDetail = computed(() => conferenceStore.conferenceDetail);
 const selectedConference = computed(() => conferenceDetail.value);
 
 const searchQuery = ref(''); //搜索框绑定的输入值
-const selectedPaper = ref<IpaperDetail | null>(null); //当前选中的论文对象
-const showPaperModal = ref(false); //控制论文详情弹窗是否显示
-const activeTab = ref<TabKey>('details'); //当前激活的 Tab
-// const currentPage = ref(1);//当前分页页码
-// const papersPerPage = ref(20);//每页显示论文数量（默认 12）
-
-// const filteredPapers = selectedConference.value?.papers
 
 const conferencePapers = computed(() => conferenceStore.conferencePaper);
 
@@ -157,113 +99,12 @@ function registerInterest(conferenceId: number) {
     });
 }
 
-const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
-const paperNotFound = ref(false); // 标记文章是否不存在
-const paperId = ref<number>(0);
-
-async function openPaperModal(paper: SelectedPaperLite) {
-  paperNotFound.value = false; // 重置错误状态
-  paperId.value = paper.id;
-  try {
-    const res = await getPaperDetail(paper.id + '');
-    if (res.status === 200) {
-      selectedPaper.value = res.data;
-      paperDetail.value = res.data;
-    }
-  } catch (error) {
-    // 接口报错时，设置文章不存在标志
-    paperNotFound.value = true;
-    selectedPaper.value = null;
-    paperDetail.value = {} as IpaperDetail;
-    console.error('Failed to load paper detail:', error);
-  }
-  // 无论成功还是失败都打开弹窗
-  showPaperModal.value = true;
-  activeTab.value = 'details';
-}
-
-watch(
-  () => conferenceStore.paperDetail,
-  (newVal) => {
-    if (newVal) {
-      paperDetail.value = newVal as IpaperDetail;
-    }
-  },
-  { immediate: true }, // 页面加载时同步一次
-);
-
-// const paperDetail = computed(() => conferenceStore.paperDetail);
-
-function closePaperModal() {
-  showPaperModal.value = false;
-  selectedPaper.value = null;
-  paperNotFound.value = false; // 重置错误状态
-}
-
-function switchTab(tab: TabKey) {
-  activeTab.value = tab;
-}
-
-// function getAuthorAffiliations(authorIndex: number, paper: IPaper): string {
-//   // Simple mapping: first author -> institution 1, second author -> institution 2, etc.
-//   // In a real application, this would be more complex based on actual author-institution relationships
-//   const institutionIndex = authorIndex % paper.institutions.length;
-//   return (institutionIndex + 1).toString();
-// }
-
-function getPaperContent(): PaperDetail {
-  // 当activeTab为'additional'时，直接使用addition_files
-  if (activeTab.value === 'additional') {
-    return {
-      fileUrl: paperDetail.value?.addition_files || [],
-    };
-  }
-  // 其他标签页保持原有逻辑
-  const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value)];
-  return { fileUrl: raw };
-}
-
-// 获取机构列表 - 按作者顺序合并去重并重新编号
-const affiliations = computed((): AffiliationLite[] => {
-  if (!paperDetail.value?.authors) return [];
-  const sortedAuthors = [...paperDetail.value.authors];
-  const allAffiliations: { authorId: number; originalAffiliationId: number; affiliation: AffRaw }[] = [];
-  sortedAuthors.forEach((author) => {
-    if (author.affiliations && author.affiliations.length > 0) {
-      author.affiliations.forEach((affiliation) => {
-        allAffiliations.push({
-          authorId: author.id,
-          originalAffiliationId: affiliation.id,
-          affiliation: affiliation as AffRaw,
-        });
-      });
-    }
+function openPaperModal(paper: SelectedPaperLite) {
+  // 跳转到论文详情页
+  router.push({
+    name: 'PaperDetail',
+    params: { paperId: paper.id },
   });
-  const uniqueAffiliations = new Map();
-  const affiliationList: AffiliationLite[] = [];
-  let newId = 1;
-  allAffiliations.forEach((item) => {
-    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
-      const newAffiliation = {
-        id: newId++,
-        originalId: item.originalAffiliationId,
-        name: item.affiliation.name,
-        department: item.affiliation.department,
-        university: item.affiliation.university,
-        city: item.affiliation.city,
-        state: item.affiliation.state,
-        country: item.affiliation.country,
-      };
-      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
-      affiliationList.push(newAffiliation);
-    }
-  });
-  return affiliationList;
-});
-
-function getAffiliationNumber(originalId: number) {
-  const aff = affiliations.value.find((a) => a.originalId === originalId);
-  return aff ? aff.id : 0;
 }
 
 function seachPaper() {
@@ -440,137 +281,5 @@ function formatFirstLetterUppercase(str: string): string {
         </div>
       </section>
     </section>
-
-    <!-- Paper Detail Modal using Element Plus Dialog -->
-    <el-dialog v-model="showPaperModal" :title="paperDetail?.title || selectedPaper?.title || '论文详情'" width="80%"
-      :before-close="closePaperModal" class="paper-detail-dialog"
-      :style="{ '--el-dialog-width': isFullScreenWidth ? '100%' : '80%' }" :modal="true"
-      modal-class="paper-modal-overlay" :close-on-click-modal="false">
-      <!-- 文章不存在时的错误提示 -->
-      <div v-if="paperNotFound" class="paper-not-found">
-        <div class="not-found-icon">📄</div>
-        <div class="not-found-title">The paper does not exist</div>
-        <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or
-          the ID
-          is incorrect.</div>
-      </div>
-
-      <!-- 正常显示文章详情 -->
-      <template v-else>
-        <div class="tab-container">
-          <div class="tab-navigation">
-            <button :class="['tab-btn', { active: activeTab === 'details' }]"
-              @click="switchTab('details')">Details</button>
-            <button :class="['tab-btn', { active: activeTab === 'video' }]" @click="switchTab('video')"
-              :disabled="selectedPaper?.video_status !== 1">Video</button>
-            <button :class="['tab-btn', { active: activeTab === 'slides' }]"
-              @click="selectedPaper?.slide && switchTab('slides')"
-              :disabled="selectedPaper?.slide_status !== 1">Slides</button>
-            <button :class="['tab-btn', { active: activeTab === 'poster' }]"
-              @click="selectedPaper?.poster && switchTab('poster')"
-              :disabled="selectedPaper?.poster_status !== 1">Poster</button>
-            <button
-              :class="['tab-btn', { active: activeTab === 'additional', disabled: !selectedPaper?.addition_files.length }]"
-              @click="selectedPaper?.addition_files.length && switchTab('additional')"
-              :disabled="!selectedPaper?.addition_files.length">
-              Additional Info
-            </button>
-            <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" class="tab-btn"
-              v-if="selectedPaper?.can_edit">Edit </router-link>
-          </div>
-
-          <div class="tab-content">
-            <div v-if="activeTab === 'details'" class="details-content">
-              <div class="paper-info">
-                <div class="info-section">
-                  <h4>Authors</h4>
-                  <div class="authors-list">
-                    <span v-for="(author, authorIndex) in selectedPaper?.authors" :key="authorIndex"
-                      class="author-name">
-                      {{ author.name
-                      }}<template v-if="author?.affiliations?.length"><sup v-for="(aff, affIdx) in author.affiliations"
-                          :key="affIdx">{{ getAffiliationNumber(aff.id) }}<span
-                            v-if="affIdx < author.affiliations.length - 1">,</span></sup></template><span>
-                        {{ authorIndex < (selectedPaper?.authors.length || 0) - 1 ? ',' : '' }} </span>
-                      </span>
-                  </div>
-                </div>
-
-                <div class="info-section">
-                  <h4>Affiliations</h4>
-                  <div class="affiliations-list">
-                    <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                      <span class="affiliation-number"><sup>{{ aff.id }}</sup></span>{{ aff.university || aff.name }}{{
-                        aff.department
-                          ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' +
-                        aff.state : ''
-                      }}{{ aff.country ? ', ' + aff.country : '' }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="detail-item">
-                <h5>DOI</h5>
-                <p>{{ selectedPaper?.doi }}</p>
-              </div>
-              <div class="detail-item">
-                <h5>Abstract</h5>
-                <!-- <p>{{ selectedPaper?.abstract }}</p> -->
-                <latex-content :latex="selectedPaper?.abstract" />
-              </div>
-              <div class="detail-item">
-                <h5>Graphical Abstract</h5>
-                <template v-for="graphical in selectedPaper?.graphic_abstract" :key="graphical">
-                  <img v-if="1" :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract" />
-                </template>
-              </div>
-              <div class="detail-item">
-                <h5>Keywords</h5>
-                <div class="keywords-list">
-                  <span v-for="keyword in selectedPaper?.keywords" :key="keyword.order" class="keyword-tag">
-                    {{ keyword.name }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="activeTab === 'video'" class="videos-content">
-              <template v-if="selectedPaper?.video_status === 1">
-                <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
-                  :limit="1" :is-show="false" :is-file-list-show-config="{
-                    [activeTab]: false,
-                  }" />
-              </template>
-              <div v-else class="access-restricted">
-                <p>Video content is only available to open access.</p>
-              </div>
-            </div>
-
-            <div v-if="activeTab === 'slides'" class="slides-content">
-              <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
-                :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
-                  [activeTab]: false,
-                }" />
-            </div>
-
-            <div v-if="activeTab === 'poster'" class="poster-content">
-              <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id || 0" :paper-detail="getPaperContent()"
-                :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
-                  [activeTab]: false,
-                }" />
-            </div>
-
-            <div v-if="activeTab === 'additional'" class="additional-content">
-              <template v-if="selectedPaper?.addition_files">
-                <!-- <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="paperContent"
-                class="additional-iframe" :limit="-1" :is-show="false" /> -->
-                <FileUpload :tab-key="activeTab" :paper-id="selectedPaper?.id" :paper-detail="getPaperContent()"
-                  :limit="-1" :is-show="false" class="additional-iframe" />
-              </template>
-            </div>
-          </div>
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
