@@ -51,6 +51,8 @@
       padding-right: 20px;
       border-right: 1px solid rgba(99, 102, 241, 0.15);
       position: relative;
+      min-width: 0;
+      flex-shrink: 0;
 
       @include screen-mobile {
         width: 100%;
@@ -67,6 +69,7 @@
 
       button,
       a {
+        display: inline-block;
         position: relative;
         text-decoration: none;
         text-align: center;
@@ -135,6 +138,60 @@
 
         &:active {
           transform: translateY(0);
+        }
+      }
+
+      .copyright-note {
+        margin-top: 16px;
+        padding: 12px;
+        border-top: 2px solid rgba(234, 88, 12, 0.2);
+        background: rgba(254, 243, 199, 0.3);
+        border-radius: 8px;
+        width: 0;
+        min-width: 100%;
+        max-width: 100%;
+        flex-basis: 100%;
+        flex-shrink: 1;
+        box-sizing: border-box;
+
+        @include screen-mobile {
+          margin-top: 12px;
+          padding: 10px;
+          flex-basis: 100%;
+          width: 100%;
+          min-width: 100%;
+        }
+
+        .note-title {
+          font-size: rpx(18);
+          font-weight: 800;
+          color: #1e293b;
+          margin-bottom: 10px;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          letter-spacing: 0.3px;
+
+          @include screen-mobile {
+            font-size: rpx(20);
+          }
+        }
+
+        .note-content {
+          font-size: rpx(15);
+          line-height: 1.7;
+          color: #1e293b;
+          font-weight: 500;
+          text-align: justify;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-word;
+          hyphens: auto;
+          white-space: normal;
+
+          @include screen-mobile {
+            font-size: rpx(16);
+            text-align: left;
+          }
         }
       }
     }

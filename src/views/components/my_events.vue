@@ -528,6 +528,14 @@ function getAffiliationNumber(originalId: number): number {
             <router-link :to="{ name: 'PaperDetail', params: { paperId: paperId } }">
               View Presentation
             </router-link>
+            <div class="copyright-note">
+              <div class="note-title">⚠️ Note</div>
+              <div class="note-content">
+                Please do not upload any copyrighted content if you do not own the rights to such content or do not have written permission from the copyright owners. 
+              </div><div class="note-content">
+                Additionally, please do not include any depictions or other personal data of individuals unless you have their explicit written permission to do so.
+              </div>
+            </div>
           </div>
           <!-- 展示区 -->
           <div v-if="activeTab === 'details'" class="tab-content">
