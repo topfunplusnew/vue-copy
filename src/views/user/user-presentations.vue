@@ -52,6 +52,7 @@ const loadHistories = async (params?: GetPaperViewHistoryParams) => {
   loading.value = true;
   try {
     const response = await getPaperViewHistory(params);
+    console.log(`res`, response);
     if (response.data) {
       histories.value = response.data.histories || [];
       pagination.value = {
@@ -132,7 +133,7 @@ const formatAuthors = (authors: Array<{ name: string }>) => {
       <el-table-column label="Thumbnail" width="120" align="center">
         <template #default="{ row }">
           <div class="thumbnail-cell">
-            <img :src="getImageUrl(row.paper.conference.logo)" :alt="row.paper.conference?.abbreviation || row.paper.title" class="thumbnail-img" />
+            <img :src="getImageUrl(row.paper?.conference?.logo)" :alt="row.paper?.conference?.abbreviation || row.paper.title" class="thumbnail-img" />
           </div>
         </template>
       </el-table-column>
