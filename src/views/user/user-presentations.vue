@@ -94,24 +94,6 @@ onMounted(() => {
   loadHistories();
 });
 
-// 格式化时间显示（如 "8 minutes ago"）
-const formatTimeAgo = (dateString: string) => {
-  const now = new Date();
-  const viewDate = new Date(dateString);
-  const diffMs = now.getTime() - viewDate.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-
-  // 超过7天显示具体日期
-  return viewDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: viewDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
-};
-
 // 格式化作者显示
 const formatAuthors = (authors: Array<{ name: string }>) => {
   if (!authors || authors.length === 0) return '';
@@ -120,6 +102,21 @@ const formatAuthors = (authors: Array<{ name: string }>) => {
     return authors.map((a) => a.name).join(', ');
   }
   return `${authors[0].name} et al.`;
+};
+
+// 格式化查看时长（view_duration 现在是时间戳，计算与当前时间的差值）
+const formatViewDuration = (viewTimestamp: number | null) => {
+  if (!viewTimestamp) return '0小时之前';
+
+  const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
+  const diffSeconds = now - viewTimestamp;
+  const diffHours = Math.floor(diffSeconds / 3600);
+
+  if (diffHours < 1) {
+    return '1小时之前';
+  }
+
+  return `${diffHours}小时之前`;
 };
 </script>
 
@@ -130,10 +127,14 @@ const formatAuthors = (authors: Array<{ name: string }>) => {
     </div>
 
     <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
-      <el-table-column label="Thumbnail" width="120" align="center">
+      <el-table-column width="120" align="center">
         <template #default="{ row }">
           <div class="thumbnail-cell">
-            <img :src="getImageUrl(row.paper?.conference?.logo)" :alt="row.paper?.conference?.abbreviation || row.paper.title" class="thumbnail-img" />
+            <img
+              :src="row.paper?.conference?.logo ? getImageUrl(row.paper.conference.logo) : 'https://via.placeholder.com/50x50/627180/ffffff?text=Paper'"
+              :alt="row.paper?.conference?.abbreviation || row.paper.title"
+              class="thumbnail-img"
+            />
           </div>
         </template>
       </el-table-column>
@@ -144,15 +145,9 @@ const formatAuthors = (authors: Array<{ name: string }>) => {
         </template>
       </el-table-column>
 
-      <el-table-column label="Time" width="150">
+      <el-table-column label="Duration" width="150" align="center">
         <template #default="{ row }">
-          <div class="time-cell">{{ formatTimeAgo(row.created_at) }}</div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="Duration" width="100" align="center">
-        <template #default="{ row }">
-          <div class="duration-cell">{{ row.view_duration || 0 }}</div>
+          <div class="duration-cell">{{ formatViewDuration(row.view_duration) }}</div>
         </template>
       </el-table-column>
 
