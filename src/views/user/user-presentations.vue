@@ -294,4 +294,66 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 :deep(.el-pagination .el-select .el-input__inner) {
   color: #1a3566;
 }
+
+/* 移动端响应式样式 */
+@media (max-width: 768px) {
+  .presentations-area {
+    padding: 10px;
+  }
+
+  .presentations-header h2 {
+    font-size: 20px;
+  }
+
+  /* 表格在移动端优化 */
+  :deep(.el-table) {
+    font-size: 12px;
+  }
+
+  :deep(.el-table th),
+  :deep(.el-table td) {
+    padding: 8px 4px;
+  }
+
+  /* 标题单元格在移动端调整 */
+  .title-cell {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  /* 作者和会议单元格在移动端调整 */
+  .authors-cell,
+  .venue-cell {
+    font-size: 12px;
+  }
+
+  /* 缩略图在移动端缩小 */
+  .thumbnail-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* 分页在移动端居中 */
+  .pagination-container {
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  /* 分页组件在移动端优化 */
+  :deep(.el-pagination) {
+    font-size: 12px;
+  }
+
+  :deep(.el-pagination .el-pager li) {
+    min-width: 28px;
+    height: 28px;
+    line-height: 28px;
+    font-size: 12px;
+  }
+
+  :deep(.el-pagination button) {
+    width: 28px;
+    height: 28px;
+  }
+}
 </style>

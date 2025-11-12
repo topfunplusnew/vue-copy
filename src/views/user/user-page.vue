@@ -469,4 +469,40 @@ const isActiveRoute = (routeName: string) => {
   display: flex;
   flex-direction: column;
 }
+
+/* 移动端响应式样式 */
+@media (max-width: 768px) {
+  /* 用户菜单在移动端横向排列 */
+  .user-menu {
+    flex-direction: row;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center;
+  }
+
+  .menu-item {
+    flex: 1;
+    text-align: center;
+    padding: 10px 12px;
+    font-size: 16px;
+  }
+
+  /* 确保侧边栏在移动端占满宽度 */
+  .sidebar {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 主内容区域在移动端垂直布局 */
+  .main-content {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* 内容区域在移动端占满宽度 */
+  .content-area {
+    width: 100%;
+    padding: 0 10px;
+  }
+}
 </style>
