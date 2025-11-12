@@ -1,4 +1,5 @@
 import { http } from '../http';
+import type { GetPaperViewHistoryParams, AddPaperViewHistoryData } from './type';
 
 /**
  * 获取忘记密码验证码
@@ -42,6 +43,33 @@ export const resetPassword = (data: { reset_token: string; email: string; passwo
   http.request({
     method: 'POST',
     url: '/user/forget-password/reset',
+    data,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+/**
+ * 查询当前用户的论文查看历史
+ * @param params 查询参数
+ * @returns Promise
+ */
+export const getPaperViewHistory = (params?: GetPaperViewHistoryParams) =>
+  http.request({
+    method: 'GET',
+    url: '/paper/view-history',
+    params,
+  });
+
+/**
+ * 新增论文查看历史
+ * @param data 查看历史数据
+ * @returns Promise
+ */
+export const addPaperViewHistory = (data: AddPaperViewHistoryData) =>
+  http.request({
+    method: 'POST',
+    url: '/paper/view-history',
     data,
     headers: {
       'Content-Type': 'application/json',

@@ -1,28 +1,24 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed, nextTick, watch } from 'vue';
+import { ref, reactive, onMounted, computed, nextTick } from 'vue';
 import { VueCropper } from 'vue-cropper';
 import 'vue-cropper/dist/index.css';
 import { useUserStore } from '@/stores/user';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { getImageUrl } from '@/utils';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
-import type { IBlogComment } from '@/types/blog';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
-import type { IBlog } from '@/types/blog';
 import commonHeader from '@/layout/common-header.vue';
-import { useBlogStore } from '@/stores/blog';
 
-const selectedBlog = ref<IBlog | null>(null); // 当前选中的博客详情
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
   store.clearSelectedPost();
   document.body.style.overflow = '';
 };
 const store = useUserStore();
-const blogStore = useBlogStore();
 const router = useRouter();
+const route = useRoute();
 
 // const userProfile = computed(() => store.user); // user改成这种用法
 
@@ -38,7 +34,10 @@ onMounted(() => {
     editForm.name = data.name;
     editForm.avatar = data.avatar;
   });
-  store.getUserBlogList(true);
+  // 如果当前路由是 blogs，加载博客列表
+  if (route.name === 'userpage-blogs') {
+    store.getUserBlogList(true);
+  }
 });
 
 // 添加登出处理函数
@@ -57,44 +56,7 @@ function onUpload() {
   if (uploadfile.value) uploadfile.value.click();
 }
 
-// const totalLikes = computed(() => posts.value.reduce((sum, post) => sum + post.likes, 0));
-
-const postsContainer = ref<HTMLElement | null>(null);
-
-// 用户博客数据
-const userPosts = computed(() => store.blogs);
-
-// 收藏状态管理 - 使用 Map 存储每个博客的收藏状态
-const collectionStatusMap = ref<Map<number, boolean>>(new Map());
-
 const isFollowing = ref(false);
-
-const showBlogDetail = (id?: number) => {
-  if (!id) return;
-  store.getUserBlogByID(id).then(() => {
-    if (selectedBlog.value?.user.id)
-      store.isFollowing(selectedBlog.value?.user.id).then(({ data }) => {
-        isFollowing.value = data as boolean;
-      });
-    document.body.style.overflow = 'hidden';
-  });
-};
-
-function gotoEidtPage(id?: number) {
-  if (!id) return;
-  router.push({
-    name: 'PostView',
-    params: { id },
-  });
-}
-
-function handleScroll() {
-  const container = postsContainer.value;
-  if (!container) return;
-  if (container.scrollTop + container.clientHeight >= container.scrollHeight - 100) {
-    // loadPosts();
-  }
-}
 
 // 头像裁剪相关
 const showCropper = ref(false);
@@ -203,210 +165,6 @@ const isWalletConnected = computed(() => {
   return false;
 });
 
-// 添加编辑模式状态
-const isEditMode = ref(false);
-const selectedBlogId = ref<number | null>(null);
-
-// 搜索功能相关
-const searchKeyword = ref('');
-const originalPosts = ref(); // 保存原始博客列表
-
-// 切换编辑模式
-const toggleEditMode = () => {
-  isEditMode.value = !isEditMode.value;
-  if (!isEditMode.value) {
-    selectedBlogId.value = null;
-  }
-};
-
-// 搜索功能处理
-const handleSearch = () => {
-  const keyword = searchKeyword.value.toLowerCase().trim();
-
-  if (!keyword) {
-    // 如果搜索框为空，显示所有博客
-    return;
-  }
-
-  // 这里可以调用store的搜索方法或者前端过滤
-  // 例如：store.searchUserBlogs(keyword);
-  console.log('搜索关键词:', keyword);
-};
-
-// 删除博客
-const deleteBlog = async (blogId?: number) => {
-  if (!blogId) return;
-  try {
-    await ElMessageBox.confirm('Are you sure you want to delete this blog post?', 'Warning', {
-      confirmButtonText: 'Delete',
-      cancelButtonText: 'Cancel',
-      type: 'warning',
-    });
-
-    await store.delUserBlogByID(blogId);
-    ElMessage.success('Blog deleted successfully');
-    store.getUserBlogList(true); // 刷新博客列表
-  } catch (error) {
-    if (error !== 'cancel') {
-      ElMessage.error('Failed to delete blog');
-    }
-  }
-};
-
-// 编辑博客
-
-// 评论功能
-const newComment = ref('');
-
-const submitComment = async () => {
-  if (!newComment.value.trim()) return;
-  if (!selectedBlog.value?.id) return;
-
-  // 用户已登录不用检查登录状态
-  store
-    .commenttoBlog(selectedBlog.value?.id, newComment.value)
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((e) => {
-      console.log(e);
-    })
-    .finally(() => {
-      // 清空输入
-      newComment.value = '';
-      if (selectedBlog.value?.id) store.getUserBlogByID(selectedBlog.value?.id);
-
-      // 滚动到新评论
-      nextTick(() => {
-        scrollToComments();
-      });
-    });
-
-  // 模拟添加评论
-  ElMessage({
-    message: 'Comment submitted successfully!',
-    type: 'success',
-  });
-
-  newComment.value = '';
-};
-
-// 评论相关的状态
-
-// 评论长按删除功能
-const longPressTimeout = ref();
-const longPressDuration = 800; // 长按时间阈值，单位为毫秒
-const activeComment = ref();
-
-// 长按开始处理函数
-const handleTouchStart = (comment: IBlogComment) => {
-  console.log(comment);
-  // 检查是否是当前用户的评论
-  const currentUser = store.user;
-
-  // 如果不是当前用户的评论，不允许删除
-  if (!comment || !currentUser || comment.user.id !== currentUser.id) {
-    return;
-  }
-
-  longPressTimeout.value = setTimeout(() => {
-    activeComment.value = comment.id;
-  }, longPressDuration);
-};
-
-// 长按结束处理函数
-const handleTouchEnd = () => {
-  if (longPressTimeout.value) {
-    clearTimeout(longPressTimeout.value);
-    longPressTimeout.value = null;
-  }
-};
-
-// 移动时取消长按
-const handleTouchMove = () => {
-  if (longPressTimeout.value) {
-    clearTimeout(longPressTimeout.value);
-    longPressTimeout.value = null;
-  }
-};
-
-// 确认删除评论
-const confirmDeleteComment = async (commentId?: number) => {
-  if (!commentId) return;
-  try {
-    // 调用删除评论API
-    await store.userDeleteComment(commentId);
-
-    // 刷新博客数据以更新评论列表
-    if (selectedBlog.value?.id) {
-      await store.getUserBlogByID(selectedBlog.value.id);
-    }
-
-    ElMessage.success('Comment deleted successfully');
-  } catch (error) {
-    console.error('Failed to delete comment:', error);
-    ElMessage.error('Failed to delete comment');
-  } finally {
-    activeComment.value = undefined;
-  }
-};
-
-// 取消删除操作
-const cancelDeleteComment = () => {
-  activeComment.value = undefined;
-};
-// const activeCommentId = ref<number | null>(null);
-const replyContent = ref('');
-const isSubmittingReply = ref(false);
-// 展开回复相关的状态
-
-// 添加回复目标状态
-const replyTarget = ref<{ id: number; type: string; parentId?: number } | null>(null);
-
-// 切换回复输入框显示状态
-const toggleReplyInput = (id: number | undefined, type: string = 'comment', parentId?: number) => {
-  if (!id) return;
-  // 如果当前已经是在回复这个评论/回复，则关闭回复框
-  if (replyTarget.value && replyTarget.value.id === id && replyTarget.value.type === type) {
-    replyTarget.value = null;
-    replyContent.value = '';
-  } else {
-    // 否则打开回复框
-    if (type === 'reply' && !parentId) {
-      console.error('回复需要提供父评论ID');
-      return;
-    }
-
-    replyTarget.value = {
-      id,
-      type,
-      parentId,
-    };
-
-    // 添加延迟滚动到回复框，确保DOM已更新
-    nextTick(() => {
-      // 滚动到回复框
-      const replyInputContainer = document.querySelector('.reply-input-container-home');
-      if (replyInputContainer) {
-        replyInputContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
-
-    replyContent.value = '';
-  }
-};
-
-function scrollToComments() {
-  const commentsSection = document.querySelector('.comments-container') as HTMLElement;
-  const detailRight = document.querySelector('.detail-right');
-
-  if (commentsSection && detailRight) {
-    detailRight.scrollTo({
-      top: commentsSection.offsetTop - 20,
-      behavior: 'smooth',
-    });
-  }
-}
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
@@ -456,50 +214,21 @@ function toggleFollowUser(follower: IUser) {
   });
 }
 
-// 添加导航菜单状态管理
-const menuActive = ref(false);
+// 路由菜单
+const menuItems = [
+  { name: 'Blogs', route: 'userpage-blogs' },
+  { name: 'Presentations', route: 'userpage-presentations' },
+];
 
-// 切换菜单显示
-const toggleMenu = () => {
-  menuActive.value = !menuActive.value;
+// 导航到指定路由
+const navigateTo = (routeName: string) => {
+  router.push({ name: routeName });
 };
 
-// 检查收藏状态
-const checkCollectionStatus = async (blogId: number) => {
-  if (!blogId || !store.isLogin()) {
-    collectionStatusMap.value.set(blogId, false);
-    return;
-  }
-
-  try {
-    const response = await blogStore.checkUserLike(blogId);
-    collectionStatusMap.value.set(blogId, response.is_collected);
-  } catch (error) {
-    console.error('Failed to check collection status:', error);
-    collectionStatusMap.value.set(blogId, false);
-  }
+// 检查当前激活的路由
+const isActiveRoute = (routeName: string) => {
+  return route.name === routeName;
 };
-
-// 获取博客的收藏状态
-const isCollected = (blogId: number | undefined): boolean => {
-  if (!blogId) return false;
-  return collectionStatusMap.value.get(blogId) || false;
-};
-
-// 监听博客列表变化，检查收藏状态
-watch(
-  () => userPosts.value.items,
-  (newItems) => {
-    if (newItems && newItems.length > 0 && store.isLogin()) {
-      for (const blog of newItems) {
-        if (blog.id && !collectionStatusMap.value.has(blog.id)) {
-          checkCollectionStatus(blog.id);
-        }
-      }
-    }
-  },
-  { immediate: true, deep: true },
-);
 </script>
 
 <template>
@@ -555,10 +284,19 @@ watch(
                   <span class="link-text">Followers</span>
                 </span>
               </div>
+            </div>
 
-              <!-- <div class="additional-buttons">
-
-              </div> -->
+            <!-- 二级路由菜单 -->
+            <div class="user-menu">
+              <div
+                v-for="item in menuItems"
+                :key="item.route"
+                class="menu-item"
+                :class="{ active: isActiveRoute(item.route) }"
+                @click="navigateTo(item.route)"
+              >
+                {{ item.name }}
+              </div>
             </div>
           </div>
         </aside>
@@ -566,73 +304,10 @@ watch(
         <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
         <div class="vertical-divider-us"></div>
 
-        <!-- 右侧博客列表区，填满剩余宽度 -->
-        <section class="blog-area" ref="postsContainer" @scroll="handleScroll">
-          <!-- 博客区域顶部操作栏 -->
-          <div class="blog-area-header">
-            <!-- 搜索框 -->
-            <input class="blog-search-input" type="text" placeholder="Search your blog" v-model="searchKeyword" @input="handleSearch" />
-            <!-- 编辑按钮 -->
-            <el-button class="edit-mode-btn" :type="isEditMode ? 'primary' : 'default'" @click="toggleEditMode">
-              {{ isEditMode ? 'Done' : 'EDIT BLOG' }}
-            </el-button>
-          </div>
-
-          <div class="blog-posts">
-            <div
-              v-for="post in userPosts.items"
-              :key="post.id"
-              class="blog-post"
-              :class="{
-                'nft-post': post.isNFT,
-                'edit-mode': isEditMode,
-              }"
-              @click="isEditMode ? null : showBlogDetail(post.id)"
-            >
-              <!-- 编辑模式下的操作按钮 -->
-              <div v-if="isEditMode" class="blog-action-buttons">
-                <el-button type="danger" class="delete-blog-btn" @click.prevent.stop="deleteBlog(post.id)"> Delete </el-button>
-                <el-button type="primary" class="edit-blog-btn" @click.prevent.stop="gotoEidtPage(post.id)"> Edit </el-button>
-              </div>
-
-              <!-- 原有的博客内容 -->
-              <!-- 使用 el-carousel 代替单张图片显示 -->
-              <el-carousel v-if="post.files && post.files.length > 0" :interval="3000" arrow="hover" height="200px" class="post-carousel" :touchable="true" :loop="true" :autoplay="false">
-                <el-carousel-item v-for="(img, index) in post.files" :key="index">
-                  <img :src="getImageUrl(img)" alt="Blog Image" class="post-image" />
-                </el-carousel-item>
-              </el-carousel>
-
-              <!-- 博客内容 -->
-              <div class="post-content-userpage">
-                <h2 class="post-title-userpage">{{ post.title }}</h2>
-                <p class="post-text-userpage">{{ post.content }}</p>
-              </div>
-
-              <!-- 博客底部信息 -->
-              <div class="post-footer-userpage">
-                <!-- 作者信息 -->
-                <div class="author-info">
-                  <img v-if="post.user?.avatar" :src="getImageUrl(post.user.avatar)" alt="Avatar" class="post-avatar" />
-                  <span class="author-name">{{ post.user?.name }}</span>
-                </div>
-
-                <!-- 统计信息 -->
-                <div class="post-stats">
-                  <span class="collect" :class="{ collected: isCollected(post.id) }">
-                    <span class="star-icon">{{ isCollected(post.id) ? '⭐' : '☆' }}</span>
-                    <span class="collect-text">{{ isCollected(post.id) ? 'collected' : 'collect' }}</span>
-                  </span>
-                  <span class="comments">💬 {{ post.comments_count }}</span>
-                  <span class="coins" v-if="post.isNFT">₿ {{ post.coins }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- 底部加载提示 -->
-          <div v-if="userPosts.loading" class="loading">Loading more posts...</div>
-          <div v-if="!userPosts.has_next" class="no-more">No more posts</div>
-        </section>
+        <!-- 右侧内容区，使用 router-view 显示子路由 -->
+        <div class="content-area">
+          <router-view />
+        </div>
       </section>
 
       <!-- 裁剪弹窗 -->
@@ -757,3 +432,41 @@ watch(
     </div>
   </div>
 </template>
+
+<style scoped>
+/* 用户菜单样式 */
+.user-menu {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+  color: #666;
+  font-size: 20px;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+.menu-item.active {
+  background-color: #627180;
+  color: #fff;
+  font-weight: 500;
+}
+
+/* 内容区域样式 */
+.content-area {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+</style>
