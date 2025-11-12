@@ -10,6 +10,7 @@ import { getImageUrl } from '@/utils';
 import { updateMyPaperDetail } from '@/services/api';
 //, searchKeywords as searchKeywordsAPI
 import FileUpload from '@/components/file-upload.vue';
+import { addPaperViewHistory } from '@/services/user';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 // import { useDragSort } from '@/hooks/useDragSort';
@@ -25,9 +26,35 @@ const myPaperDetailInfo = computed(() => store.myPaperDetail);
 
 // 静态常量
 const MAX_KEYWORDS = 6;
+
+// 记录论文浏览历史
+const recordViewHistory = async (id: number) => {
+  try {
+    await addPaperViewHistory({
+      paper_id: id,
+      view_type: 'detail',
+    });
+  } catch (error) {
+    // 静默失败，不影响页面展示
+    console.error('Failed to record view history:', error);
+  }
+};
+
 onMounted(async () => {
   await store.getMyPaper(paperId.value);
+  // 记录浏览历史
+  recordViewHistory(paperId.value);
 });
+
+// 监听 paperId 变化，当路由参数变化时重新记录
+watch(
+  () => paperId.value,
+  (newId) => {
+    if (newId) {
+      recordViewHistory(newId);
+    }
+  }
+);
 // 创建基于myPaperDetailInfo的reactive表单对象
 const keywords = ref<Array<{ name: string; id: number; order: number }>>([]);
 const formData = reactive({

@@ -97,8 +97,20 @@ const router = createRouter({
     {
       path: '/userpage',
       name: 'userpage',
-      // redirect: '/invitation',
       component: () => import('@/views/user/user-page.vue'),
+      redirect: '/userpage/blogs',
+      children: [
+        {
+          path: 'blogs',
+          name: 'userpage-blogs',
+          component: () => import('@/views/user/user-blogs.vue'),
+        },
+        {
+          path: 'presentations',
+          name: 'userpage-presentations',
+          component: () => import('@/views/user/user-presentations.vue'),
+        },
+      ],
     },
     {
       path: '/userpage/:id',

@@ -10,6 +10,7 @@ import FileUpload from '@/components/file-upload.vue';
 import type { IpaperDetail } from '@/types/paper';
 import { getPaperDetail } from '@/services/api.ts';
 import type { PaperDetail } from '@/components';
+import { addPaperViewHistory } from '@/services/user';
 
 type AffRaw = {
   id: number;
@@ -51,12 +52,27 @@ const handleResize = () => {
   isMobile.value = checkIsMobile();
 };
 
+// 记录论文浏览历史
+const recordViewHistory = async (id: number) => {
+  try {
+    await addPaperViewHistory({
+      paper_id: id,
+      view_type: 'detail',
+    });
+  } catch (error) {
+    // 静默失败，不影响页面展示
+    console.error('Failed to record view history:', error);
+  }
+};
+
 onMounted(async () => {
   loading.value = true;
   try {
     const res = await getPaperDetail(paperId.value + '');
     if (res.status === 200) {
       paperDetail.value = res.data;
+      // 记录浏览历史
+      recordViewHistory(paperId.value);
     }
   } catch (error) {
     paperNotFound.value = true;
@@ -67,6 +83,16 @@ onMounted(async () => {
 
   window.addEventListener('resize', handleResize);
 });
+
+// 监听 paperId 变化，当路由参数变化时重新记录
+watch(
+  () => paperId.value,
+  (newId) => {
+    if (newId) {
+      recordViewHistory(newId);
+    }
+  }
+);
 
 watch(
   () => conferenceStore.paperDetail,
