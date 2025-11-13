@@ -340,14 +340,6 @@ function getAffiliationNumber(originalId: number) {
                   <latex-content :latex="paperDetail?.abstract" />
                 </div>
 
-                <div class="detail-item">
-                  <h5>Keywords</h5>
-                  <div class="keywords-list">
-                    <span v-for="keyword in paperDetail?.keywords" :key="keyword.order" class="keyword-tag">
-                      {{ keyword.name }}
-                    </span>
-                  </div>
-                </div>
               </div>
 
               <!-- <div v-if="activeTab === 'keypoints'" class="keypoints-content">
