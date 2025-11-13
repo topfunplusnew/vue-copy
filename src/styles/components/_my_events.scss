@@ -14,7 +14,10 @@
     display: flex;
     gap: 20px;
     width: 100%;
-    max-width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+    box-sizing: border-box;
 
     @include screen-mobile {
       flex-direction: column;
@@ -672,7 +675,7 @@
           }
 
           label {
-            font-size: rpx(22);
+            font-size: 22px;
             font-weight: 600;
             color: #334155;
             line-height: 1.5;
@@ -689,15 +692,20 @@
             padding: 10px 12px;
             box-sizing: border-box;
             width: 100%;
+            font-size: 16px;
+            line-height: 1.6;
 
             @include screen-mobile {
               text-align: left;
               width: 100%;
               max-width: none;
+              font-size: 14px;
             }
           }
 
           textarea {
+            line-height: 1.8;
+
             @include screen-mobile {
               min-height: 150px;
             }

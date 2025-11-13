@@ -759,13 +759,23 @@ function getAffiliationNumber(originalId: number): number {
 
 // 统一所有 form-item label 的样式
 :deep(.el-form-item__label) {
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 600;
   color: #334155;
   line-height: 1.5;
 
   @include screen-mobile {
     font-size: 13px;
+  }
+}
+
+// Abstract 内容字体大小
+:deep(.latex-content) {
+  font-size: 16px;
+  line-height: 1.8;
+
+  @include screen-mobile {
+    font-size: 14px;
   }
 }
 
