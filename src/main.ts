@@ -11,7 +11,6 @@ import 'element-plus/theme-chalk/el-message-box.css';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import dayjs from 'dayjs';
-import "../src/services/mock";
 const app = createApp(App);
 
 // dayjs使用插件

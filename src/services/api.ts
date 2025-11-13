@@ -249,4 +249,8 @@ export const cancelCollection = (blogId: number | string) =>
   });
 
 //获取note数据
-export const getMyNote = () => http.get('/notes');
+// export const getMyNote = () => http.get('/notes');
+export const getMyNote = () =>
+  http.get("/api/notes", {
+    baseURL: "https://m1.apifoxmock.com/m1/6157155-5849182-default",
+  });
