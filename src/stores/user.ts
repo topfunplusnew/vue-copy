@@ -3,11 +3,13 @@ import { defineStore } from 'pinia';
 import { userLogin, userProfile, accountActivate, userModify, userLogout, uploadAvatar,
   getMyBlogList, getBlogPost, myblogdelete, userSignup, googleAuthorize,
   comment2Blog,comment2Comment,commentDel,comments,
-  myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth, joinWaitlist } from '@/services/api';
+  myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth, joinWaitlist, 
+  getMyNote} from '@/services/api';
 import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
 import { auth } from '@/services/http';
+import type { INote } from '@/types/note';
 
 export const useUserStore = defineStore('user', () => {
   // 状态
@@ -16,7 +18,17 @@ export const useUserStore = defineStore('user', () => {
   const selectedPost = ref<IBlog>();
   const followings = ref<IUser[]>([]);
   const followers = ref<IUser[]>([]);
+  const notes = ref<INote[]>([]);
 
+/* 
+ * 获取用户note列表
+*/
+  function getMyNoteList() {
+    return getMyNote().then((res) => {
+      notes.value = res.data.data;
+      return res;
+    });
+  }
 
   /**
    * 登录
@@ -39,6 +51,7 @@ export const useUserStore = defineStore('user', () => {
   function isLogin() {
     return auth.get() && user.value;
   }
+
   function oauth(token:string, platform:string='google') {
     if(platform=='google'){
       return googleAuthorize(token)
@@ -262,6 +275,7 @@ function joinWait(message:string) {
 
   return {
     // 状态
+    notes,
     user,
     blogs,
     selectedPost,
@@ -294,6 +308,7 @@ function joinWait(message:string) {
     getComments,
     collapseComments,
     clearSelectedPost,
-    signup
+    signup,
+    getMyNoteList
   };
 });

@@ -247,3 +247,6 @@ export const cancelCollection = (blogId: number | string) =>
       id: blogId,
     },
   });
+
+//获取note数据
+export const getMyNote = () => http.get('/notes');
