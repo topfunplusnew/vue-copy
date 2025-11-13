@@ -11,7 +11,10 @@ import type { IpaperDetail } from '@/types/paper';
 import { getPaperDetail } from '@/services/api.ts';
 import type { PaperDetail } from '@/components';
 import { addPaperViewHistory } from '@/services/user';
-
+import { useUserStore } from '@/stores/user';
+const user = computed(() => {
+  return useUserStore().user;
+})
 type AffRaw = {
   id: number;
   name?: string;
@@ -206,18 +209,16 @@ function getAffiliationNumber(originalId: number) {
                 <!-- 右侧：title、authors、affiliations 整体 -->
                 <div class="text-content">
                   <div class="title">{{ paperDetail?.title }}</div>
-                  
+
                   <div class="authors">
                     <div v-if="paperDetail?.authors?.length" class="authors-list">
-                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex"
+                        class="author-name">
                         {{ author.name
-                        }}<template v-if="author?.affiliations?.length"
-                          ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
-                            >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1"
-                              >,</span
-                            ></sup
-                          ></template
-                        ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
+                        }}<template v-if="author?.affiliations?.length"><sup
+                            v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                            }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup></template><span
+                          v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
                       </span>
                     </div>
                     <div v-else class="empty-state">
@@ -228,8 +229,8 @@ function getAffiliationNumber(originalId: number) {
                   <div class="affiliations">
                     <div v-if="affiliations.length" class="affiliations-list">
                       <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                        <sup>{{ aff.id }}</sup
-                        >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : ''
+                        <sup>{{ aff.id }}</sup>{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department
+                          : ''
                         }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
                         }}{{ aff.country ? ', ' + aff.country : '' }}
                       </div>
@@ -259,39 +260,27 @@ function getAffiliationNumber(originalId: number) {
               <div class="left-nav">
                 <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
                 <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
-                <button
-                  :class="{ active: activeTab === 'video' }"
-                  @click="switchTab('video')"
-                  :disabled="paperDetail?.video_status !== 1"
-                >
+                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')"
+                  :disabled="paperDetail?.video_status !== 1">
                   Video
                 </button>
-                <button :class="{ active: activeTab === 'keypoints' }" @click="switchTab('keypoints')">Key Points</button>
-                <button
-                  :class="{ active: activeTab === 'slides' }"
-                  @click="paperDetail?.slide && switchTab('slides')"
-                  :disabled="paperDetail?.slide_status !== 1"
-                >
+                <button :class="{ active: activeTab === 'keypoints' }" @click="switchTab('keypoints')">Key
+                  Points</button>
+                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')"
+                  :disabled="paperDetail?.slide_status !== 1">
                   Slides
                 </button>
-                <button
-                  :class="{ active: activeTab === 'poster' }"
-                  @click="paperDetail?.poster && switchTab('poster')"
-                  :disabled="paperDetail?.poster_status !== 1"
-                >
+                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')"
+                  :disabled="paperDetail?.poster_status !== 1">
                   Poster
                 </button>
-                <button
-                  :class="{ active: activeTab === 'additional' }"
+                <button :class="{ active: activeTab === 'additional' }"
                   @click="paperDetail?.addition_files.length && switchTab('additional')"
-                  :disabled="!paperDetail?.addition_files.length"
-                >
+                  :disabled="!paperDetail?.addition_files.length">
                   Additional Info
                 </button>
-                <router-link
-                  :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
-                  v-if="paperDetail?.can_edit"
-                >
+                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
+                  v-if="paperDetail?.can_edit">
                   Edit
                 </router-link>
               </div>
@@ -342,30 +331,12 @@ function getAffiliationNumber(originalId: number) {
 
               </div>
 
-              <!-- <div v-if="activeTab === 'keypoints'" class="keypoints-content">
-                <div class="empty-placeholder">
-                  <p>Key points are not available for this paper.</p>
-                </div>
-              </div>
-
-              <div v-if="activeTab === 'fulltext'" class="fulltext-content">
-                <div class="empty-placeholder">
-                  <p>Full text is not available for this paper.</p>
-                </div>
-              </div> -->
-
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
-                  <FileUpload
-                    :tab-key="activeTab"
-                    :paper-id="paperDetail?.id || 0"
-                    :paper-detail="getPaperContent()"
-                    :limit="1"
-                    :is-show="false"
-                    :is-file-list-show-config="{
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                    :limit="1" :is-show="false" :is-file-list-show-config="{
                       [activeTab]: false,
-                    }"
-                  />
+                    }" />
                 </template>
                 <div v-else class="access-restricted">
                   <p>Video content is only available to open access.</p>
@@ -373,50 +344,46 @@ function getAffiliationNumber(originalId: number) {
               </div>
 
               <div v-if="activeTab === 'slides'" class="slides-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="slides-iframe"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
 
               <div v-if="activeTab === 'poster'" class="poster-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="poster-image"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
 
               <div v-if="activeTab === 'additional'" class="additional-content">
                 <template v-if="paperDetail?.addition_files">
-                  <FileUpload
-                    :tab-key="activeTab"
-                    :paper-id="paperDetail?.id"
-                    :paper-detail="getPaperContent()"
-                    :limit="-1"
-                    :is-show="false"
-                    class="additional-iframe"
-                  />
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()"
+                    :limit="-1" :is-show="false" class="additional-iframe" />
                 </template>
+              </div>
+            </div>
+
+          </div>
+          <div class="profiles">
+            <div class="profile-title">
+              <img src="../../assets/cap.png" alt="cap" class="profile-icon"></img>
+              <span class="title">Profiles</span>
+            </div>
+
+
+            <div v-if="user" class="profile-item" >
+              <router-link :to="{name:'userpage'}"><img :src="getImageUrl(user.avatar)" alt="User Avatar" class="profile-avatar"></router-link>
+              <div class="profile-info">
+                <h4 style="text-decoration: none;">{{ user.name }}</h4>
               </div>
             </div>
           </div>
         </template>
       </section>
+
     </section>
+
   </div>
 </template>
-

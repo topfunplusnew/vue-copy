@@ -722,6 +722,7 @@ function getAffiliationNumber(originalId: number): number {
             </div>
           </div>
         </div>
+
       </section>
     </section>
     <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
@@ -1008,4 +1009,45 @@ function getAffiliationNumber(originalId: number): number {
   border: 2px dashed #409eff !important;
   background-color: #f0f9ff !important;
 }
+
+  // User Profile Styles
+  .profiles {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+  }
+
+  .profile-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 40px;
+    object-fit: cover;
+    border: 2px solid #ddd;
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-info h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .profile-info p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: #666;
+  }
+
 </style>
