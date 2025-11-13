@@ -153,6 +153,7 @@
         flex-basis: 100%;
         flex-shrink: 1;
         box-sizing: border-box;
+        @include wordWrap();
 
         @include screen-mobile {
           margin-top: 12px;
@@ -187,6 +188,7 @@
           word-break: break-word;
           hyphens: auto;
           white-space: normal;
+          @include wordWrap();
 
           @include screen-mobile {
             font-size: rpx(16);

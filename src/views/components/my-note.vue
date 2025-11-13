@@ -101,7 +101,7 @@ const handleEdit = (noteId: number) => {
 
 .notes-header {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
   background-color: #fff;
   padding: 12px 20px;
