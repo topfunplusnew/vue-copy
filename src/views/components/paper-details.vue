@@ -39,7 +39,7 @@ type AffiliationLite = {
 const conferenceStore = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
-const activeTab = ref<TabKey | 'keypoints' | 'fulltext'>('details');
+const activeTab = ref<TabKey | 'Key Point'>('details');
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
 const paperNotFound = ref(false);
 const loading = ref(false);
@@ -117,7 +117,7 @@ function getPaperContent(): PaperDetail {
       fileUrl: paperDetail.value?.addition_files || [],
     };
   }
-  if (activeTab.value === 'keypoints' || activeTab.value === 'fulltext') {
+  if (activeTab.value === 'Key Point') {
     return { fileUrl: '' };
   }
   const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value as TabKey)];
@@ -331,8 +331,11 @@ function getAffiliationNumber(originalId: number) {
 
 
               </div>
-              <div v-if="activeTab === 'video'" class="full-content">
-                <!-- <latex-content :latex="paperDetail?.full_text" /> -->
+              <div v-if="activeTab === 'fulltext'" class="full-content">
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
+                    [activeTab]: false,
+                  }" />
               </div>
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
@@ -388,11 +391,17 @@ function getAffiliationNumber(originalId: number) {
 
 
             <div v-if="user" class="profile-item">
-              <router-link :to="{ name: 'userpage' }"><img :src="getImageUrl(user.avatar)" alt="User Avatar"
-                  class="profile-avatar"></router-link>
-              <div class="profile-info">
+              <h4 class="profile-title">Authors :</h4>
+              <router-link :to="{ name: 'userpage' }" class="profile-link">
+                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                  {{ author.name
+                  }}
+                </span>
+
+              </router-link>
+              <!-- <div class="profile-info">
                 <h4 style="text-decoration: none;">{{ user.name }}</h4>
-              </div>
+              </div> -->
             </div>
           </div>
         </template>

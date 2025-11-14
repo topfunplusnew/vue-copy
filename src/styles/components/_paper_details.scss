@@ -15,7 +15,8 @@
     gap: 20px;
     width: 100%;
     max-width: 1400px;
-    margin:0 auto;
+    margin: 0 auto;
+
     @include screen-mobile {
       flex-direction: column;
       gap: 12px;
@@ -364,7 +365,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            padding-top:0;
+            padding-top: 0;
             padding-left: 0;
             list-style: none;
 
@@ -377,7 +378,7 @@
               line-height: 1.6;
 
               &::before {
-                content: '●'; 
+                content: '●';
                 margin-right: 8px;
                 color: #000;
                 font-size: 14px;
@@ -694,23 +695,24 @@
 
   .profile-item {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
     justify-content: flex-start;
     gap: 16px;
 
-    .profile-avatar {
-      width: 80px;
-      height: 80px;
-      border-radius: 40px;
-      object-fit: cover;
-      border: 2px solid #ddd;
+    .profile-title {
+      font-size:20px;
+    }
 
-      .profile-info {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 4px;
-      }
+    .profile-link {
+      display: flex;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #374151;
+      text-decoration: none;
     }
   }
 }
