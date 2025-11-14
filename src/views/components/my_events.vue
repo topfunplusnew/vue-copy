@@ -21,7 +21,7 @@ import LatexContent from '@/components/latex-content.vue';
 const store = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
-const activeTab = ref<TabKey>('details');
+const activeTab = ref<TabKey | 'Key Point'>('details');
 const myPaperDetailInfo = computed(() => store.myPaperDetail);
 
 // 静态常量
@@ -159,10 +159,10 @@ watch(
 );
 
 const paperContent = computed(() => ({
-  fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
+  fileUrl: activeTab.value === 'Key Point' ? '' : myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
 }));
 
-function setActiveTab(tab: TabKey) {
+function setActiveTab(tab: TabKey | 'Key Point') {
   activeTab.value = tab;
 }
 

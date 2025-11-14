@@ -12,7 +12,7 @@ export function getFileTypeByTabKey(tabKey: TabKey): FileType {
     slides: 'slide',
     poster: 'poster',
     additional: 'addition_files',
-    fulltext: 'graphic_abstract',
+    fulltext: 'full_text',
   };
   
   return tabToFileTypeMap[tabKey];

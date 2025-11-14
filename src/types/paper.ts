@@ -45,6 +45,7 @@ export interface IpaperDetail {//论文详情
     poster_status: number,
     slide_status: number,
     video_status: number,
+    full_text?: string,
     is_open_access?: boolean,
     can_edit?: boolean,
     conference?: IConferenceInfo,

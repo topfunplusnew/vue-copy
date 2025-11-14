@@ -428,9 +428,10 @@ const handleFileDownload = (file: UploadUserFile) => {
 };
 
 // 处理PDF预览 - 在新窗口打开
-const handlePdfPreview = () => {
-  if (pdfUrl.value) {
-    window.open(pdfUrl.value, '_blank');
+const handlePdfPreview = (fileUrl?: string) => {
+  const url = fileUrl || pdfUrl.value;
+  if (url) {
+    window.open(url, '_blank');
   }
 };
 </script>
@@ -510,6 +511,11 @@ const handlePdfPreview = () => {
             </div>
           </div>
         </div>
+        <div class="file-info">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
+            {{ file.name }}
+          </div>
+        </div>
       </div>
     </div>
     <!-- 视频播放器 -->
@@ -520,30 +526,18 @@ const handlePdfPreview = () => {
     <!-- PDF预览 -->
     <div v-if="shouldShowPdfPreview">
       <div class="pdf-preview-container">
-        <div class="pdf-preview-button-wrapper">
-          <el-button type="primary" size="large" class="pdf-preview-button" @click="handlePdfPreview">
+        <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
+        <!-- 按钮放在 iframe 下面 -->
+        <div class="pdf-preview-actions" v-if="isItemShow && posterFileList.length > 0 && posterFileList[0]">
+          <el-button type="primary" size="large" class="pdf-preview-button" @click="handlePdfPreview(pdfUrl || undefined)">
             <el-icon>
               <Reading />
             </el-icon>
             Preview
           </el-button>
-        </div>
-        <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
-      </div>
-    </div>
-
-      <!-- 自定义文件列表显示 -->
-    <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
-      <div v-for="file in posterFileList" :key="file.uid" :class="tabKey !== 'additional' ? `file-item option-row` : `file-item option-columnn`">
-        <div class="file-actions" v-if="isItemShow">
-          <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
+          <el-button type="danger" size="large" class="pdf-delete-button" :loading="deleteLoading" @click="handleRemove(posterFileList[0] as any, posterFileList as any)">
             Delete
           </el-button>
-        </div>
-        <div class="file-info" :class="{ 'single-file': props.limit !== -1 }">
-          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
-            {{ file.name }}
-          </div>
         </div>
       </div>
     </div>
@@ -718,14 +712,16 @@ const handlePdfPreview = () => {
 
 .file-item {
   display: flex;
-  align-items: center;
+  flex-direction: row;
+  align-items: flex-start;
   padding: 6px 10px;
   border-radius: 6px;
   margin-bottom: 4px;
 }
 
 .file-preview {
-  margin-right: 10px;
+  width: 100%;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -734,8 +730,7 @@ const handlePdfPreview = () => {
   background-color: #f5f5f5;
 
   @include screen-mobile {
-    margin-right: 0;
-    margin-bottom: 2px;
+    margin-bottom: 8px;
   }
 }
 
@@ -743,15 +738,13 @@ const handlePdfPreview = () => {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-  margin-right: 10px;
+  width: 100%;
+  justify-content: flex-start;
+  margin-top: 8px;
 
   @include screen-mobile {
-    width: 100%;
-    justify-content: flex-start;
-    align-items: flex-start;
     flex-direction: column;
-    margin-right: 0;
-    margin-bottom: 8px;
+    gap: 6px;
   }
 }
 
@@ -776,7 +769,6 @@ const handlePdfPreview = () => {
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .file-icon {
@@ -834,7 +826,6 @@ const handlePdfPreview = () => {
   }
 }
 
-
 .video-player-container {
   margin-top: 16px;
   border: 1px solid #e4e7ed;
@@ -849,14 +840,51 @@ const handlePdfPreview = () => {
   background-color: #000;
 }
 
-.pdf-preview-button-wrapper {
-  display: flex;
-  justify-content: flex-end;
-  padding: 4px;
-}
-
 .pdf-preview-button {
   flex-shrink: 0;
+  background-color: #1a3566 !important;
+  border-color: #1a3566 !important;
+  color: #fff !important;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(26, 53, 102, 0.2);
+
+  &:hover {
+    background-color: #2a4a7a !important;
+    border-color: #2a4a7a !important;
+    box-shadow: 0 4px 8px rgba(26, 53, 102, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(26, 53, 102, 0.2);
+  }
+
+  :deep(.el-icon) {
+    color: #fff !important;
+  }
+}
+
+.pdf-delete-button {
+  flex-shrink: 0;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(245, 108, 108, 0.2);
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(245, 108, 108, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(245, 108, 108, 0.2);
+  }
+
+  :deep(.el-icon) {
+    color: #fff !important;
+  }
 }
 
 .pdf-preview-container {
@@ -865,6 +893,22 @@ const handlePdfPreview = () => {
   border-radius: 4px;
   background-color: #e2e5e6;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-preview-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  justify-content: flex-start;
+  background-color: #fff;
+  border-top: 1px solid #e4e7ed;
+
+  @include screen-mobile {
+    flex-direction: column;
+    gap: 6px;
+  }
 }
 
 .pdf-preview {
