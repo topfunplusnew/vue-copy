@@ -851,6 +851,28 @@ const handlePdfPreview = () => {
 
 .pdf-preview-button {
   flex-shrink: 0;
+  background-color: #1a3566 !important;
+  border-color: #1a3566 !important;
+  color: #fff !important;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(26, 53, 102, 0.2);
+
+  &:hover {
+    background-color: #2a4a7a !important;
+    border-color: #2a4a7a !important;
+    box-shadow: 0 4px 8px rgba(26, 53, 102, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(26, 53, 102, 0.2);
+  }
+
+  :deep(.el-icon) {
+    color: #fff !important;
+  }
 }
 
 .pdf-preview-container {
