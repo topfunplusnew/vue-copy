@@ -11,9 +11,15 @@
   gap: 2px;
   padding: 24px 15px;
   min-width: 0;
-  max-width: 100%;
+  max-width: 1800px;
+  margin: 0 auto;
+  width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
+
+  @include screen-pc {
+    padding: 24px 40px;
+  }
 
   .current-participations {
     background: 
@@ -31,7 +37,7 @@
       0 20px 60px -10px rgba(59, 130, 246, 0.08);
     backdrop-filter: blur(12px);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     width: 100%;
     max-width: 100%;
     box-sizing: border-box;
@@ -45,8 +51,8 @@
       content: '';
       position: absolute;
       top: 0;
-      left: -50%;
-      width: 200%;
+      left: 0;
+      width: 100%;
       height: 3px;
       background: linear-gradient(90deg, 
         transparent 0%,
@@ -436,8 +442,8 @@
             font-weight: 600;
             line-height: 1.5;
             margin-bottom: 8px;
-            color: #1e40af;
-            text-shadow: 0 1px 2px rgba(59, 130, 246, 0.1);
+            color: #5b21b6;
+            text-shadow: 0 1px 2px rgba(91, 33, 182, 0.1);
             text-align: left;
             @include wordWrap();
             @include screen-mobile {
@@ -447,7 +453,7 @@
           .authors {
             font-size: 18px;
             font-weight: 400;
-            color: #7c2d12;
+            color: #374151;
             line-height: 1.4;
             word-wrap: break-word;
             overflow-wrap: break-word;

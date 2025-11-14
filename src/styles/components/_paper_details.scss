@@ -14,7 +14,7 @@
     display: flex;
     gap: 20px;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1700px;
     margin:0 auto;
     @include screen-mobile {
       flex-direction: column;
@@ -131,7 +131,7 @@
             order: 2;
 
             .title {
-              font-size: rpx(36);
+              font-size: rpx(23);
               font-weight: 700;
               color: #1e293b;
               line-height: 1.3;
