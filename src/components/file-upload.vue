@@ -535,7 +535,9 @@ const handlePdfPreview = (fileUrl?: string) => {
             </el-icon>
             Preview
           </el-button>
-          <el-button type="danger" size="large" :loading="deleteLoading" @click="handleRemove(posterFileList[0] as any, posterFileList as any)"> Delete </el-button>
+          <el-button type="danger" size="large" class="pdf-delete-button" :loading="deleteLoading" @click="handleRemove(posterFileList[0] as any, posterFileList as any)">
+            Delete
+          </el-button>
         </div>
       </div>
     </div>
@@ -857,6 +859,27 @@ const handlePdfPreview = (fileUrl?: string) => {
   &:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(26, 53, 102, 0.2);
+  }
+
+  :deep(.el-icon) {
+    color: #fff !important;
+  }
+}
+
+.pdf-delete-button {
+  flex-shrink: 0;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(245, 108, 108, 0.2);
+
+  &:hover {
+    box-shadow: 0 4px 8px rgba(245, 108, 108, 0.3);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(245, 108, 108, 0.2);
   }
 
   :deep(.el-icon) {
