@@ -97,10 +97,10 @@
         margin-top: 0;
 
         .paper-info-section {
-            display: flex;
-            width: 100%;
-            gap: 24px;
-            align-items: flex-start;
+          display: flex;
+          width: 100%;
+          gap: 24px;
+          align-items: flex-start;
 
           @include screen-mobile {
             flex-direction: column;
@@ -348,8 +348,46 @@
           box-sizing: border-box;
         }
 
+        .keypoints-content {
+          display: flex;
+          flex-direction: column;
+
+
+          .key-takeaways-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 8px;
+          }
+
+          .key-points-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-top:0;
+            padding-left: 0;
+            list-style: none;
+
+            .key-point-item {
+              display: flex;
+              justify-content: flex-start;
+              font-size: rpx(18);
+              color: #374151;
+              font-weight: 500;
+              line-height: 1.6;
+
+              &::before {
+                content: '●'; 
+                margin-right: 8px;
+                color: #000;
+                font-size: 14px;
+                line-height: 1.6;
+              }
+            }
+          }
+        }
+
         .details-content,
-        .keypoints-content,
         .fulltext-content {
           .paper-info {
             margin-bottom: 16px;
@@ -637,20 +675,23 @@
   border-radius: 8px;
   gap: 20px;
   text-decoration: none;
-.profile-title{
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 8px;
-  font-size: 26px;
-  font-weight: 600;
-  color: #374151;
-  .profile-icon{
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
+
+  .profile-title {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    font-size: 26px;
+    font-weight: 600;
+    color: #374151;
+
+    .profile-icon {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
   }
-}
+
   .profile-item {
     display: flex;
     align-items: center;

@@ -1,0 +1,16 @@
+{
+  "id": "5065483",
+  "name": "ipologo",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "43802392",
+      "name": "69_F03A__list",
+      "font_class": "a-69_F03A__list",
+      "unicode": "e624",
+      "unicode_decimal": 58916
+    }
+  ]
+}

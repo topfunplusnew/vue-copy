@@ -107,7 +107,7 @@ watch(
   { immediate: true },
 );
 
-function switchTab(tab: TabKey | 'keypoints' | 'fulltext') {
+function switchTab(tab: TabKey | 'Key Point' | 'fulltext') {
   activeTab.value = tab;
 }
 
@@ -259,12 +259,12 @@ function getAffiliationNumber(originalId: number) {
               <!-- Navigation Buttons -->
               <div class="left-nav">
                 <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
-                <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
+
                 <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')"
                   :disabled="paperDetail?.video_status !== 1">
                   Video
                 </button>
-                <button :class="{ active: activeTab === 'keypoints' }" @click="switchTab('keypoints')">Key
+                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key
                   Points</button>
                 <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')"
                   :disabled="paperDetail?.slide_status !== 1">
@@ -329,6 +329,9 @@ function getAffiliationNumber(originalId: number) {
                   <latex-content :latex="paperDetail?.abstract" />
                 </div>
 
+                <div class="full-text">
+                  <!-- <latex-content :latex="paperDetail?.full_text" /> -->
+                </div>
               </div>
 
               <div v-if="activeTab === 'video'" class="videos-content">
@@ -363,6 +366,17 @@ function getAffiliationNumber(originalId: number) {
                     :limit="-1" :is-show="false" class="additional-iframe" />
                 </template>
               </div>
+              <div v-if="activeTab === 'Key Point'" class="keypoints-content">
+                <div class="key-takeaways-header">
+                  <h2 class="title">Key Takeaways</h2>
+                </div>
+
+
+                <ul  class="key-points-list">
+                  <li class="key-point-item" v-for="point in paperDetail?.key_points" :key="point">{{ point }}</li>
+                </ul>
+
+              </div>
             </div>
 
           </div>
@@ -373,8 +387,9 @@ function getAffiliationNumber(originalId: number) {
             </div>
 
 
-            <div v-if="user" class="profile-item" >
-              <router-link :to="{name:'userpage'}"><img :src="getImageUrl(user.avatar)" alt="User Avatar" class="profile-avatar"></router-link>
+            <div v-if="user" class="profile-item">
+              <router-link :to="{ name: 'userpage' }"><img :src="getImageUrl(user.avatar)" alt="User Avatar"
+                  class="profile-avatar"></router-link>
               <div class="profile-info">
                 <h4 style="text-decoration: none;">{{ user.name }}</h4>
               </div>

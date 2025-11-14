@@ -48,6 +48,7 @@ export interface IpaperDetail {//论文详情
     is_open_access?: boolean,
     can_edit?: boolean,
     conference?: IConferenceInfo,
+    key_points?: string[]
 }
 export interface Ikeywords {
     id: number;
