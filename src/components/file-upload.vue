@@ -510,16 +510,6 @@ const handlePdfPreview = () => {
             </div>
           </div>
         </div>
-        <div class="file-actions" v-if="isItemShow">
-          <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
-            Delete
-          </el-button>
-        </div>
-        <div class="file-info" :class="{ 'single-file': props.limit !== -1 }">
-          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
-            {{ file.name }}
-          </div>
-        </div>
       </div>
     </div>
     <!-- 视频播放器 -->
@@ -539,6 +529,22 @@ const handlePdfPreview = () => {
           </el-button>
         </div>
         <iframe :src="pdfUrl || undefined" class="pdf-preview" frameborder="0" type="application/pdf"> Your browser does not support PDF preview </iframe>
+      </div>
+    </div>
+
+      <!-- 自定义文件列表显示 -->
+    <div v-if="getVisibleByTabKey(tabKey) && posterFileList.length > 0" class="custom-file-list">
+      <div v-for="file in posterFileList" :key="file.uid" :class="tabKey !== 'additional' ? `file-item option-row` : `file-item option-columnn`">
+        <div class="file-actions" v-if="isItemShow">
+          <el-button :class="{ 'single-file-action': props.limit !== -1 }" type="danger" size="large" :loading="deleteLoading" @click="handleRemove(file as any, posterFileList as any)">
+            Delete
+          </el-button>
+        </div>
+        <div class="file-info" :class="{ 'single-file': props.limit !== -1 }">
+          <div class="file-name" v-if="props.limit === -1" :title="file.name" @click="handleFileDownload(file)" style="cursor: pointer">
+            {{ file.name }}
+          </div>
+        </div>
       </div>
     </div>
   </div>

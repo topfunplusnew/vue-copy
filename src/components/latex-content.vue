@@ -8,11 +8,7 @@
     <div v-else class="latex-edit-mode">
       <el-input ref="textareaRef" v-model="editValue" type="textarea" :rows="rows"
         :placeholder="placeholder || 'Please input Markdown content (LaTeX formulas are supported)...'"
-        resize="vertical" class="latex-textarea" />
-      <div class="latex-edit-actions">
-        <el-button size="small" @click="cancelEdit">Cancel</el-button>
-        <el-button type="primary" size="small" @click="saveEdit">Save</el-button>
-      </div>
+        resize="vertical" class="latex-textarea" @blur="saveEdit"/>
     </div>
   </div>
 </template>
@@ -109,9 +105,13 @@ const cancelEdit = () => {
 </script>
 
 <style scoped lang="scss">
+@use '../styles/utils/mixins' as *;
 .latex-content-wrapper {
-  width: 100%;
+  width: 50vw;
   box-sizing: border-box;
+@include screen-mobile{
+  width:80vw;
+}
 }
 
 .latex-view-mode {
@@ -145,9 +145,9 @@ const cancelEdit = () => {
     text-align: justify;
     // text-align-last: justify;
     /* 可选：防止英文单词断字出现大空隙 */
-    word-break: break-all;
-    text-align-last: left; //最后一行文本左对齐
-
+    // word-break: break-all;
+    // text-align-last: left; //最后一行文本左对齐
+    @include wordWrap();
     /* 如果只有一行，也要顶格 */
     // 文本内容样式
     .latex-text-content {
@@ -311,9 +311,9 @@ const cancelEdit = () => {
 .latex-edit-mode {
   width: 100%;
   box-sizing: border-box;
-
   .latex-textarea {
     width: 100%;
+
     margin-bottom: 12px;
     box-sizing: border-box;
 
@@ -330,4 +330,4 @@ const cancelEdit = () => {
     gap: 8px;
   }
 }
-</style>
+</style> 

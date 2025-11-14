@@ -17,18 +17,18 @@
 
   .current-participations {
     background: 
-      linear-gradient(135deg, rgba(99, 102, 241, 0.06) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(236, 72, 153, 0.04) 100%),
-      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(99, 102, 241, 0.03) 30px, rgba(99, 102, 241, 0.03) 31px),
-      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(168, 85, 247, 0.03) 30px, rgba(168, 85, 247, 0.03) 31px),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(251, 252, 254, 0.9) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.25);
+      linear-gradient(135deg, rgba(59, 130, 246, 0.04) 0%, rgba(96, 165, 250, 0.03) 50%, rgba(147, 197, 253, 0.02) 100%),
+      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(59, 130, 246, 0.02) 30px, rgba(59, 130, 246, 0.02) 31px),
+      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(96, 165, 250, 0.02) 30px, rgba(96, 165, 250, 0.02) 31px),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.2);
     border-radius: 20px;
     padding: 24px;
     box-shadow: 
-      0 8px 32px rgba(99, 102, 241, 0.12),
+      0 8px 32px rgba(59, 130, 246, 0.08),
       inset 0 1px 0 rgba(255, 255, 255, 0.4),
-      0 0 0 1px rgba(99, 102, 241, 0.08),
-      0 20px 60px -10px rgba(99, 102, 241, 0.1);
+      0 0 0 1px rgba(59, 130, 246, 0.06),
+      0 20px 60px -10px rgba(59, 130, 246, 0.08);
     backdrop-filter: blur(12px);
     position: relative;
     overflow: visible;
@@ -40,25 +40,28 @@
       padding: 16px 12px;
     }
 
-    // Animated scanning line effect
+    // Animated tech border with cyber scanning effect
     &::before {
       content: '';
       position: absolute;
       top: 0;
-      left: 0;
-      right: 0;
+      left: -50%;
+      width: 200%;
       height: 3px;
       background: linear-gradient(90deg, 
-        rgba(99, 102, 241, 0) 0%,
-        rgba(99, 102, 241, 0.6) 20%,
-        rgba(168, 85, 247, 0.6) 50%,
-        rgba(236, 72, 153, 0.6) 80%,
-        rgba(236, 72, 153, 0) 100%);
+        transparent 0%,
+        rgba(59, 130, 246, 0) 10%,
+        rgba(59, 130, 246, 0.6) 30%,
+        rgba(96, 165, 250, 0.8) 50%,
+        rgba(59, 130, 246, 0.6) 70%,
+        rgba(59, 130, 246, 0) 90%,
+        transparent 100%);
       border-radius: 20px 20px 0 0;
       box-shadow: 
-        0 0 15px rgba(99, 102, 241, 0.4),
-        0 0 30px rgba(168, 85, 247, 0.2);
-      animation: techGlow 3s ease-in-out infinite alternate;
+        0 0 20px rgba(96, 165, 250, 0.5),
+        0 0 40px rgba(59, 130, 246, 0.3);
+      animation: techScan 4s linear infinite;
+      z-index: 1;
     }
 
     // Enhanced tech pattern with circuit-like lines
@@ -71,11 +74,11 @@
       bottom: 0;
       border-radius: 20px;
       background: 
-        radial-gradient(circle at 15% 25%, rgba(99, 102, 241, 0.08) 0%, transparent 35%),
-        radial-gradient(circle at 85% 75%, rgba(236, 72, 153, 0.06) 0%, transparent 35%),
-        radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.04) 0%, transparent 45%),
-        repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(99, 102, 241, 0.015) 3px, rgba(99, 102, 241, 0.015) 6px),
-        repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(168, 85, 247, 0.015) 3px, rgba(168, 85, 247, 0.015) 6px);
+        radial-gradient(circle at 15% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 35%),
+        radial-gradient(circle at 85% 75%, rgba(147, 197, 253, 0.04) 0%, transparent 35%),
+        radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.03) 0%, transparent 45%),
+        repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(59, 130, 246, 0.012) 3px, rgba(59, 130, 246, 0.012) 6px),
+        repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(96, 165, 250, 0.012) 3px, rgba(96, 165, 250, 0.012) 6px);
       pointer-events: none;
       z-index: 0;
       opacity: 1;
@@ -86,7 +89,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
+      
       gap: 16px;
       position: relative;
       z-index: 1;
@@ -111,13 +114,13 @@
           border-radius: 50%;
           overflow: hidden;
           transition: all 0.3s ease;
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
           border: 3px solid rgba(255, 255, 255, 0.9);
 
           &:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
-            border-color: #6366f1;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35);
+            border-color: #3b82f6;
           }
 
           .user-avatar-small {
@@ -137,8 +140,8 @@
           font-weight: 700;
           font-size: 32px;
           margin: 0;
-          color: #4c1d95;
-          text-shadow: 0 1px 2px rgba(99, 102, 241, 0.2);
+          color: #1e40af;
+          text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
           letter-spacing: 0.5px;
           background: transparent;
 
@@ -237,8 +240,8 @@
         font-weight: 700;
         font-size: 30px;
         margin: 0;
-        color: #4c1d95;
-        text-shadow: 0 1px 2px rgba(99, 102, 241, 0.2);
+        color: #1e40af;
+        text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
         letter-spacing: 0.5px;
         background: transparent;
       }
@@ -271,8 +274,8 @@
       font-weight: 700;
       font-size: 30px;
       margin-bottom: 20px;
-      color: #4c1d95;
-      text-shadow: 0 1px 2px rgba(99, 102, 241, 0.2);
+      color: #1e40af;
+      text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
       letter-spacing: 0.5px;
       background: transparent;
     }
@@ -286,7 +289,7 @@
     }
 
     .conference-card {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(168, 85, 247, 0.05) 50%, rgba(236, 72, 153, 0.03) 100%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(96, 165, 250, 0.04) 50%, rgba(147, 197, 253, 0.02) 100%);
       border: none;
       border-radius: 14px;
       padding: 24px 32px;
@@ -296,7 +299,7 @@
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      box-shadow: 0 2px 8px rgba(168, 85, 247, 0.08);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.06);
 
       @include screen-mobile {
         padding: 10px 6px;
@@ -315,7 +318,7 @@
 
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(168, 85, 247, 0.15);
+        box-shadow: 0 8px 30px rgba(59, 130, 246, 0.12);
 
         &::before {
           opacity: 1;
@@ -347,7 +350,7 @@
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.8);
             padding: 4px;
-            box-shadow: 0 2px 8px rgba(124, 58, 237, 0.15);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
             border: none;
 
             @include screen-mobile {
@@ -359,8 +362,8 @@
           .conference-name {
             font-size: 25px;
             font-weight: 700;
-            color: #7c3aed;
-            text-shadow: 0 1px 2px rgba(168, 85, 247, 0.2);
+            color: #2563eb;
+            text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
             letter-spacing: 0.3px;
 
             @include wordWrap();
@@ -373,8 +376,8 @@
         .conference-name {
           font-size: 25px;
           font-weight: 700;
-          color: #7c3aed;
-          text-shadow: 0 1px 2px rgba(168, 85, 247, 0.2);
+          color: #2563eb;
+          text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
           letter-spacing: 0.3px;
 
           @include wordWrap();
@@ -385,11 +388,11 @@
         .submission-count {
           font-size: 14px;
           font-weight: 500;
-          color: #6366f1;
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+          color: #1d4ed8;
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(96, 165, 250, 0.1) 100%);
           padding: 4px 12px;
           border-radius: 20px;
-          border: 1px solid rgba(99, 102, 241, 0.3);
+          border: 1px solid rgba(59, 130, 246, 0.25);
 
           @include screen-mobile {
             font-size: 12px;
@@ -403,8 +406,8 @@
         gap: 10px;
 
         .submission-item {
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(236, 72, 153, 0.03) 100%);
-          border: 1px solid rgba(236, 72, 153, 0.2);
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.6) 0%, rgba(147, 197, 253, 0.03) 100%);
+          border: 1px solid rgba(59, 130, 246, 0.15);
           border-radius: 10px;
           padding: 18px 24px;
           transition: all 0.2s ease;
@@ -419,10 +422,10 @@
           }
 
           &:hover {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(236, 72, 153, 0.05) 100%);
-            border-color: rgba(236, 72, 153, 0.3);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(147, 197, 253, 0.05) 100%);
+            border-color: rgba(59, 130, 246, 0.25);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.15);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.12);
           }
 
           .paper-title {
@@ -433,8 +436,8 @@
             font-weight: 600;
             line-height: 1.5;
             margin-bottom: 8px;
-            color: #581c87;
-            text-shadow: 0 1px 2px rgba(168, 85, 247, 0.1);
+            color: #1e40af;
+            text-shadow: 0 1px 2px rgba(59, 130, 246, 0.1);
             text-align: left;
             @include wordWrap();
             @include screen-mobile {
@@ -463,19 +466,19 @@
     .empty-state {
       text-align: center;
       padding: 40px 20px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(168, 85, 247, 0.03) 100%);
-      border: 2px dashed rgba(99, 102, 241, 0.3);
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(96, 165, 250, 0.03) 100%);
+      border: 2px dashed rgba(59, 130, 246, 0.25);
       border-radius: 12px;
 
       .empty-title {
         font-weight: 600;
         font-size: 16px;
         margin-bottom: 8px;
-        color: #6366f1;
+        color: #2563eb;
       }
       .empty-desc {
         font-size: 14px;
-        color: #8b5cf6;
+        color: #3b82f6;
       }
     }
 
@@ -483,20 +486,21 @@
     .empty-state-redesigned {
       text-align: center;
       padding: 60px 20px;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(168, 85, 247, 0.02) 100%);
-      border: 2px dashed rgba(99, 102, 241, 0.2);
+      background: rgba(255, 255, 255, 0.4);
+      border: 2px dashed rgba(59, 130, 246, 0.25);
       border-radius: 16px;
       margin-top: 8px;
+      backdrop-filter: blur(5px);
 
       @include screen-mobile {
         padding: 40px 16px;
       }
 
       .empty-icon {
-        font-size: 64px;
-        margin-bottom: 20px;
+        font-size: 80px;
+        margin-bottom: 24px;
         opacity: 0.8;
-        filter: grayscale(20%);
+        filter: grayscale(0%);
 
         @include screen-mobile {
           font-size: 48px;
@@ -506,9 +510,9 @@
 
       .empty-title {
         font-weight: 700;
-        font-size: 24px;
-        margin-bottom: 12px;
-        color: #4c1d95;
+        font-size: 32px;
+        margin-bottom: 16px;
+        color: #1e40af;
         letter-spacing: 0.3px;
 
         @include screen-mobile {
@@ -518,10 +522,11 @@
       }
 
       .empty-desc {
-        font-size: 16px;
-        color: #7c3aed;
-        margin-bottom: 8px;
-        line-height: 1.5;
+        font-size: 18px;
+        color: #2563eb;
+        margin-bottom: 10px;
+        line-height: 1.6;
+        font-style: normal;
 
         @include screen-mobile {
           font-size: 14px;
@@ -529,10 +534,11 @@
       }
 
       .empty-hint {
-        font-size: 14px;
-        color: #a855f7;
-        font-style: italic;
+        font-size: 18px;
+        color: #3b82f6;
+        font-style: normal;
         opacity: 0.9;
+        line-height: 1.6;
 
         @include screen-mobile {
           font-size: 13px;
@@ -1260,14 +1266,14 @@
   0% {
     opacity: 0.6;
     box-shadow: 
-      0 0 15px rgba(99, 102, 241, 0.4),
-      0 0 30px rgba(168, 85, 247, 0.2);
+      0 0 15px rgba(59, 130, 246, 0.3),
+      0 0 30px rgba(96, 165, 250, 0.15);
   }
   100% {
     opacity: 1;
     box-shadow: 
-      0 0 25px rgba(99, 102, 241, 0.6),
-      0 0 50px rgba(168, 85, 247, 0.3);
+      0 0 25px rgba(59, 130, 246, 0.5),
+      0 0 50px rgba(96, 165, 250, 0.25);
   }
 }
 

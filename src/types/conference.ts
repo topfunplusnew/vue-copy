@@ -151,6 +151,7 @@ export interface IPapers {
   video?: string;
   slide?: string;
   poster?: string;
+  full_text?: string;
   addition_files?: string[];
   poster_status: number,
   slide_status: number,
@@ -183,5 +184,5 @@ export interface IModifyPaper {
 
 }
 
-export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' | 'Key Point';
-export type FileType = 'graphic_abstract' | 'video' | 'slide' | 'poster' | 'addition_files';
+export type TabKey = 'details' | 'video' | 'slides' | 'poster' | 'additional' |'fulltext';
+export type FileType = 'graphic_abstract' | 'video' | 'slide' | 'poster' | 'addition_files' | 'full_text';

@@ -21,7 +21,7 @@ import LatexContent from '@/components/latex-content.vue';
 const store = useConferenceStore();
 const route = useRoute();
 const paperId = computed(() => Number(route.params.paperId));
-const activeTab = ref<TabKey>('details');
+const activeTab = ref<TabKey | 'Key Point'>('details');
 const myPaperDetailInfo = computed(() => store.myPaperDetail);
 
 // 静态常量
@@ -159,10 +159,10 @@ watch(
 );
 
 const paperContent = computed(() => ({
-  fileUrl: myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
+  fileUrl: activeTab.value === 'Key Point' ? '' : myPaperDetailInfo.value?.[getFileTypeByTabKey(activeTab.value)],
 }));
 
-function setActiveTab(tab: TabKey) {
+function setActiveTab(tab: TabKey | 'Key Point') {
   activeTab.value = tab;
 }
 
@@ -311,7 +311,22 @@ async function saveDetails() {
   }
   fullscreenLoading.value = false;
 }
-
+async function saveKeyPoint() {
+  fullscreenLoading.value = true;
+  try {
+    // 这里可以添加保存到后端的逻辑
+      store.updateIsOpenAccess({
+        id: paperId.value,
+        key_points: formData.key_points,
+      });  
+  
+      ElMessage.success('Key Points Saved Successfully!');     
+  } catch (error) {
+    console.error('保存失败：', error);
+    ElMessage.error('Save Failed, please try again');
+  }
+  fullscreenLoading.value = false;
+}
 // 处理 Abstract 内容变化
 function handleAbstractChange(value: string) {
   formData.abstract = value;
@@ -558,9 +573,14 @@ function getAffiliationNumber(originalId: number): number {
             <div class="copyright-note">
               <div class="note-title">⚠️ Note</div>
               <div class="note-content">
-                Please do not upload any copyrighted content if you do not own the rights to such content or do not have written permission from the copyright owners. 
-              </div><div class="note-content">
-                Additionally, please do not include any depictions or other personal data of individuals unless you have their explicit written permission to do so.
+                Please do not upload any copyrighted content if you do not own the rights to such content or do not have
+                written
+                permission from the copyright owners.
+              </div>
+              <div class="note-content">
+                Additionally, please do not include any depictions or other personal data of individuals unless you have
+                their
+                explicit written permission to do so.
               </div>
             </div>
           </div>
@@ -711,17 +731,12 @@ function getAffiliationNumber(originalId: number): number {
                 </div>
               </div>
               <div class="save-button-container">
-                <el-button class="save-button" @click="
-                  () => {
-                    store.updateIsOpenAccess({
-                      id: paperId,
-                      key_points: formData.key_points,
-                    });
-                  }">Save</el-button>
+                <el-button class="save-button" @click="saveKeyPoint()">Save</el-button>
               </div>
             </div>
           </div>
         </div>
+
       </section>
     </section>
     <div v-if="pdfModalVisible" class="pdf-modal-overlay" @click="closePdfModal">
@@ -758,13 +773,23 @@ function getAffiliationNumber(originalId: number): number {
 
 // 统一所有 form-item label 的样式
 :deep(.el-form-item__label) {
-  font-size: 14px;
+  font-size: 22px;
   font-weight: 600;
   color: #334155;
   line-height: 1.5;
 
   @include screen-mobile {
     font-size: 13px;
+  }
+}
+
+// Abstract 内容字体大小
+:deep(.latex-content) {
+  font-size: 16px;
+  line-height: 1.8;
+
+  @include screen-mobile {
+    font-size: 14px;
   }
 }
 
@@ -1007,5 +1032,45 @@ function getAffiliationNumber(originalId: number): number {
 .drag-over {
   border: 2px dashed #409eff !important;
   background-color: #f0f9ff !important;
+}
+
+// User Profile Styles
+.profiles {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+}
+
+.profile-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 40px;
+  object-fit: cover;
+  border: 2px solid #ddd;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info h4 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.profile-info p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #666;
 }
 </style>
