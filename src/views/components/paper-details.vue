@@ -259,7 +259,7 @@ function getAffiliationNumber(originalId: number) {
               <!-- Navigation Buttons -->
               <div class="left-nav">
                 <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
-
+                <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
                 <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')"
                   :disabled="paperDetail?.video_status !== 1">
                   Video
@@ -329,11 +329,11 @@ function getAffiliationNumber(originalId: number) {
                   <latex-content :latex="paperDetail?.abstract" />
                 </div>
 
-                <div class="full-text">
-                  <!-- <latex-content :latex="paperDetail?.full_text" /> -->
-                </div>
-              </div>
 
+              </div>
+              <div v-if="activeTab === 'video'" class="full-content">
+                <!-- <latex-content :latex="paperDetail?.full_text" /> -->
+              </div>
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
                   <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
@@ -372,7 +372,7 @@ function getAffiliationNumber(originalId: number) {
                 </div>
 
 
-                <ul  class="key-points-list">
+                <ul class="key-points-list">
                   <li class="key-point-item" v-for="point in paperDetail?.key_points" :key="point">{{ point }}</li>
                 </ul>
 
