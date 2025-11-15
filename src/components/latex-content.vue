@@ -107,7 +107,7 @@ const cancelEdit = () => {
 <style scoped lang="scss">
 @use '../styles/utils/mixins' as *;
 .latex-content-wrapper {
-  width: 50vw;
+  width: 100%;
   box-sizing: border-box;
 @include screen-mobile{
   width:80vw;
