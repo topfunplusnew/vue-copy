@@ -294,43 +294,45 @@ const formatViewDuration = (viewTimestamp: number | null) => {
       <h2>Paper View History</h2>
     </div>
 
-    <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
-      <el-table-column width="120" align="center">
-        <template #default="{ row }">
-          <div class="thumbnail-cell">
-            <img
-              :src="row.paper?.conference?.logo ? getImageUrl(row.paper.conference.logo) : 'https://via.placeholder.com/50x50/627180/ffffff?text=Paper'"
-              :alt="row.paper?.conference?.abbreviation || row.paper.title"
-              class="thumbnail-img"
-            />
-          </div>
-        </template>
-      </el-table-column>
+    <div class="table-wrapper" :class="{ 'mobile-table': isMobile }">
+      <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
+        <el-table-column :width="isMobile ? 40 : 120" align="center">
+          <template #default="{ row }">
+            <div class="thumbnail-cell">
+              <img
+                :src="row.paper?.conference?.logo ? getImageUrl(row.paper.conference.logo) : 'https://via.placeholder.com/50x50/627180/ffffff?text=Paper'"
+                :alt="row.paper?.conference?.abbreviation || row.paper.title"
+                class="thumbnail-img"
+              />
+            </div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Title" min-width="300">
-        <template #default="{ row }">
-          <div class="title-cell">{{ row.paper.title }}</div>
-        </template>
-      </el-table-column>
+        <el-table-column label="Title" :min-width="isMobile ? 90 : 300">
+          <template #default="{ row }">
+            <div class="title-cell">{{ row.paper.title }}</div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Duration" width="150" align="center">
-        <template #default="{ row }">
-          <div class="duration-cell">{{ formatViewDuration(row.view_duration) }}</div>
-        </template>
-      </el-table-column>
+        <el-table-column label="Duration" :width="isMobile ? 80 : 150" align="center">
+          <template #default="{ row }">
+            <div class="duration-cell">{{ formatViewDuration(row.view_duration) }}</div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Authors" min-width="200">
-        <template #default="{ row }">
-          <div class="authors-cell">{{ formatAuthors(row.paper.authors) }}</div>
-        </template>
-      </el-table-column>
+        <el-table-column label="Authors" :min-width="isMobile ? 70 : 200">
+          <template #default="{ row }">
+            <div class="authors-cell">{{ formatAuthors(row.paper.authors) }}</div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Venue" width="150">
-        <template #default="{ row }">
-          <div class="venue-cell">{{ row.paper.venue }} {{ row.paper.year }}</div>
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="Venue" :width="isMobile ? 80 : 150">
+          <template #default="{ row }">
+            <div class="venue-cell">{{ row.paper.venue }} {{ row.paper.year }}</div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
 
     <!-- PC端分页组件 -->
     <div class="pagination-container" v-if="!isMobile && pagination.total > 0">
@@ -424,10 +426,36 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   color: #1a3566;
 }
 
+/* 表格容器 */
+.table-wrapper {
+  width: 100%;
+  overflow-x: visible;
+}
+
+.table-wrapper.mobile-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper.mobile-table::-webkit-scrollbar {
+  height: 4px;
+}
+
+.table-wrapper.mobile-table::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.table-wrapper.mobile-table::-webkit-scrollbar-thumb {
+  background: #1a3566;
+  border-radius: 2px;
+}
+
 /* 表格样式覆盖 */
 :deep(.el-table) {
   border-radius: 8px;
   overflow: hidden;
+  min-width: 100%;
 }
 
 :deep(.el-table th) {
@@ -507,9 +535,16 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     font-size: 20px;
   }
 
+  /* 表格容器在移动端 */
+  .table-wrapper.mobile-table {
+    overflow-x: visible;
+    width: 100%;
+  }
+
   /* 表格在移动端优化 */
   :deep(.el-table) {
-    font-size: 12px;
+    font-size: 11px;
+    width: 100% !important;
   }
 
   :deep(.el-table th),
@@ -517,22 +552,60 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     padding: 8px 4px;
   }
 
-  /* 标题单元格在移动端调整 */
-  .title-cell {
-    font-size: 14px;
-    line-height: 1.4;
+  :deep(.el-table th) {
+    font-size: 10px;
+    padding: 6px 4px;
+    white-space: nowrap;
   }
 
-  /* 作者和会议单元格在移动端调整 */
-  .authors-cell,
+  /* 标题列和作者列在移动端允许换行 */
+  :deep(.el-table td:nth-child(2)),
+  :deep(.el-table td:nth-child(4)) {
+    white-space: normal;
+  }
+
+  /* 标题单元格在移动端调整 */
+  .title-cell {
+    font-size: 11px;
+    line-height: 1.3;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* 时长单元格在移动端 */
+  .duration-cell {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  /* 作者单元格在移动端调整 */
+  .authors-cell {
+    font-size: 10px;
+    white-space: normal;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* 会议单元格在移动端调整 */
   .venue-cell {
-    font-size: 12px;
+    font-size: 10px;
+    white-space: nowrap;
   }
 
   /* 缩略图在移动端缩小 */
   .thumbnail-img {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
   }
 
   /* 分页在移动端居中 */
