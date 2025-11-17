@@ -169,7 +169,7 @@ const router = createRouter({
       path: '/conferenceMap',
       name: 'conferenceMap',
       component: () => import('@/views/map/conferenceMap.vue'),
-    }, 
+    },
     {
       path: '/conference/my-note',
       name: 'myNote',

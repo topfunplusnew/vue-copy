@@ -535,9 +535,7 @@ const handlePdfPreview = (fileUrl?: string) => {
             </el-icon>
             Preview
           </el-button>
-          <el-button type="danger" size="large" class="pdf-delete-button" :loading="deleteLoading" @click="handleRemove(posterFileList[0] as any, posterFileList as any)">
-            Delete
-          </el-button>
+          <el-button type="danger" size="large" class="pdf-delete-button" :loading="deleteLoading" @click="handleRemove(posterFileList[0] as any, posterFileList as any)"> Delete </el-button>
         </div>
       </div>
     </div>
