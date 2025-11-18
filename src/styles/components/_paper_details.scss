@@ -15,7 +15,8 @@
     gap: 20px;
     width: 100%;
     max-width: 1700px;
-    margin:0 auto;
+    margin: 0 auto;
+
     @include screen-mobile {
       flex-direction: column;
       gap: 12px;
@@ -285,7 +286,7 @@
             color: #475569;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: rpx(16);
+            font-size: rpx(20);
             font-weight: 600;
             letter-spacing: 0.3px;
 
@@ -358,6 +359,21 @@
             align-items: center;
             justify-content: flex-start;
             gap: 8px;
+
+            h2 {
+              font-size: 28px;
+              font-weight: 700;
+              margin-bottom: 15px;
+              color: #2c3e50;
+              display: flex;
+              align-items: center;
+
+              &::before {
+                content: '📋';
+                margin-right: 12px;
+                font-size: 30px;
+              }
+            }
           }
 
           .key-points-list {
@@ -464,9 +480,10 @@
             }
 
             h5 {
-              font-size: rpx(20);
+              font-size: rpx(22);
               font-weight: 600;
-              color: #374151;
+              color: #334155;
+              line-height: 1.5;
               margin: 0 0 10px 0;
 
               @include screen-mobile {
@@ -699,8 +716,8 @@
     gap: 16px;
 
     .profile-title {
-      font-size:20px;
-      margin:0 0;
+      font-size: 20px;
+      margin: 0 0;
     }
 
     .profile-link {

@@ -306,7 +306,8 @@ const toggleReply = (comment: Comment) => {
         <div v-if="paperNotFound" class="paper-not-found">
           <div class="not-found-icon">📄</div>
           <div class="not-found-title">The paper does not exist</div>
-          <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or the ID is incorrect.</div>
+          <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or
+            the ID is incorrect.</div>
         </div>
 
         <!-- 正常显示文章详情 -->
@@ -336,13 +337,13 @@ const toggleReply = (comment: Comment) => {
 
                   <div class="authors">
                     <div v-if="paperDetail?.authors?.length" class="authors-list">
-                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex"
+                        class="author-name">
                         {{ author.name
-                        }}<template v-if="author?.affiliations?.length"
-                          ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
-                            >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup
-                          ></template
-                        ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
+                        }}<template v-if="author?.affiliations?.length"><sup
+                            v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                            }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup></template><span
+                          v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
                       </span>
                     </div>
                     <div v-else class="empty-state">
@@ -353,8 +354,9 @@ const toggleReply = (comment: Comment) => {
                   <div class="affiliations">
                     <div v-if="affiliations.length" class="affiliations-list">
                       <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                        <sup>{{ aff.id }}</sup
-                        >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
+                        <sup>{{ aff.id }}</sup>{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department
+                          : '' }}{{
+                          aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
                         }}{{ aff.country ? ', ' + aff.country : '' }}
                       </div>
                     </div>
@@ -382,14 +384,22 @@ const toggleReply = (comment: Comment) => {
               <div class="left-nav">
                 <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
                 <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
-                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')" :disabled="paperDetail?.video_status !== 1">Video</button>
-                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key Points</button>
-                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 1">Slides</button>
-                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 1">Poster</button>
-                <button :class="{ active: activeTab === 'additional' }" @click="paperDetail?.addition_files.length && switchTab('additional')" :disabled="!paperDetail?.addition_files.length">
+                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')"
+                  :disabled="paperDetail?.video_status !== 1">Video</button>
+                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key
+                  Points</button>
+                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')"
+                  :disabled="paperDetail?.slide_status !== 1">Slides</button>
+                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')"
+                  :disabled="paperDetail?.poster_status !== 1">Poster</button>
+                <button :class="{ active: activeTab === 'additional' }"
+                  @click="paperDetail?.addition_files.length && switchTab('additional')"
+                  :disabled="!paperDetail?.addition_files.length">
                   Additional Info
                 </button>
-                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" v-if="paperDetail?.can_edit"> Edit </router-link>
+                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
+                  v-if="paperDetail?.can_edit">
+                  Edit </router-link>
               </div>
             </div>
 
@@ -425,42 +435,28 @@ const toggleReply = (comment: Comment) => {
                     </div>
                   </div>
                 </div> -->
-
                 <div class="detail-item">
                   <h5>DOI</h5>
                   <p>{{ paperDetail?.doi }}</p>
                 </div>
-
                 <div class="detail-item">
-                  <h5>Abstract</h5>
+                  <h5 class="detail-title">Abstract</h5>
                   <latex-content :latex="paperDetail?.abstract" />
                 </div>
               </div>
+
               <div v-if="activeTab === 'fulltext'" class="full-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="poster-image"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
-                  <FileUpload
-                    :tab-key="activeTab"
-                    :paper-id="paperDetail?.id || 0"
-                    :paper-detail="getPaperContent()"
-                    :limit="1"
-                    :is-show="false"
-                    :is-file-list-show-config="{
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                    :limit="1" :is-show="false" :is-file-list-show-config="{
                       [activeTab]: false,
-                    }"
-                  />
+                    }" />
                 </template>
                 <div v-else class="access-restricted">
                   <p>Video content is only available to open access.</p>
@@ -468,36 +464,23 @@ const toggleReply = (comment: Comment) => {
               </div>
 
               <div v-if="activeTab === 'slides'" class="slides-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="slides-iframe"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
 
               <div v-if="activeTab === 'poster'" class="poster-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="poster-image"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
 
               <div v-if="activeTab === 'additional'" class="additional-content">
                 <template v-if="paperDetail?.addition_files">
-                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()" :limit="-1" :is-show="false" class="additional-iframe" />
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()"
+                    :limit="-1" :is-show="false" class="additional-iframe" />
                 </template>
               </div>
               <div v-if="activeTab === 'Key Point'" class="keypoints-content">
@@ -525,8 +508,10 @@ const toggleReply = (comment: Comment) => {
               <div class="comment-input-wrapper">
                 <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="comment-avatar" />
                 <div v-else class="comment-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                <input v-model="commentContent" type="text" class="comment-input" placeholder="Write a comment..." @keyup.enter="submitComment" :disabled="commentSubmitting" />
-                <button class="comment-submit-btn" @click="submitComment" :disabled="commentSubmitting || !commentContent.trim()">
+                <input v-model="commentContent" type="text" class="comment-input" placeholder="Write a comment..."
+                  @keyup.enter="submitComment" :disabled="commentSubmitting" />
+                <button class="comment-submit-btn" @click="submitComment"
+                  :disabled="commentSubmitting || !commentContent.trim()">
                   {{ commentSubmitting ? 'Posting...' : 'Post' }}
                 </button>
               </div>
@@ -536,13 +521,16 @@ const toggleReply = (comment: Comment) => {
             <div class="comments-list">
               <!-- 加载图标 -->
               <div v-if="commentsLoading" class="comments-loading">
-                <el-icon class="is-loading"><Loading /></el-icon>
+                <el-icon class="is-loading">
+                  <Loading />
+                </el-icon>
               </div>
               <template v-else>
                 <div v-for="comment in comments" :key="comment.id" class="comment-item">
                   <!-- 主评论 -->
                   <div class="comment-main">
-                    <img v-if="comment.user?.avatar" :src="getImageUrl(comment.user.avatar)" alt="avatar" class="comment-user-avatar" />
+                    <img v-if="comment.user?.avatar" :src="getImageUrl(comment.user.avatar)" alt="avatar"
+                      class="comment-user-avatar" />
                     <div v-else class="comment-user-avatar-placeholder">
                       {{ comment.user?.name?.[0] || 'U' }}
                     </div>
@@ -565,8 +553,10 @@ const toggleReply = (comment: Comment) => {
                     <div class="reply-input-wrapper">
                       <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
                       <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                      <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
-                      <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                      <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..."
+                        @keyup.enter="submitReply" :disabled="replySubmitting" />
+                      <button class="reply-submit-btn" @click="submitReply"
+                        :disabled="replySubmitting || !replyContent.trim()">
                         {{ replySubmitting ? 'Sending...' : 'Send' }}
                       </button>
                     </div>
@@ -575,7 +565,8 @@ const toggleReply = (comment: Comment) => {
                   <!-- 回复列表 -->
                   <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
                     <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                      <img v-if="reply.user?.avatar" :src="getImageUrl(reply.user.avatar)" alt="avatar" class="reply-user-avatar" />
+                      <img v-if="reply.user?.avatar" :src="getImageUrl(reply.user.avatar)" alt="avatar"
+                        class="reply-user-avatar" />
                       <div v-else class="reply-user-avatar-placeholder">
                         {{ reply.user?.name?.[0] || 'U' }}
                       </div>
@@ -597,8 +588,10 @@ const toggleReply = (comment: Comment) => {
                         <div class="reply-input-wrapper">
                           <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
                           <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                          <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
-                          <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                          <input v-model="replyContent" type="text" class="reply-input"
+                            placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
+                          <button class="reply-submit-btn" @click="submitReply"
+                            :disabled="replySubmitting || !replyContent.trim()">
                             {{ replySubmitting ? 'Sending...' : 'Send' }}
                           </button>
                         </div>
@@ -639,5 +632,5 @@ const toggleReply = (comment: Comment) => {
 </template>
 
 <style lang="scss" scoped>
-@use '@/styles/pages/paper-details';
+@use '../../styles/pages/_paper-details.scss' as *;
 </style>
