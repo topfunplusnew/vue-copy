@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch,onUnmounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import type { IScheduleEvent } from '@/types/schedule.ts';
 import { useScheduleStore } from '@/stores/schedule.ts';
@@ -30,6 +30,12 @@ onMounted(async () => {
   // 监听存储变化
   window.addEventListener('storage', handleStorageChange);
   window.addEventListener('scheduleUpdated', handleStorageChange);
+});
+
+onUnmounted(() => {
+  // 移除事件监听
+  window.removeEventListener('storage', handleStorageChange);
+  window.removeEventListener('scheduleUpdated', handleStorageChange);
 });
 
 const props = withDefaults(defineProps<Props>(), {
