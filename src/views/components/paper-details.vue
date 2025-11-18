@@ -716,13 +716,18 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
             <div v-if="paperDetail?.authors?.length" class="authors-cards-section">
               <h4 class="authors-section-title">Authors</h4>
               <div class="authors-cards-container">
-                <div v-for="author in paperDetail.authors" :key="author.id" class="author-card">
+                <router-link
+                  v-for="author in paperDetail.authors"
+                  :key="author.user_id"
+                  :to="author.user_id === user?.id ? { name: 'userpage' } : { name: 'otheruser', params: { id: author.user_id } }"
+                  class="author-card"
+                >
                   <div class="author-avatar-wrapper">
                     <img v-if="author.avatar" :src="getImageUrl(author.avatar)" :alt="author.name" class="author-avatar" />
                     <div v-else class="author-avatar-placeholder">{{ author.name?.[0] || 'A' }}</div>
                   </div>
                   <div class="author-name">{{ author.name }}</div>
-                </div>
+                </router-link>
               </div>
             </div>
           </div>
