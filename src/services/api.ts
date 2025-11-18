@@ -254,3 +254,5 @@ export const getMyNote = () =>
   http.get("/api/notes", {
     baseURL: "https://m1.apifoxmock.com/m1/6157155-5849182-default",
   });
+
+  export const getManagers = () => http.get('/user/admins');

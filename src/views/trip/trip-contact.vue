@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted,computed } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { ElMessage } from 'element-plus';
 import { auth } from '@/services/http';
 import commonHeader from '@/layout/common-header.vue';
-
+import { getImageUrl } from '@/utils/index';
 /** 页面标题，可在此修改 */
 const msg= 'Contact Us';
 
@@ -12,11 +12,13 @@ const msg= 'Contact Us';
 const userStore = useUserStore();
 
 // 处理登录点击
-
+const adminList = computed(() => userStore.manager);
 // 页面加载时获取用户信息（如果已登录）
 onMounted(() => {
   if (auth.get() && !userStore.user) {
-    userStore.getUserInfo();
+    userStore.getUserInfo().then(()=>{
+      userStore.getManagerList();
+    });
   }
 });
 
@@ -108,19 +110,12 @@ function submitContact() {
 
           <div class="info-card">
             <h2>Follow Us</h2>
-            <div class="social-links">
-              <a href="#" class="social-link">
-                <i class="el-icon-s-platform"></i>
-              </a>
-              <a href="#" class="social-link">
-                <i class="el-icon-s-promotion"></i>
-              </a>
-              <a href="#" class="social-link">
-                <i class="el-icon-s-marketing"></i>
-              </a>
-              <a href="#" class="social-link">
-                <i class="el-icon-s-cooperation"></i>
-              </a>
+            <div  class="social-links">
+              <router-link :to="{name:'otheruser',params:{id:admin.id}}" class="social-link" v-for="admin in adminList" :key="admin.id">
+
+                <img :src="getImageUrl(admin.avatar)" alt="admin avatar" class="social-icon"></img>
+                <span class="social-name">{{ admin.name }}</span>
+              </router-link>
             </div>
           </div>
         </section>

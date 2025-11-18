@@ -7,6 +7,6 @@
     "types": ["element-plus/global","vite/client", "google.maps"], 
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
   }
 }

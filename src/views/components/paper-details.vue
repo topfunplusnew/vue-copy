@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch ,onUnmounted} from 'vue';
 import { useRoute } from 'vue-router';
 import { isEmpty, find, flatMap, get as lodashGet, uniqBy, defaultTo } from 'lodash';
 import commonHeader from '@/layout/common-header.vue';
@@ -94,6 +94,10 @@ onMounted(async () => {
   await loadComments();
 
   window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
 });
 
 // 监听 paperId 变化，当路由参数变化时重新记录

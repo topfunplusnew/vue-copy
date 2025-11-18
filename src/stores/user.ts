@@ -4,8 +4,8 @@ import { userLogin, userProfile, accountActivate, userModify, userLogout, upload
   getMyBlogList, getBlogPost, myblogdelete, userSignup, googleAuthorize,
   comment2Blog,comment2Comment,commentDel,comments,
   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth, joinWaitlist, 
-  getMyNote} from '@/services/api';
-import type { ILogin, IUser, IUserEdit, IUserSignup } from '@/types/user';
+  getMyNote,getManagers} from '@/services/api';
+import type { ILogin, IUser, IUserEdit, IUserSignup,IManager } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
 import { auth } from '@/services/http';
@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', () => {
   const followings = ref<IUser[]>([]);
   const followers = ref<IUser[]>([]);
   const notes = ref<INote[]>([]);
-
+  const manager = ref<IManager[]>([]);
 /* 
  * 获取用户note列表
 */
@@ -271,6 +271,13 @@ function joinWait(message:string) {
   return joinWaitlist(message);
 }
 
+function getManagerList() {
+  return getManagers().then((res) =>{
+    manager.value = res.data.items
+    return res
+  });
+}
+
 
 
   return {
@@ -281,6 +288,7 @@ function joinWait(message:string) {
     selectedPost,
     followings,
     followers,
+    manager,
     // invitation
     invitation,
     joinWait,
@@ -309,6 +317,7 @@ function joinWait(message:string) {
     collapseComments,
     clearSelectedPost,
     signup,
-    getMyNoteList
+    getMyNoteList,
+    getManagerList
   };
 });
