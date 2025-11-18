@@ -246,6 +246,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  font-weight: 600;
 }
 
 .comment-btn:hover {
@@ -449,6 +450,7 @@
   display: flex;
   align-items: center;
   gap: 2px;
+  font-weight: 600;
 }
 
 .reply-btn-small:hover {
@@ -457,6 +459,134 @@
 
 .reply-btn-small span {
   font-size: 12px;
+}
+
+.expand-replies-btn {
+  background: none;
+  border: none;
+  color: #1a3566;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-weight: 500;
+}
+
+.expand-replies-btn:hover {
+  background-color: #f3f4f6;
+}
+
+// 平级显示的嵌套回复（三级及以上，与二级回复平级）
+.nested-reply-item-flat {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px;
+  background-color: #f9fafb;
+  border-left: 3px solid #1a3566;
+  border-radius: 6px;
+  transition: box-shadow 0.2s;
+}
+
+.nested-reply-item-flat:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.nested-reply-avatar-section {
+  flex-shrink: 0;
+}
+
+.nested-reply-avatar,
+.nested-reply-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.nested-reply-avatar {
+  object-fit: cover;
+}
+
+.nested-reply-avatar-placeholder {
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.nested-reply-content-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nested-reply-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.nested-reply-author {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a3566;
+}
+
+.nested-reply-arrow {
+  font-size: 14px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.nested-reply-target {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b7280;
+  padding: 2px 8px;
+  background-color: #f3f4f6;
+  border-radius: 4px;
+}
+
+.nested-reply-content {
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.6;
+  padding-left: 4px;
+}
+
+.nested-reply-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.nested-reply-time {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.nested-reply-btn {
+  background: none;
+  border: none;
+  color: #1a3566;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-weight: 600;
+}
+
+.nested-reply-btn:hover {
+  background-color: #f3f4f6;
 }
 
 // 空状态
@@ -521,6 +651,145 @@
 
   .replies-list {
     margin-left: 46px;
+  }
+
+  .nested-reply-item-flat {
+    padding: 8px;
+    margin-bottom: 10px;
+    flex-direction: row;
+  }
+
+  .nested-reply-avatar,
+  .nested-reply-avatar-placeholder {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .nested-reply-author {
+    font-size: 12px;
+  }
+
+  .nested-reply-target {
+    font-size: 12px;
+    padding: 2px 6px;
+  }
+
+  .nested-reply-content {
+    font-size: 12px;
+  }
+
+  .nested-reply-time {
+    font-size: 10px;
+  }
+
+  .nested-reply-btn {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .expand-replies-btn {
+    font-size: 10px;
+    padding: 2px 4px;
+  }
+}
+
+// 作者卡片区域
+.authors-cards-section {
+  margin-top: 20px;
+}
+
+.authors-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a3566;
+  margin: 0 0 16px 0;
+}
+
+.authors-cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.author-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.author-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+.author-avatar-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.author-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.author-avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.author-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  text-align: center;
+  word-break: break-word;
+  max-width: 100px;
+  line-height: 1.4;
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .authors-cards-container {
+    gap: 12px;
+  }
+
+  .author-card {
+    min-width: 80px;
+    padding: 10px;
+  }
+
+  .author-avatar-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .author-avatar-placeholder {
+    font-size: 20px;
+  }
+
+  .author-name {
+    font-size: 12px;
+    max-width: 80px;
   }
 }
 
