@@ -50,21 +50,122 @@
       }
 
       h2 {
-        margin: 0 0 12px 0;
+        margin: 0 0 16px 0;
         font-size: rpx(23);
         font-weight: 700;
         color: #1e40af;
         letter-spacing: 0.5px;
       }
 
+      .conference-search-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 16px;
+        width: 100%;
+        box-sizing: border-box;
+        position: relative;
+
+        @include screen-mobile {
+          margin-bottom: 14px;
+          padding-right: 0; // 移动端：不需要额外距离
+        }
+
+        .conference-search-input {
+          flex: 1;
+          padding: 12px 16px;
+          border: 2px solid rgba(59, 130, 246, 0.25);
+          border-radius: 10px 0 0 10px;
+          border-right: none;
+          font-size: rpx(18);
+          background: rgba(255, 255, 255, 0.95);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-sizing: border-box;
+          outline: none;
+          color: #1e293b;
+          font-weight: 500;
+          min-height: 48px;
+
+          &::placeholder {
+            color: #94a3b8;
+            font-weight: 400;
+            opacity: 0.8;
+          }
+
+          &:focus {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+
+          &:hover:not(:focus) {
+            border-color: rgba(59, 130, 246, 0.35);
+            background: rgba(255, 255, 255, 1);
+          }
+
+          @include screen-mobile {
+            font-size: rpx(20);
+            padding: 14px 18px;
+            min-height: 52px;
+          }
+        }
+
+        .conference-search-btn {
+          border-radius: 0 10px 10px 0;
+          border: 2px solid rgba(59, 130, 246, 0.25);
+          border-left: none;
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.9) 0%, rgba(99, 102, 241, 0.85) 100%);
+          color: white;
+          padding: 12px 18px;
+          height: auto;
+          min-height: 48px;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          font-size: 18px;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+
+          &:hover {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 1) 0%, rgba(99, 102, 241, 0.95) 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+          }
+
+          &:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.25);
+          }
+
+          @include screen-mobile {
+            padding: 14px 20px;
+            min-height: 52px;
+            font-size: 20px;
+          }
+
+          // Element Plus 图标样式
+          :deep(.el-icon) {
+            font-size: 18px;
+
+            @include screen-mobile {
+              font-size: 20px;
+            }
+          }
+        }
+      }
+
       .stats {
         display: flex;
         gap: 16px;
+        margin-top: 4px;
 
         .stat-item {
-          font-size: rpx(18);
-          color: #475569;
-          font-weight: 600;
+          font-size: rpx(14);
+          color: #64748b;
+          font-weight: 500;
+          line-height: 1.4;
         }
       }
     }
@@ -758,11 +859,14 @@
             &.paper-full.paper-video::after {
               width: 48px; /* 20px for square + 8px margin + 20px for video */
               background-image: url('@/assets/square.png'), url('@/assets/video.png');
-              background-size: 20px 20px, 20px 20px;
+              background-size:
+                20px 20px,
+                20px 20px;
               background-repeat: no-repeat, no-repeat;
-              background-position: 0 center, 28px center;
+              background-position:
+                0 center,
+                28px center;
             }
-
           }
         }
 
@@ -871,5 +975,4 @@
       }
     }
   }
-
 }
