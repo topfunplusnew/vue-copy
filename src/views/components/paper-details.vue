@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { isEmpty, find, flatMap, get as lodashGet, uniqBy, defaultTo } from 'lodash';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { getImageUrl } from '@/utils';
@@ -122,56 +123,48 @@ function switchTab(tab: TabKey | 'Key Point' | 'fulltext') {
 function getPaperContent(): PaperDetail {
   if (activeTab.value === 'additional') {
     return {
-      fileUrl: paperDetail.value?.addition_files || [],
+      fileUrl: defaultTo(paperDetail.value?.addition_files, []),
     };
   }
   if (activeTab.value === 'Key Point') {
     return { fileUrl: '' };
   }
-  const raw = paperDetail.value?.[getFileTypeByTabKey(activeTab.value as TabKey)];
-  return { fileUrl: raw };
+  const raw = lodashGet(paperDetail.value, getFileTypeByTabKey(activeTab.value as TabKey));
+  return { fileUrl: defaultTo(raw, '') };
 }
 
 // 获取机构列表 - 按作者顺序合并去重并重新编号
 const affiliations = computed((): AffiliationLite[] => {
-  if (!paperDetail.value?.authors) return [];
+  if (isEmpty(paperDetail.value?.authors)) return [];
+
   const sortedAuthors = [...paperDetail.value.authors];
-  const allAffiliations: { authorId: number; originalAffiliationId: number; affiliation: AffRaw }[] = [];
-  sortedAuthors.forEach((author) => {
-    if (author.affiliations && author.affiliations.length > 0) {
-      author.affiliations.forEach((affiliation) => {
-        allAffiliations.push({
-          authorId: author.id,
-          originalAffiliationId: affiliation.id,
-          affiliation: affiliation as AffRaw,
-        });
-      });
-    }
+  const allAffiliations = flatMap(sortedAuthors, (author: (typeof sortedAuthors)[0]) => {
+    if (isEmpty(author.affiliations)) return [];
+    return author.affiliations.map((affiliation: (typeof author.affiliations)[0]) => ({
+      authorId: author.id,
+      originalAffiliationId: affiliation.id,
+      affiliation: affiliation as AffRaw,
+    }));
   });
-  const uniqueAffiliations = new Map();
-  const affiliationList: AffiliationLite[] = [];
-  let newId = 1;
-  allAffiliations.forEach((item) => {
-    if (!uniqueAffiliations.has(item.originalAffiliationId)) {
-      const newAffiliation = {
-        id: newId++,
-        originalId: item.originalAffiliationId,
-        name: item.affiliation.name,
-        department: item.affiliation.department,
-        university: item.affiliation.university,
-        city: item.affiliation.city,
-        state: item.affiliation.state,
-        country: item.affiliation.country,
-      };
-      uniqueAffiliations.set(item.originalAffiliationId, newAffiliation);
-      affiliationList.push(newAffiliation);
-    }
-  });
-  return affiliationList;
+
+  // 使用 uniqBy 去重，保持顺序
+  const uniqueAffiliationItems = uniqBy(allAffiliations, 'originalAffiliationId');
+
+  // 使用 map 替代 forEach + push，更函数式
+  return uniqueAffiliationItems.map((item: (typeof allAffiliations)[0], index: number) => ({
+    id: index + 1,
+    originalId: item.originalAffiliationId,
+    name: item.affiliation.name,
+    department: item.affiliation.department,
+    university: item.affiliation.university,
+    city: item.affiliation.city,
+    state: item.affiliation.state,
+    country: item.affiliation.country,
+  }));
 });
 
 function getAffiliationNumber(originalId: number) {
-  const aff = affiliations.value.find((a) => a.originalId === originalId);
+  const aff = find(affiliations.value, (a: AffiliationLite) => a.originalId === originalId);
   return aff ? aff.id : 0;
 }
 
@@ -184,6 +177,7 @@ const commentSubmitting = ref(false); // 评论提交中状态
 const replyingTo = ref<Comment | null>(null); // 正在回复的评论
 const replyContent = ref(''); // 回复输入内容
 const replySubmitting = ref(false); // 回复提交中状态
+const expandedReplies = ref<Set<number>>(new Set()); // 已展开的三级回复的二级回复ID集合
 
 // 加载评论列表
 const loadComments = async () => {
@@ -192,9 +186,10 @@ const loadComments = async () => {
   commentsLoading.value = true;
   try {
     const response = await getPaperComments(paperId.value);
-    if (response.data) {
-      comments.value = response.data.items || [];
-      commentsTotal.value = response.data.total || 0;
+    const responseData = lodashGet(response, 'data');
+    if (responseData) {
+      comments.value = defaultTo(lodashGet(responseData, 'items'), []);
+      commentsTotal.value = defaultTo(lodashGet(responseData, 'total'), 0);
     }
   } catch (error) {
     console.error('Failed to load comments:', error);
@@ -206,16 +201,18 @@ const loadComments = async () => {
 
 // 提交评论
 const submitComment = async () => {
-  if (!commentContent.value.trim() || !paperId.value || commentSubmitting.value) return;
+  const trimmedContent = commentContent.value.trim();
+  if (isEmpty(trimmedContent) || !paperId.value || commentSubmitting.value) return;
 
   commentSubmitting.value = true;
   try {
     const data: CreatePaperCommentData = {
-      content: commentContent.value.trim(),
+      content: trimmedContent,
     };
     const response = await createPaperComment(paperId.value, data);
-    if (response.data) {
-      ElMessage.success(response.data.message || 'Comment posted successfully');
+    const responseData = lodashGet(response, 'data');
+    if (responseData) {
+      ElMessage.success(lodashGet(responseData, 'message', 'Comment posted successfully'));
       commentContent.value = '';
       await loadComments();
     }
@@ -229,17 +226,19 @@ const submitComment = async () => {
 
 // 提交回复
 const submitReply = async () => {
-  if (!replyContent.value.trim() || !paperId.value || !replyingTo.value || replySubmitting.value) return;
+  const trimmedContent = replyContent.value.trim();
+  if (isEmpty(trimmedContent) || !paperId.value || !replyingTo.value || replySubmitting.value) return;
 
   replySubmitting.value = true;
   try {
     const data: CreatePaperCommentData = {
-      content: replyContent.value.trim(),
-      parent_id: replyingTo.value.id,
+      content: trimmedContent,
+      parent_id: lodashGet(replyingTo.value, 'id'),
     };
     const response = await createPaperComment(paperId.value, data);
-    if (response.data) {
-      ElMessage.success(response.data.message || 'Reply posted successfully');
+    const responseData = lodashGet(response, 'data');
+    if (responseData) {
+      ElMessage.success(lodashGet(responseData, 'message', 'Reply posted successfully'));
       replyContent.value = '';
       replyingTo.value = null;
       await loadComments();
@@ -284,13 +283,66 @@ const formatTime = (timeStr: string) => {
 
 // 切换回复输入框
 const toggleReply = (comment: Comment) => {
-  if (replyingTo.value?.id === comment.id) {
-    replyingTo.value = null;
-    replyContent.value = '';
+  const isSameComment = lodashGet(replyingTo.value, 'id') === comment.id;
+  replyingTo.value = isSameComment ? null : comment;
+  replyContent.value = '';
+};
+
+// 切换展开/折叠三级回复
+const toggleExpandReplies = (replyId: number) => {
+  if (expandedReplies.value.has(replyId)) {
+    expandedReplies.value.delete(replyId);
   } else {
-    replyingTo.value = comment;
-    replyContent.value = '';
+    expandedReplies.value.add(replyId);
   }
+};
+
+// 递归计算所有嵌套回复的总数
+const countAllNestedReplies = (replies: Comment[] | undefined): number => {
+  if (isEmpty(replies)) return 0;
+
+  return (replies as Comment[]).reduce((count, reply) => {
+    const currentCount = 1; // 当前回复
+    const nestedCount = isEmpty(reply.replies) ? 0 : countAllNestedReplies(reply.replies);
+    return count + currentCount + nestedCount;
+  }, 0);
+};
+
+// 递归添加所有嵌套回复（三级及以上）
+const addNestedReplies = (nestedReplies: Comment[] | undefined, targetUserName: string, result: Array<{ reply: Comment; isNested: boolean; targetUser?: string }>) => {
+  if (isEmpty(nestedReplies)) return;
+
+  (nestedReplies as Comment[]).forEach((nestedReply) => {
+    // 添加当前层级的嵌套回复
+    result.push({
+      reply: nestedReply,
+      isNested: true,
+      targetUser: targetUserName,
+    });
+
+    // 递归处理更深层级的回复
+    if (!isEmpty(nestedReply.replies)) {
+      addNestedReplies(nestedReply.replies, lodashGet(nestedReply, 'user.name', 'Anonymous'), result);
+    }
+  });
+};
+
+// 获取所有需要平级显示的回复（二级回复 + 展开的三级及以上回复）
+const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Comment; isNested: boolean; targetUser?: string }> => {
+  if (isEmpty(replies)) return [];
+
+  return flatMap(replies, (reply: Comment) => {
+    const result: Array<{ reply: Comment; isNested: boolean; targetUser?: string }> = [
+      { reply, isNested: false }, // 添加二级回复（完整显示）
+    ];
+
+    // 如果已展开，递归添加所有三级及以上回复（A->B格式）
+    if (expandedReplies.value.has(reply.id) && !isEmpty(reply.replies)) {
+      addNestedReplies(reply.replies, lodashGet(reply, 'user.name', 'Anonymous'), result);
+    }
+
+    return result;
+  });
 };
 </script>
 
@@ -306,8 +358,7 @@ const toggleReply = (comment: Comment) => {
         <div v-if="paperNotFound" class="paper-not-found">
           <div class="not-found-icon">📄</div>
           <div class="not-found-title">The paper does not exist</div>
-          <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or
-            the ID is incorrect.</div>
+          <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or the ID is incorrect.</div>
         </div>
 
         <!-- 正常显示文章详情 -->
@@ -337,13 +388,13 @@ const toggleReply = (comment: Comment) => {
 
                   <div class="authors">
                     <div v-if="paperDetail?.authors?.length" class="authors-list">
-                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex"
-                        class="author-name">
+                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
                         {{ author.name
-                        }}<template v-if="author?.affiliations?.length"><sup
-                            v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
-                            }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup></template><span
-                          v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
+                        }}<template v-if="author?.affiliations?.length"
+                          ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
+                            >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup
+                          ></template
+                        ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
                       </span>
                     </div>
                     <div v-else class="empty-state">
@@ -354,9 +405,8 @@ const toggleReply = (comment: Comment) => {
                   <div class="affiliations">
                     <div v-if="affiliations.length" class="affiliations-list">
                       <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                        <sup>{{ aff.id }}</sup>{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department
-                          : '' }}{{
-                          aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
+                        <sup>{{ aff.id }}</sup
+                        >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
                         }}{{ aff.country ? ', ' + aff.country : '' }}
                       </div>
                     </div>
@@ -384,22 +434,14 @@ const toggleReply = (comment: Comment) => {
               <div class="left-nav">
                 <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
                 <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
-                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')"
-                  :disabled="paperDetail?.video_status !== 1">Video</button>
-                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key
-                  Points</button>
-                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')"
-                  :disabled="paperDetail?.slide_status !== 1">Slides</button>
-                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')"
-                  :disabled="paperDetail?.poster_status !== 1">Poster</button>
-                <button :class="{ active: activeTab === 'additional' }"
-                  @click="paperDetail?.addition_files.length && switchTab('additional')"
-                  :disabled="!paperDetail?.addition_files.length">
+                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')" :disabled="paperDetail?.video_status !== 1">Video</button>
+                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key Points</button>
+                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 1">Slides</button>
+                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 1">Poster</button>
+                <button :class="{ active: activeTab === 'additional' }" @click="paperDetail?.addition_files.length && switchTab('additional')" :disabled="!paperDetail?.addition_files.length">
                   Additional Info
                 </button>
-                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
-                  v-if="paperDetail?.can_edit">
-                  Edit </router-link>
+                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" v-if="paperDetail?.can_edit"> Edit </router-link>
               </div>
             </div>
 
@@ -446,17 +488,30 @@ const toggleReply = (comment: Comment) => {
               </div>
 
               <div v-if="activeTab === 'fulltext'" class="full-content">
-                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
-                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
+                <FileUpload
+                  :tab-key="activeTab"
+                  :paper-id="paperDetail?.id || 0"
+                  :paper-detail="getPaperContent()"
+                  :limit="1"
+                  class="poster-image"
+                  :is-show="false"
+                  :is-file-list-show-config="{
                     [activeTab]: false,
-                  }" />
+                  }"
+                />
               </div>
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
-                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
-                    :limit="1" :is-show="false" :is-file-list-show-config="{
+                  <FileUpload
+                    :tab-key="activeTab"
+                    :paper-id="paperDetail?.id || 0"
+                    :paper-detail="getPaperContent()"
+                    :limit="1"
+                    :is-show="false"
+                    :is-file-list-show-config="{
                       [activeTab]: false,
-                    }" />
+                    }"
+                  />
                 </template>
                 <div v-else class="access-restricted">
                   <p>Video content is only available to open access.</p>
@@ -464,23 +519,36 @@ const toggleReply = (comment: Comment) => {
               </div>
 
               <div v-if="activeTab === 'slides'" class="slides-content">
-                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
-                  :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
+                <FileUpload
+                  :tab-key="activeTab"
+                  :paper-id="paperDetail?.id || 0"
+                  :paper-detail="getPaperContent()"
+                  :limit="1"
+                  class="slides-iframe"
+                  :is-show="false"
+                  :is-file-list-show-config="{
                     [activeTab]: false,
-                  }" />
+                  }"
+                />
               </div>
 
               <div v-if="activeTab === 'poster'" class="poster-content">
-                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
-                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
+                <FileUpload
+                  :tab-key="activeTab"
+                  :paper-id="paperDetail?.id || 0"
+                  :paper-detail="getPaperContent()"
+                  :limit="1"
+                  class="poster-image"
+                  :is-show="false"
+                  :is-file-list-show-config="{
                     [activeTab]: false,
-                  }" />
+                  }"
+                />
               </div>
 
               <div v-if="activeTab === 'additional'" class="additional-content">
                 <template v-if="paperDetail?.addition_files">
-                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()"
-                    :limit="-1" :is-show="false" class="additional-iframe" />
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()" :limit="-1" :is-show="false" class="additional-iframe" />
                 </template>
               </div>
               <div v-if="activeTab === 'Key Point'" class="keypoints-content">
@@ -508,10 +576,8 @@ const toggleReply = (comment: Comment) => {
               <div class="comment-input-wrapper">
                 <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="comment-avatar" />
                 <div v-else class="comment-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                <input v-model="commentContent" type="text" class="comment-input" placeholder="Write a comment..."
-                  @keyup.enter="submitComment" :disabled="commentSubmitting" />
-                <button class="comment-submit-btn" @click="submitComment"
-                  :disabled="commentSubmitting || !commentContent.trim()">
+                <input v-model="commentContent" type="text" class="comment-input" placeholder="Write a comment..." @keyup.enter="submitComment" :disabled="commentSubmitting" />
+                <button class="comment-submit-btn" @click="submitComment" :disabled="commentSubmitting || !commentContent.trim()">
                   {{ commentSubmitting ? 'Posting...' : 'Post' }}
                 </button>
               </div>
@@ -529,8 +595,7 @@ const toggleReply = (comment: Comment) => {
                 <div v-for="comment in comments" :key="comment.id" class="comment-item">
                   <!-- 主评论 -->
                   <div class="comment-main">
-                    <img v-if="comment.user?.avatar" :src="getImageUrl(comment.user.avatar)" alt="avatar"
-                      class="comment-user-avatar" />
+                    <img v-if="comment.user?.avatar" :src="getImageUrl(comment.user.avatar)" alt="avatar" class="comment-user-avatar" />
                     <div v-else class="comment-user-avatar-placeholder">
                       {{ comment.user?.name?.[0] || 'U' }}
                     </div>
@@ -553,50 +618,85 @@ const toggleReply = (comment: Comment) => {
                     <div class="reply-input-wrapper">
                       <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
                       <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                      <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..."
-                        @keyup.enter="submitReply" :disabled="replySubmitting" />
-                      <button class="reply-submit-btn" @click="submitReply"
-                        :disabled="replySubmitting || !replyContent.trim()">
+                      <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
+                      <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
                         {{ replySubmitting ? 'Sending...' : 'Send' }}
                       </button>
                     </div>
                   </div>
 
-                  <!-- 回复列表 -->
+                  <!-- 回复列表（二级回复和三级及以上回复平级显示） -->
                   <div v-if="comment.replies && comment.replies.length > 0" class="replies-list">
-                    <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
-                      <img v-if="reply.user?.avatar" :src="getImageUrl(reply.user.avatar)" alt="avatar"
-                        class="reply-user-avatar" />
-                      <div v-else class="reply-user-avatar-placeholder">
-                        {{ reply.user?.name?.[0] || 'U' }}
-                      </div>
-                      <div class="reply-content-wrapper">
-                        <div class="reply-user-info">
-                          <span class="reply-username">{{ reply.user?.name || 'Anonymous' }}</span>
-                          <span v-if="reply.is_owner_reply" class="owner-badge">UP</span>
+                    <template v-for="item in getFlattenedReplies(comment.replies)" :key="item.reply.id">
+                      <!-- 二级回复（完整显示） -->
+                      <div v-if="!item.isNested" class="reply-item">
+                        <img v-if="item.reply.user?.avatar" :src="getImageUrl(item.reply.user.avatar)" alt="avatar" class="reply-user-avatar" />
+                        <div v-else class="reply-user-avatar-placeholder">
+                          {{ item.reply.user?.name?.[0] || 'U' }}
                         </div>
-                        <div class="reply-text">{{ reply.content }}</div>
-                        <div class="reply-actions">
-                          <span class="reply-time">{{ formatTime(reply.updated_at) }}</span>
-                          <div class="reply-buttons">
-                            <button class="reply-btn-small" @click="toggleReply(reply)">Reply</button>
+                        <div class="reply-content-wrapper">
+                          <div class="reply-user-info">
+                            <span class="reply-username">{{ item.reply.user?.name || 'Anonymous' }}</span>
+                            <span v-if="item.reply.is_owner_reply" class="owner-badge">UP</span>
+                          </div>
+                          <div class="reply-text">{{ item.reply.content }}</div>
+                          <div class="reply-actions">
+                            <span class="reply-time">{{ formatTime(item.reply.updated_at) }}</span>
+                            <div class="reply-buttons">
+                              <button class="reply-btn-small" @click="toggleReply(item.reply)">Reply</button>
+                              <!-- 查看更多回复按钮 -->
+                              <button v-if="item.reply.replies && item.reply.replies.length > 0" class="expand-replies-btn" @click="toggleExpandReplies(item.reply.id)">
+                                {{ expandedReplies.has(item.reply.id) ? 'Hide replies' : `View more replies (${countAllNestedReplies(item.reply.replies)})` }}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- 回复输入框（回复回复） -->
+                        <div v-if="replyingTo?.id === item.reply.id" class="reply-input-area-nested">
+                          <div class="reply-input-wrapper">
+                            <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
+                            <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
+                            <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
+                            <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                              {{ replySubmitting ? 'Sending...' : 'Send' }}
+                            </button>
                           </div>
                         </div>
                       </div>
-                      <!-- 回复输入框（回复回复） -->
-                      <div v-if="replyingTo?.id === reply.id" class="reply-input-area-nested">
-                        <div class="reply-input-wrapper">
-                          <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
-                          <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                          <input v-model="replyContent" type="text" class="reply-input"
-                            placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
-                          <button class="reply-submit-btn" @click="submitReply"
-                            :disabled="replySubmitting || !replyContent.trim()">
-                            {{ replySubmitting ? 'Sending...' : 'Send' }}
-                          </button>
+
+                      <!-- 三级及以上回复（A->B格式，与二级回复平级） -->
+                      <div v-else class="nested-reply-item-flat">
+                        <div class="nested-reply-avatar-section">
+                          <img v-if="item.reply.user?.avatar" :src="getImageUrl(item.reply.user.avatar)" alt="avatar" class="nested-reply-avatar" />
+                          <div v-else class="nested-reply-avatar-placeholder">
+                            {{ item.reply.user?.name?.[0] || 'U' }}
+                          </div>
+                        </div>
+                        <div class="nested-reply-content-section">
+                          <div class="nested-reply-header">
+                            <span class="nested-reply-author">{{ item.reply.user?.name || 'Anonymous' }}</span>
+                            <span class="nested-reply-arrow">→</span>
+                            <span class="nested-reply-target">{{ item.targetUser || 'Anonymous' }}</span>
+                          </div>
+                          <div class="nested-reply-content">{{ item.reply.content }}</div>
+                          <div class="nested-reply-footer">
+                            <span class="nested-reply-time">{{ formatTime(item.reply.updated_at) }}</span>
+                            <button class="nested-reply-btn" @click="toggleReply(item.reply)">Reply</button>
+                          </div>
+                        </div>
+                        <!-- 回复输入框（回复嵌套回复） -->
+                        <div v-if="replyingTo?.id === item.reply.id" class="reply-input-area-nested">
+                          <div class="reply-input-wrapper">
+                            <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
+                            <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
+                            <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
+                            <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                              {{ replySubmitting ? 'Sending...' : 'Send' }}
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </template>
                   </div>
                 </div>
 
@@ -613,16 +713,22 @@ const toggleReply = (comment: Comment) => {
               <span class="title">Profiles</span>
             </div>
 
-            <div v-if="user" class="profile-item">
-              <h4 class="profile-title">Authors :</h4>
-              <router-link :to="{ name: 'userpage' }" class="profile-link">
-                <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
-                  {{ author.name }}
-                </span>
-              </router-link>
-              <!-- <div class="profile-info">
-                <h4 style="text-decoration: none;">{{ user.name }}</h4>
-              </div> -->
+            <div v-if="paperDetail?.authors?.length" class="authors-cards-section">
+              <h4 class="authors-section-title">Authors</h4>
+              <div class="authors-cards-container">
+                <router-link
+                  v-for="author in paperDetail.authors"
+                  :key="author.user_id"
+                  :to="author.user_id === user?.id ? { name: 'userpage' } : { name: 'otheruser', params: { id: author.user_id } }"
+                  class="author-card"
+                >
+                  <div class="author-avatar-wrapper">
+                    <img v-if="author.avatar" :src="getImageUrl(author.avatar)" :alt="author.name" class="author-avatar" />
+                    <div v-else class="author-avatar-placeholder">{{ author.name?.[0] || 'A' }}</div>
+                  </div>
+                  <div class="author-name">{{ author.name }}</div>
+                </router-link>
+              </div>
             </div>
           </div>
         </template>

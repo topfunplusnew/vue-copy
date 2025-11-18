@@ -11,62 +11,65 @@ export interface IPaper {
     video?: string;
 }
 export interface IPaperAuthors {
-    id: number;
-    name: string;
-    affiliations: IAffiliations[]
+  id: number;
+  name: string;
+  avatar?: string;
+  affiliations: IAffiliations[];
+  user_id: number;
 }
 export interface IAffiliations {
-    id: number;
-    name: string;
-    department: string;
-    university: string;
-    city: string;
-    country: string;
-    state?: string;
+  id: number;
+  name: string;
+  department: string;
+  university: string;
+  city: string;
+  country: string;
+  state?: string;
 }
 export interface IConferenceInfo {
-    id: number;
-    name: string;
-    abbreviation: string;
-    logo: string;
+  id: number;
+  name: string;
+  abbreviation: string;
+  logo: string;
 }
 
-export interface IpaperDetail {//论文详情
-    id: string;
-    title: string;
-    doi: string;
-    abstract: string;
-    venue: string;
-    authors: IPaperAuthors[]
-    graphic_abstract?: string[]
-    video: string
-    slide: string;
-    poster: string;
-    keywords: Ikeywords[];
-    addition_files: string[];
-    poster_status: number,
-    slide_status: number,
-    video_status: number,
-    full_text?: string,
-    is_open_access?: boolean,
-    can_edit?: boolean,
-    conference?: IConferenceInfo,
-    key_points?: string[]
+export interface IpaperDetail {
+  //论文详情
+  id: string;
+  title: string;
+  doi: string;
+  abstract: string;
+  venue: string;
+  authors: IPaperAuthors[];
+  graphic_abstract?: string[];
+  video: string;
+  slide: string;
+  poster: string;
+  keywords: Ikeywords[];
+  addition_files: string[];
+  poster_status: number;
+  slide_status: number;
+  video_status: number;
+  full_text?: string;
+  is_open_access?: boolean;
+  can_edit?: boolean;
+  conference?: IConferenceInfo;
+  key_points?: string[];
 }
 export interface Ikeywords {
-    id: number;
-    name: string;
-    order: number;
+  id: number;
+  name: string;
+  order: number;
 }
 
 export interface IModifyPaperShow {
-    id: string | number;
-    title?: string;
-    abstract?: string;
-    venue?: string;
-    url?: string;
-    poster_status?: number;
-    slide_status?: number;
-    video_status?: number;
-    key_points?: string[];
+  id: string | number;
+  title?: string;
+  abstract?: string;
+  venue?: string;
+  url?: string;
+  poster_status?: number;
+  slide_status?: number;
+  video_status?: number;
+  key_points?: string[];
 }
