@@ -179,7 +179,6 @@ function getAffiliationNumber(originalId: number) {
 const comments = ref<Comment[]>([]);
 const commentsTotal = ref(0);
 const commentsLoading = ref(false);
-const commentSort = ref<'hot' | 'new'>('hot'); // 排序方式：最热/最新
 const commentContent = ref(''); // 评论输入内容
 const commentSubmitting = ref(false); // 评论提交中状态
 const replyingTo = ref<Comment | null>(null); // 正在回复的评论
@@ -251,12 +250,6 @@ const submitReply = async () => {
   } finally {
     replySubmitting.value = false;
   }
-};
-
-// 切换评论排序
-const switchSort = (sort: 'hot' | 'new') => {
-  commentSort.value = sort;
-  loadComments();
 };
 
 // 格式化时间（将UTC时间转换为北京时间UTC+8）
@@ -525,11 +518,6 @@ const toggleReply = (comment: Comment) => {
               <h3 class="comments-title">
                 Comments <span class="comments-count">{{ commentsTotal }}</span>
               </h3>
-              <div class="comments-sort">
-                <span :class="{ active: commentSort === 'hot' }" @click="switchSort('hot')">Hot</span>
-                <span class="divider">|</span>
-                <span :class="{ active: commentSort === 'new' }" @click="switchSort('new')">New</span>
-              </div>
             </div>
 
             <!-- 评论输入框 -->
