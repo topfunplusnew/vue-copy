@@ -7,6 +7,8 @@ export interface IPaper {
     keywords: string[];
     graphicalAbstract: string | null;
     session_name: string;
+    full_text?: string;
+    video?: string;
 }
 export interface IPaperAuthors {
     id: number;

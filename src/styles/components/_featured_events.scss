@@ -224,6 +224,7 @@
   .conference-details {
     flex: 1;
     min-width: 0;
+    margin-right: 24px;
 
     .event-header {
       background: rgba(255, 255, 255, 0.08);
@@ -712,19 +713,56 @@
 
         .paper-title {
           display: flex;
-          flex-direction: column;
           justify-content: flex-start;
-          font-size: 20px;
-          font-weight: 600;
-          line-height: 1.5;
-          margin-bottom: 8px;
-          color: #581c87;
-          text-shadow: 0 1px 2px rgba(168, 85, 247, 0.1);
-          text-align: left;
-          @include wordWrap();
 
-          @include screen-mobile {
-            font-size: 15px;
+          .paper-title-text {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.5;
+            margin-bottom: 8px;
+            color: #581c87;
+            text-shadow: 0 1px 2px rgba(168, 85, 247, 0.1);
+            text-align: left;
+            @include wordWrap();
+
+            @include screen-mobile {
+              font-size: 15px;
+            }
+
+            &.paper-full::after {
+              content: '';
+              display: inline-block;
+              width: 20px;
+              height: 20px;
+              margin-left: 8px;
+              background-image: url('@/assets/square.png');
+              background-size: cover;
+              background-repeat: no-repeat;
+              background-position: center center;
+              vertical-align: middle;
+            }
+
+            &.paper-video::after {
+              content: '';
+              display: inline-block;
+              width: 20px;
+              height: 20px;
+              margin-left: 8px;
+              background-image: url('@/assets/video.png');
+              background-size: cover;
+              background-repeat: no-repeat;
+              background-position: center center;
+              vertical-align: middle;
+            }
+
+            &.paper-full.paper-video::after {
+              width: 48px; /* 20px for square + 8px margin + 20px for video */
+              background-image: url('@/assets/square.png'), url('@/assets/video.png');
+              background-size: 20px 20px, 20px 20px;
+              background-repeat: no-repeat, no-repeat;
+              background-position: 0 center, 28px center;
+            }
+
           }
         }
 

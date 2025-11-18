@@ -170,7 +170,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
                   <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</span>
+                  }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -232,7 +232,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
                   <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                    }}</div>
+                  }}</div>
                 </div>
               </div>
             </div>
@@ -265,7 +265,10 @@ function formatFirstLetterUppercase(str: string): string {
 
           <div class="papers-list">
             <div v-for="paper in conferencePapers" :key="paper.id" class="paper-item" @click="openPaperModal(paper)">
-              <div class="paper-title">{{ paper.paper_title }}</div>
+              <div class="paper-title">
+
+                <span class="paper-title-text" :class="{ 'paper-full': paper.full_text,'paper-video':paper.video}">{{ paper.paper_title }}</span>
+              </div>
               <template v-for="(authors, index) in paper.paper_authors" :key="authors.id">
                 <span class="paper-authors"><span class="author">{{ authors.name }}</span>
                   <span v-if="index < paper.paper_authors.length - 1">,</span>
