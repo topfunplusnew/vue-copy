@@ -721,7 +721,9 @@
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
   min-width: 100px;
   text-decoration: none;
@@ -774,26 +776,30 @@
 // 移动端适配
 @media (max-width: 768px) {
   .authors-cards-container {
-    gap: 12px;
+    gap: 3px;
+    justify-content: flex-start;
   }
 
   .author-card {
-    min-width: 80px;
-    padding: 10px;
+    flex: 0 0 calc(33.333% - 6px);
+    min-width: 0;
+    padding: 4px 2px;
+    max-width: calc(33.333% - 6px);
   }
 
   .author-avatar-wrapper {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
   }
 
   .author-avatar-placeholder {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .author-name {
-    font-size: 12px;
-    max-width: 80px;
+    font-size: 11px;
+    max-width: 100%;
+    word-break: break-word;
+    text-align: center;
   }
 }
-
