@@ -24,6 +24,25 @@ onMounted(() => {
   conferenceStore.getConferencesList();
 });
 
+const conferenceSearchQuery = ref(''); // 会议搜索框绑定的输入值
+const hasSearched = ref(false); // 是否执行过搜索
+
+// 搜索会议
+function searchConferences() {
+  const searchValue = conferenceSearchQuery.value?.trim();
+  hasSearched.value = !!searchValue; // 如果有搜索关键词，标记为已搜索；如果清空，则重置状态
+  conferenceStore.getConferencesList(searchValue || undefined);
+}
+
+// 监听搜索框变化，如果清空则重置搜索状态并重新加载所有会议
+watch(conferenceSearchQuery, (newVal) => {
+  if (!newVal?.trim() && hasSearched.value) {
+    // 如果从有搜索关键词变为空，重置状态并重新加载所有会议
+    hasSearched.value = false;
+    conferenceStore.getConferencesList();
+  }
+});
+
 watch(
   () => props.conferenceId,
   (val, old) => {
@@ -48,11 +67,16 @@ const conferencePapers = computed(() => conferenceStore.conferencePaper);
 //   currentPage.value = 1;
 // });
 
-const conferenceStats = computed(() => ({
-  //统计会议数量和类别
-  totalConferences: featuredConferences.value?.length,
-  categories: [...new Set(featuredConferences.value?.map((c) => c.conference_type))],
-}));
+const conferenceStats = computed(() => {
+  const totalConferences = featuredConferences.value?.length || 0;
+  const categories = [...new Set(featuredConferences.value?.map((c) => c.conference_type))];
+
+  return {
+    totalConferences,
+    categories,
+    isSearching: hasSearched.value, // 只有在执行搜索后才显示 "Searched"
+  };
+});
 
 //点击请求新会议
 // async function selectConference(id: number) {
@@ -116,8 +140,6 @@ function formatFirstLetterUppercase(str: string): string {
   if (!str) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
-
-
 </script>
 
 <template>
@@ -131,18 +153,25 @@ function formatFirstLetterUppercase(str: string): string {
       <aside class="conference-selector">
         <div class="selector-header">
           <h2>Featured Conferences</h2>
-          <div class="stats">
-            <span class="stat-item">{{ conferenceStats.totalConferences }} Conferences</span>
-            <span class="stat-item">{{ conferenceStats.categories.length }} Categories</span>
+          <div class="conference-search-container">
+            <input v-model="conferenceSearchQuery" type="text" placeholder="Search conferences by name..." class="conference-search-input" @keyup.enter="searchConferences()" />
+            <el-button icon="Search" class="conference-search-btn" @click="searchConferences()" />
+          </div>
+          <div v-if="conferenceStats.isSearching" class="stats">
+            <span class="stat-item"> {{ conferenceStats.totalConferences }} Conferences Searched , {{ conferenceStats.categories.length }} Categories Searched </span>
           </div>
         </div>
 
         <div class="conference-list">
-          <router-link v-for="conf in featuredConferences" :key="conf.id"
-            :class="['conference-card', { active: selectedConference?.id === conf.id }]" :to="{
+          <router-link
+            v-for="conf in featuredConferences"
+            :key="conf.id"
+            :class="['conference-card', { active: selectedConference?.id === conf.id }]"
+            :to="{
               name: 'FeaturedEvents',
               params: { conferenceId: conf.id },
-            }">
+            }"
+          >
             <div class="card-logo">
               <img :src="getImageUrl(conf.logo)" :alt="conf.abbreviation" />
             </div>
@@ -169,8 +198,7 @@ function formatFirstLetterUppercase(str: string): string {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</span>
+                  <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time) }}</span>
                 </div>
                 <div class="detail-row">
                   <span class="detail-icon">📍</span>
@@ -185,12 +213,9 @@ function formatFirstLetterUppercase(str: string): string {
           </div>
 
           <div class="conference-links">
-            <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span>
-              Official Website </a>
-            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span
-                class="link-icon">👥</span> Committee </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span
-                class="link-icon">📝</span> Registration </a>
+            <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span> Official Website </a>
+            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span class="link-icon">👥</span> Committee </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span class="link-icon">📝</span> Registration </a>
           </div>
 
           <!-- Conference Description -->
@@ -231,8 +256,7 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-icon">🎯</div>
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
-                  <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
-                  }}</div>
+                  <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time) }}</div>
                 </div>
               </div>
             </div>
@@ -240,14 +264,12 @@ function formatFirstLetterUppercase(str: string): string {
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)"
-              class="interest-btn"><span class="btn-icon">💡</span>
+            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)" class="interest-btn"
+              ><span class="btn-icon">💡</span>
               {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }}
             </el-button>
-            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span>
-              Visit Website </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span
-                class="btn-icon">📝</span> Register Now </a>
+            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span> Visit Website </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span class="btn-icon">📝</span> Register Now </a>
           </div>
         </header>
 
@@ -256,9 +278,7 @@ function formatFirstLetterUppercase(str: string): string {
           <div class="papers-header">
             <h3>Conference Papers</h3>
             <div class="search-container">
-              <input v-model="searchQuery" type="text"
-                placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input"
-                @keyup.enter="seachPaper()" />
+              <input v-model="searchQuery" type="text" placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" @keyup.enter="seachPaper()" />
               <el-button icon="Search" class="search-btn" @click="seachPaper()" />
             </div>
           </div>
@@ -266,11 +286,11 @@ function formatFirstLetterUppercase(str: string): string {
           <div class="papers-list">
             <div v-for="paper in conferencePapers" :key="paper.id" class="paper-item" @click="openPaperModal(paper)">
               <div class="paper-title">
-
-                <span class="paper-title-text" :class="{ 'paper-full': paper.full_text,'paper-video':paper.video}">{{ paper.paper_title }}</span>
+                <span class="paper-title-text" :class="{ 'paper-full': paper.full_text, 'paper-video': paper.video }">{{ paper.paper_title }}</span>
               </div>
               <template v-for="(authors, index) in paper.paper_authors" :key="authors.id">
-                <span class="paper-authors"><span class="author">{{ authors.name }}</span>
+                <span class="paper-authors"
+                  ><span class="author">{{ authors.name }}</span>
                   <span v-if="index < paper.paper_authors.length - 1">,</span>
                 </span>
                 <!-- <div class="paper-institutions">{{ authors.affiliation }}</div> -->

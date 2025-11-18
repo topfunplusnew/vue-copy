@@ -13,8 +13,9 @@ export const useConferenceStore = defineStore('meet', () => {
   const conferencePaper = ref<IPaper[]>(); //会议论文
   const paperDetail = ref<IModifyPaperShow>();
 
-  function getConferencesList() {
-    return getConferenceList().then((res) => {
+  function getConferencesList(search?: string) {
+    const params = search ? { search } : {};
+    return getConferenceList(params).then((res) => {
       conferenceList.value = res.data.items || [];
       return res;
     });
