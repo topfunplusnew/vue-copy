@@ -477,17 +477,16 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                     </div>
                   </div>
                 </div> -->
-
                 <div class="detail-item">
                   <h5>DOI</h5>
                   <p>{{ paperDetail?.doi }}</p>
                 </div>
-
                 <div class="detail-item">
-                  <h5>Abstract</h5>
+                  <h5 class="detail-title">Abstract</h5>
                   <latex-content :latex="paperDetail?.abstract" />
                 </div>
               </div>
+
               <div v-if="activeTab === 'fulltext'" class="full-content">
                 <FileUpload
                   :tab-key="activeTab"
@@ -588,7 +587,9 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
             <div class="comments-list">
               <!-- 加载图标 -->
               <div v-if="commentsLoading" class="comments-loading">
-                <el-icon class="is-loading"><Loading /></el-icon>
+                <el-icon class="is-loading">
+                  <Loading />
+                </el-icon>
               </div>
               <template v-else>
                 <div v-for="comment in comments" :key="comment.id" class="comment-item">
@@ -732,5 +733,5 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
 </template>
 
 <style lang="scss" scoped>
-@use '@/styles/pages/paper-details';
+@use '../../styles/pages/_paper-details.scss' as *;
 </style>

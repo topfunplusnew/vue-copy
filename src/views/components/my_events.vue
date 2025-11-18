@@ -330,6 +330,7 @@ async function saveKeyPoint() {
 // 处理 Abstract 内容变化
 function handleAbstractChange(value: string) {
   formData.abstract = value;
+  saveDetails();
 }
 
 // DOI 的校验已集成到 el-form 的自定义规则 validateDoiRule 中
@@ -589,7 +590,7 @@ function getAffiliationNumber(originalId: number): number {
             <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
               @submit.prevent>
               <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
-                <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable />
+                <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable  @change="saveDetails()"/>
               </el-form-item>
               <el-form-item label="Abstract" class="form-item full">
                 <latex-content v-model:latex="formData.abstract" :editable="true" :display-mode="true"
@@ -636,13 +637,13 @@ function getAffiliationNumber(originalId: number): number {
                   </div>
                 </div>
               </el-form-item> -->
-              <div class="form-actions">
+              <!-- <div class="form-actions"> -->
 
-                <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button"
-                  @click="saveDetails()"> Save Details </el-button>
+                <!-- <el-button type="primary" size="large" round :loading="fullscreenLoading" native-type="button"
+                  @click="saveDetails()"> Save Details </el-button> -->
                 <!-- <save-button @click="saveDetails()" /> -->
 
-              </div>
+              <!-- </div> -->
             </el-form>
           </div>
 
