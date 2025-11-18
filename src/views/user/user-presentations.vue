@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ElSelect, ElOption } from 'element-plus';
 import { getPaperViewHistory } from '@/services/user';
 import type { GetPaperViewHistoryParams } from '@/services/user/type';
 import { ElMessage } from 'element-plus';
@@ -43,6 +44,31 @@ const loadingMore = ref(false); // 移动端加载更多状态
 const isMobile = ref(false); // 是否为移动端
 const hasMore = ref(true); // 是否还有更多数据
 
+// 筛选
+const filterTitle = ref('');
+
+// 计算属性：筛选后的历史记录
+const filteredHistories = computed(() => {
+  if (!filterTitle.value) return histories.value;
+  return histories.value.filter(item => 
+    item.paper.title.toLowerCase().includes(filterTitle.value.toLowerCase())
+  );
+});
+
+// 计算属性：所有唯一的论文标题
+const paperTitles = computed(() => {
+  const titles = new Set<string>();
+  histories.value.forEach(item => titles.add(item.paper.title));
+  return Array.from(titles);
+});
+
+// 计算属性：分页后的筛选结果
+const paginatedHistories = computed(() => {
+  const start = (pagination.value.page - 1) * pagination.value.per_page;
+  const end = start + pagination.value.per_page;
+  return filteredHistories.value.slice(start, end);
+});
+
 // 防抖定时器
 let scrollTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -52,6 +78,21 @@ const pagination = ref({
   per_page: 20,
   total: 0,
   pages: 0,
+});
+
+// 监听筛选条件变化，重置分页到第一页
+watch(() => filterTitle.value, () => {
+  pagination.value.page = 1;
+});
+
+// 监听筛选后的数据长度变化，更新分页总数和总页数
+watch(() => filteredHistories.value.length, (newLength) => {
+  pagination.value.total = newLength;
+  pagination.value.pages = Math.ceil(newLength / pagination.value.per_page);
+  // 如果当前页超过总页数，重置到最后一页
+  if (pagination.value.page > pagination.value.pages) {
+    pagination.value.page = Math.max(1, pagination.value.pages);
+  }
 });
 
 // 移动端分页配置
@@ -82,21 +123,30 @@ const checkIsMobile = () => {
   }
 };
 
-// 加载数据（PC端使用，替换数据）
-const loadHistories = async (params?: GetPaperViewHistoryParams) => {
-  loading.value = true;
+// 加载所有历史记录（PC端）
+const loadHistories = async () => {
   try {
-    const response = await getPaperViewHistory(params);
-    console.log(`res`, response);
-    if (response.data) {
-      histories.value = response.data.histories || [];
-      pagination.value = {
-        page: response.data.page || 1,
-        per_page: response.data.per_page || 20,
-        total: response.data.total || 0,
-        pages: response.data.pages || 0,
-      };
+    loading.value = true;
+    let allHistories: PaperViewHistory[] = [];
+    let currentPage = 1;
+    const pageSize = 100; // 每次请求100条，减少请求次数
+    let hasMore = true;
+
+    while (hasMore) {
+      const res = await getPaperViewHistory({ page: currentPage, per_page: pageSize });
+      const data = res.data?.histories || [];
+      allHistories = [...allHistories, ...data];
+      // 检查是否还有更多数据
+      hasMore = data.length === pageSize;
+      currentPage++;
     }
+
+    // 更新所有历史记录
+    histories.value = allHistories;
+    // 重置分页信息
+    pagination.value.page = 1;
+    pagination.value.total = allHistories.length;
+    pagination.value.pages = Math.ceil(allHistories.length / pagination.value.per_page);
   } catch (error) {
     console.error('加载论文查看历史失败:', error);
     ElMessage.error('加载数据失败，请稍后重试');
@@ -194,20 +244,12 @@ const loadMobileHistories = async () => {
 // 处理分页变化（PC端）
 const handlePageChange = (page: number) => {
   pagination.value.page = page;
-  loadHistories({
-    page,
-    per_page: pagination.value.per_page,
-  });
 };
 
 // 处理每页数量变化（PC端）
 const handleSizeChange = (size: number) => {
   pagination.value.per_page = size;
   pagination.value.page = 1;
-  loadHistories({
-    page: 1,
-    per_page: size,
-  });
 };
 
 // 滚动监听（移动端）- 滚动到底部时自动加载，带防抖
@@ -292,10 +334,24 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   <div class="presentations-area">
     <div class="presentations-header">
       <h2>Paper View History</h2>
+      <div class="filter-container">
+        <el-select 
+          v-model="filterTitle" 
+          placeholder="Filter by paper title"
+          style="width: 300px; margin-left: 20px;">
+          <el-option label="All" value="" />
+          <el-option 
+            v-for="title in paperTitles" 
+            :key="title" 
+            :label="title" 
+            :value="title" 
+          />
+        </el-select>
+      </div>
     </div>
 
     <div class="table-wrapper" :class="{ 'mobile-table': isMobile }">
-      <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
+      <el-table :data="paginatedHistories" style="width: 100%" stripe v-loading="loading">
         <el-table-column :width="isMobile ? 40 : 120" align="center">
           <template #default="{ row }">
             <div class="thumbnail-cell">
@@ -368,6 +424,9 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 
 .presentations-header {
   margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .presentations-header h2 {
@@ -378,6 +437,11 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 }
 
 /* 缩略图单元格 */
+.filter-container {
+  display: flex;
+  align-items: center;
+}
+
 .thumbnail-cell {
   display: flex;
   justify-content: center;
@@ -531,8 +595,23 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     padding: 10px;
   }
 
+  .presentations-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .presentations-header h2 {
     font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .filter-container {
+    width: 100%;
+  }
+
+  .filter-container :deep(.el-select) {
+    width: 100% !important;
+    margin-left: 0 !important;
   }
 
   /* 表格容器在移动端 */
