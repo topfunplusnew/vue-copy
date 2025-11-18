@@ -1,0 +1,526 @@
+// 评论区域
+.comments-section {
+  padding: 20px;
+  background-color: transparent;
+  border-radius: 8px;
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+// 评论头部
+.comments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.comments-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a3566;
+  margin: 0;
+}
+
+.comments-count {
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.comments-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.comments-sort span {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.comments-sort span.active {
+  color: #1a3566;
+  font-weight: 600;
+}
+
+.comments-sort .divider {
+  cursor: default;
+  color: #d1d5db;
+}
+
+// 评论输入区域
+.comment-input-area {
+  margin-bottom: 24px;
+}
+
+.comment-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.comment-avatar,
+.comment-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.comment-avatar {
+  object-fit: cover;
+}
+
+.comment-avatar-placeholder {
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.comment-input {
+  flex: 1;
+  padding: 10px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.comment-input:focus {
+  border-color: #1a3566;
+}
+
+.comment-input::placeholder {
+  color: #9ca3af;
+}
+
+.comment-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.comment-submit-btn {
+  padding: 10px 20px;
+  background-color: #1a3566;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.comment-submit-btn:hover:not(:disabled) {
+  background-color: #152a4d;
+}
+
+.comment-submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+// 评论列表
+.comments-list {
+  min-height: 100px;
+}
+
+// 加载图标
+.comments-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.comments-loading .el-icon {
+  font-size: 24px;
+  color: #1a3566;
+}
+
+.comment-item {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-main {
+  display: flex;
+  gap: 12px;
+}
+
+.comment-user-avatar,
+.comment-user-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.comment-user-avatar {
+  object-fit: cover;
+}
+
+.comment-user-avatar-placeholder {
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.comment-content-wrapper {
+  flex: 1;
+}
+
+.comment-user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.comment-username {
+  font-weight: 600;
+  color: #1a3566;
+  font-size: 14px;
+}
+
+.comment-badge {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.comment-text {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.comment-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.comment-time {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.comment-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.comment-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.comment-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.comment-btn span {
+  font-size: 14px;
+}
+
+// 回复输入区域
+.reply-input-area {
+  margin-top: 12px;
+  margin-left: 52px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.reply-input-area-nested {
+  margin-top: 8px;
+  margin-left: 42px;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.reply-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reply-avatar,
+.reply-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reply-avatar {
+  object-fit: cover;
+}
+
+.reply-avatar-placeholder {
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.reply-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  font-size: 13px;
+  outline: none;
+}
+
+.reply-input:focus {
+  border-color: #1a3566;
+}
+
+.reply-input:disabled {
+  background-color: #f3f4f6;
+  cursor: not-allowed;
+}
+
+.reply-submit-btn {
+  padding: 8px 16px;
+  background-color: #1a3566;
+  color: #fff;
+  border: none;
+  border-radius: 16px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.reply-submit-btn:hover:not(:disabled) {
+  background-color: #152a4d;
+}
+
+.reply-submit-btn:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+// 回复列表
+.replies-list {
+  margin-top: 12px;
+  margin-left: 52px;
+  padding-left: 12px;
+  border-left: 2px solid #e5e7eb;
+}
+
+.reply-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.reply-item:last-child {
+  margin-bottom: 0;
+}
+
+.reply-user-avatar,
+.reply-user-avatar-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reply-user-avatar {
+  object-fit: cover;
+}
+
+.reply-user-avatar-placeholder {
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.reply-content-wrapper {
+  flex: 1;
+}
+
+.reply-user-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.reply-username {
+  font-weight: 600;
+  color: #1a3566;
+  font-size: 13px;
+}
+
+.reply-badge {
+  background-color: #f3f4f6;
+  color: #6b7280;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.owner-badge {
+  background-color: #fef3c7;
+  color: #d97706;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+.reply-text {
+  color: #374151;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.reply-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reply-time {
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+.reply-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.reply-btn-small {
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.reply-btn-small:hover {
+  background-color: #f3f4f6;
+}
+
+.reply-btn-small span {
+  font-size: 12px;
+}
+
+// 空状态
+.comments-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+// 移动端适配
+@media (max-width: 768px) {
+  .comments-section {
+    padding: 16px;
+  }
+
+  .comments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .comment-input-wrapper {
+    gap: 8px;
+  }
+
+  .comment-avatar,
+  .comment-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  .comment-input {
+    font-size: 13px;
+    padding: 8px 14px;
+  }
+
+  .comment-submit-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+
+  .comment-main {
+    gap: 10px;
+  }
+
+  .comment-user-avatar,
+  .comment-user-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  .comment-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .reply-input-area {
+    margin-left: 46px;
+  }
+
+  .replies-list {
+    margin-left: 46px;
+  }
+}
+

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { getPaperViewHistory } from '@/services/user';
 import type { GetPaperViewHistoryParams } from '@/services/user/type';
 import { ElMessage } from 'element-plus';
+import { Loading } from '@element-plus/icons-vue';
 import { getImageUrl } from '@/utils';
 
 interface PaperViewHistory {
@@ -38,6 +39,12 @@ interface PaperViewHistory {
 // 数据
 const histories = ref<PaperViewHistory[]>([]);
 const loading = ref(false);
+const loadingMore = ref(false); // 移动端加载更多状态
+const isMobile = ref(false); // 是否为移动端
+const hasMore = ref(true); // 是否还有更多数据
+
+// 防抖定时器
+let scrollTimer: ReturnType<typeof setTimeout> | null = null;
 
 // 分页
 const pagination = ref({
@@ -47,7 +54,35 @@ const pagination = ref({
   pages: 0,
 });
 
-// 加载数据
+// 移动端分页配置
+const mobilePagination = ref({
+  page: 1,
+  per_page: 8,
+});
+
+// 检测是否为移动端
+const checkIsMobile = () => {
+  const wasMobile = isMobile.value;
+  isMobile.value = window.innerWidth <= 768;
+
+  // 如果从PC端切换到移动端，需要重新加载数据
+  if (!wasMobile && isMobile.value) {
+    loadMobileHistories();
+    window.addEventListener('scroll', handleScroll);
+  }
+  // 如果从移动端切换到PC端，需要重新加载数据并移除滚动监听
+  else if (wasMobile && !isMobile.value) {
+    window.removeEventListener('scroll', handleScroll);
+    // 清理防抖定时器
+    if (scrollTimer) {
+      clearTimeout(scrollTimer);
+      scrollTimer = null;
+    }
+    loadHistories();
+  }
+};
+
+// 加载数据（PC端使用，替换数据）
 const loadHistories = async (params?: GetPaperViewHistoryParams) => {
   loading.value = true;
   try {
@@ -70,7 +105,93 @@ const loadHistories = async (params?: GetPaperViewHistoryParams) => {
   }
 };
 
-// 处理分页变化
+// 移动端加载更多数据（追加数据）
+const loadMoreHistories = async () => {
+  if (loadingMore.value || !hasMore.value) return;
+
+  // 清除防抖定时器，避免重复触发
+  if (scrollTimer) {
+    clearTimeout(scrollTimer);
+    scrollTimer = null;
+  }
+
+  // 再次检查是否真的在底部
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  const windowHeight = window.innerHeight;
+  const documentHeight = document.documentElement.scrollHeight;
+  const isAtBottom = scrollTop + windowHeight >= documentHeight - 50;
+
+  // 如果不在底部，不加载
+  if (!isAtBottom) {
+    return;
+  }
+
+  loadingMore.value = true;
+  try {
+    const response = await getPaperViewHistory({
+      page: mobilePagination.value.page,
+      per_page: mobilePagination.value.per_page,
+    });
+
+    if (response.data) {
+      const newHistories = response.data.histories || [];
+      if (newHistories.length > 0) {
+        histories.value = [...histories.value, ...newHistories];
+        mobilePagination.value.page += 1;
+
+        // 判断是否还有更多数据
+        const totalLoaded = histories.value.length;
+        hasMore.value = totalLoaded < (response.data.total || 0);
+
+        // 加载完成后，向上滚动80px，避免立即再次触发加载
+        setTimeout(() => {
+          const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+          const newScrollTop = Math.max(0, currentScrollTop - 80);
+          window.scrollTo({
+            top: newScrollTop,
+            behavior: 'smooth',
+          });
+        }, 100);
+      } else {
+        hasMore.value = false;
+      }
+    }
+  } catch (error) {
+    console.error('加载更多数据失败:', error);
+    ElMessage.error('加载数据失败，请稍后重试');
+  } finally {
+    loadingMore.value = false;
+  }
+};
+
+// 移动端初始加载
+const loadMobileHistories = async () => {
+  loading.value = true;
+  mobilePagination.value.page = 1;
+  hasMore.value = true;
+  try {
+    const response = await getPaperViewHistory({
+      page: 1,
+      per_page: mobilePagination.value.per_page,
+    });
+
+    if (response.data) {
+      histories.value = response.data.histories || [];
+      mobilePagination.value.page = 2;
+
+      // 判断是否还有更多数据
+      const totalLoaded = histories.value.length;
+      hasMore.value = totalLoaded < (response.data.total || 0);
+    }
+  } catch (error) {
+    console.error('加载论文查看历史失败:', error);
+    ElMessage.error('加载数据失败，请稍后重试');
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 处理分页变化（PC端）
 const handlePageChange = (page: number) => {
   pagination.value.page = page;
   loadHistories({
@@ -79,7 +200,7 @@ const handlePageChange = (page: number) => {
   });
 };
 
-// 处理每页数量变化
+// 处理每页数量变化（PC端）
 const handleSizeChange = (size: number) => {
   pagination.value.per_page = size;
   pagination.value.page = 1;
@@ -89,9 +210,56 @@ const handleSizeChange = (size: number) => {
   });
 };
 
+// 滚动监听（移动端）- 滚动到底部时自动加载，带防抖
+const handleScroll = () => {
+  // 清除之前的定时器
+  if (scrollTimer) {
+    clearTimeout(scrollTimer);
+  }
+
+  // 设置防抖，500ms后执行
+  scrollTimer = setTimeout(() => {
+    // 再次检查条件，确保在防抖期间状态没有改变
+    if (!isMobile.value || loadingMore.value || !hasMore.value) {
+      return;
+    }
+
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    // 严格检查是否真的滚动到底部（距离底部50px以内）
+    const isAtBottom = scrollTop + windowHeight >= documentHeight - 50;
+
+    // 只有当真正在底部时才加载更多
+    if (isAtBottom) {
+      loadMoreHistories();
+    }
+  }, 500);
+};
+
 // 组件挂载时加载数据
 onMounted(() => {
-  loadHistories();
+  checkIsMobile();
+  window.addEventListener('resize', checkIsMobile);
+
+  if (isMobile.value) {
+    loadMobileHistories();
+    window.addEventListener('scroll', handleScroll);
+  } else {
+    loadHistories();
+  }
+});
+
+// 组件卸载时清理
+onUnmounted(() => {
+  window.removeEventListener('resize', checkIsMobile);
+  window.removeEventListener('scroll', handleScroll);
+  // 清理防抖定时器
+  if (scrollTimer) {
+    clearTimeout(scrollTimer);
+    scrollTimer = null;
+  }
 });
 
 // 格式化作者显示
@@ -126,46 +294,48 @@ const formatViewDuration = (viewTimestamp: number | null) => {
       <h2>Paper View History</h2>
     </div>
 
-    <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
-      <el-table-column width="120" align="center">
-        <template #default="{ row }">
-          <div class="thumbnail-cell">
-            <img
-              :src="row.paper?.conference?.logo ? getImageUrl(row.paper.conference.logo) : 'https://via.placeholder.com/50x50/627180/ffffff?text=Paper'"
-              :alt="row.paper?.conference?.abbreviation || row.paper.title"
-              class="thumbnail-img"
-            />
-          </div>
-        </template>
-      </el-table-column>
+    <div class="table-wrapper" :class="{ 'mobile-table': isMobile }">
+      <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
+        <el-table-column :width="isMobile ? 40 : 120" align="center">
+          <template #default="{ row }">
+            <div class="thumbnail-cell">
+              <img
+                :src="row.paper?.conference?.logo ? getImageUrl(row.paper.conference.logo) : 'https://via.placeholder.com/50x50/627180/ffffff?text=Paper'"
+                :alt="row.paper?.conference?.abbreviation || row.paper.title"
+                class="thumbnail-img"
+              />
+            </div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Title" min-width="300">
-        <template #default="{ row }">
-          <div class="title-cell">{{ row.paper.title }}</div>
-        </template>
-      </el-table-column>
+        <el-table-column label="Title" :min-width="isMobile ? 90 : 300">
+          <template #default="{ row }">
+            <div class="title-cell">{{ row.paper.title }}</div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Duration" width="150" align="center">
-        <template #default="{ row }">
-          <div class="duration-cell">{{ formatViewDuration(row.view_duration) }}</div>
-        </template>
-      </el-table-column>
+        <el-table-column label="Duration" :width="isMobile ? 80 : 150" align="center">
+          <template #default="{ row }">
+            <div class="duration-cell">{{ formatViewDuration(row.view_duration) }}</div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Authors" min-width="200">
-        <template #default="{ row }">
-          <div class="authors-cell">{{ formatAuthors(row.paper.authors) }}</div>
-        </template>
-      </el-table-column>
+        <el-table-column label="Authors" :min-width="isMobile ? 70 : 200">
+          <template #default="{ row }">
+            <div class="authors-cell">{{ formatAuthors(row.paper.authors) }}</div>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="Venue" width="150">
-        <template #default="{ row }">
-          <div class="venue-cell">{{ row.paper.venue }} {{ row.paper.year }}</div>
-        </template>
-      </el-table-column>
-    </el-table>
+        <el-table-column label="Venue" :width="isMobile ? 80 : 150">
+          <template #default="{ row }">
+            <div class="venue-cell">{{ row.paper.venue }} {{ row.paper.year }}</div>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
 
-    <!-- 分页组件 -->
-    <div class="pagination-container" v-if="pagination.total > 0">
+    <!-- PC端分页组件 -->
+    <div class="pagination-container" v-if="!isMobile && pagination.total > 0">
       <el-pagination
         v-model:current-page="pagination.page"
         v-model:page-size="pagination.per_page"
@@ -175,6 +345,15 @@ const formatViewDuration = (viewTimestamp: number | null) => {
         @current-change="handlePageChange"
         @size-change="handleSizeChange"
       />
+    </div>
+
+    <!-- 移动端加载更多提示 -->
+    <div class="mobile-load-more" v-if="isMobile">
+      <div v-if="loadingMore" class="loading-more-text">
+        <el-icon class="is-loading"><Loading /></el-icon>
+        <span>加载中...</span>
+      </div>
+      <div v-else-if="!hasMore && histories.length > 0" class="no-more-text">已加载完毕</div>
     </div>
   </div>
 </template>
@@ -247,10 +426,36 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   color: #1a3566;
 }
 
+/* 表格容器 */
+.table-wrapper {
+  width: 100%;
+  overflow-x: visible;
+}
+
+.table-wrapper.mobile-table {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-wrapper.mobile-table::-webkit-scrollbar {
+  height: 4px;
+}
+
+.table-wrapper.mobile-table::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.table-wrapper.mobile-table::-webkit-scrollbar-thumb {
+  background: #1a3566;
+  border-radius: 2px;
+}
+
 /* 表格样式覆盖 */
 :deep(.el-table) {
   border-radius: 8px;
   overflow: hidden;
+  min-width: 100%;
 }
 
 :deep(.el-table th) {
@@ -272,6 +477,31 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   margin-top: 24px;
   display: flex;
   justify-content: flex-end;
+}
+
+/* 移动端加载更多提示 */
+.mobile-load-more {
+  margin-top: 20px;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.loading-more-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #1a3566;
+  font-size: 14px;
+}
+
+.loading-more-text .el-icon {
+  font-size: 16px;
+}
+
+.no-more-text {
+  color: #9ca3af;
+  font-size: 14px;
 }
 
 :deep(.el-pagination) {
@@ -305,9 +535,16 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     font-size: 20px;
   }
 
+  /* 表格容器在移动端 */
+  .table-wrapper.mobile-table {
+    overflow-x: visible;
+    width: 100%;
+  }
+
   /* 表格在移动端优化 */
   :deep(.el-table) {
-    font-size: 12px;
+    font-size: 11px;
+    width: 100% !important;
   }
 
   :deep(.el-table th),
@@ -315,22 +552,60 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     padding: 8px 4px;
   }
 
-  /* 标题单元格在移动端调整 */
-  .title-cell {
-    font-size: 14px;
-    line-height: 1.4;
+  :deep(.el-table th) {
+    font-size: 10px;
+    padding: 6px 4px;
+    white-space: nowrap;
   }
 
-  /* 作者和会议单元格在移动端调整 */
-  .authors-cell,
+  /* 标题列和作者列在移动端允许换行 */
+  :deep(.el-table td:nth-child(2)),
+  :deep(.el-table td:nth-child(4)) {
+    white-space: normal;
+  }
+
+  /* 标题单元格在移动端调整 */
+  .title-cell {
+    font-size: 11px;
+    line-height: 1.3;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* 时长单元格在移动端 */
+  .duration-cell {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  /* 作者单元格在移动端调整 */
+  .authors-cell {
+    font-size: 10px;
+    white-space: normal;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* 会议单元格在移动端调整 */
   .venue-cell {
-    font-size: 12px;
+    font-size: 10px;
+    white-space: nowrap;
   }
 
   /* 缩略图在移动端缩小 */
   .thumbnail-img {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
   }
 
   /* 分页在移动端居中 */
