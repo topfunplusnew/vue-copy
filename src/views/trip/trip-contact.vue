@@ -111,7 +111,7 @@ function submitContact() {
           <div class="info-card">
             <h2>Follow Us</h2>
             <div  class="social-links">
-              <router-link :to="{name:'userpage-blogs'}" class="social-link" v-for="admin in adminList" :key="admin.id">
+              <router-link :to="{name:'otheruser',params:{id:admin.id}}" class="social-link" v-for="admin in adminList" :key="admin.id">
 
                 <img :src="getImageUrl(admin.avatar)" alt="admin avatar" class="social-icon"></img>
                 <span class="social-name">{{ admin.name }}</span>
