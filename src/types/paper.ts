@@ -1,12 +1,14 @@
 export interface IPaper {
-  id: number;
-  conference_id: number;
-  paper_title: string;
-  paper_authors: IPaperAuthors[];
-  abstract: string;
-  keywords: string[];
-  graphicalAbstract: string | null;
-  session_name: string;
+    id: number;
+    conference_id: number;
+    paper_title: string;
+    paper_authors: IPaperAuthors[];
+    abstract: string;
+    keywords: string[];
+    graphicalAbstract: string | null;
+    session_name: string;
+    full_text?: string;
+    video?: string;
 }
 export interface IPaperAuthors {
   id: number;
