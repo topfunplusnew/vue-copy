@@ -1,5 +1,5 @@
 import { http } from '../http';
-import type { GetPaperViewHistoryParams, AddPaperViewHistoryData } from './type';
+import type { GetPaperViewHistoryParams, AddPaperViewHistoryData, UploadBioPdfData, UpdateUserProfileData, UserProfileData } from './type';
 
 /**
  * 获取忘记密码验证码
@@ -70,6 +70,50 @@ export const addPaperViewHistory = (data: AddPaperViewHistoryData) =>
   http.request({
     method: 'POST',
     url: '/paper/view-history',
+    data,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+/**
+ * 上传用户简历PDF文件
+ * @param data 文件上传数据
+ * @param data.file 要上传的PDF文件
+ * @returns Promise
+ */
+export const uploadBioPdf = (data: UploadBioPdfData) => {
+  const formData = new FormData();
+  formData.append('file', data.file);
+  return http.request({
+    method: 'POST',
+    url: '/file/user/bio-pdf',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+/**
+ * 获取用户资料
+ * @returns Promise 返回用户资料数据
+ */
+export const getUserProfile = () =>
+  http.request<UserProfileData>({
+    method: 'GET',
+    url: '/user/profile',
+  });
+
+/**
+ * 更新用户资料
+ * @param data 用户资料数据
+ * @returns Promise
+ */
+export const updateUserProfile = (data: UpdateUserProfileData) =>
+  http.request({
+    method: 'PUT',
+    url: '/user/profile',
     data,
     headers: {
       'Content-Type': 'application/json',

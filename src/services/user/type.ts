@@ -26,3 +26,82 @@ export interface AddPaperViewHistoryData {
   session_id?: string;
 }
 
+/**
+ * 上传用户简历PDF文件数据
+ */
+export interface UploadBioPdfData {
+  /** 文件对象 */
+  file: File;
+}
+
+/**
+ * 用户资料返回数据
+ */
+export interface UserProfileData {
+  /** 用户ID */
+  id: number;
+  /** 姓名 */
+  name: string;
+  /** 头像URL */
+  avatar: string;
+  /** 点赞数 */
+  likes: number;
+  /** 粉丝数 */
+  followers: number;
+  /** 关注数 */
+  followings: number;
+  /** 博客数量 */
+  blogs_count: number;
+  /** 收藏数量 */
+  collections_count: number;
+  /** 金币数 */
+  coins: number;
+  /** 用户类型 */
+  user_types: unknown[];
+  /** 更新时间 */
+  updated_at: string;
+  /** 创建时间 */
+  created_at: string;
+  /** 所属机构（可选） */
+  affiliation?: string;
+  /** 部门（可选） */
+  department?: string;
+  /** 大学（可选） */
+  university?: string;
+  /** 城市（可选） */
+  city?: string;
+  /** 国家（可选） */
+  country?: string;
+  /** 个人简介（可选） */
+  bio?: string;
+  /** 个人主页（可选） */
+  homepage?: string;
+  /** ORCID（可选） */
+  orcid?: string;
+}
+
+/**
+ * 更新用户资料数据
+ */
+export interface UpdateUserProfileData {
+  /** 姓名（可选） */
+  name?: string;
+  /** 头像URL（可选） */
+  avatar?: string;
+  /** 所属机构（可选） */
+  affiliation?: string;
+  /** 部门（可选） */
+  department?: string;
+  /** 大学（可选） */
+  university?: string;
+  /** 城市（可选） */
+  city?: string;
+  /** 国家（可选） */
+  country?: string;
+  /** 个人简介（可选） */
+  bio?: string;
+  /** 个人主页（可选） */
+  homepage?: string;
+  /** ORCID（可选） */
+  orcid?: string;
+}

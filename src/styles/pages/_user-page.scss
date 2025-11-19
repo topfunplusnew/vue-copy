@@ -5,33 +5,32 @@
 @use './user-blog' as blog-post-user;
 
 .user-page {
-
   @include blog-detail.wrapper;
   @include sidebar.wrapper;
   @include blog-post-user.wrapper;
 
   /* 如果你想要全屏高度背景，可以加下行 */
-    position: relative;
-    width: 100%;
-    height: 100%;
-    
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    text-align: center;
-    padding-top: rpx(20);
-    box-sizing: border-box;
-    min-height: 100vh;
-    color: #1a3566; /* 改为深蓝色，与 About 页面一致 */
-    font-family: 'Helvetica Neue', sans-serif;
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  padding-top: rpx(20);
+  box-sizing: border-box;
+  min-height: 100vh;
+  color: #1a3566; /* 改为深蓝色，与 About 页面一致 */
+  font-family: 'Helvetica Neue', sans-serif;
 
   .left-nav-userpage {
     margin-left: rpx(350);
     display: flex;
     gap: rpx(15);
     align-items: center;
-    
+
     /* 在窄屏幕上调整导航栏位置 */
     @media (max-width: 992px) {
       margin-left: 0;
@@ -52,9 +51,9 @@
     border: none;
     color: #fff;
     transition:
-    background-color 0.3s ease,
-    transform 0.3s ease;
-    
+      background-color 0.3s ease,
+      transform 0.3s ease;
+
     /* 在窄屏幕上调整按钮大小 */
     @media (max-width: 768px) {
       font-size: rpx(13);
@@ -81,7 +80,7 @@
     right: 30px;
     z-index: 100;
   }
-  
+
   /* 编辑模式按钮样式 */
   .edit-mode-btn {
     background: rgba(255, 255, 255, 0.7);
@@ -126,8 +125,10 @@
   flex: 1;
   display: flex;
   /* 让内容从 header 下方开始 */
-  transition: flex-direction 0.3s ease, align-items 0.3s ease;
-  
+  transition:
+    flex-direction 0.3s ease,
+    align-items 0.3s ease;
+
   /* 在窄屏幕上改为上下布局 */
   @media (max-width: 992px) {
     flex-direction: column;
@@ -143,24 +144,26 @@
   justify-content: space-around;
   margin-bottom: 10px;
 }
-.follow-item, .follower-item {
+.follow-item,
+.follower-item {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   padding: 5px 12px;
   transition: transform 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
   }
-  
+
   /* 在非常窄的屏幕上减小内边距 */
   @media (max-width: 400px) {
     padding: 0 5px;
   }
 }
-.follow-link, .follower-link {
+.follow-link,
+.follower-link {
   color: #1a3566;
   font-size: rpx(15);
   font-weight: 500;
@@ -170,10 +173,10 @@
   padding-bottom: 2px;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     color: #4a90e2;
-    
+
     /* 使用动画下划线替代静态下划线 */
     &:after {
       content: '';
@@ -195,17 +198,15 @@
   .number {
     color: #1a3566; /* 深蓝色 */
   }
-  
+
   .follower-link {
     color: #1a3566; /* 深蓝色 */
-    
+
     .link-text {
       color: #1a3566; /* 深蓝色 */
     }
   }
 }
-
-
 
 /* 帖子网格 */
 .posts-grid {
@@ -215,24 +216,24 @@
   padding: 15px;
   width: 100%;
   box-sizing: border-box;
-  
+
   /* 响应式调整 */
   @media (max-width: 1200px) {
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
-  
+
   @media (max-width: 992px) {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 15px;
   }
-  
+
   @media (max-width: 768px) {
     /* 平板屏幕显示两列 */
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
     padding: 12px;
   }
-  
+
   @media (max-width: 576px) {
     /* 手机屏幕显示一列，但确保宽度合适 */
     grid-template-columns: 1fr;
@@ -245,11 +246,13 @@
   background: rgba(255, 255, 255, 0.2);
   border-radius: 5px;
   overflow: hidden;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  
+
   /* 小屏幕优化 */
   @media (max-width: 576px) {
     width: 95%;
@@ -275,11 +278,12 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size:rpx(10);
+  font-size: rpx(10);
 }
 
 /* 加载提示 */
-.loading, .no-more {
+.loading,
+.no-more {
   text-align: center;
   margin: 10px 0;
   font-size: rpx(12);
@@ -302,7 +306,6 @@
   transition: transform 0.2s;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
-  
 
   &:hover {
     transform: scale(1.02);
@@ -323,12 +326,7 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(
-        45deg,
-        transparent,
-        rgba(255, 255, 255, 0.1),
-        transparent
-      );
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
       transform: rotate(45deg);
       animation: shine 3s infinite;
     }
@@ -390,8 +388,6 @@
   }
 }
 
-
-
 /* 编辑个人信息弹窗 */
 .edit-profile-modal {
   position: fixed;
@@ -411,7 +407,8 @@
     backdrop-filter: blur(10px);
     border-radius: 16px;
     padding: 30px;
-    width: 400px;
+    width: 500px;
+    overflow-y: auto;
     border: 1px solid rgba(65, 145, 255, 0.3);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     cursor: move;
@@ -435,6 +432,7 @@
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(65, 145, 255, 0.3);
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
 
       &:hover .avatar-upload-icon {
         opacity: 1;
@@ -445,32 +443,80 @@
         height: 100%;
         object-fit: cover;
       }
+
+      .avatar-upload-icon {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+        cursor: pointer;
+        color: white;
+
+        i {
+          color: white;
+          font-size: 32px;
+          margin-bottom: 4px;
+        }
+      }
     }
 
     .edit-form {
       .form-group {
-        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        gap: 12px;
 
         label {
-          display: block;
-          margin-bottom: 8px;
+          display: inline-block;
+          min-width: 90px;
+          width: 90px;
           color: #1a3566; /* 深蓝色 */
-          font-size: 1.5rem;
+          font-size: 1.4rem;
+          flex-shrink: 0;
+          text-align: right;
+          white-space: nowrap;
         }
 
-        input {
-          width: 100%;
-          padding: 10px;
+        input,
+        textarea {
+          flex: 1;
+          padding: 8px 12px;
           border-radius: 8px;
           border: 1px solid rgba(65, 145, 255, 0.3);
           background: rgba(255, 255, 255, 0.8);
-          font-size: 1.5rem;
+          font-size: 1.4rem;
           color: #1a3566; /* 深蓝色 */
 
           &:focus {
             outline: none;
             border-color: rgba(65, 145, 255, 0.5);
             box-shadow: 0 0 8px rgba(65, 145, 255, 0.2);
+          }
+        }
+
+        textarea {
+          min-height: 60px;
+          resize: vertical;
+          align-self: flex-start;
+        }
+
+        // textarea 的 label 顶部对齐
+        &:has(textarea) {
+          align-items: flex-start;
+
+          label {
+            padding-top: 8px;
+            text-align: right;
           }
         }
       }
@@ -503,11 +549,7 @@
 
 /* 连接钱包后的样式 */
 .sidebar.wallet-connected {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 215, 0, 0.1),
-    rgba(255, 215, 0, 0.2)
-  );
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.2));
   border: 1px solid rgba(255, 215, 0, 0.3);
   box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
 }
@@ -533,14 +575,13 @@
     padding: 8px 20px;
     border-radius: 6px;
     transition: all 0.3s ease;
-  
+
     &:hover {
       background: rgba(255, 255, 255, 0.5);
       transform: translateY(-1px);
     }
   }
 }
-
 
 /* 社交弹窗样式 */
 .social-modal-overlay {
@@ -569,7 +610,7 @@
   flex-direction: column;
   position: relative;
   z-index: 1000;
-  
+
   @media (max-width: 768px) {
     width: 95%;
     max-height: 90vh;
@@ -592,7 +633,7 @@
   cursor: pointer;
   z-index: 10;
   transition: background 0.2s;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.2);
   }
@@ -602,7 +643,7 @@
   display: flex;
   flex: 1;
   overflow: hidden;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     overflow-y: auto;
@@ -613,7 +654,7 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  
+
   @media (max-width: 768px) {
     max-height: 50vh;
     overflow-y: auto;
@@ -623,7 +664,7 @@
 
 .social-modal-title {
   font-size: rpx(18);
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 
   margin: 0 0 20px 0;
   padding-bottom: 10px;
@@ -644,17 +685,17 @@
   border-radius: 10px;
   transition: all 0.3s ease;
   position: relative;
-  
+
   @media (max-width: 480px) {
     flex-wrap: wrap;
     justify-content: center;
     text-align: center;
-    
+
     .social-user-info {
       margin: 0 auto;
       text-align: center;
     }
-    
+
     .social-action-btn {
       margin-top: 10px;
       width: 100%;
@@ -685,7 +726,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   color: #1a3566; /* 深蓝色 */
-  
+
   @media (max-width: 480px) {
     text-align: center;
     width: 100%;
@@ -706,16 +747,16 @@
   font-size: rpx(14);
   cursor: pointer;
   transition: all 0.2s;
-  
+
   &:hover {
     background: rgba(26, 53, 102, 0.05);
   }
-  
+
   &.following {
     background: rgba(26, 53, 102, 0.1);
     color: #1a3566;
     border-color: #1a3566;
-    
+
     &:hover {
       background: rgba(26, 53, 102, 0.2);
     }
@@ -728,7 +769,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px 0;
-  
+
   .loading-spinner {
     width: 40px;
     height: 40px;
@@ -738,7 +779,7 @@
     animation: spin 1s linear infinite;
     margin-bottom: 16px;
   }
-  
+
   p {
     color: #1a3566; /* 深蓝色 */
     font-size: rpx(14);
@@ -751,13 +792,13 @@
   align-items: center;
   justify-content: center;
   padding: 40px 0;
-  
+
   .empty-icon {
     font-size: 48px;
     margin-bottom: 16px;
     opacity: 0.5;
   }
-  
+
   p {
     color: #1a3566; /* 深蓝色 */
     font-size: rpx(16);
@@ -766,21 +807,33 @@
 
 /* 社交弹窗动画 */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
-
-
 
 /* 编辑模式样式 */
 .blog-post.edit-mode {
@@ -868,7 +921,7 @@
 
 .edit-mode {
   position: relative;
-  
+
   /* 更新hover状态 */
   &:hover {
     .blog-action-buttons {
@@ -912,26 +965,25 @@
 @media (max-width: 992px) {
   .el-carousel__indicators {
     flex-wrap: nowrap !important; /* 防止多行 */
-    justify-content: center;      /* 居中显示，可选 */
-    gap: 4px;                     /* 控制点之间的间距 */
+    justify-content: center; /* 居中显示，可选 */
+    gap: 4px; /* 控制点之间的间距 */
   }
-  .el-carousel__button{
+  .el-carousel__button {
     width: 25px !important;
   }
   .el-carousel__indicator {
-    width: 6px !important;        /* 控制点宽度 */
-    height: 6px !important;       /* 控制点高度 */
+    width: 6px !important; /* 控制点宽度 */
+    height: 6px !important; /* 控制点高度 */
     padding: 6px;
-    border-radius: 10%;           /* 圆形 */
+    border-radius: 10%; /* 圆形 */
   }
   .el-carousel__indicator.is-active button {
-    background-color: #409EFF;    /* 激活状态颜色，可按需修改 */
-    
+    background-color: #409eff; /* 激活状态颜色，可按需修改 */
   }
   .hamburger-menu-userpage {
     display: block !important;
   }
-  
+
   .left-nav-userpage {
     position: absolute;
     top: 100%;
@@ -949,13 +1001,13 @@
     transition: all 0.3s ease;
     z-index: 100;
   }
-  
+
   .left-nav-userpage.active-userpage {
     transform: translateY(0);
     opacity: 1;
     visibility: visible;
   }
-  
+
   .nav-button-userpage {
     width: 100%;
     text-align: center;
@@ -969,34 +1021,34 @@
   .nav-container-userpage {
     padding: 0 10px;
   }
-  
+
   .left-nav-userpage {
     padding: 15px 10px;
   }
-  
+
   .nav-button-userpage {
     font-size: 14px;
   }
-  
+
   .hamburger-menu-userpage {
     margin-right: 8px;
     font-size: 22px;
   }
-  
+
   .edit-mode-btn {
     font-size: 14px;
     padding: 6px 12px;
   }
 }
 
-.comment-replies-home{
-  .reply-item{
-    .reply-text-home{
+.comment-replies-home {
+  .reply-item {
+    .reply-text-home {
       color: #5c5c5c;
       font-size: 14px;
       text-align: left;
       cursor: pointer;
-     }
+    }
     .reply-row {
       display: flex;
       align-items: flex-start;
@@ -1015,7 +1067,7 @@
         flex-direction: column;
         flex: 1;
         padding-top: 25px;
-        .reply-header-line{
+        .reply-header-line {
           margin-top: rpx(-20);
           margin-left: rpx(-5);
           text-align: left;
@@ -1034,45 +1086,44 @@
             margin-top: 3px;
           }
         }
-        
+
         .reply-header {
           display: flex;
           align-items: center;
           margin-bottom: 2px;
-   
+
           .replying-to {
             font-size: 11px;
             color: #999;
             margin-right: 10px;
             margin-top: -30px;
-          } 
+          }
         }
       }
-    }  
+    }
   }
 }
 
 .view-more-text-r2r,
-  .hide-replies-text-r2r,
-  .view-more-icon-r2r,
-  .hide-replies-icon-r2r{
-    position: relative;
-    font-size: 12px;
-    color: #999;
-  }
+.hide-replies-text-r2r,
+.view-more-icon-r2r,
+.hide-replies-icon-r2r {
+  position: relative;
+  font-size: 12px;
+  color: #999;
+}
 /* 评论长按删除功能样式 */
 .comment-row {
   position: relative;
   /* 添加长按过渡效果 */
   transition: background-color 0.2s ease;
-  
+
   /* 长按时的视觉反馈 */
   &.long-press-active {
     background-color: rgba(255, 59, 59, 0.1);
     border-left: 3px solid #ff3b3b;
   }
 
-  
   /* 删除确认浮层 */
   .delete-confirm-overlay {
     position: absolute;
@@ -1091,24 +1142,24 @@
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
-    
+
     &.visible {
       opacity: 1;
       visibility: visible;
     }
-    
+
     .delete-message {
       color: #fff;
       margin-right: 10px;
       font-weight: 500;
       white-space: nowrap;
     }
-    
+
     .delete-actions {
       display: flex;
       gap: 10px;
       flex-shrink: 0;
-      
+
       .delete-btn-rp {
         background-color: #ff3b3b;
         color: white;
@@ -1119,12 +1170,12 @@
         font-weight: 600;
         transition: all 0.2s ease;
         font-size: rpx(9);
-        
+
         &:hover {
           background-color: #ff1f1f;
         }
       }
-      
+
       .cancel-btn-rp {
         background-color: rgba(255, 255, 255, 0.2);
         color: white;
@@ -1135,14 +1186,14 @@
         font-weight: 600;
         transition: all 0.2s ease;
         font-size: rpx(9);
-        
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.3);
         }
       }
     }
   }
-  
+
   /* 删除操作指示器 */
   .delete-indicator {
     position: absolute;
@@ -1159,7 +1210,7 @@
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
-    
+
     &.visible {
       opacity: 1;
     }
@@ -1186,11 +1237,11 @@
 @media (max-width: 768px) {
   .replies-container {
     padding-left: 30px; /* 减少移动设备上的缩进 */
-    
+
     .reply-item {
       .reply-row {
         gap: 8px; /* 减少间距 */
-        
+
         img {
           width: 24px; /* 减小头像尺寸 */
           height: 24px;
@@ -1212,7 +1263,7 @@
   .social-user-name {
     color: #1a3566; /* 深蓝色 */
   }
-  
+
   .social-user-meta {
     color: #1a3566; /* 深蓝色，降低透明度 */
   }
@@ -1222,7 +1273,8 @@
 .social-modal-overlay {
   .social-modal-container {
     .social-modal-column {
-      &.followers-column, &.following-column {
+      &.followers-column,
+      &.following-column {
         h3.social-modal-title {
           color: #1a3566; /* 深蓝色 */
         }
@@ -1230,4 +1282,3 @@
     }
   }
 }
-
