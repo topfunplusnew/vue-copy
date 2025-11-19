@@ -15,7 +15,7 @@ export interface IPaperAuthors {
   name: string;
   avatar?: string;
   affiliations: IAffiliations[];
-  user_id: number;
+  user_id?: number|null;
 }
 export interface IAffiliations {
   id: number;

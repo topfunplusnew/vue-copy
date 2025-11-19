@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch ,onUnmounted} from 'vue';
+import { computed, onMounted, ref, watch, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { isEmpty, find, flatMap, get as lodashGet, uniqBy, defaultTo } from 'lodash';
+import { isEmpty, find, flatMap, get as lodashGet, uniqBy, defaultTo, template } from 'lodash';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { getImageUrl } from '@/utils';
@@ -41,10 +41,14 @@ type AffiliationLite = {
   state?: string;
   country?: string;
 };
+const props = defineProps<{
+  paperId: string
+}>()
+
 
 const conferenceStore = useConferenceStore();
 const route = useRoute();
-const paperId = computed(() => Number(route.params.paperId));
+const paperId = computed(() => Number(props.paperId));
 const activeTab = ref<TabKey | 'Key Point'>('details');
 const paperDetail = ref<IpaperDetail>({} as IpaperDetail);
 const paperNotFound = ref(false);
@@ -362,7 +366,8 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
         <div v-if="paperNotFound" class="paper-not-found">
           <div class="not-found-icon">📄</div>
           <div class="not-found-title">The paper does not exist</div>
-          <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or the ID is incorrect.</div>
+          <div class="not-found-desc">Sorry, we couldn't find the paper you're looking for. It may have been deleted or
+            the ID is incorrect.</div>
         </div>
 
         <!-- 正常显示文章详情 -->
@@ -392,13 +397,13 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
 
                   <div class="authors">
                     <div v-if="paperDetail?.authors?.length" class="authors-list">
-                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
+                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex"
+                        class="author-name">
                         {{ author.name
-                        }}<template v-if="author?.affiliations?.length"
-                          ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
-                            >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup
-                          ></template
-                        ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
+                        }}<template v-if="author?.affiliations?.length"><sup
+                            v-for="(aff, affIdx) in author.affiliations" :key="affIdx">{{ getAffiliationNumber(aff.id)
+                            }}<span v-if="affIdx < author.affiliations.length - 1">,</span></sup></template><span
+                          v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
                       </span>
                     </div>
                     <div v-else class="empty-state">
@@ -409,8 +414,9 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                   <div class="affiliations">
                     <div v-if="affiliations.length" class="affiliations-list">
                       <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                        <sup>{{ aff.id }}</sup
-                        >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : '' }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
+                        <sup>{{ aff.id }}</sup>{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department
+                          : '' }}{{
+                          aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
                         }}{{ aff.country ? ', ' + aff.country : '' }}
                       </div>
                     </div>
@@ -438,14 +444,22 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
               <div class="left-nav">
                 <button :class="{ active: activeTab === 'details' }" @click="switchTab('details')">Details</button>
                 <button :class="{ active: activeTab === 'fulltext' }" @click="switchTab('fulltext')">Full Text</button>
-                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')" :disabled="paperDetail?.video_status !== 1">Video</button>
-                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key Points</button>
-                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')" :disabled="paperDetail?.slide_status !== 1">Slides</button>
-                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')" :disabled="paperDetail?.poster_status !== 1">Poster</button>
-                <button :class="{ active: activeTab === 'additional' }" @click="paperDetail?.addition_files.length && switchTab('additional')" :disabled="!paperDetail?.addition_files.length">
+                <button :class="{ active: activeTab === 'video' }" @click="switchTab('video')"
+                  :disabled="paperDetail?.video_status !== 1">Video</button>
+                <button :class="{ active: activeTab === 'Key Point' }" @click="switchTab('Key Point')">Key
+                  Points</button>
+                <button :class="{ active: activeTab === 'slides' }" @click="paperDetail?.slide && switchTab('slides')"
+                  :disabled="paperDetail?.slide_status !== 1">Slides</button>
+                <button :class="{ active: activeTab === 'poster' }" @click="paperDetail?.poster && switchTab('poster')"
+                  :disabled="paperDetail?.poster_status !== 1">Poster</button>
+                <button :class="{ active: activeTab === 'additional' }"
+                  @click="paperDetail?.addition_files.length && switchTab('additional')"
+                  :disabled="!paperDetail?.addition_files.length">
                   Additional Info
                 </button>
-                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }" v-if="paperDetail?.can_edit"> Edit </router-link>
+                <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
+                  v-if="paperDetail?.can_edit">
+                  Edit </router-link>
               </div>
             </div>
 
@@ -492,30 +506,17 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
               </div>
 
               <div v-if="activeTab === 'fulltext'" class="full-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="poster-image"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
               <div v-if="activeTab === 'video'" class="videos-content">
                 <template v-if="paperDetail?.video_status === 1">
-                  <FileUpload
-                    :tab-key="activeTab"
-                    :paper-id="paperDetail?.id || 0"
-                    :paper-detail="getPaperContent()"
-                    :limit="1"
-                    :is-show="false"
-                    :is-file-list-show-config="{
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                    :limit="1" :is-show="false" :is-file-list-show-config="{
                       [activeTab]: false,
-                    }"
-                  />
+                    }" />
                 </template>
                 <div v-else class="access-restricted">
                   <p>Video content is only available to open access.</p>
@@ -523,36 +524,23 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
               </div>
 
               <div v-if="activeTab === 'slides'" class="slides-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="slides-iframe"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="slides-iframe" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
 
               <div v-if="activeTab === 'poster'" class="poster-content">
-                <FileUpload
-                  :tab-key="activeTab"
-                  :paper-id="paperDetail?.id || 0"
-                  :paper-detail="getPaperContent()"
-                  :limit="1"
-                  class="poster-image"
-                  :is-show="false"
-                  :is-file-list-show-config="{
+                <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id || 0" :paper-detail="getPaperContent()"
+                  :limit="1" class="poster-image" :is-show="false" :is-file-list-show-config="{
                     [activeTab]: false,
-                  }"
-                />
+                  }" />
               </div>
 
               <div v-if="activeTab === 'additional'" class="additional-content">
                 <template v-if="paperDetail?.addition_files">
-                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()" :limit="-1" :is-show="false" class="additional-iframe" />
+                  <FileUpload :tab-key="activeTab" :paper-id="paperDetail?.id" :paper-detail="getPaperContent()"
+                    :limit="-1" :is-show="false" class="additional-iframe" />
                 </template>
               </div>
               <div v-if="activeTab === 'Key Point'" class="keypoints-content">
@@ -580,8 +568,10 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
               <div class="comment-input-wrapper">
                 <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="comment-avatar" />
                 <div v-else class="comment-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                <input v-model="commentContent" type="text" class="comment-input" placeholder="Write a comment..." @keyup.enter="submitComment" :disabled="commentSubmitting" />
-                <button class="comment-submit-btn" @click="submitComment" :disabled="commentSubmitting || !commentContent.trim()">
+                <input v-model="commentContent" type="text" class="comment-input" placeholder="Write a comment..."
+                  @keyup.enter="submitComment" :disabled="commentSubmitting" />
+                <button class="comment-submit-btn" @click="submitComment"
+                  :disabled="commentSubmitting || !commentContent.trim()">
                   {{ commentSubmitting ? 'Posting...' : 'Post' }}
                 </button>
               </div>
@@ -599,7 +589,8 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                 <div v-for="comment in comments" :key="comment.id" class="comment-item">
                   <!-- 主评论 -->
                   <div class="comment-main">
-                    <img v-if="comment.user?.avatar" :src="getImageUrl(comment.user.avatar)" alt="avatar" class="comment-user-avatar" />
+                    <img v-if="comment.user?.avatar" :src="getImageUrl(comment.user.avatar)" alt="avatar"
+                      class="comment-user-avatar" />
                     <div v-else class="comment-user-avatar-placeholder">
                       {{ comment.user?.name?.[0] || 'U' }}
                     </div>
@@ -622,8 +613,10 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                     <div class="reply-input-wrapper">
                       <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
                       <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                      <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
-                      <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                      <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..."
+                        @keyup.enter="submitReply" :disabled="replySubmitting" />
+                      <button class="reply-submit-btn" @click="submitReply"
+                        :disabled="replySubmitting || !replyContent.trim()">
                         {{ replySubmitting ? 'Sending...' : 'Send' }}
                       </button>
                     </div>
@@ -634,7 +627,8 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                     <template v-for="item in getFlattenedReplies(comment.replies)" :key="item.reply.id">
                       <!-- 二级回复（完整显示） -->
                       <div v-if="!item.isNested" class="reply-item">
-                        <img v-if="item.reply.user?.avatar" :src="getImageUrl(item.reply.user.avatar)" alt="avatar" class="reply-user-avatar" />
+                        <img v-if="item.reply.user?.avatar" :src="getImageUrl(item.reply.user.avatar)" alt="avatar"
+                          class="reply-user-avatar" />
                         <div v-else class="reply-user-avatar-placeholder">
                           {{ item.reply.user?.name?.[0] || 'U' }}
                         </div>
@@ -649,8 +643,10 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                             <div class="reply-buttons">
                               <button class="reply-btn-small" @click="toggleReply(item.reply)">Reply</button>
                               <!-- 查看更多回复按钮 -->
-                              <button v-if="item.reply.replies && item.reply.replies.length > 0" class="expand-replies-btn" @click="toggleExpandReplies(item.reply.id)">
-                                {{ expandedReplies.has(item.reply.id) ? 'Hide replies' : `View more replies (${countAllNestedReplies(item.reply.replies)})` }}
+                              <button v-if="item.reply.replies && item.reply.replies.length > 0"
+                                class="expand-replies-btn" @click="toggleExpandReplies(item.reply.id)">
+                                {{ expandedReplies.has(item.reply.id) ? 'Hide replies' : `View more replies
+                                (${countAllNestedReplies(item.reply.replies)})` }}
                               </button>
                             </div>
                           </div>
@@ -658,10 +654,14 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                         <!-- 回复输入框（回复回复） -->
                         <div v-if="replyingTo?.id === item.reply.id" class="reply-input-area-nested">
                           <div class="reply-input-wrapper">
-                            <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
+                            <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar"
+                              class="reply-avatar" />
                             <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                            <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
-                            <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                            <input v-model="replyContent" type="text" class="reply-input"
+                              placeholder="Reply to comment..." @keyup.enter="submitReply"
+                              :disabled="replySubmitting" />
+                            <button class="reply-submit-btn" @click="submitReply"
+                              :disabled="replySubmitting || !replyContent.trim()">
                               {{ replySubmitting ? 'Sending...' : 'Send' }}
                             </button>
                           </div>
@@ -671,7 +671,8 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                       <!-- 三级及以上回复（A->B格式，与二级回复平级） -->
                       <div v-else class="nested-reply-item-flat">
                         <div class="nested-reply-avatar-section">
-                          <img v-if="item.reply.user?.avatar" :src="getImageUrl(item.reply.user.avatar)" alt="avatar" class="nested-reply-avatar" />
+                          <img v-if="item.reply.user?.avatar" :src="getImageUrl(item.reply.user.avatar)" alt="avatar"
+                            class="nested-reply-avatar" />
                           <div v-else class="nested-reply-avatar-placeholder">
                             {{ item.reply.user?.name?.[0] || 'U' }}
                           </div>
@@ -691,10 +692,14 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                         <!-- 回复输入框（回复嵌套回复） -->
                         <div v-if="replyingTo?.id === item.reply.id" class="reply-input-area-nested">
                           <div class="reply-input-wrapper">
-                            <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar" class="reply-avatar" />
+                            <img v-if="user?.avatar" :src="getImageUrl(user.avatar)" alt="avatar"
+                              class="reply-avatar" />
                             <div v-else class="reply-avatar-placeholder">{{ user?.name?.[0] || 'U' }}</div>
-                            <input v-model="replyContent" type="text" class="reply-input" placeholder="Reply to comment..." @keyup.enter="submitReply" :disabled="replySubmitting" />
-                            <button class="reply-submit-btn" @click="submitReply" :disabled="replySubmitting || !replyContent.trim()">
+                            <input v-model="replyContent" type="text" class="reply-input"
+                              placeholder="Reply to comment..." @keyup.enter="submitReply"
+                              :disabled="replySubmitting" />
+                            <button class="reply-submit-btn" @click="submitReply"
+                              :disabled="replySubmitting || !replyContent.trim()">
                               {{ replySubmitting ? 'Sending...' : 'Send' }}
                             </button>
                           </div>
@@ -720,18 +725,27 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
             <div v-if="paperDetail?.authors?.length" class="authors-cards-section">
               <h4 class="authors-section-title">Authors</h4>
               <div class="authors-cards-container">
-                <router-link
-                  v-for="author in paperDetail.authors"
-                  :key="author.user_id"
-                  :to="author.user_id === user?.id ? { name: 'userpage' } : { name: 'otheruser', params: { id: author.user_id } }"
-                  class="author-card"
-                >
-                  <div class="author-avatar-wrapper">
-                    <img v-if="author.avatar" :src="getImageUrl(author.avatar)" :alt="author.name" class="author-avatar" />
-                    <div v-else class="author-avatar-placeholder">{{ author.name?.[0] || 'A' }}</div>
+                <template v-for="author in paperDetail.authors" :key="author.id">
+
+                  <router-link class="author-card"
+                    :to="author.user_id == user!.id ? { name: 'userpage' } : { name: 'otheruser', params: { id: author.id } }"
+                    v-if="author.user_id">
+                    <div class="author-avatar-wrapper">
+                      <img v-if="author.avatar" :src="getImageUrl(author.avatar)" :alt="author.name"
+                        class="author-avatar" />
+                      <div v-else class="author-avatar-placeholder">{{ author.name?.[0] || 'A' }}</div>
+                    </div>
+                    <div class="author-name">{{ author.name }}</div>
+                  </router-link>
+                  <div v-else class="author-card">
+                    <div class="author-avatar-wrapper">
+                      <img v-if="author.avatar" :src="getImageUrl(author.avatar)" :alt="author.name"
+                        class="author-avatar" />
+                      <div v-else class="author-avatar-placeholder">{{ author.name?.[0] || 'A' }}</div>
+                    </div>
+                    <div class="author-name">{{ author.name }}</div>
                   </div>
-                  <div class="author-name">{{ author.name }}</div>
-                </router-link>
+                </template>
               </div>
             </div>
           </div>
