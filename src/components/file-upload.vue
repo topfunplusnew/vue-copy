@@ -475,7 +475,7 @@ const handlePdfPreview = (fileUrl?: string) => {
         </div>
         <!-- 图片预览状态 -->
         <div v-else-if="shouldShowImagePreview" class="image-preview-container">
-          <img :src="imageUrl || ''" :alt="posterFileList[0]?.name" class="preview-image" />
+          <img :src="imageUrl || ''" :alt="'Graphical Abstract'" class="preview-image" />
           <div class="image-overlay">
             <div class="image-overlay-text">Click to preview</div>
           </div>
@@ -500,7 +500,7 @@ const handlePdfPreview = (fileUrl?: string) => {
       <div v-for="file in posterFileList" :key="file.uid" :class="tabKey !== 'additional' ? `file-item option-row` : `file-item option-columnn`">
         <div class="file-preview">
           <!-- 如果是图片，显示缩略图 -->
-          <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="file.name" class="file-thumbnail" />
+          <img v-if="isImageFile(file.url || '')" :src="file.url" :alt="'Graphical Abstract'" class="file-thumbnail" />
           <!-- 如果不是图片，显示对应的文件图标 -->
           <div v-else class="file-icon-container">
             <component :is="getFileIcon(file.url || '')" v-if="getFileIcon(file.url || '')" class="file-icon" />
