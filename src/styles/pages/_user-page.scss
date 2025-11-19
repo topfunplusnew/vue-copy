@@ -478,8 +478,7 @@
 
         label {
           display: inline-block;
-          min-width: 90px;
-          width: 90px;
+          width: 150px;
           color: #1a3566; /* 深蓝色 */
           font-size: 1.4rem;
           flex-shrink: 0;
@@ -517,6 +516,38 @@
           label {
             padding-top: 8px;
             text-align: right;
+          }
+        }
+
+        // 简历上传样式
+        .bio-pdf-upload {
+          flex: 1;
+          display: flex;
+          align-items: center;
+
+          .upload-placeholder {
+            width: 100%;
+          }
+
+          .uploaded-file {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(65, 145, 255, 0.3);
+            border-radius: 8px;
+
+            .file-name {
+              flex: 1;
+              color: #1a3566;
+              font-size: 1.4rem;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            }
           }
         }
       }
