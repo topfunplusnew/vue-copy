@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { ElSelect, ElOption } from 'element-plus';
 import { getPaperViewHistory } from '@/services/user';
-import type { GetPaperViewHistoryParams } from '@/services/user/type';
 import { ElMessage } from 'element-plus';
 import { Loading } from '@element-plus/icons-vue';
 import { getImageUrl } from '@/utils';
@@ -50,15 +49,13 @@ const filterTitle = ref('');
 // 计算属性：筛选后的历史记录
 const filteredHistories = computed(() => {
   if (!filterTitle.value) return histories.value;
-  return histories.value.filter(item => 
-    item.paper.title.toLowerCase().includes(filterTitle.value.toLowerCase())
-  );
+  return histories.value.filter((item) => item.paper.title.toLowerCase().includes(filterTitle.value.toLowerCase()));
 });
 
 // 计算属性：所有唯一的论文标题
 const paperTitles = computed(() => {
   const titles = new Set<string>();
-  histories.value.forEach(item => titles.add(item.paper.title));
+  histories.value.forEach((item) => titles.add(item.paper.title));
   return Array.from(titles);
 });
 
@@ -81,19 +78,25 @@ const pagination = ref({
 });
 
 // 监听筛选条件变化，重置分页到第一页
-watch(() => filterTitle.value, () => {
-  pagination.value.page = 1;
-});
+watch(
+  () => filterTitle.value,
+  () => {
+    pagination.value.page = 1;
+  },
+);
 
 // 监听筛选后的数据长度变化，更新分页总数和总页数
-watch(() => filteredHistories.value.length, (newLength) => {
-  pagination.value.total = newLength;
-  pagination.value.pages = Math.ceil(newLength / pagination.value.per_page);
-  // 如果当前页超过总页数，重置到最后一页
-  if (pagination.value.page > pagination.value.pages) {
-    pagination.value.page = Math.max(1, pagination.value.pages);
-  }
-});
+watch(
+  () => filteredHistories.value.length,
+  (newLength) => {
+    pagination.value.total = newLength;
+    pagination.value.pages = Math.ceil(newLength / pagination.value.per_page);
+    // 如果当前页超过总页数，重置到最后一页
+    if (pagination.value.page > pagination.value.pages) {
+      pagination.value.page = Math.max(1, pagination.value.pages);
+    }
+  },
+);
 
 // 移动端分页配置
 const mobilePagination = ref({
@@ -335,17 +338,9 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     <div class="presentations-header">
       <h2>Paper View History</h2>
       <div class="filter-container">
-        <el-select 
-          v-model="filterTitle" 
-          placeholder="Filter by paper title"
-          style="width: 300px; margin-left: 20px;">
+        <el-select v-model="filterTitle" placeholder="Filter by paper title" style="width: 300px; margin-left: 20px">
           <el-option label="All" value="" />
-          <el-option 
-            v-for="title in paperTitles" 
-            :key="title" 
-            :label="title" 
-            :value="title" 
-          />
+          <el-option v-for="title in paperTitles" :key="title" :label="title" :value="title" />
         </el-select>
       </div>
     </div>
@@ -364,7 +359,7 @@ const formatViewDuration = (viewTimestamp: number | null) => {
           </template>
         </el-table-column>
 
-        <el-table-column label="Title" :min-width="isMobile ? 90 : 300">
+        <el-table-column label="Title" :min-width="isMobile ? 90 : 300" align="center">
           <template #default="{ row }">
             <div class="title-cell">{{ row.paper.title }}</div>
           </template>
@@ -376,13 +371,13 @@ const formatViewDuration = (viewTimestamp: number | null) => {
           </template>
         </el-table-column>
 
-        <el-table-column label="Authors" :min-width="isMobile ? 70 : 200">
+        <el-table-column label="Authors" :min-width="isMobile ? 70 : 200" align="center">
           <template #default="{ row }">
             <div class="authors-cell">{{ formatAuthors(row.paper.authors) }}</div>
           </template>
         </el-table-column>
 
-        <el-table-column label="Venue" :width="isMobile ? 80 : 150">
+        <el-table-column label="Venue" :width="isMobile ? 80 : 150" align="center">
           <template #default="{ row }">
             <div class="venue-cell">{{ row.paper.venue }} {{ row.paper.year }}</div>
           </template>
@@ -526,6 +521,7 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   background-color: #f8f9fa;
   color: #1a3566;
   font-weight: 600;
+  font-size: 26px;
 }
 
 :deep(.el-table td) {
@@ -632,7 +628,7 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   }
 
   :deep(.el-table th) {
-    font-size: 10px;
+    font-size: 12px;
     padding: 6px 4px;
     white-space: nowrap;
   }
