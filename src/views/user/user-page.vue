@@ -217,7 +217,7 @@ function toggleFollowUser(follower: IUser) {
 // 路由菜单
 const menuItems = [
   { name: 'Blogs', route: 'userpage-blogs' },
-  { name: 'Presentations', route: 'userpage-presentations' },
+  { name: 'My Presentations', route: 'userpage-presentations' },
 ];
 
 // 导航到指定路由
