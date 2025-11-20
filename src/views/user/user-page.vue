@@ -10,6 +10,8 @@ import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
+import { getUserProfile, updateUserProfile, uploadBioPdf } from '@/services/user';
+import type { UpdateUserProfileData } from '@/services/user/type';
 
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -89,28 +91,162 @@ function cropSuccess() {
 
 // 添加编辑个人信息相关状态
 const showEditProfile = ref(false);
-const editForm = reactive({
-  name: user.value?.name,
-  avatar: user.value?.avatar,
+const loadingProfile = ref(false);
+const editForm = reactive<UpdateUserProfileData>({
+  name: '',
+  avatar: '',
+  affiliation: '',
+  department: '',
+  university: '',
+  city: '',
+  country: '',
+  bio: '',
+  homepage: '',
+  orcid: '',
 });
+
+// 打开编辑弹窗时获取用户资料
+function openEditProfile() {
+  showEditProfile.value = true;
+  loadingProfile.value = true;
+  getUserProfile()
+    .then(({ data }) => {
+      // 只填充 UpdateUserProfileData 中的字段
+      editForm.name = data.name || '';
+      editForm.avatar = data.avatar || '';
+      editForm.affiliation = data.affiliation || '';
+      editForm.department = data.department || '';
+      editForm.university = data.university || '';
+      editForm.city = data.city || '';
+      editForm.country = data.country || '';
+      editForm.bio = data.bio || '';
+      editForm.homepage = data.homepage || '';
+      editForm.orcid = data.orcid || '';
+    })
+    .catch((error) => {
+      console.error('Failed to fetch user profile:', error);
+      ElMessage.error('Failed to fetch user profile, please try again later');
+    })
+    .finally(() => {
+      loadingProfile.value = false;
+    });
+}
 
 // 提交编辑
 function submitProfileEdit() {
-  store
-    .editUserInfo(editForm)
+  updateUserProfile(editForm)
     .then((res) => {
       console.log(res);
+      ElMessage.success('Profile updated successfully');
+      // 更新 store 中的用户信息
+      store.getUserInfo();
+      showEditProfile.value = false;
     })
-    .catch((e) => console.log(e));
-  showEditProfile.value = false;
+    .catch((error) => {
+      console.error('Failed to update user profile:', error);
+      ElMessage.error('Update failed, please try again later');
+    });
 }
 
 // 取消编辑
 function cancelProfileEdit() {
-  editForm.name = user.value?.name;
-  // editForm.id = user.value?.id;
-  editForm.avatar = user.value?.avatar; //恢复原头像
+  // 重置表单
+  editForm.name = '';
+  editForm.avatar = '';
+  editForm.affiliation = '';
+  editForm.department = '';
+  editForm.university = '';
+  editForm.city = '';
+  editForm.country = '';
+  editForm.bio = '';
+  editForm.homepage = '';
+  editForm.orcid = '';
+  bioPdfFile.value = null;
+  bioPdfFileName.value = '';
+  uploadingBioPdf.value = false;
   showEditProfile.value = false;
+}
+
+// 简历PDF上传相关状态
+const bioPdfFile = ref<File | null>(null);
+const bioPdfFileName = ref('');
+const uploadingBioPdf = ref(false);
+const bioPdfInputRef = ref<HTMLElement | null>(null);
+
+// 处理简历PDF上传
+function handleBioPdfUpload(event: Event) {
+  const target = event.target as HTMLInputElement;
+  const file = target.files ? target.files[0] : null;
+  
+  if (!file) {
+    return;
+  }
+
+  // 判断是否为PDF文件
+  const fileExtension = file.name.split('.').pop()?.toLowerCase();
+  if (fileExtension !== 'pdf') {
+    ElMessage.error('Please upload a PDF file');
+    // 清空input
+    if (target) {
+      target.value = '';
+    }
+    return;
+  }
+
+  // 检查文件大小（可选，例如限制10MB）
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (file.size > maxSize) {
+    ElMessage.error('File size should not exceed 10MB');
+    if (target) {
+      target.value = '';
+    }
+    return;
+  }
+
+  bioPdfFile.value = file;
+  bioPdfFileName.value = file.name;
+  
+  // 立即上传
+  uploadBioPdfFile();
+}
+
+// 上传简历PDF文件
+function uploadBioPdfFile() {
+  if (!bioPdfFile.value) {
+    return;
+  }
+
+  uploadingBioPdf.value = true;
+  uploadBioPdf({ file: bioPdfFile.value })
+    .then(() => {
+      ElMessage.success('Resume uploaded successfully');
+      bioPdfFileName.value = bioPdfFile.value?.name || '';
+    })
+    .catch((error) => {
+      console.error('Failed to upload resume:', error);
+      ElMessage.error('Failed to upload resume, please try again later');
+      bioPdfFile.value = null;
+      bioPdfFileName.value = '';
+    })
+    .finally(() => {
+      uploadingBioPdf.value = false;
+    });
+}
+
+// 触发文件选择
+function triggerBioPdfUpload() {
+  if (bioPdfInputRef.value) {
+    bioPdfInputRef.value.click();
+  }
+}
+
+// 删除已选择的简历文件
+function removeBioPdf() {
+  bioPdfFile.value = null;
+  bioPdfFileName.value = '';
+  if (bioPdfInputRef.value) {
+    (bioPdfInputRef.value as HTMLInputElement).value = '';
+  }
 }
 
 // 在编辑页面上传头像
@@ -164,7 +300,6 @@ const isWalletConnected = computed(() => {
   // return !!user.value?.walletAddress;
   return false;
 });
-
 
 // 添加社交弹窗相关的状态和方法
 const isSocialModalVisible = ref(false);
@@ -242,7 +377,7 @@ const isActiveRoute = (routeName: string) => {
         <!-- 左侧用户信息面板 -->
         <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
           <div class="profile-buttons">
-            <button class="edit-profile-btn" @click="showEditProfile = true">EDIT PROFILE</button>
+            <button class="edit-profile-btn" @click="openEditProfile">EDIT PROFILE</button>
             <button class="logout-btn" @click="handleLogout">LOGOUT</button>
           </div>
           <div class="user-info">
@@ -288,13 +423,7 @@ const isActiveRoute = (routeName: string) => {
 
             <!-- 二级路由菜单 -->
             <div class="user-menu">
-              <div
-                v-for="item in menuItems"
-                :key="item.route"
-                class="menu-item"
-                :class="{ active: isActiveRoute(item.route) }"
-                @click="navigateTo(item.route)"
-              >
+              <div v-for="item in menuItems" :key="item.route" class="menu-item" :class="{ active: isActiveRoute(item.route) }" @click="navigateTo(item.route)">
                 {{ item.name }}
               </div>
             </div>
@@ -344,22 +473,81 @@ const isActiveRoute = (routeName: string) => {
           @mouseleave="stopDrag"
         >
           <h2>Edit Profile</h2>
-          <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
-          <div class="edit-avatar-section avatar-container">
-            <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
-            <div class="avatar-upload-icon">
-              <i class="el-icon-camera" @click.prevent.stop="onUpload">edit</i>
-            </div>
+          <div v-if="loadingProfile" class="loading-container">
+            <div class="loading-spinner"></div>
+            <p>Loading...</p>
           </div>
-          <div class="edit-form">
-            <div class="form-group">
-              <label>Nickname</label>
-              <input v-model="editForm.name" type="text" placeholder="Enter your nickname" />
+          <div v-else>
+            <input ref="uploadfile" style="display: none" type="file" class="upload-avatar" accept="image/*" @change="handleEditAvatarUpload" />
+            <div class="edit-avatar-section avatar-container">
+              <img :src="getImageUrl(editForm.avatar)" alt="Edit Avatar" class="edit-avatar" />
+              <div class="avatar-upload-icon">
+                <i class="el-icon-camera" @click.prevent.stop="onUpload">edit</i>
+              </div>
             </div>
-          </div>
-          <div class="edit-buttons">
-            <el-button @click="submitProfileEdit">Save Changes</el-button>
-            <el-button @click="cancelProfileEdit">Cancel</el-button>
+            <div class="edit-form">
+              <div class="form-group">
+                <label>Name</label>
+                <input v-model="editForm.name" type="text" placeholder="Enter your name" />
+              </div>
+              <div class="form-group">
+                <label>Affiliation</label>
+                <input v-model="editForm.affiliation" type="text" placeholder="Enter your affiliation" />
+              </div>
+              <div class="form-group">
+                <label>Department</label>
+                <input v-model="editForm.department" type="text" placeholder="Enter your department" />
+              </div>
+              <div class="form-group">
+                <label>University</label>
+                <input v-model="editForm.university" type="text" placeholder="Enter your university" />
+              </div>
+              <div class="form-group">
+                <label>City</label>
+                <input v-model="editForm.city" type="text" placeholder="Enter your city" />
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <input v-model="editForm.country" type="text" placeholder="Enter your country" />
+              </div>
+              <div class="form-group">
+                <label>Bio</label>
+                <textarea v-model="editForm.bio" placeholder="Enter your bio" rows="4"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Homepage</label>
+                <input v-model="editForm.homepage" type="url" placeholder="Enter your homepage URL" />
+              </div>
+              <div class="form-group">
+                <label>ORCID</label>
+                <input v-model="editForm.orcid" type="text" placeholder="Enter your ORCID" />
+              </div>
+              <div class="form-group">
+                <label>Resume (PDF)</label>
+                <div class="bio-pdf-upload">
+                  <input
+                    ref="bioPdfInputRef"
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    style="display: none"
+                    @change="handleBioPdfUpload"
+                  />
+                  <div v-if="!bioPdfFileName" class="upload-placeholder">
+                    <el-button @click="triggerBioPdfUpload" :loading="uploadingBioPdf">
+                      {{ uploadingBioPdf ? 'Uploading...' : 'Upload Resume PDF' }}
+                    </el-button>
+                  </div>
+                  <div v-else class="uploaded-file">
+                    <span class="file-name">{{ bioPdfFileName }}</span>
+                    <el-button size="small" @click="removeBioPdf">Remove</el-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="edit-buttons">
+              <el-button type="primary" @click="submitProfileEdit">Save Changes</el-button>
+              <el-button @click="cancelProfileEdit">Cancel</el-button>
+            </div>
           </div>
         </div>
       </div>

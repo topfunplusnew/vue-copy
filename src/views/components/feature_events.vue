@@ -125,10 +125,11 @@ function registerInterest(conferenceId: number) {
 
 function openPaperModal(paper: SelectedPaperLite) {
   // 跳转到论文详情页
-  router.push({
-    name: 'PaperDetail',
-    params: { paperId: paper.id },
-  });
+router.push({
+  name: 'PaperDetail',
+  params: { paperId: paper.id }
+});
+
 }
 
 function seachPaper() {
