@@ -447,15 +447,17 @@
         }
 
         .session-notice {
-          margin-top: 24px;
-          margin-bottom: 16px;
+          
+          margin: 24px -24px 16px;
           padding: 20px;
           background: linear-gradient(135deg, rgba(251, 146, 60, 0.1) 0%, rgba(249, 115, 22, 0.08) 100%);
           border: 2px solid rgba(251, 146, 60, 0.25);
           border-radius: 16px;
           box-shadow: 0 8px 32px rgba(251, 146, 60, 0.15);
           position: relative;
-
+          @include screen-mobile {
+            margin: 24px -16px 16px;
+          }
           &::before {
             content: '';
             position: absolute;
@@ -847,14 +849,17 @@
               margin-bottom: 12px;
               color: #2c3e50;
               line-height: 1.4;
+
               @include screen-mobile {
                 font-size: 14px;
               }
             }
 
             .key-point-input {
+              hyphens: auto;
+              resize: none;
               width: 100%;
-              padding: 15px 20px;
+              padding: 0px 5px;
               border: 2px solid #e1e8ed;
               border-radius: 6px;
               font-size: 16px;
@@ -862,6 +867,12 @@
               transition: all 0.3s ease;
               box-sizing: border-box;
               background-color: #ffffff;
+
+              /* 自动换行三件套（加强版） */
+              white-space: pre-wrap;
+              // overflow-wrap: break-word;
+              word-break: break-all;
+              /* ← 关键补充 */
 
               &:focus {
                 outline: none;
@@ -918,7 +929,13 @@
           padding: 20px 15px;
 
           .key-takeaways-header {
+            margin-bottom: 0px;
+
             h2 {
+              font-size: 14px;
+            }
+
+            p {
               font-size: 14px;
             }
           }
@@ -926,8 +943,10 @@
           .key-points-list {
             .key-point-item {
               .key-point-input {
-                padding: 12px 16px;
+                width: 100%;
                 font-size: 15px;
+                text-wrap: wrap;
+
               }
             }
           }

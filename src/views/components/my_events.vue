@@ -727,8 +727,8 @@ function getAffiliationNumber(originalId: number): number {
               <div class="key-points-list">
                 <div v-for="point in keyPoints" :key="point.id" class="key-point-item">
                   <h3>{{ point.title }}</h3>
-                  <input type="text" class="key-point-input" v-model="formData.key_points[point.id - 1]"
-                    :placeholder="formData.key_points[point.id - 1]">
+                  <textarea type="text" class="key-point-input" v-model="formData.key_points[point.id - 1]"
+                    :placeholder="formData.key_points[point.id - 1]"></textarea>
                 </div>
               </div>
               <div class="save-button-container">
