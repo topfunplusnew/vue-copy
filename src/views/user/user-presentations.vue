@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
-import { ElSelect, ElOption } from 'element-plus';
 import { getPaperViewHistory } from '@/services/user';
+import type { GetPaperViewHistoryParams } from '@/services/user/type';
 import { ElMessage } from 'element-plus';
 import { Loading } from '@element-plus/icons-vue';
 import { getImageUrl } from '@/utils';
-
+import { useConferenceStore } from '@/stores/conference'
+import type { IConferenceEvent } from '@/types/conference';
 interface PaperViewHistory {
   id: number;
   user_id: number;
@@ -43,29 +44,6 @@ const loadingMore = ref(false); // 移动端加载更多状态
 const isMobile = ref(false); // 是否为移动端
 const hasMore = ref(true); // 是否还有更多数据
 
-// 筛选
-const filterTitle = ref('');
-
-// 计算属性：筛选后的历史记录
-const filteredHistories = computed(() => {
-  if (!filterTitle.value) return histories.value;
-  return histories.value.filter((item) => item.paper.title.toLowerCase().includes(filterTitle.value.toLowerCase()));
-});
-
-// 计算属性：所有唯一的论文标题
-const paperTitles = computed(() => {
-  const titles = new Set<string>();
-  histories.value.forEach((item) => titles.add(item.paper.title));
-  return Array.from(titles);
-});
-
-// 计算属性：分页后的筛选结果
-const paginatedHistories = computed(() => {
-  const start = (pagination.value.page - 1) * pagination.value.per_page;
-  const end = start + pagination.value.per_page;
-  return filteredHistories.value.slice(start, end);
-});
-
 // 防抖定时器
 let scrollTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -76,27 +54,6 @@ const pagination = ref({
   total: 0,
   pages: 0,
 });
-
-// 监听筛选条件变化，重置分页到第一页
-watch(
-  () => filterTitle.value,
-  () => {
-    pagination.value.page = 1;
-  },
-);
-
-// 监听筛选后的数据长度变化，更新分页总数和总页数
-watch(
-  () => filteredHistories.value.length,
-  (newLength) => {
-    pagination.value.total = newLength;
-    pagination.value.pages = Math.ceil(newLength / pagination.value.per_page);
-    // 如果当前页超过总页数，重置到最后一页
-    if (pagination.value.page > pagination.value.pages) {
-      pagination.value.page = Math.max(1, pagination.value.pages);
-    }
-  },
-);
 
 // 移动端分页配置
 const mobilePagination = ref({
@@ -126,30 +83,21 @@ const checkIsMobile = () => {
   }
 };
 
-// 加载所有历史记录（PC端）
-const loadHistories = async () => {
+// 加载数据（PC端使用，替换数据）
+const loadHistories = async (params?: GetPaperViewHistoryParams) => {
+  loading.value = true;
   try {
-    loading.value = true;
-    let allHistories: PaperViewHistory[] = [];
-    let currentPage = 1;
-    const pageSize = 100; // 每次请求100条，减少请求次数
-    let hasMore = true;
-
-    while (hasMore) {
-      const res = await getPaperViewHistory({ page: currentPage, per_page: pageSize });
-      const data = res.data?.histories || [];
-      allHistories = [...allHistories, ...data];
-      // 检查是否还有更多数据
-      hasMore = data.length === pageSize;
-      currentPage++;
+    const response = await getPaperViewHistory(params);
+    console.log(`res`, response);
+    if (response.data) {
+      histories.value = response.data.histories || [];
+      pagination.value = {
+        page: response.data.page || 1,
+        per_page: response.data.per_page || 20,
+        total: response.data.total || 0,
+        pages: response.data.pages || 0,
+      };
     }
-
-    // 更新所有历史记录
-    histories.value = allHistories;
-    // 重置分页信息
-    pagination.value.page = 1;
-    pagination.value.total = allHistories.length;
-    pagination.value.pages = Math.ceil(allHistories.length / pagination.value.per_page);
   } catch (error) {
     console.error('加载论文查看历史失败:', error);
     ElMessage.error('加载数据失败，请稍后重试');
@@ -247,12 +195,20 @@ const loadMobileHistories = async () => {
 // 处理分页变化（PC端）
 const handlePageChange = (page: number) => {
   pagination.value.page = page;
+  loadHistories({
+    page,
+    per_page: pagination.value.per_page,
+  });
 };
 
 // 处理每页数量变化（PC端）
 const handleSizeChange = (size: number) => {
   pagination.value.per_page = size;
   pagination.value.page = 1;
+  loadHistories({
+    page: 1,
+    per_page: size,
+  });
 };
 
 // 滚动监听（移动端）- 滚动到底部时自动加载，带防抖
@@ -282,12 +238,31 @@ const handleScroll = () => {
     }
   }, 500);
 };
-
+//会议类型
+const conferenceType = computed(() => {
+  return store.conferenceList.map((item: IConferenceEvent) => {
+    return {
+      conference_type: item.conference_type,
+      id: item.id
+    }
+  })
+})
+const filterTitle = ref();
+watch(filterTitle, (newValue) => {
+  if (newValue !== 'All') {
+    loadHistories({
+      'conference_type': newValue,
+    })
+  }
+},{
+  immediate: true,
+})
+const store = useConferenceStore();
 // 组件挂载时加载数据
 onMounted(() => {
   checkIsMobile();
   window.addEventListener('resize', checkIsMobile);
-
+  store.getConferencesList()
   if (isMobile.value) {
     loadMobileHistories();
     window.addEventListener('scroll', handleScroll);
@@ -337,31 +312,29 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   <div class="presentations-area">
     <div class="presentations-header">
       <h2>Paper View History</h2>
-      <div class="filter-container">
-        <el-select v-model="filterTitle" placeholder="Filter by paper title" style="width: 300px; margin-left: 20px">
-          <el-option label="All" value="" />
-          <el-option v-for="title in paperTitles" :key="title" :label="title" :value="title" />
-        </el-select>
-      </div>
+      <el-select v-model="filterTitle" placeholder="Filter by paper title" style="width: 300px; margin-left: 20px">
+        <el-option label="All" value="All" />
+        <el-option v-for="title in conferenceType" :key="title.id" :label="title.conference_type"
+          :value="title.conference_type" />
+      </el-select>
     </div>
 
     <div class="table-wrapper" :class="{ 'mobile-table': isMobile }">
-      <el-table :data="paginatedHistories" style="width: 100%" stripe v-loading="loading">
+      <el-table :data="histories" style="width: 100%" stripe v-loading="loading">
         <el-table-column :width="isMobile ? 40 : 120" align="center">
           <template #default="{ row }">
             <div class="thumbnail-cell">
               <img
                 :src="row.paper?.conference?.logo ? getImageUrl(row.paper.conference.logo) : 'https://via.placeholder.com/50x50/627180/ffffff?text=Paper'"
-                :alt="row.paper?.conference?.abbreviation || row.paper.title"
-                class="thumbnail-img"
-              />
+                :alt="row.paper?.conference?.abbreviation || row.paper.title" class="thumbnail-img" />
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column label="Title" :min-width="isMobile ? 90 : 300" align="center">
+        <el-table-column label="Title" :min-width="isMobile ? 90 : 300" align="center" >
+
           <template #default="{ row }">
-            <div class="title-cell">{{ row.paper.title }}</div>
+            <router-link :to="{name:'PaperDetail',params:{paperId:row.paper.id}}" class="title-cell">{{ row.paper.title }}</router-link>
           </template>
         </el-table-column>
 
@@ -387,21 +360,17 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 
     <!-- PC端分页组件 -->
     <div class="pagination-container" v-if="!isMobile && pagination.total > 0">
-      <el-pagination
-        v-model:current-page="pagination.page"
-        v-model:page-size="pagination.per_page"
-        :page-sizes="[10, 20, 50, 100]"
-        :total="pagination.total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @current-change="handlePageChange"
-        @size-change="handleSizeChange"
-      />
+      <el-pagination v-model:current-page="pagination.page" v-model:page-size="pagination.per_page"
+        :page-sizes="[10, 20, 50, 100]" :total="pagination.total" layout="total, sizes, prev, pager, next, jumper"
+        @current-change="handlePageChange" @size-change="handleSizeChange" />
     </div>
 
     <!-- 移动端加载更多提示 -->
     <div class="mobile-load-more" v-if="isMobile">
       <div v-if="loadingMore" class="loading-more-text">
-        <el-icon class="is-loading"><Loading /></el-icon>
+        <el-icon class="is-loading">
+          <Loading />
+        </el-icon>
         <span>加载中...</span>
       </div>
       <div v-else-if="!hasMore && histories.length > 0" class="no-more-text">已加载完毕</div>
@@ -420,7 +389,6 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 .presentations-header {
   margin-bottom: 24px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
 }
 
@@ -432,11 +400,6 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 }
 
 /* 缩略图单元格 */
-.filter-container {
-  display: flex;
-  align-items: center;
-}
-
 .thumbnail-cell {
   display: flex;
   justify-content: center;
@@ -453,10 +416,13 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 
 /* 标题单元格 */
 .title-cell {
+  display: inline-block;
+  text-align: left;
   font-size: 18px;
   font-weight: 700;
   color: #1a3566;
   line-height: 1.3;
+  text-decoration: none;
 }
 
 /* 时间单元格 */
@@ -591,23 +557,8 @@ const formatViewDuration = (viewTimestamp: number | null) => {
     padding: 10px;
   }
 
-  .presentations-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .presentations-header h2 {
     font-size: 20px;
-    margin-bottom: 12px;
-  }
-
-  .filter-container {
-    width: 100%;
-  }
-
-  .filter-container :deep(.el-select) {
-    width: 100% !important;
-    margin-left: 0 !important;
   }
 
   /* 表格容器在移动端 */
@@ -628,9 +579,10 @@ const formatViewDuration = (viewTimestamp: number | null) => {
   }
 
   :deep(.el-table th) {
-    font-size: 12px;
+
     padding: 6px 4px;
     white-space: nowrap;
+    font-size: 12px;
   }
 
   /* 标题列和作者列在移动端允许换行 */

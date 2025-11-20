@@ -4,6 +4,7 @@
 export interface IRequest {
   page?: number;
   per_page?: number;
+  search?: string;
 }
 
 export interface IResponse<T = unknown> {

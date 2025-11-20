@@ -6,6 +6,8 @@ export interface GetPaperViewHistoryParams {
   page?: number;
   /** 每页数量（可选，默认：20） */
   per_page?: number;
+  /** 会议类型（可选） */
+  conference_type?: string;
 }
 
 /**
