@@ -99,8 +99,8 @@ const loadHistories = async (params?: GetPaperViewHistoryParams) => {
       };
     }
   } catch (error) {
-    console.error('加载论文查看历史失败:', error);
-    ElMessage.error('加载数据失败，请稍后重试');
+    console.error('load paper view history failed:', error);
+    ElMessage.error('load data failed, please try again later');
   } finally {
     loading.value = false;
   }
@@ -158,8 +158,8 @@ const loadMoreHistories = async () => {
       }
     }
   } catch (error) {
-    console.error('加载更多数据失败:', error);
-    ElMessage.error('加载数据失败，请稍后重试');
+    console.error('load more histories failed:', error);
+    ElMessage.error('load more histories failed, please try again later');
   } finally {
     loadingMore.value = false;
   }
@@ -185,8 +185,8 @@ const loadMobileHistories = async () => {
       hasMore.value = totalLoaded < (response.data.total || 0);
     }
   } catch (error) {
-    console.error('加载论文查看历史失败:', error);
-    ElMessage.error('加载数据失败，请稍后重试');
+    console.error('load paper view history failed:', error);
+    ElMessage.error('load data failed, please try again later');
   } finally {
     loading.value = false;
   }
@@ -294,25 +294,25 @@ const formatAuthors = (authors: Array<{ name: string }>) => {
 
 // 格式化查看时长（view_duration 现在是时间戳，计算与当前时间的差值）
 const formatViewDuration = (viewTimestamp: number | null) => {
-  if (!viewTimestamp) return '0小时之前';
+  if (!viewTimestamp) return '0 hours ago';
 
   const now = Math.floor(Date.now() / 1000); // 当前时间戳（秒）
   const diffSeconds = now - viewTimestamp;
   const diffHours = Math.floor(diffSeconds / 3600);
 
   if (diffHours < 1) {
-    return '1小时之前';
+    return '1 hour ago';
   }
 
-  return `${diffHours}小时之前`;
+  return `${diffHours} hours ago`;
 };
 </script>
 
 <template>
   <div class="presentations-area">
     <div class="presentations-header">
-      <h2>Paper View History</h2>
-      <el-select v-model="filterTitle" placeholder="Filter by paper title" style="width: 300px; margin-left: 20px">
+      <h2>View History</h2>
+      <el-select v-model="filterTitle" placeholder="Filter by Events" style="width: 300px; margin-left: 20px">
         <el-option label="All" value="All" />
         <el-option v-for="title in conferenceType" :key="title.id" :label="title.conference_type"
           :value="title.conference_type" />
@@ -371,9 +371,9 @@ const formatViewDuration = (viewTimestamp: number | null) => {
         <el-icon class="is-loading">
           <Loading />
         </el-icon>
-        <span>加载中...</span>
+        <span>Loading...</span>
       </div>
-      <div v-else-if="!hasMore && histories.length > 0" class="no-more-text">已加载完毕</div>
+      <div v-else-if="!hasMore && histories.length > 0" class="no-more-text">All data loaded</div>
     </div>
   </div>
 </template>
