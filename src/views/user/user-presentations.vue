@@ -433,8 +433,8 @@ const formatViewDuration = (viewTimestamp: number | null) => {
 
 /* 时长单元格 */
 .duration-cell {
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: 18px;
+  color: #5e6269;
 }
 
 /* 作者单元格 */
