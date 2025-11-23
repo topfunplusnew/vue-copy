@@ -53,6 +53,7 @@ const handleFontSizeChange = (size: string) => {
 // 可用景点数据（header中通常为空，但保持接口一致）
 const availableDestinations = ref<Destination[]>([]);
 const scheduleShow = ref(false);
+const savedFontSize = ref('medium');
 onMounted(() => {
 
 
@@ -69,9 +70,11 @@ onMounted(() => {
   }
   // 添加点击事件监听器
   document.addEventListener('click', handleClickOutside);
-
+  activeFontSize.value = savedFontSize.value;
+  // 在 html 元素上设置 data-font-size 属性，用于全局字体大小控制
+  document.documentElement.setAttribute('data-font-size', activeFontSize.value);
 });
-const savedFontSize = ref('medium');
+
 watch(() => userStore.userCustom?.buttons?.size, (newSize) => {
   savedFontSize.value = newSize || 'medium';
   activeFontSize.value = savedFontSize.value;
