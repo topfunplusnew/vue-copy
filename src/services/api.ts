@@ -1,5 +1,5 @@
 import type { IBlogEdit, IBlogPostCreate, IBlogPostimage, IBlogReq } from '@/types/blog';
-import type { ILogin, IPairToken, IUserEdit, IUserSignup } from '@/types/user.ts';
+import type { ILogin, IPairToken, IUserCustom, IUserEdit, IUserSignup } from '@/types/user.ts';
 import type { IChatReq } from '@/types/chat';
 import { auth, http } from './http';
 import type { IRequest } from '@/types/service';
@@ -256,3 +256,7 @@ export const getMyNote = () =>
   });
 
   export const getManagers = () => http.get('/user/admins');
+
+  export const getUserCustom = () => http.get('/user/custom-attributes');
+
+  export const updateUserCustom = (data: IUserCustom) => http.post('/user/custom-attributes', data);

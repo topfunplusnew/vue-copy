@@ -1,4 +1,4 @@
-@use '../utils/utils' as *;
+@use '../utils/utils' as utils;
 @use '../utils/mixins' as *;
 
 .paper-details-page {
@@ -77,7 +77,7 @@
           padding-top: 8px;
 
           .conference-name {
-            font-size: rpx(32);
+            font-size: utils.rpx(32);
             font-weight: 700;
             color: #1e293b;
             margin-bottom: 8px;
@@ -85,7 +85,7 @@
           }
 
           .conference-full-name {
-            font-size: rpx(22);
+            font-size: utils.rpx(22);
             color: #64748b;
             font-style: italic;
             line-height: 1.3;
@@ -132,7 +132,7 @@
             order: 2;
 
             .title {
-              font-size: rpx(23);
+              font-size: utils.rpx(23);
               font-weight: 700;
               color: #1e293b;
               line-height: 1.3;
@@ -147,23 +147,23 @@
 
           .authors-list {
             .author-name {
-              font-size: rpx(20);
+              font-size: utils.rpx(20); 
               color: #475569;
               font-weight: 500;
               line-height: 1.6;
 
               @include screen-mobile {
-                font-size: rpx(22);
+                font-size: utils.rpx(22);
               }
 
               sup {
-                font-size: rpx(14);
+                font-size: utils.rpx(28);
                 color: #60a5fa;
                 font-weight: 600;
                 margin-left: 2px;
 
                 @include screen-mobile {
-                  font-size: rpx(16);
+                  font-size: utils.rpx(32);
                 }
               }
             }
@@ -176,7 +176,7 @@
 
             .empty-text {
               color: #dc2626;
-              font-size: rpx(16);
+              font-size: utils.rpx(16);
               text-align: center;
             }
           }
@@ -187,23 +187,23 @@
 
           .affiliations-list {
             .affiliation {
-              font-size: rpx(18);
+              font-size: utils.rpx(18);
               color: #6b7280;
               line-height: 1.6;
               margin-bottom: 6px;
 
               @include screen-mobile {
-                font-size: rpx(20);
+                font-size: utils.rpx(20);
               }
 
               sup {
-                font-size: rpx(14);
+                font-size: utils.rpx(14);
                 color: #60a5fa;
                 font-weight: 600;
                 margin-right: 4px;
 
                 @include screen-mobile {
-                  font-size: rpx(16);
+                  font-size:utils.rpx(32);
                 }
               }
             }
@@ -216,7 +216,7 @@
 
             .empty-text {
               color: #dc2626;
-              font-size: rpx(16);
+              font-size: utils.rpx(16);
               text-align: center;
             }
           }
@@ -286,7 +286,7 @@
             color: #475569;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            font-size: rpx(20);
+            font-size: utils.rpx(20);
             font-weight: 600;
             letter-spacing: 0.3px;
 
@@ -295,8 +295,10 @@
               min-width: calc(50% - 4px);
               box-sizing: border-box;
               padding: 12px 14px;
-              font-size: rpx(18);
+              font-size: utils.rpx(18);
             }
+
+
 
             &:hover:not(.active):not(:disabled) {
               background: rgba(99, 102, 241, 0.08);
@@ -361,7 +363,7 @@
             gap: 8px;
 
             h2 {
-              font-size: 28px;
+              font-size: utils.rpx(28);
               font-weight: 700;
               margin-bottom: 15px;
               color: #2c3e50;
@@ -371,7 +373,7 @@
               &::before {
                 content: '📋';
                 margin-right: 12px;
-                font-size: 30px;
+                font-size: utils.rpx(30);
               }
             }
           }
@@ -387,7 +389,7 @@
             .key-point-item {
               display: flex;
               justify-content: flex-start;
-              font-size: rpx(18);
+              font-size: utils.rpx(18);
               color: #374151;
               font-weight: 500;
               line-height: 1.6;
@@ -396,7 +398,7 @@
                 content: '●';
                 margin-right: 8px;
                 color: #000;
-                font-size: 14px;
+                font-size: utils.rpx(14);
                 line-height: 1.6;
               }
             }
@@ -412,35 +414,35 @@
               margin-bottom: 16px;
 
               h4 {
-                font-size: rpx(20);
+                font-size: utils.rpx(20);
                 font-weight: 600;
                 color: #374151;
                 margin: 0 0 10px 0;
 
                 @include screen-mobile {
-                  font-size: rpx(24);
+                  font-size: utils.rpx(48);
                 }
               }
 
               .authors-list {
                 .author-name {
-                  font-size: rpx(18);
+                  font-size: utils.rpx(18);
                   color: #1e293b;
                   font-weight: 500;
                   line-height: 1.6;
 
                   @include screen-mobile {
-                    font-size: rpx(22);
+                    font-size: utils.rpx(22);
                   }
 
                   sup {
-                    font-size: rpx(14);
+                    font-size: utils.rpx(14);
                     color: #60a5fa;
                     font-weight: 600;
                     margin-left: 2px;
 
                     @include screen-mobile {
-                      font-size: rpx(16);
+                      font-size: utils.rpx(32); 
                     }
                   }
                 }
@@ -448,23 +450,23 @@
 
               .affiliations-list {
                 .affiliation {
-                  font-size: rpx(16);
+                  font-size: utils.rpx(16);
                   color: #6b7280;
                   line-height: 1.5;
                   margin-bottom: 6px;
 
                   @include screen-mobile {
-                    font-size: rpx(20);
+                    font-size: utils.rpx(40);
                   }
 
                   sup {
-                    font-size: rpx(14);
+                    font-size: utils.rpx(14);
                     color: #60a5fa;
                     font-weight: 600;
                     margin-right: 4px;
 
                     @include screen-mobile {
-                      font-size: rpx(16);
+                      font-size: utils.rpx(32);
                     }
                   }
                 }
@@ -480,25 +482,25 @@
             }
 
             h5 {
-              font-size: rpx(22);
+              font-size: utils.rpx(22);
               font-weight: 600;
               color: #334155;
               line-height: 1.5;
               margin: 0 0 10px 0;
 
               @include screen-mobile {
-                font-size: rpx(22);
+                font-size: utils.rpx(44);
               }
             }
 
             p {
-              font-size: rpx(16);
+              font-size: utils.rpx(16);
               color: #6b7280;
               line-height: 1.7;
               margin: 0;
 
               @include screen-mobile {
-                font-size: rpx(18);
+                font-size: utils.rpx(32);
               }
             }
 
@@ -512,12 +514,12 @@
                 background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(16, 185, 129, 0.08) 100%);
                 border: 1px solid rgba(34, 197, 94, 0.2);
                 border-radius: 20px;
-                font-size: rpx(14);
+                font-size: utils.rpx(14);
                 color: #065f46;
                 font-weight: 500;
 
                 @include screen-mobile {
-                  font-size: rpx(16);
+                  font-size: utils.rpx(32);
                   padding: 8px 16px;
                 }
               }
@@ -534,7 +536,7 @@
 
             p {
               margin: 0;
-              font-size: rpx(16);
+              font-size: utils.rpx(16);
               font-weight: 500;
             }
           }
@@ -608,7 +610,7 @@
 
             p {
               margin: 0;
-              font-size: rpx(16);
+              font-size: utils.rpx(16);
               font-weight: 500;
             }
           }
@@ -628,7 +630,7 @@
       }
 
       .mobile-title {
-        font-size: rpx(20);
+        font-size: utils.rpx(20);
         font-weight: 600;
         color: #374151;
         margin-bottom: 12px;
@@ -658,20 +660,20 @@
     max-width: 600px;
 
     .not-found-icon {
-      font-size: 64px;
+      font-size: utils.rpx(64);
       margin-bottom: 24px;
       opacity: 0.6;
     }
 
     .not-found-title {
-      font-size: 24px;
+      font-size: utils.rpx(24);
       font-weight: 600;
       color: #303133;
       margin-bottom: 12px;
     }
 
     .not-found-desc {
-      font-size: 16px;
+      font-size: utils.rpx(16);
       color: #909399;
       line-height: 1.6;
       max-width: 500px;
@@ -698,7 +700,7 @@
     align-items: center;
     justify-content: flex-start;
     gap: 8px;
-    font-size: 26px;
+    font-size: utils.rpx(26);
     font-weight: 600;
     color: #374151;
 
@@ -716,7 +718,7 @@
     gap: 16px;
 
     .profile-title {
-      font-size: 20px;
+      font-size: utils.rpx(20);
       margin: 0 0;
     }
 
@@ -725,7 +727,7 @@
       justify-content: flex-start;
       flex-wrap: wrap;
       gap: 8px;
-      font-size: 18px;
+      font-size: utils.rpx(18);
       font-weight: 500;
       color: #374151;
       text-decoration: none;

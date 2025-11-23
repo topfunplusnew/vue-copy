@@ -32,6 +32,39 @@ html {
       font-size: var.$page-font-size-pc;
     }
   }
+  
+  // 全局字体大小控制
+  &[data-font-size="small"] {
+    // 小字体：87.5% (14px based on 16px)
+    @include mixins.screen-mobile {
+      font-size: calc(#{utils.getRootRem(var.$page-width-mobile)} * 0.875) !important;
+    }
+    @include mixins.screen-pad {
+      font-size: calc(#{utils.getRootRem(var.$page-width-pad)} * 0.875) !important;
+    }
+    @include mixins.screen-pc {
+      font-size: calc(var.$page-font-size-pc * 0.875) !important;
+      body {
+        font-size: calc(var.$page-font-size-pc * 0.875) !important;
+      }
+    }
+  }
+  
+  &[data-font-size="large"] {
+    // 大字体：125% (20px based on 16px)
+    @include mixins.screen-mobile {
+      font-size: calc(#{utils.getRootRem(var.$page-width-mobile)} * 1.25) !important;
+    }
+    @include mixins.screen-pad {
+      font-size: calc(#{utils.getRootRem(var.$page-width-pad)} * 1.25) !important;
+    }
+    @include mixins.screen-pc {
+      font-size: calc(var.$page-font-size-pc * 1.25) !important;
+      body {
+        font-size: calc(var.$page-font-size-pc * 1.25) !important;
+      }
+    }
+  }
 }
 
 .layout-main {

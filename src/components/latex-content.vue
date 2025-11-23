@@ -105,6 +105,7 @@ const cancelEdit = () => {
 </script>
 
 <style scoped lang="scss">
+@use '../styles/utils/utils' as utils;
 @use '../styles/utils/mixins' as *;
 .latex-content-wrapper {
   width: 100%;
@@ -157,14 +158,14 @@ const cancelEdit = () => {
       word-wrap: break-word;
 
       h2 {
-        font-size: 1.5em;
+        font-size: utils.rpx(15);
         font-weight: bold;
         margin: 1em 0 0.5em;
         color: #333;
       }
 
       h3 {
-        font-size: 1.2em;
+        font-size: utils.rpx(12);
         font-weight: bold;
         margin: 0.8em 0 0.4em;
         color: #444;
@@ -175,7 +176,7 @@ const cancelEdit = () => {
         padding: 2px 4px;
         border-radius: 3px;
         font-family: 'Courier New', monospace;
-        font-size: 0.9em;
+        font-size: utils.rpx(9);
       }
 
       a {

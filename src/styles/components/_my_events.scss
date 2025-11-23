@@ -1,4 +1,4 @@
-@use '../utils/utils' as *;
+@use '../utils/utils' as utils;
 @use '../utils/mixins' as *;
 
 .my-events-page {
@@ -83,7 +83,7 @@
         color: #475569;
         cursor: pointer;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-size: rpx(20);
+        font-size: utils.rpx(20);
         font-weight: 600;
         letter-spacing: 0.3px;
         box-shadow:
@@ -95,7 +95,7 @@
           min-width: calc(50% - 6px);
           box-sizing: border-box;
           padding: 10px 12px;
-          font-size: rpx(18);
+          font-size: utils.rpx(24);
         }
 
         // 添加图标占位符（可选）
@@ -167,7 +167,7 @@
         }
 
         .note-title {
-          font-size: rpx(18);
+          font-size: utils.rpx(18);
           font-weight: 800;
           color: #1e293b;
           margin-bottom: 10px;
@@ -176,12 +176,12 @@
           letter-spacing: 0.3px;
 
           @include screen-mobile {
-            font-size: rpx(20);
+            font-size: utils.rpx(20);
           }
         }
 
         .note-content {
-          font-size: rpx(15);
+          font-size: utils.rpx(15);
           line-height: 1.7;
           color: #1e293b;
           font-weight: 500;
@@ -194,7 +194,7 @@
           @include wordWrap();
 
           @include screen-mobile {
-            font-size: rpx(16);
+            font-size: utils.rpx(16);
             text-align: left;
           }
         }
@@ -240,7 +240,7 @@
       }
 
       .user-name {
-        font-size: rpx(28);
+        font-size: utils.rpx(28);
         font-weight: 600;
       }
     }
@@ -250,7 +250,7 @@
       backdrop-filter: blur(10px);
 
       @include screen-mobile {
-        padding: 16px;
+        padding: 16px 0;
       }
 
       .conference-header {
@@ -278,7 +278,7 @@
           padding-top: 8px;
 
           .conference-name {
-            font-size: rpx(32);
+            font-size: utils.rpx(32);
             font-weight: 700;
             color: #1e293b;
             margin-bottom: 8px;
@@ -286,7 +286,7 @@
           }
 
           .conference-full-name {
-            font-size: rpx(22);
+            font-size: utils.rpx(22);
             color: #64748b;
             font-style: italic;
             line-height: 1.3;
@@ -301,13 +301,13 @@
               margin-bottom: rpx(8);
 
               .detail-icon {
-                font-size: rpx(20);
+                font-size: utils.rpx(20);
                 width: 20px;
                 flex-shrink: 0;
               }
 
               .detail-text {
-                font-size: rpx(25);
+                font-size: utils.rpx(25);
                 color: #475569;
                 font-weight: 700;
               }
@@ -320,7 +320,7 @@
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
-        margin-bottom: rpx(16);
+        margin-bottom: utils.rpx(16);
 
         .conf-link {
           display: inline-flex;
@@ -332,12 +332,12 @@
           border-radius: 8px;
           color: #6366f1;
           text-decoration: none;
-          font-size: rpx(22);
+          font-size: utils.rpx(22);
           font-weight: 500;
           transition: all 0.2s ease;
 
           .link-icon {
-            font-size: rpx(22);
+            font-size: utils.rpx(22);
           }
 
           &:hover {
@@ -360,7 +360,7 @@
             gap: 0;
             flex-shrink: 0;
             padding: 6px 8px;
-            font-size: rpx(18);
+            font-size: utils.rpx(18);
             box-sizing: border-box;
             white-space: nowrap;
           }
@@ -370,13 +370,13 @@
       .meta {
         .title {
           font-weight: 700;
-          font-size: rpx(25);
+          font-size: utils.rpx(25);
           margin-bottom: 8px;
           color: #374151;
         }
 
         .authors {
-          font-size: rpx(20);
+            font-size: utils.rpx(20);
           margin-top: 6px;
           margin-bottom: 6px;
           line-height: 1.5;
@@ -385,7 +385,7 @@
             font-weight: 500;
 
             sup {
-              font-size: rpx(15);
+              font-size: utils.rpx(15);
               color: #6366f1;
               font-weight: 600;
             }
@@ -396,14 +396,14 @@
           margin-bottom: 8px;
 
           .affiliation {
-            font-size: rpx(17);
+            font-size: utils.rpx(17);
             color: #64748b;
             line-height: 1.4;
             margin-bottom: 3px;
 
             sup {
-              font-size: rpx(15);
-              color: #6366f1;
+              font-size: utils.rpx(15);
+              color: #6366f1; 
               font-weight: 600;
               margin-right: 2px;
             }
@@ -425,14 +425,14 @@
 
           // 空状态图标
           .empty-icon {
-            font-size: rpx(32);
+            font-size: utils.rpx(32);
             margin-bottom: 8px;
             opacity: 0.6;
           }
 
           // 空状态文字
           .empty-text {
-            font-size: rpx(16);
+            font-size: utils.rpx(16);       
             color: #64748b;
             font-weight: 500;
             text-align: center;
@@ -441,7 +441,7 @@
         }
 
         .dates {
-          font-size: rpx(16);
+          font-size: utils.rpx(16);
           color: #64748b;
           margin-top: 4px;
         }
@@ -478,7 +478,7 @@
             .conference-details {
               display: flex;
               justify-content: flex-start;
-              font-size: rpx(20);
+              font-size: utils.rpx(20);
               font-weight: 600;
               color: #ea580c;
               text-transform: uppercase;
@@ -487,7 +487,7 @@
 
               @include screen-mobile {
                 flex-direction: column;
-                font-size: rpx(22);
+                font-size: utils.rpx(22);
               }
             }
           }
@@ -497,7 +497,7 @@
             justify-content: space-between;
             align-items: flex-end;
             gap: 20px;
-
+            font-size: utils.rpx(20);
             @include screen-mobile {
               flex-direction: column;
               align-items: stretch;
@@ -526,7 +526,7 @@
               border: 1px solid rgba(251, 146, 60, 0.15);
 
               .schedule-label {
-                font-size: rpx(22);
+                font-size: utils.rpx(22);
                 font-weight: 600;
                 color: #92400e;
                 display: flex;
@@ -536,7 +536,7 @@
               }
 
               .schedule-value {
-                font-size: rpx(18);
+                font-size: utils.rpx(18);
                 font-weight: 700;
                 color: #ea580c;
                 word-wrap: break-word;
@@ -545,7 +545,7 @@
                 line-height: 1.4;
 
                 @include screen-mobile {
-                  font-size: rpx(20);
+                  font-size: utils.rpx(22);
                 }
               }
             }
@@ -560,7 +560,7 @@
             border: none !important;
             padding: 14px 24px !important;
             border-radius: 12px !important;
-            font-size: rpx(16) !important;
+            font-size: utils.rpx(16) !important;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -574,7 +574,7 @@
             @include screen-mobile {
               justify-content: center;
               padding: 16px 24px !important;
-              font-size: rpx(20) !important;
+              font-size: utils.rpx(20) !important;
               width: 100% !important;
               max-width: 300px !important;
               margin: 16px auto !important;
@@ -585,7 +585,7 @@
             }
 
             .btn-icon {
-              font-size: rpx(18);
+              font-size: utils.rpx(18);
             }
 
             &:hover {
@@ -677,14 +677,14 @@
           }
 
           label {
-            font-size: 22px;
+            font-size: utils.rpx(22);
             font-weight: 600;
             color: #334155;
             line-height: 1.5;
 
             @include screen-mobile {
               text-align: left;
-              font-size: 13px;
+              font-size: utils.rpx(22);
             }
           }
 
@@ -694,14 +694,14 @@
             padding: 10px 12px;
             box-sizing: border-box;
             width: 100%;
-            font-size: 16px;
+            font-size: utils.rpx(20);
             line-height: 1.6;
 
             @include screen-mobile {
               text-align: left;
               width: 100%;
               max-width: none;
-              font-size: 14px;
+              font-size: utils.rpx(28);
             }
           }
 
@@ -715,14 +715,14 @@
 
           .hint {
             color: #6b7280;
-            font-size: rpx(20);
+            font-size: utils.rpx(20);
             white-space: nowrap;
 
             @include screen-mobile {
               white-space: normal;
               word-wrap: break-word;
               overflow-wrap: break-word;
-              font-size: rpx(18);
+              font-size: utils.rpx(36);
               max-width: 100%;
               text-align: left;
               line-height: 1.4;
@@ -815,7 +815,7 @@
           margin-bottom: 40px;
 
           h2 {
-            font-size: 28px;
+            font-size: utils.rpx(28);
             font-weight: 700;
             margin-bottom: 15px;
             color: #2c3e50;
@@ -825,14 +825,14 @@
             &::before {
               content: '📋';
               margin-right: 12px;
-              font-size: 30px;
+              font-size: utils.rpx(30);
             }
           }
 
           p {
             color: #7f8c8d;
             margin: 0;
-            font-size: 18px;
+            font-size: utils.rpx(20);
             line-height: 1.5;
           }
         }
@@ -844,14 +844,14 @@
             // margin-bottom: 10px;
 
             h3 {
-              font-size: 20px;
+              font-size: utils.rpx(20);
               font-weight: 600;
               margin-bottom: 12px;
               color: #2c3e50;
               line-height: 1.4;
 
               @include screen-mobile {
-                font-size: 14px;
+                font-size: utils.rpx(28);
               }
             }
 
@@ -862,7 +862,7 @@
               padding: 0px 5px;
               border: 2px solid #e1e8ed;
               border-radius: 6px;
-              font-size: 16px;
+              font-size: utils.rpx(16);
               line-height: 1.5;
               transition: all 0.3s ease;
               box-sizing: border-box;
@@ -882,7 +882,7 @@
 
               &::placeholder {
                 color: #bdc3c7;
-                font-size: 16px;
+                font-size: utils.rpx(16);
               }
             }
           }
@@ -898,7 +898,7 @@
             color: white;
             border: none;
             padding: 19px 40px;
-            font-size: 18px;
+            font-size: utils.rpx(18); 
             font-weight: 600;
             border-radius: 20px;
             cursor: pointer;
@@ -932,11 +932,11 @@
             margin-bottom: 0px;
 
             h2 {
-              font-size: 14px;
+              font-size: utils.rpx(14);
             }
 
             p {
-              font-size: 14px;
+              font-size: utils.rpx(14);
             }
           }
 
@@ -944,7 +944,7 @@
             .key-point-item {
               .key-point-input {
                 width: 100%;
-                font-size: 15px;
+                font-size: utils.rpx(15);
                 text-wrap: wrap;
 
               }
@@ -954,7 +954,7 @@
           .save-button-container {
             .save-button {
               padding: 19px 30px;
-              font-size: 16px;
+              font-size: utils.rpx(16);
               max-width: 188px;
 
             }
@@ -1032,14 +1032,14 @@
     // 关键词提示文本样式
     .keywords-tips {
       color: #696969;
-      font-size: rpx(13);
+      font-size: utils.rpx(13);
       text-align: left;
       margin-top: 20px;
       padding: 0 16px;
 
       @include screen-mobile {
         color: #696969;
-        font-size: rpx(18);
+        font-size: utils.rpx(36);
         text-align: center;
         padding: 0 12px;
         box-sizing: border-box;
@@ -1071,7 +1071,7 @@
 
       h3 {
         margin: 0;
-        font-size: rpx(24);
+        font-size: utils.rpx(24);
         font-weight: 700;
         color: #1e293b;
         line-height: 1.3;
@@ -1097,11 +1097,13 @@
 
           .label {
             font-weight: 600;
-            font-size: rpx(16);
+            font-size: utils.rpx(16);
           }
 
+
+
           .status {
-            font-size: rpx(14);
+            font-size: utils.rpx(14);
             font-weight: 600;
 
             &.ok {
@@ -1128,7 +1130,7 @@
   border: none !important;
   padding: 14px 24px !important;
   border-radius: 12px !important;
-  font-size: rpx(16) !important;
+  font-size: utils.rpx(16) !important;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -1142,11 +1144,11 @@
   @include screen-mobile {
     justify-content: center;
     padding: 16px 24px !important;
-    font-size: rpx(18) !important;
+    font-size: utils.rpx(36) !important;
   }
 
   .btn-icon {
-    font-size: rpx(18);
+    font-size: utils.rpx(18); 
   }
 
   &:hover {
@@ -1184,7 +1186,7 @@
   text-align: center;
   display: block;
   width: 100%;
-  font-size: rpx(18);
+  font-size: utils.rpx(18);
   box-sizing: border-box;
   margin: 0 auto;
 
@@ -1213,7 +1215,7 @@
   }
 
   @include screen-mobile {
-    font-size: rpx(20);
+    font-size: utils.rpx(40);
     padding: 14px 18px;
   }
 }
@@ -1225,7 +1227,7 @@
   border: none;
   padding: 8px 16px;
   border-radius: 8px;
-  font-size: rpx(16);
+  font-size: utils.rpx(16);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1245,7 +1247,7 @@
   }
 
   @include screen-mobile {
-    font-size: rpx(18);
+    font-size: utils.rpx(36);
     padding: 6px 14px;
   }
 }
@@ -1273,12 +1275,12 @@ input[type='file'] {
   }
 
   span {
-    font-size: rpx(18);
+    font-size: utils.rpx(18);
     color: #475569;
     cursor: pointer;
 
     @include screen-mobile {
-      font-size: rpx(20);
+      font-size: utils.rpx(40);
     }
   }
 }
@@ -1327,7 +1329,7 @@ input[type='file'] {
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: rpx(14);
+      font-size: utils.rpx(14);
       font-weight: 600;
     }
 
@@ -1335,11 +1337,11 @@ input[type='file'] {
       .file-name {
         font-weight: 600;
         color: #1e293b;
-        font-size: rpx(16);
+        font-size: utils.rpx(16);
       }
 
       .file-size {
-        font-size: rpx(14);
+        font-size: utils.rpx(14);
         color: #64748b;
       }
     }
@@ -1391,7 +1393,7 @@ input[type='file'] {
 
   h3 {
     margin: 0;
-    font-size: rpx(20);
+    font-size: utils.rpx(20);
     font-weight: 600;
     color: #1e293b;
     flex: 1;
@@ -1406,7 +1408,7 @@ input[type='file'] {
   .close-btn {
     background: none;
     border: none;
-    font-size: rpx(28);
+    font-size: utils.rpx(28);
     color: #64748b;
     cursor: pointer;
     padding: 4px 8px;
@@ -1426,7 +1428,7 @@ input[type='file'] {
     gap: 12px;
 
     h3 {
-      font-size: rpx(18);
+      font-size: utils.rpx(18);
       width: 100%;
     }
 
@@ -1453,7 +1455,7 @@ input[type='file'] {
     align-items: center;
     justify-content: center;
     height: 100%;
-    font-size: rpx(18);
+    font-size: utils.rpx(18);
     color: #64748b;
   }
 
@@ -1478,7 +1480,7 @@ input[type='file'] {
       text-align: center;
 
       .pdf-icon {
-        font-size: 64px;
+        font-size: utils.rpx(64);
         margin-bottom: 16px;
         opacity: 0.8;
       }
@@ -1486,7 +1488,7 @@ input[type='file'] {
       p {
         margin: 0;
         color: #475569;
-        font-size: rpx(16);
+        font-size: utils.rpx(16);
         font-weight: 600;
         word-break: break-word;
         max-width: 90%;
@@ -1508,7 +1510,7 @@ input[type='file'] {
         display: inline-block;
         padding: 12px 16px;
         border-radius: 8px;
-        font-size: rpx(14);
+        font-size: utils.rpx(14);
         font-weight: 600;
         text-decoration: none;
         text-align: center;
@@ -1579,7 +1581,7 @@ input[type='file'] {
     .pdf-title {
       font-weight: 600;
       color: #1e293b;
-      font-size: rpx(16);
+      font-size: utils.rpx(16);
       flex: 1;
       margin-right: 12px;
       word-break: break-word;
@@ -1591,7 +1593,7 @@ input[type='file'] {
       border: none;
       padding: 8px 16px;
       border-radius: 8px;
-      font-size: rpx(14);
+      font-size: utils.rpx(14);
       font-weight: 500;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -1622,12 +1624,12 @@ input[type='file'] {
     }
 
     .pdf-icon {
-      font-size: rpx(40);
+      font-size: utils.rpx(40);
       margin-bottom: 8px;
     }
 
     .pdf-info {
-      font-size: rpx(14);
+      font-size: utils.rpx(14);
       color: #6366f1;
       font-weight: 500;
     }
@@ -1683,7 +1685,7 @@ input[type='file'] {
       width: 100%;
 
       .pdf-icon {
-        font-size: rpx(32);
+        font-size: utils.rpx(64); 
       }
     }
   }
@@ -1698,7 +1700,7 @@ button.withdraw-btn {
   border: none !important;
   padding: 8px 16px !important;
   border-radius: 8px !important;
-  font-size: rpx(14) !important;
+  font-size: utils.rpx(14) !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.3s ease !important;
@@ -1712,7 +1714,7 @@ button.withdraw-btn {
 
   @include screen-mobile {
     padding: 6px 12px !important;
-    font-size: rpx(12) !important;
+    font-size: utils.rpx(24) !important;
   }
 }
 
@@ -1725,7 +1727,7 @@ button.withdraw-btn-mobile {
   display: inline-block !important;
   padding: 12px 16px !important;
   border-radius: 8px !important;
-  font-size: rpx(14) !important;
+  font-size: utils.rpx(14) !important;  
   font-weight: 600 !important;
   text-decoration: none !important;
   text-align: center !important;
@@ -1742,7 +1744,7 @@ button.withdraw-btn-mobile {
 
 // 文件状态样式
 .file-status {
-  font-size: rpx(20);
+  font-size: utils.rpx(20);
   margin-top: 4px;
 
   &.uploaded {
@@ -1763,7 +1765,7 @@ button.withdraw-btn-mobile {
   color: white;
   text-decoration: none;
   border-radius: 6px;
-  font-size: rpx(20);
+  font-size: utils.rpx(20);
   transition: all 0.2s ease;
 
   &:hover {
@@ -1788,20 +1790,20 @@ button.withdraw-btn-mobile {
     max-width: 400px;
 
     .empty-icon {
-      font-size: rpx(60);
+      font-size: utils.rpx(60);
       margin-bottom: 16px;
       opacity: 0.7;
     }
 
     .empty-title {
-      font-size: rpx(24);
+      font-size: utils.rpx(24);
       font-weight: 600;
       color: #1a3566;
       margin-bottom: 8px;
     }
 
     .empty-description {
-      font-size: rpx(18);
+      font-size: utils.rpx(18);
       color: #666;
       margin-bottom: 24px;
       line-height: 1.5;
@@ -1816,13 +1818,13 @@ button.withdraw-btn-mobile {
       color: white;
       border: none;
       border-radius: 8px;
-      font-size: rpx(18);
+      font-size: utils.rpx(18);
       font-weight: 500;
       cursor: pointer;
       transition: all 0.3s ease;
 
       .btn-icon {
-        font-size: rpx(20);
+        font-size: utils.rpx(20);
       }
 
       &:hover {

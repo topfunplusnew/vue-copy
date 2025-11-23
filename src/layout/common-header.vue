@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWalletStore, WALLET_STATUS } from '@/stores/wallet';
 import UserMessage from '@/views/user/user-message.vue';
@@ -33,13 +33,34 @@ const showScheduleModal = ref(false);
 // 导航菜单状态
 const navMenuActive = ref(false);
 
+// 字体控制器菜单状态
+const fontControllerActive = ref(false);
+
+// 当前激活的字体大小
+const activeFontSize = ref();
+
+// 切换字体大小
+const handleFontSizeChange = (size: string) => {
+  activeFontSize.value = size; 
+  document.documentElement.setAttribute('data-font-size', activeFontSize.value);
+  if (userStore.userCustom) {
+    userStore.userCustom!.buttons!.size = size;
+    userStore.updateUserCustomInfo(userStore?.userCustom || {});
+  }
+
+};
+
 // 可用景点数据（header中通常为空，但保持接口一致）
 const availableDestinations = ref<Destination[]>([]);
 const scheduleShow = ref(false);
 onMounted(() => {
+
+
   userStore.getUserInfo().then(() => {
     scheduleShow.value = true;
+    userStore.getUserCustomInfo()
   });
+
   // 初始化钱包
   try {
     walletStore.init();
@@ -48,7 +69,15 @@ onMounted(() => {
   }
   // 添加点击事件监听器
   document.addEventListener('click', handleClickOutside);
+
 });
+const savedFontSize = ref('medium');
+watch(() => userStore.userCustom?.buttons?.size, (newSize) => {
+  savedFontSize.value = newSize || 'medium';
+  activeFontSize.value = savedFontSize.value;
+  // 在 html 元素上设置 data-font-size 属性，用于全局字体大小控制
+  document.documentElement.setAttribute('data-font-size', activeFontSize.value);
+})
 
 onUnmounted(() => {
   // 清理事件监听器
@@ -154,7 +183,22 @@ const handleClickOutside = (event: Event) => {
       navMenuActive.value = false;
     }
   }
+
+  // 检查点击的元素是否在字体控制器汉堡按钮或字体控制菜单内
+  if (fontControllerActive.value && target) {
+    const fontHamburgerBtn = target.closest('.font-controller .hamburger');
+    const fontControlMenu = target.closest('.control-font');
+
+    // 如果点击的不是字体控制器汉堡按钮和字体控制菜单，则收起菜单
+    if (!fontHamburgerBtn && !fontControlMenu) {
+      fontControllerActive.value = false;
+    }
+  }
 };
+
+
+
+
 </script>
 
 <template>
@@ -222,6 +266,22 @@ const handleClickOutside = (event: Event) => {
           <router-link :to="{ name: 'signup' }" class="nav-btn">SIGN UP</router-link>
         </template>
       </nav>
+      <div class="font-controller">
+        <!-- 汉堡按钮 -->
+        <div class="hamburger" @click.stop="fontControllerActive = !fontControllerActive">
+          {{ fontControllerActive ? '✕' : '☰' }}
+        </div>
+
+        <!-- 按钮组 -->
+        <div class="control-font" :class="{ open: fontControllerActive }">
+          <button @click.stop="handleFontSizeChange('large')" :class="{ active: activeFontSize === 'large' }"
+            data-size="large">big</button>
+          <button @click.stop="handleFontSizeChange('medium')" :class="{ active: activeFontSize === 'medium' }"
+            data-size="medium">medium</button>
+          <button @click.stop="handleFontSizeChange('small')" :class="{ active: activeFontSize === 'small' }"
+            data-size="small">small</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -229,13 +289,15 @@ const handleClickOutside = (event: Event) => {
   <UserMessage v-model:visible="showMessageModal" />
 
   <!-- 计划弹窗组件 -->
-  <PlanComponent :visible="showPlanModal" :available-destinations="availableDestinations" @close="showPlanModal = false" @save="handlePlanSave" />
+  <PlanComponent :visible="showPlanModal" :available-destinations="availableDestinations" @close="showPlanModal = false"
+    @save="handlePlanSave" />
 
   <!-- 历史弹窗组件 -->
   <HistoryComponent :visible="showHistoryModal" @close="showHistoryModal = false" @load-history="handleHistoryLoad" />
 
   <!-- 日历弹窗组件 -->
-  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave" v-if="scheduleShow" />
+  <ScheduleComponent :visible="showScheduleModal" @close="showScheduleModal = false" @save="handleScheduleSave"
+    v-if="scheduleShow" />
 </template>
 
 <style scoped>

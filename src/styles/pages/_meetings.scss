@@ -1,4 +1,4 @@
-@use '../utils/utils' as *; // 工具类
+@use '../utils/utils' as utils; // 工具类
 @use '../utils/mixins' as *; // 混合宏
 @use './user-page-blog' as blog-detail;
 @use './user-sidebar' as sidebar;
@@ -16,7 +16,9 @@
   width: 100%;
   overflow-x: hidden;
   overflow-y: auto;
-
+@include screen-mobile {
+    padding: 24px 0px;
+  }
   @include screen-pc {
     padding: 24px 40px;
   }
@@ -144,7 +146,7 @@
 
         .section-title {
           font-weight: 700;
-          font-size: 32px;
+          font-size: utils.rpx(32);
           margin: 0;
           color: #1e40af;
           text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
@@ -152,7 +154,7 @@
           background: transparent;
 
           @include screen-mobile {
-            font-size: 24px;
+            font-size: utils.rpx(48);
           }
         }
       }
@@ -366,7 +368,7 @@
           }
 
           .conference-name {
-            font-size: 25px;
+            font-size: utils.rpx(25);
             font-weight: 700;
             color: #2563eb;
             text-shadow: 0 1px 2px rgba(59, 130, 246, 0.2);
@@ -374,7 +376,7 @@
 
             @include wordWrap();
             @include screen-mobile {
-              font-size: 18px;
+              font-size: utils.rpx(36);
             }
           }
         }
@@ -438,7 +440,7 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            font-size: 20px;
+            font-size: utils.rpx(20);
             font-weight: 600;
             line-height: 1.5;
             margin-bottom: 8px;
@@ -447,11 +449,11 @@
             text-align: left;
             @include wordWrap();
             @include screen-mobile {
-              font-size: 15px;
+              font-size: utils.rpx(30);
             }
           }
           .authors {
-            font-size: 18px;
+            font-size: utils.rpx(18);
             font-weight: 400;
             color: #374151;
             line-height: 1.4;
@@ -459,7 +461,7 @@
             overflow-wrap: break-word;
             text-align: left;
             @include screen-mobile {
-              font-size: 15px;
+              font-size: utils.rpx(30);
             }
             .author {
               display: inline-block;
@@ -697,7 +699,7 @@
 
     .section-title {
       font-weight: 700;
-      font-size: 32px;
+      font-size: utils.rpx(32);
       margin: 0;
       background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
       -webkit-background-clip: text;
@@ -709,7 +711,7 @@
       filter: drop-shadow(0 2px 6px rgba(7, 89, 133, 0.25));
 
       @include screen-mobile {
-        font-size: 24px;
+        font-size: utils.rpx(48);
       }
     }
 
@@ -776,32 +778,32 @@
           }
 
           .featured-name {
-            font-size: 25px;
+            font-size: utils.rpx(25);
             font-weight: 700;
             color: #0ea5e9;
             flex: 1;
             min-width: 0;
             @include wordWrap();
             @include screen-mobile {
-              font-size: 18px;
+              font-size: utils.rpx(36);
             }
           }
         }
 
         .featured-name {
-          font-size: 25px;
+          font-size: utils.rpx(25);
           font-weight: 700;
           color: #0ea5e9;
           flex: 1;
           @include wordWrap();
           @include screen-mobile {
-            font-size: 18px;
+            font-size: utils.rpx(36);
           }
         }
 
         .featured-date {
           position: relative;
-          font-size: 15px;
+          font-size: utils.rpx(15);
           font-weight: 700;
           color: #ffffff;
           background: linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%);
@@ -831,7 +833,7 @@
           }
 
           @include screen-mobile {
-            font-size: 13px;
+            font-size: utils.rpx(26);
             padding: 10px 18px;
             min-width: 160px;
             letter-spacing: 0.8px;

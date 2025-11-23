@@ -1,5 +1,19 @@
 import type { ICommon } from './base';
 
+export interface IUserCustom {
+  theme?: string;
+  language?: string;
+  buttons?: {
+    size?: string; // 字体大小
+    hover?: {
+      hilght?: string,
+      change?: {
+        color?: string
+      }
+    }
+  }
+}
+
 export interface IUser extends ICommon {
   name: string; // 用户名
   avatar: string; // 用户头像

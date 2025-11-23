@@ -4,8 +4,8 @@ import { userLogin, userProfile, accountActivate, userModify, userLogout, upload
   getMyBlogList, getBlogPost, myblogdelete, userSignup, googleAuthorize,
   comment2Blog,comment2Comment,commentDel,comments,
   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth, joinWaitlist, 
-  getMyNote,getManagers} from '@/services/api';
-import type { ILogin, IUser, IUserEdit, IUserSignup,IManager } from '@/types/user';
+  getMyNote,getManagers,getUserCustom,updateUserCustom} from '@/services/api';
+import type { ILogin, IUser, IUserEdit, IUserSignup,IManager,IUserCustom } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
 import { auth } from '@/services/http';
@@ -20,6 +20,7 @@ export const useUserStore = defineStore('user', () => {
   const followers = ref<IUser[]>([]);
   const notes = ref<INote[]>([]);
   const manager = ref<IManager[]>([]);
+  const userCustom=ref<IUserCustom>()
 /* 
  * 获取用户note列表
 */
@@ -29,7 +30,27 @@ export const useUserStore = defineStore('user', () => {
       return res;
     });
   }
-
+/* 
+获取用户自定义配置
+*/
+  function getUserCustomInfo() {
+    return getUserCustom().then((res) => {
+      userCustom.value = res.data.custom_json;
+      return res;
+    });
+  }
+  /**
+   * 更新用户自定义配置
+   * @param req
+   * @returns
+   */
+  function updateUserCustomInfo(req: IUserCustom) {
+    return updateUserCustom(req).then((res) => {
+      userCustom.value = res.data;
+      return res;
+    });
+  }
+  
   /**
    * 登录
    * @param req
@@ -282,6 +303,7 @@ function getManagerList() {
 
   return {
     // 状态
+    userCustom,
     notes,
     user,
     blogs,
@@ -318,6 +340,8 @@ function getManagerList() {
     clearSelectedPost,
     signup,
     getMyNoteList,
-    getManagerList
+    getManagerList,
+    getUserCustomInfo,
+    updateUserCustomInfo
   };
 });
