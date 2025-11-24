@@ -22,7 +22,7 @@
     @include screen-mobile {
       flex-direction: column;
       gap: 12px;
-      padding: 0 12px;
+      padding: 0px;
       box-sizing: border-box;
     }
   }
@@ -456,7 +456,7 @@
           box-shadow: 0 8px 32px rgba(251, 146, 60, 0.15);
           position: relative;
           @include screen-mobile {
-            margin: 24px -16px 16px;
+            margin: 24px 0px 16px;
           }
           &::before {
             content: '';
