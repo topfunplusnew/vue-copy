@@ -3,7 +3,7 @@
 
 .paper-details-page {
   /* 确保不干扰header */
-  padding-top: rpx(20);
+  padding-top: utils.rpx(20);
   position: relative;
   z-index: 1;
   width: 100%;
@@ -16,7 +16,7 @@
     width: 100%;
     max-width: 1700px;
     margin: 0 auto;
-
+    margin-top: 40px;
     @include screen-mobile {
       flex-direction: column;
       gap: 12px;

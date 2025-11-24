@@ -3,7 +3,7 @@
 
 .my-events-page {
   /* 确保不干扰header */
-  padding-top: rpx(20);
+  padding-top: utils.rpx(20);
   position: relative;
   z-index: 1;
   width: 100%;
@@ -18,7 +18,7 @@
     margin: 0 auto;
     padding: 0 40px;
     box-sizing: border-box;
-
+        margin-top:40px;
     @include screen-mobile {
       flex-direction: column;
       gap: 12px;

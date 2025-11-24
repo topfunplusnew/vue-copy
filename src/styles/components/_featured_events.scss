@@ -3,14 +3,14 @@
 
 .featured-events-page {
   /* 确保不干扰header */
-  padding-top: rpx(20);
+  padding-top: utils.rpx(20);
   position: relative;
   z-index: 1;
 
   .main-content {
     display: flex;
     gap: 24px;
-
+    margin-top:40px;
     @include screen-mobile {
       flex-direction: column;
       gap: 16px;
