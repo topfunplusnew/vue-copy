@@ -448,7 +448,7 @@ function getAffiliationNumber(originalId: number): number {
               <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
             </div>
             <div class="conference-info">
-              <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
+              <router-link :to="{name:'FeaturedEvents',params:{conferenceId:myPaperDetailInfo?.conference.id}}" class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</router-link>
               <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
             </div>
           </div>
