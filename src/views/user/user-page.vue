@@ -10,7 +10,7 @@ import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
-import { getUserProfile, updateUserProfile, uploadBioPdf } from '@/services/user';
+import { getUserProfile, updateUserProfile } from '@/services/user';
 import type { UpdateUserProfileData } from '@/services/user/type';
 
 // 关闭博客详情弹出层
@@ -161,93 +161,9 @@ function cancelProfileEdit() {
   editForm.bio = '';
   editForm.homepage = '';
   editForm.orcid = '';
-  bioPdfFile.value = null;
-  bioPdfFileName.value = '';
-  uploadingBioPdf.value = false;
   showEditProfile.value = false;
 }
 
-// 简历PDF上传相关状态
-const bioPdfFile = ref<File | null>(null);
-const bioPdfFileName = ref('');
-const uploadingBioPdf = ref(false);
-const bioPdfInputRef = ref<HTMLElement | null>(null);
-
-// 处理简历PDF上传
-function handleBioPdfUpload(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files ? target.files[0] : null;
-  
-  if (!file) {
-    return;
-  }
-
-  // 判断是否为PDF文件
-  const fileExtension = file.name.split('.').pop()?.toLowerCase();
-  if (fileExtension !== 'pdf') {
-    ElMessage.error('Please upload a PDF file');
-    // 清空input
-    if (target) {
-      target.value = '';
-    }
-    return;
-  }
-
-  // 检查文件大小（可选，例如限制10MB）
-  const maxSize = 10 * 1024 * 1024; // 10MB
-  if (file.size > maxSize) {
-    ElMessage.error('File size should not exceed 10MB');
-    if (target) {
-      target.value = '';
-    }
-    return;
-  }
-
-  bioPdfFile.value = file;
-  bioPdfFileName.value = file.name;
-  
-  // 立即上传
-  uploadBioPdfFile();
-}
-
-// 上传简历PDF文件
-function uploadBioPdfFile() {
-  if (!bioPdfFile.value) {
-    return;
-  }
-
-  uploadingBioPdf.value = true;
-  uploadBioPdf({ file: bioPdfFile.value })
-    .then(() => {
-      ElMessage.success('Resume uploaded successfully');
-      bioPdfFileName.value = bioPdfFile.value?.name || '';
-    })
-    .catch((error) => {
-      console.error('Failed to upload resume:', error);
-      ElMessage.error('Failed to upload resume, please try again later');
-      bioPdfFile.value = null;
-      bioPdfFileName.value = '';
-    })
-    .finally(() => {
-      uploadingBioPdf.value = false;
-    });
-}
-
-// 触发文件选择
-function triggerBioPdfUpload() {
-  if (bioPdfInputRef.value) {
-    bioPdfInputRef.value.click();
-  }
-}
-
-// 删除已选择的简历文件
-function removeBioPdf() {
-  bioPdfFile.value = null;
-  bioPdfFileName.value = '';
-  if (bioPdfInputRef.value) {
-    (bioPdfInputRef.value as HTMLInputElement).value = '';
-  }
-}
 
 // 在编辑页面上传头像
 function handleEditAvatarUpload(event: Event) {
@@ -353,6 +269,7 @@ function toggleFollowUser(follower: IUser) {
 const menuItems = [
   { name: 'Blogs', route: 'userpage-blogs' },
   { name: 'My Presentations', route: 'userpage-presentations' },
+  { name: 'Resume (PDF)', route: 'userpage-resume' },
 ];
 
 // 导航到指定路由
@@ -521,27 +438,6 @@ const isActiveRoute = (routeName: string) => {
               <div class="form-group">
                 <label>ORCID</label>
                 <input v-model="editForm.orcid" type="text" placeholder="Enter your ORCID" />
-              </div>
-              <div class="form-group">
-                <label>Resume (PDF)</label>
-                <div class="bio-pdf-upload">
-                  <input
-                    ref="bioPdfInputRef"
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    style="display: none"
-                    @change="handleBioPdfUpload"
-                  />
-                  <div v-if="!bioPdfFileName" class="upload-placeholder">
-                    <el-button @click="triggerBioPdfUpload" :loading="uploadingBioPdf">
-                      {{ uploadingBioPdf ? 'Uploading...' : 'Upload Resume PDF' }}
-                    </el-button>
-                  </div>
-                  <div v-else class="uploaded-file">
-                    <span class="file-name">{{ bioPdfFileName }}</span>
-                    <el-button size="small" @click="removeBioPdf">Remove</el-button>
-                  </div>
-                </div>
               </div>
             </div>
             <div class="edit-buttons">

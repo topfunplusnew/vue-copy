@@ -80,6 +80,8 @@ export interface UserProfileData {
   homepage?: string;
   /** ORCID（可选） */
   orcid?: string;
+  /** 简历PDF路径（可选） */
+  bio_pdf?: string;
 }
 
 /**

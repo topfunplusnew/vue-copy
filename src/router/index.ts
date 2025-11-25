@@ -110,6 +110,11 @@ const router = createRouter({
           name: 'userpage-presentations',
           component: () => import('@/views/user/user-presentations.vue'),
         },
+        {
+          path: 'resume',
+          name: 'userpage-resume',
+          component: () => import('@/views/user/user-resume.vue'),
+        },
       ],
     },
     {
