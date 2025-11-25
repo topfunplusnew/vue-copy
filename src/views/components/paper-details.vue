@@ -504,7 +504,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                 <button :class="{ active: activeTab === 'additional' }"
                   @click="paperDetail?.addition_files.length && switchTab('additional')"
                   :disabled="!paperDetail?.addition_files.length">
-                  Additional Info
+                  More Info
                 </button>
                 <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
                   v-if="paperDetail?.can_edit">

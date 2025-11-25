@@ -636,7 +636,7 @@ const handleNoteModalClose = () => {
             <button :class="{ active: activeTab === 'Key Point' }" @click="setActiveTab('Key Point')">Key Point</button>
             <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
             <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-            <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+            <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">More
               Info</button>
             <router-link :to="{ name: 'PaperDetail', params: { paperId: paperId } }">
               View Presentation
