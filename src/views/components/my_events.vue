@@ -17,6 +17,9 @@ import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import { getImageFormats, getVideoFormats } from '@/utils/file';
 // import SaveButton from '@/components/save-button.vue';
 import LatexContent from '@/components/latex-content.vue';
+import { DocumentAdd, Document } from '@element-plus/icons-vue';
+import { createPaperNote, getPaperNote, updatePaperNote } from '@/services/paper';
+import type { PaperNote } from '@/services/paper/type';
 
 const store = useConferenceStore();
 const route = useRoute();
@@ -44,6 +47,8 @@ onMounted(async () => {
   await store.getMyPaper(paperId.value);
   // 记录浏览历史
   recordViewHistory(paperId.value);
+  // 查询 notes
+  await fetchPaperNote();
 });
 
 // 监听 paperId 变化，当路由参数变化时重新记录
@@ -52,6 +57,7 @@ watch(
   (newId) => {
     if (newId) {
       recordViewHistory(newId);
+      fetchPaperNote();
     }
   }
 );
@@ -432,6 +438,63 @@ function getAffiliationNumber(originalId: number): number {
   const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
   return affiliation ? affiliation.id : 0;
 }
+
+// Note 相关状态
+const noteModalVisible = ref(false);
+const noteContent = ref('');
+const currentNote = ref<PaperNote | null>(null);
+const noteLoading = ref(false);
+
+// 查询论文的 notes
+const fetchPaperNote = async () => {
+  if (!paperId.value) return;
+  try {
+    const response = await getPaperNote(paperId.value);
+    currentNote.value = response.data?.note || null;
+  } catch (error) {
+    // 如果不存在 notes，静默失败
+    currentNote.value = null;
+  }
+};
+
+// Note 按钮点击处理函数
+function handleNoteButtonClick() {
+  noteContent.value = currentNote.value?.content || '';
+  noteModalVisible.value = true;
+}
+
+// 创建/更新 notes
+const handleNoteSubmit = async () => {
+  if (!noteContent.value.trim()) {
+    ElMessage.warning('Please enter note content');
+    return;
+  }
+  noteLoading.value = true;
+  try {
+    if (currentNote.value) {
+      // 如果已存在，更新
+      await updatePaperNote(paperId.value, { content: noteContent.value });
+      ElMessage.success('Note updated successfully');
+    } else {
+      // 如果不存在，创建
+      await createPaperNote(paperId.value, { content: noteContent.value });
+      ElMessage.success('Note created successfully');
+    }
+    noteModalVisible.value = false;
+    await fetchPaperNote();
+  } catch (error) {
+    console.error('Failed to save note:', error);
+    ElMessage.error('Failed to save note, please try again');
+  } finally {
+    noteLoading.value = false;
+  }
+};
+
+// 关闭弹窗
+const handleNoteModalClose = () => {
+  noteModalVisible.value = false;
+  noteContent.value = '';
+};
 </script>
 
 <template>
@@ -579,7 +642,13 @@ function getAffiliationNumber(originalId: number): number {
               View Presentation
             </router-link>
             <div class="copyright-note">
-              <div class="note-title">⚠️ Note</div>
+              <div class="note-title-wrapper">
+                <div class="note-title">⚠️ Note</div>
+                <el-button class="note-button" @click="handleNoteButtonClick">
+                  <el-icon class="note-icon"><Document v-if="currentNote" /><DocumentAdd v-else /></el-icon>
+                  <span class="note-button-text">Click to add notes</span>
+                </el-button>
+              </div>
               <div class="note-content">
                 Please do not upload any copyrighted content if you do not own the rights to such content or do not have
                 written
@@ -773,6 +842,32 @@ function getAffiliationNumber(originalId: number): number {
         </div>
       </div>
     </div>
+
+    <!-- Note 弹窗 -->
+    <el-dialog
+      v-model="noteModalVisible"
+      :title="currentNote ? 'Edit Note' : 'Add Note'"
+      width="500px"
+      class="note-dialog"
+      @close="handleNoteModalClose"
+    >
+      <el-input
+        v-model="noteContent"
+        type="textarea"
+        :rows="6"
+        placeholder="Please enter your note content"
+        maxlength="1000"
+        show-word-limit
+      />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleNoteModalClose">Cancel</el-button>
+          <el-button type="primary" @click="handleNoteSubmit" :loading="noteLoading">
+            Confirm
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -1080,5 +1175,29 @@ function getAffiliationNumber(originalId: number): number {
   margin: 4px 0 0;
   font-size: 14px;
   color: #666;
+}
+
+// Note 弹窗样式
+:deep(.note-dialog) {
+  @include screen-mobile {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    margin: 0 auto !important;
+    left: 45% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    .el-dialog__body {
+      padding: 15px;
+    }
+
+    .el-dialog__header {
+      padding: 15px 15px 10px;
+    }
+
+    .el-dialog__footer {
+      padding: 10px 15px 15px;
+    }
+  }
 }
 </style>
