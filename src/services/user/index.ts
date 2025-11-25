@@ -1,5 +1,5 @@
 import { http } from '../http';
-import type { GetPaperViewHistoryParams, AddPaperViewHistoryData, UploadBioPdfData, UpdateUserProfileData, UserProfileData, MyConferencesResponse } from './type';
+import type { GetPaperViewHistoryParams, AddPaperViewHistoryData, UploadBioPdfData, UpdateUserProfileData, UserProfileData, MyConferencesResponse, UserAchievementsResponse } from './type';
 
 /**
  * 获取忘记密码验证码
@@ -141,4 +141,14 @@ export const getMyConferences = (params?: {
     method: 'GET',
     url: '/my-conferences',
     params,
+  });
+
+/**
+ * 获取用户成就
+ * @returns Promise 返回用户成就数据
+ */
+export const getUserAchievements = () =>
+  http.request<UserAchievementsResponse>({
+    method: 'GET',
+    url: '/user/achievements',
   });
