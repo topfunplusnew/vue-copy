@@ -101,6 +101,11 @@ const router = createRouter({
       redirect: '/userpage/blogs',
       children: [
         {
+          path: 'home',
+          name: 'userpage-home',
+          component: () => import('@/views/user/user-home.vue'),
+        },
+        {
           path: 'blogs',
           name: 'userpage-blogs',
           component: () => import('@/views/user/user-blogs.vue'),

@@ -9,36 +9,36 @@ export const auth = new Auth();
 let loginExpiredMessageShown = false;
 const MESSAGE_THROTTLE_TIME = 1000; // 1秒内不重复显示
 
-// HTTP 状态码对应的友好提示信息
+// HTTP 状态 code corresponding friendly error messages
 function getFriendlyErrorMessage(status: number, defaultMessage?: string): string {
   const statusMessages: Record<number, string> = {
-    400: '请求参数错误，请检查输入信息',
-    401: '登录已过期，请重新登录',
-    403: '没有权限访问该资源',
-    404: '请求的资源不存在，请联系管理员',
-    405: '请求方法不允许，请联系管理员',
-    408: '请求超时，请稍后重试',
-    409: '资源冲突，请检查后重试',
-    413: '请求数据过大，请减少数据量',
-    414: '请求URL过长',
-    415: '不支持的媒体类型',
-    422: '请求参数验证失败，请检查输入信息',
-    429: '请求过于频繁，请稍后重试',
-    500: '服务器内部错误，请联系管理员！',
-    501: '服务器不支持该功能',
-    502: '网关错误，请稍后重试',
-    503: '服务暂时不可用，请稍后重试',
-    504: '网关超时，请稍后重试',
-    505: 'HTTP版本不支持',
+    400: 'Invalid request parameters, please check your input',
+    401: 'Login expired, please login again',
+    403: 'No permission to access this resource',
+    404: 'Requested resource not found, please contact administrator',
+    405: 'Request method not allowed, please contact administrator',
+    408: 'Request timeout, please try again later',
+    409: 'Resource conflict, please check and try again',
+    413: 'Request data too large, please reduce data size',
+    414: 'Request URL too long',
+    415: 'Unsupported media type',
+    422: 'Request parameter validation failed, please check your input',
+    429: 'Too many requests, please try again later',
+    500: 'Internal server error, please contact administrator!',
+    501: 'Server does not support this feature',
+    502: 'Gateway error, please try again later',
+    503: 'Service temporarily unavailable, please try again later',
+    504: 'Gateway timeout, please try again later',
+    505: 'HTTP version not supported',
   };
 
-  // 如果是 5xx 错误，返回服务器错误提示
+  // If it's a 5xx error, return server error message
   if (status >= 500 && status < 600) {
-    return statusMessages[status] || '服务器内部错误，请联系管理员！';
+    return statusMessages[status] || 'Internal server error, please contact administrator!';
   }
 
-  // 返回对应的友好提示，如果没有则使用默认消息或通用提示
-  return statusMessages[status] || defaultMessage || '请求失败，请稍后重试';
+  // Return corresponding friendly message, or use default message or generic message
+  return statusMessages[status] || defaultMessage || 'Request failed, please try again later';
 }
 
 // 判断请求路径是否在排除列表中
@@ -139,12 +139,12 @@ http.interceptors.response.use(
         }
       }
     } else if (error && !error.response) {
-      // 网络错误或其他非 HTTP 错误
+      // Network error or other non-HTTP errors
       if (!shouldSkipErrorMessage(error) && !loginExpiredMessageShown) {
         loginExpiredMessageShown = true;
         const networkError = error.code === 'ECONNABORTED' 
-          ? '请求超时，请检查网络连接' 
-          : '网络错误，请检查网络连接后重试';
+          ? 'Request timeout, please check your network connection' 
+          : 'Network error, please check your network connection and try again';
         ElMessage.error(networkError);
 
         setTimeout(() => {

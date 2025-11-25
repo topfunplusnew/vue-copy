@@ -109,3 +109,67 @@ export interface UpdateUserProfileData {
   /** ORCID（可选） */
   orcid?: string;
 }
+
+/**
+ * 会议中的论文信息
+ */
+export interface MyPaperInConference {
+  /** 论文ID */
+  paper_id: number;
+  /** 论文标题 */
+  paper_title: string;
+  /** 作者列表 */
+  authors: string[];
+  /** 展示类型（可选） */
+  presentation_type?: string | null;
+  /** 是否被接受 */
+  is_accepted: boolean;
+  /** 展示时间（可选） */
+  presentation_time?: string | null;
+  /** 分会场名称（可选） */
+  session_name?: string | null;
+}
+
+/**
+ * 我的会议信息
+ */
+export interface MyConference {
+  /** 会议ID */
+  id: number;
+  /** 会议名称 */
+  name: string;
+  /** 会议缩写（可选） */
+  abbreviation?: string | null;
+  /** 会议类型（可选） */
+  conference_type?: string | null;
+  /** 开始时间（可选） */
+  start_time?: string | null;
+  /** 结束时间（可选） */
+  end_time?: string | null;
+  /** 会议网站（可选） */
+  website?: string | null;
+  /** 会议Logo（可选） */
+  logo?: string | null;
+  /** 地点名称（可选） */
+  place_name?: string | null;
+  /** 我的论文数量 */
+  my_papers_count: number;
+  /** 我的论文列表（可选） */
+  my_papers?: MyPaperInConference[];
+}
+
+/**
+ * 我的会议列表响应
+ */
+export interface MyConferencesResponse {
+  /** 会议列表 */
+  items: MyConference[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page: number;
+  /** 每页数量 */
+  per_page: number;
+  /** 总页数 */
+  pages: number;
+}
