@@ -361,13 +361,18 @@ const formattedTimezone = computed(() => {
               </div>
             </div>
           </div>
+
+          <!-- 移动端：内容区放在 sidebar 内 -->
+          <div class="content-area mobile-content-area">
+            <router-view />
+          </div>
         </aside>
 
         <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
         <div class="vertical-divider-us"></div>
 
-        <!-- 右侧内容区，使用 router-view 显示子路由 -->
-        <div class="content-area">
+        <!-- 桌面端：右侧内容区，使用 router-view 显示子路由 -->
+        <div class="content-area desktop-content-area">
           <router-view />
         </div>
       </section>
@@ -593,6 +598,20 @@ const formattedTimezone = computed(() => {
   flex-direction: column;
 }
 
+/* 桌面端显示，移动端隐藏 */
+.desktop-content-area {
+  display: flex;
+}
+
+/* 移动端显示，桌面端隐藏 */
+.mobile-content-area {
+  display: none;
+  width: 100%;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 /* 移动端响应式样式 */
 @media (max-width: 768px) {
   /* 用户菜单在移动端横向排列 */
@@ -620,13 +639,36 @@ const formattedTimezone = computed(() => {
   /* 主内容区域在移动端垂直布局 */
   .main-content {
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
   }
 
-  /* 内容区域在移动端占满宽度 */
-  .content-area {
+  /* 移动端：隐藏桌面端内容区域 */
+  .desktop-content-area {
+    display: none !important;
+  }
+
+  /* 移动端：显示 sidebar 内的内容区域 */
+  .mobile-content-area {
+    display: flex !important;
+    flex-direction: column;
     width: 100%;
-    padding: 0 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-left: 0;
+    padding-right: 0;
+    overflow: visible;
+  }
+
+  /* 隐藏垂直分割线 */
+  .vertical-divider-us {
+    display: none;
+  }
+
+  /* 移动端 sidebar 需要包含内容区域 */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
   }
 
   /* 时区显示在移动端调整 */
