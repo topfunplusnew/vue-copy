@@ -7,8 +7,11 @@ export interface IPaper {
     keywords: string[];
     graphicalAbstract: string | null;
     session_name: string;
+    session_id?: number;
     full_text?: string;
     video?: string;
+    slide?: string;
+    slides?: string;
 }
 export interface IPaperAuthors {
   id: number;
@@ -55,6 +58,16 @@ export interface IpaperDetail {
   can_edit?: boolean;
   conference?: IConferenceInfo;
   key_points?: string[];
+  session?: {
+    id: number;
+    session_name: string;
+    session_number: string;
+    topic: string;
+    chairperson: string;
+    start_time: string;
+    end_time: string;
+    room_info: string;
+  };
 }
 export interface Ikeywords {
   id: number;

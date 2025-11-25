@@ -448,7 +448,7 @@ function getAffiliationNumber(originalId: number): number {
               <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
             </div>
             <div class="conference-info">
-              <router-link :to="{name:'FeaturedEvents',params:{conferenceId:myPaperDetailInfo?.conference.id}}" class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</router-link>
+              <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
               <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
             </div>
           </div>
@@ -504,6 +504,13 @@ function getAffiliationNumber(originalId: number): number {
               <span class="link-icon">📝</span>
               Registration
             </a>
+            <router-link 
+              v-if="myPaperDetailInfo?.conference?.id" 
+              :to="{ name: 'ConferenceSessions', params: { conferenceId: myPaperDetailInfo.conference.id } }" 
+              class="conf-link">
+              <span class="link-icon">📋</span>
+              View Sessions
+            </router-link>
           </div>
           <div class="meta">
             <div class="session-notice">

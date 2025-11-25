@@ -161,6 +161,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: '/conference/sessions/:conferenceId',
+      name: 'ConferenceSessions',
+      component: () => import('@/views/components/sessions.vue'),
+      props: true,
+    },
+    {
       path: '/reset-password',
       name: 'ResetPassword',
       component: () => import('@/views/user/reset-password-email.vue'),

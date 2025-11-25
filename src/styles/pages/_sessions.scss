@@ -1,0 +1,698 @@
+// Sessions Page Styles
+@use '../utils/utils' as utils;
+@use '../utils/mixins' as *;
+
+.sessions-page {
+  /* 确保不干扰header */
+  padding-top: utils.rpx(20);
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+
+  .main-content {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 1700px;
+    margin: 0 auto;
+    margin-top: 40px;
+    @include screen-mobile {
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 12px;
+      box-sizing: border-box;
+    }
+  }
+}
+
+// Back Button
+.back-button-wrapper {
+  margin-bottom: 20px;
+
+  .back-btn {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #667eea;
+      transform: translateX(-4px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .back-icon {
+      font-size: 16px;
+    }
+  }
+}
+
+// Conference Header Section - 上下结构
+.conference-header-section {
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 18px;
+  padding: 24px 28px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+
+  .logo {
+    width: 70px;
+    height: 70px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: white;
+    padding: 10px;
+    border: 2px solid rgba(102, 126, 234, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  .conference-info {
+    .conference-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      color: #1a202c;
+      letter-spacing: -0.3px;
+    }
+
+    .conference-subtitle {
+      font-size: 14px;
+      color: #718096;
+      margin: 0 0 14px;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .conference-meta {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #4a5568;
+        font-weight: 500;
+
+        .meta-icon {
+          font-size: 16px;
+        }
+      }
+    }
+  }
+}
+
+// Sessions Section
+.sessions-section {
+  background: transparent;
+
+  .sessions-header {
+    background: transparent;
+    border-radius: 20px;
+    padding: 0 0 20px 0;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+
+    .sessions-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a202c;
+      margin: 0;
+      letter-spacing: -0.3px;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 12px;
+      flex: 1;
+      max-width: 500px;
+      min-width: 300px;
+
+      .session-search-input {
+        flex: 1;
+        padding: 12px 20px;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+        border-radius: 14px;
+        font-size: 15px;
+        outline: none;
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.6);
+
+        &:focus {
+          border-color: #667eea;
+          box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+          background: rgba(255, 255, 255, 0.9);
+        }
+
+        &::placeholder {
+          color: #a0aec0;
+        }
+      }
+
+      .search-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+}
+
+// Sessions List
+.sessions-list {
+  .session-date-group {
+    margin-bottom: 32px;
+
+    .date-header {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2d3748;
+      padding: 10px 18px;
+      margin-bottom: 16px;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 12px;
+      border-left: 4px solid #667eea;
+    }
+  }
+
+  .sessions-grid {
+    display: grid;
+    gap: 16px;
+  }
+}
+
+// Session Card - 完全重新设计
+.session-card {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
+    border-color: rgba(102, 126, 234, 0.3);
+  }
+
+  &.expanded {
+    border-color: #667eea;
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+  }
+
+  .session-card-header {
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+
+    .session-main-info {
+      flex: 1;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+
+      .session-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 14px;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        white-space: nowrap;
+        min-width: 100px;
+        text-align: center;
+      }
+
+      .session-details {
+        flex: 1;
+
+        .session-name {
+          margin: 0 0 12px;
+          font-size: 20px;
+          color: #1a202c;
+          font-weight: 700;
+          line-height: 1.4;
+          letter-spacing: -0.3px;
+        }
+
+        .session-meta {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+
+          .session-topic {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            .topic-icon {
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+
+    .expand-icon {
+      font-size: 20px;
+      color: #667eea;
+      font-weight: 700;
+      transition: transform 0.3s ease;
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(102, 126, 234, 0.1);
+    }
+
+    .expanded & .expand-icon {
+      transform: rotate(0deg);
+    }
+  }
+
+  .session-info-grid {
+    padding: 0 28px 24px 28px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+
+    .info-item {
+      background: linear-gradient(135deg, rgba(255, 237, 213, 0.6) 0%, rgba(255, 244, 230, 0.6) 100%);
+      border-radius: 14px;
+      padding: 14px 18px;
+      border: 1px solid rgba(237, 137, 54, 0.2);
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, rgba(255, 237, 213, 0.8) 0%, rgba(255, 244, 230, 0.8) 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(237, 137, 54, 0.2);
+      }
+
+      .info-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #c05621;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .info-value {
+        font-size: 15px;
+        color: #7c2d12;
+        font-weight: 600;
+        line-height: 1.4;
+      }
+    }
+  }
+}
+
+// Session Papers
+.session-papers {
+  margin-top: 0;
+  padding: 24px 28px 28px;
+  border-top: 2px dashed rgba(102, 126, 234, 0.2);
+  background: rgba(102, 126, 234, 0.02);
+
+  .papers-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &::before {
+      content: '📄';
+      font-size: 20px;
+    }
+  }
+
+  .papers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .paper-item {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(102, 126, 234, 0.15);
+      border-radius: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        border-color: #667eea;
+        transform: translateX(8px);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+      }
+
+      .paper-title {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 8px;
+
+        .paper-title-text {
+          font-size: 16px;
+          font-weight: 600;
+          color: #2d3748;
+          flex: 1;
+          line-height: 1.5;
+        }
+
+        .paper-badges {
+          display: flex;
+          gap: 6px;
+          flex-shrink: 0;
+
+          .badge {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+
+            &.full-text {
+              background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+              color: white;
+            }
+
+            &.video {
+              background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+              color: white;
+            }
+
+            &.slides {
+              background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+              color: white;
+            }
+          }
+        }
+      }
+
+      .paper-authors {
+        font-size: 14px;
+        color: #718096;
+        line-height: 1.6;
+
+        .author {
+          font-weight: 500;
+          color: #4a5568;
+
+          &:hover {
+            color: #667eea;
+          }
+        }
+      }
+    }
+
+    .no-papers {
+      text-align: center;
+      padding: 40px 20px;
+      color: #a0aec0;
+      border: 2px dashed rgba(160, 174, 192, 0.3);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.5);
+      font-size: 15px;
+
+      p {
+        margin: 0;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Empty State
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+
+  .empty-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .empty-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 12px;
+  }
+
+  .empty-desc {
+    color: #718096;
+    font-size: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .sessions-section .sessions-header {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .search-container {
+      width: 100%;
+      max-width: none;
+    }
+  }
+
+  .session-card .session-card-header .session-main-info {
+    flex-direction: column;
+
+    .session-number {
+      width: fit-content;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .sessions-page .main-content {
+    padding: 20px 16px 60px;
+  }
+
+  .conference-header-section {
+    padding: 24px 20px;
+    border-radius: 16px;
+    gap: 16px;
+
+    .logo {
+      width: 70px;
+      height: 70px;
+    }
+
+    .conference-info {
+      .conference-title {
+        font-size: 22px;
+      }
+
+      .conference-subtitle {
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .conference-meta {
+        gap: 16px;
+        flex-direction: column;
+      }
+    }
+  }
+
+  .sessions-section .sessions-header {
+    padding: 20px;
+    
+    .sessions-title {
+      font-size: 22px;
+    }
+
+    .search-container {
+      min-width: 100%;
+    }
+  }
+
+  .session-card {
+    .session-card-header {
+      padding: 20px;
+      flex-direction: column;
+
+      .session-main-info {
+        flex-direction: column;
+        gap: 16px;
+
+        .session-number {
+          width: fit-content;
+          min-width: auto;
+        }
+
+        .session-details .session-name {
+          font-size: 18px;
+        }
+      }
+
+      .expand-icon {
+        align-self: flex-end;
+      }
+    }
+
+    .session-info-grid {
+      padding: 0 20px 20px;
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .session-papers {
+    padding: 20px;
+
+    .papers-list .paper-item {
+      padding: 14px 16px;
+
+      .paper-title {
+        flex-direction: column;
+        gap: 8px;
+
+        .paper-badges {
+          align-self: flex-start;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .back-button-wrapper {
+    margin-bottom: 16px;
+
+    .back-btn {
+      padding: 6px 12px;
+      font-size: 13px;
+    }
+  }
+
+  .conference-header-section {
+    padding: 20px 16px;
+    gap: 12px;
+
+    .logo {
+      width: 60px;
+      height: 60px;
+    }
+
+    .conference-info {
+      .conference-title {
+        font-size: 20px;
+      }
+
+      .conference-subtitle {
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .conference-meta {
+        gap: 12px;
+
+        .meta-item {
+          font-size: 13px;
+
+          .meta-icon {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  .sessions-section .sessions-header {
+    padding: 16px;
+
+    .sessions-title {
+      font-size: 20px;
+    }
+  }
+
+  .session-card .session-card-header .session-main-info {
+    .session-number {
+      font-size: 13px;
+      padding: 8px 16px;
+    }
+
+    .session-details .session-name {
+      font-size: 16px;
+    }
+  }
+}

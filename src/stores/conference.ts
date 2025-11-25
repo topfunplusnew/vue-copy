@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
-import { getConferenceList, getConferenceDetail, getMyPaperDetail, getMyConferenceList, getConferenceIdPaper, getPaperDetail, updateMyPaperDetail } from '@/services/api';
-import type { IConferenceEvent, IConferenceParticipation, IPapers, IMyConference } from '@/types/conference';
+import { getConferenceList, getConferenceDetail, getMyPaperDetail, getMyConferenceList, getConferenceIdPaper, getPaperDetail, updateMyPaperDetail, getConferenceSessions } from '@/services/api';
+import type { IConferenceEvent, IConferenceParticipation, IPapers, IMyConference, ISession } from '@/types/conference';
 import type { IModifyPaperShow, IPaper } from '@/types/paper';
 import { ElMessage } from 'element-plus';
 
@@ -12,6 +12,7 @@ export const useConferenceStore = defineStore('meet', () => {
   const myPaperDetail = ref<IPapers>(); //我的论文详情
   const conferencePaper = ref<IPaper[]>(); //会议论文
   const paperDetail = ref<IModifyPaperShow>();
+  const conferenceSessions = ref<ISession[]>([]); //会议sessions
 
   function getConferencesList(search?: string) {
     const params = search ? { search } : {};
@@ -53,6 +54,13 @@ export const useConferenceStore = defineStore('meet', () => {
     });
   }
 
+  function getConferenceSessionsList(id: string) {
+    return getConferenceSessions(id).then((res) => {
+      conferenceSessions.value = res.data.items || [];
+      return res;
+    });
+  }
+
   async function getPaperDetailAll(id: string) {
     const res = await getPaperDetail(id);
     if (!res.data) {
@@ -90,6 +98,7 @@ export const useConferenceStore = defineStore('meet', () => {
     myPaperDetail,
     myConferenceList,
     paperDetail,
+    conferenceSessions,
     getConferenceDetails,
     getConferencesList,
     getMyPaper,
@@ -97,5 +106,6 @@ export const useConferenceStore = defineStore('meet', () => {
     getConferencePaper,
     getPaperDetailAll,
     updateIsOpenAccess,
+    getConferenceSessionsList,
   };
 });

@@ -235,6 +235,12 @@ export const getConferenceIdPaper = (id: string, search?: string | null) =>
     params: { search },
   });
 
+/*
+根据会议ID获取sessions
+*/
+export const getConferenceSessions = (id: string) =>
+  http.get(`/conference/${id}/sessions`);
+
 // 关键词搜索API
 export const searchKeywords = (query: string) => http.get(`/keyword?search=${encodeURIComponent(query)}`);
 

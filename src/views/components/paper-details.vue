@@ -5,6 +5,7 @@ import { isEmpty, find, flatMap, get as lodashGet, uniqBy, defaultTo, template }
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
 import { getImageUrl } from '@/utils';
+import { convertUTCToTimezone, formatRange } from '@/utils/date';
 import type { TabKey } from '@/types/conference.ts';
 import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import FileUpload from '@/components/file-upload.vue';
@@ -378,7 +379,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                 <img :src="getImageUrl(paperDetail.conference.logo)" :alt="paperDetail.conference.abbreviation" />
               </div>
               <div class="conference-info">
-                <router-link :to="{name:'FeaturedEvents',params:{conferenceId:paperDetail?.conference?.id}}" class="conference-name">{{ paperDetail?.conference?.abbreviation }}</router-link>
+                <div class="conference-name">{{ paperDetail?.conference?.abbreviation }}</div>
                 <div class="conference-full-name">{{ paperDetail?.conference?.name }}</div>
               </div>
             </div>
@@ -435,6 +436,54 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                 </template>
               </div>
             </div>
+
+            <!-- View Sessions Link -->
+            <div class="conference-links">
+              <router-link 
+                v-if="paperDetail?.conference?.id" 
+                :to="{ name: 'ConferenceSessions', params: { conferenceId: paperDetail.conference.id } }" 
+                class="conf-link">
+                <span class="link-icon">📋</span> View Conference Sessions
+              </router-link>
+            </div>
+
+            <!-- Session Information -->
+            <div class="meta" v-if="paperDetail?.session || paperDetail?.conference">
+              <div class="session-notice">
+                <div class="session-header" v-if="paperDetail?.conference">
+                  <div class="conference-details">
+                    <div class="detail-row">
+                      <span class="detail-icon">📅</span>
+                      <span class="detail-text">{{ formatRange(paperDetail.conference.start_time, paperDetail.conference.end_time) }}</span>
+                    </div>
+                    <div class="detail-row" v-if="paperDetail.conference.city">
+                      <span class="detail-icon">📍</span>
+                      <span class="detail-text">{{ paperDetail.conference.city }}{{ paperDetail.conference.country ? ', ' + paperDetail.conference.country : '' }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="session-content" v-if="paperDetail?.session">
+                  <div class="schedule-details">
+                    <div class="schedule-row">
+                      <span class="schedule-label">📅 Date And Time:</span>
+                      <span class="schedule-value">{{ convertUTCToTimezone(paperDetail.session.start_time) }}</span>
+                    </div>
+                    <div class="schedule-row">
+                      <span class="schedule-label">🏢 Room:</span>
+                      <span class="schedule-value">{{ paperDetail.session.room_info }}</span>
+                    </div>
+                    <div class="schedule-row">
+                      <span class="schedule-label">🎯 Session:</span>
+                      <span class="schedule-value">{{ paperDetail.session.session_name }}</span>
+                    </div>
+                    <div class="schedule-row" v-if="paperDetail.session.chairperson">
+                      <span class="schedule-label">👤 Chair:</span>
+                      <span class="schedule-value">{{ paperDetail.session.chairperson }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </header>
 
           <!-- Tab Container -->
@@ -466,35 +515,6 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
             <!-- Tab Content -->
             <div class="tab-content">
               <div v-if="activeTab === 'details'" class="details-content">
-                <!-- <div class="paper-info">
-                  <div class="info-section">
-                    <h4>Authors</h4>
-                    <div class="authors-list">
-                      <span v-for="(author, authorIndex) in paperDetail?.authors" :key="authorIndex" class="author-name">
-                        {{ author.name
-                        }}<template v-if="author?.affiliations?.length"
-                          ><sup v-for="(aff, affIdx) in author.affiliations" :key="affIdx"
-                            >{{ getAffiliationNumber(aff.id) }}<span v-if="affIdx < author.affiliations.length - 1"
-                              >,</span
-                            ></sup
-                          ></template
-                        ><span v-if="authorIndex < (paperDetail?.authors.length || 0) - 1">, </span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="info-section">
-                    <h4>Affiliations</h4>
-                    <div class="affiliations-list">
-                      <div v-for="aff in affiliations" :key="aff.id" class="affiliation">
-                        <span class="affiliation-number"><sup>{{ aff.id }}</sup></span
-                        >{{ aff.university || aff.name }}{{ aff.department ? ', ' + aff.department : ''
-                        }}{{ aff.city ? ', ' + aff.city : '' }}{{ aff.state ? ', ' + aff.state : ''
-                        }}{{ aff.country ? ', ' + aff.country : '' }}
-                      </div>
-                    </div>
-                  </div>
-                </div> -->
                 <div class="detail-item">
                   <h5>DOI</h5>
                   <p>{{ paperDetail?.doi }}</p>
