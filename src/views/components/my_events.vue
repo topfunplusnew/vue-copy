@@ -5,7 +5,7 @@ import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
-import { convertUTCToTimezone, formatRange } from '@/utils/date';
+import { convertUTCToTimezone, formatRange, getUserTimezone } from '@/utils/date';
 import { getImageUrl } from '@/utils';
 import { updateMyPaperDetail } from '@/services/api';
 //, searchKeywords as searchKeywordsAPI
@@ -702,7 +702,7 @@ const handleNoteModalClose = () => {
                 <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date And Time:</span>
-                    <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time) }}</span>
+                    <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time, getUserTimezone(), 'YYYY-MM-DD HH:mm:ss') }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>

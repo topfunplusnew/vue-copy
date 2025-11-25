@@ -12,6 +12,7 @@ import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
 import { getUserProfile, updateUserProfile } from '@/services/user';
 import type { UpdateUserProfileData } from '@/services/user/type';
+import { getUserTimezone } from '@/utils/date';
 
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -281,6 +282,16 @@ const navigateTo = (routeName: string) => {
 const isActiveRoute = (routeName: string) => {
   return route.name === routeName;
 };
+
+// 获取用户当前时区
+const userTimezone = computed(() => getUserTimezone());
+
+// 格式化时区显示（将时区名称转换为更友好的格式）
+const formattedTimezone = computed(() => {
+  const tz = userTimezone.value;
+  // 将时区名称中的下划线替换为空格，并美化显示
+  return tz.replace(/_/g, ' ');
+});
 </script>
 
 <template>
@@ -295,7 +306,7 @@ const isActiveRoute = (routeName: string) => {
         <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
           <div class="profile-buttons">
             <button class="edit-profile-btn" @click="openEditProfile">EDIT PROFILE</button>
-            <button class="logout-btn" @click="handleLogout">LOGOUT</button>
+            <!-- <button class="logout-btn" @click="handleLogout">LOGOUT</button> -->
           </div>
           <div class="user-info">
             <div class="avatar-section">
@@ -309,6 +320,10 @@ const isActiveRoute = (routeName: string) => {
             </div>
             <div class="username">{{ user?.name }}</div>
             <div class="user-id">ID: {{ user?.id }}</div>
+            <div class="user-timezone">
+              <span class="timezone-icon">🕐</span>
+              <span class="timezone-text">{{ formattedTimezone }}</span>
+            </div>
             <div class="user-institution">MUST</div>
             <!-- <div class="registration-time">Joined: {{ user?.created_at }}</div> -->
             <!-- Likes / Coins -->
@@ -546,6 +561,29 @@ const isActiveRoute = (routeName: string) => {
   font-weight: 500;
 }
 
+/* 时区显示样式 */
+.user-timezone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 6px 12px;
+  background-color: transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+}
+
+.timezone-icon {
+  font-size: 16px;
+}
+
+.timezone-text {
+  font-weight: 500;
+  color: #333;
+}
+
 /* 内容区域样式 */
 .content-area {
   flex: 1;
@@ -575,6 +613,7 @@ const isActiveRoute = (routeName: string) => {
   .sidebar {
     width: 100% !important;
     max-width: 100% !important;
+    min-height: 100vh !important;
   }
 
   /* 主内容区域在移动端垂直布局 */
@@ -587,6 +626,17 @@ const isActiveRoute = (routeName: string) => {
   .content-area {
     width: 100%;
     padding: 0 10px;
+  }
+
+  /* 时区显示在移动端调整 */
+  .user-timezone {
+    font-size: 12px;
+    padding: 5px 10px;
+    margin: 6px 0;
+  }
+
+  .timezone-icon {
+    font-size: 14px;
   }
 }
 </style>
