@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
@@ -43,12 +43,31 @@ const recordViewHistory = async (id: number) => {
   }
 };
 
+// 窗口大小变化处理
+const handleResize = () => {
+  const constrained = constrainPosition(noteButtonPosition.x, noteButtonPosition.y);
+  noteButtonPosition.x = constrained.x;
+  noteButtonPosition.y = constrained.y;
+};
+
 onMounted(async () => {
   await store.getMyPaper(paperId.value);
   // 记录浏览历史
   recordViewHistory(paperId.value);
   // 查询 notes
   await fetchPaperNote();
+  
+  // 监听窗口大小变化，确保按钮位置在窗口内
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  // 清理拖动事件监听
+  document.removeEventListener('mousemove', onDragNote);
+  document.removeEventListener('mouseup', stopDragNote);
+  document.removeEventListener('touchmove', onDragNote);
+  document.removeEventListener('touchend', stopDragNote);
 });
 
 // 监听 paperId 变化，当路由参数变化时重新记录
@@ -445,6 +464,95 @@ const noteContent = ref('');
 const currentNote = ref<PaperNote | null>(null);
 const noteLoading = ref(false);
 
+// 获取按钮尺寸
+const getButtonSize = () => window.innerWidth <= 768 ? 52 : 56;
+
+// 限制位置在窗口内
+const constrainPosition = (x: number, y: number) => {
+  const buttonSize = getButtonSize();
+  const maxX = window.innerWidth - buttonSize;
+  const maxY = window.innerHeight - buttonSize;
+  return {
+    x: Math.max(0, Math.min(x, maxX)),
+    y: Math.max(0, Math.min(y, maxY))
+  };
+};
+
+// 拖动相关状态
+const initialPos = constrainPosition(window.innerWidth - 100, 100);
+const noteButtonPosition = reactive({ x: initialPos.x, y: initialPos.y });
+const isDraggingNote = ref(false);
+const dragStartPos = reactive({ x: 0, y: 0 });
+const hasMoved = ref(false);
+
+// 开始拖动
+const startDragNote = (e: MouseEvent | TouchEvent) => {
+  hasMoved.value = false;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  dragStartPos.x = clientX - noteButtonPosition.x;
+  dragStartPos.y = clientY - noteButtonPosition.y;
+  document.addEventListener('mousemove', onDragNote);
+  document.addEventListener('mouseup', stopDragNote);
+  document.addEventListener('touchmove', onDragNote);
+  document.addEventListener('touchend', stopDragNote);
+};
+
+// 拖动中
+const onDragNote = (e: MouseEvent | TouchEvent) => {
+  e.preventDefault();
+  hasMoved.value = true;
+  isDraggingNote.value = true;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const newX = clientX - dragStartPos.x;
+  const newY = clientY - dragStartPos.y;
+  
+  // 限制在窗口内，确保按钮完全在视口内
+  const constrained = constrainPosition(newX, newY);
+  noteButtonPosition.x = constrained.x;
+  noteButtonPosition.y = constrained.y;
+};
+
+// 停止拖动
+const stopDragNote = (e?: MouseEvent | TouchEvent) => {
+  const wasMoving = hasMoved.value;
+  isDraggingNote.value = false;
+  
+  document.removeEventListener('mousemove', onDragNote);
+  document.removeEventListener('mouseup', stopDragNote);
+  document.removeEventListener('touchmove', onDragNote);
+  document.removeEventListener('touchend', stopDragNote);
+  
+  // 如果没有移动过，认为是点击，触发打开弹窗
+  if (!wasMoving && e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setTimeout(() => {
+      noteContent.value = currentNote.value?.content || '';
+      noteModalVisible.value = true;
+    }, 10);
+  }
+  
+  hasMoved.value = false;
+};
+
+// Note 按钮点击处理函数（如果拖动过则不触发）
+function handleNoteButtonClick(e: MouseEvent | TouchEvent) {
+  // 如果拖动过则不触发点击
+  if (hasMoved.value) {
+    hasMoved.value = false;
+    return;
+  }
+  // 阻止事件冒泡
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  noteContent.value = currentNote.value?.content || '';
+  noteModalVisible.value = true;
+}
+
 // 查询论文的 notes
 const fetchPaperNote = async () => {
   if (!paperId.value) return;
@@ -457,11 +565,6 @@ const fetchPaperNote = async () => {
   }
 };
 
-// Note 按钮点击处理函数
-function handleNoteButtonClick() {
-  noteContent.value = currentNote.value?.content || '';
-  noteModalVisible.value = true;
-}
 
 // 创建/更新 notes
 const handleNoteSubmit = async () => {
@@ -642,13 +745,7 @@ const handleNoteModalClose = () => {
               View Presentation
             </router-link>
             <div class="copyright-note">
-              <div class="note-title-wrapper">
-                <div class="note-title">⚠️ Note</div>
-                <el-button class="note-button" @click="handleNoteButtonClick">
-                  <el-icon class="note-icon"><Document v-if="currentNote" /><DocumentAdd v-else /></el-icon>
-                  <span class="note-button-text">Click to add notes</span>
-                </el-button>
-              </div>
+              <div class="note-title">⚠️ Note</div>
               <div class="note-content">
                 Please do not upload any copyrighted content if you do not own the rights to such content or do not have
                 written
@@ -868,6 +965,16 @@ const handleNoteModalClose = () => {
         </span>
       </template>
     </el-dialog>
+
+    <!-- 可拖动的 Note 按钮 -->
+    <el-button
+      class="draggable-note-button"
+      :style="{ left: `${noteButtonPosition.x}px`, top: `${noteButtonPosition.y}px` }"
+      @mousedown="startDragNote"
+      @touchstart="startDragNote"
+    >
+      <el-icon class="note-icon"><Document v-if="currentNote" /><DocumentAdd v-else /></el-icon>
+    </el-button>
   </div>
 </template>
 
@@ -1197,6 +1304,45 @@ const handleNoteModalClose = () => {
 
     .el-dialog__footer {
       padding: 10px 15px 15px;
+    }
+  }
+}
+
+// 可拖动的 Note 按钮
+.draggable-note-button {
+  position: fixed;
+  width: 56px !important;
+  height: 56px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000;
+  cursor: move;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s;
+  user-select: none;
+  -webkit-user-select: none;
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .note-icon {
+    font-size: 28px;
+  }
+
+  @include screen-mobile {
+    width: 52px !important;
+    height: 52px !important;
+
+    .note-icon {
+      font-size: 26px;
     }
   }
 }
