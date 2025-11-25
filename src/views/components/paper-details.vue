@@ -516,7 +516,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
             <div class="tab-content">
               <div v-if="activeTab === 'details'" class="details-content">
                 <div class="detail-item">
-                  <h5>DOI</h5>
+                  <h5>Digital Object Identifier</h5>
                   <p>{{ paperDetail?.doi }}</p>
                 </div>
                 <div class="detail-item">

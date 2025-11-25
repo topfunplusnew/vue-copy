@@ -377,7 +377,7 @@
         }
 
         .authors {
-            font-size: utils.rpx(20);
+          font-size: utils.rpx(20);
           margin-top: 6px;
           margin-bottom: 6px;
           line-height: 1.5;
@@ -457,7 +457,7 @@
           box-shadow: 0 8px 32px rgba(251, 146, 60, 0.15);
           position: relative;
           @include screen-mobile {
-            margin: 24px 0px 16px;
+            margin: 0px 0px 16px;
           }
           &::before {
             content: '';
@@ -634,7 +634,7 @@
         gap: 16px;
         width: 100%;
         box-sizing: border-box;
-
+        font-size:utils.rpx(14);
         > :last-child {
           margin: 0 auto;
         }
@@ -653,15 +653,22 @@
           gap: 8px;
           width: calc(50% - 8px); // 减去一半的gap
           box-sizing: border-box;
+          font-size:utils.rpx(1400);
 
-          @include screen-mobile {
-            width: 100%;
-          }
 
           &.full {
             width: 100%;
+            .el-form-item__label{
+              @include screen-mobile {
+                font-size: utils.rpx(26);
+              }
+            }
           }
-
+          .el-form-item__label{
+             @include screen-mobile {
+               font-size: utils.rpx(26);
+             }
+          }
           @include screen-mobile {
             width: 100%;
             align-items: stretch;
@@ -685,7 +692,7 @@
 
             @include screen-mobile {
               text-align: left;
-              font-size: utils.rpx(22);
+              font-size: utils.rpx(26);
             }
           }
 
