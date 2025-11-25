@@ -496,7 +496,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                   </div>
                 </div> -->
                 <div class="detail-item">
-                  <h5>DOI</h5>
+                  <h5>Digital Object Identifier</h5>
                   <p>{{ paperDetail?.doi }}</p>
                 </div>
                 <div class="detail-item">
