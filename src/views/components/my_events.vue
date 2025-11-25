@@ -645,7 +645,8 @@ const handleNoteModalClose = () => {
               <div class="note-title-wrapper">
                 <div class="note-title">⚠️ Note</div>
                 <el-button class="note-button" @click="handleNoteButtonClick">
-                  <el-icon><Document v-if="currentNote" /><DocumentAdd v-else /></el-icon>
+                  <el-icon class="note-icon"><Document v-if="currentNote" /><DocumentAdd v-else /></el-icon>
+                  <span class="note-button-text">Click to add notes</span>
                 </el-button>
               </div>
               <div class="note-content">
@@ -847,6 +848,7 @@ const handleNoteModalClose = () => {
       v-model="noteModalVisible"
       :title="currentNote ? 'Edit Note' : 'Add Note'"
       width="500px"
+      class="note-dialog"
       @close="handleNoteModalClose"
     >
       <el-input
@@ -1173,5 +1175,29 @@ const handleNoteModalClose = () => {
   margin: 4px 0 0;
   font-size: 14px;
   color: #666;
+}
+
+// Note 弹窗样式
+:deep(.note-dialog) {
+  @include screen-mobile {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    margin: 0 auto !important;
+    left: 45% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    .el-dialog__body {
+      padding: 15px;
+    }
+
+    .el-dialog__header {
+      padding: 15px 15px 10px;
+    }
+
+    .el-dialog__footer {
+      padding: 10px 15px 15px;
+    }
+  }
 }
 </style>

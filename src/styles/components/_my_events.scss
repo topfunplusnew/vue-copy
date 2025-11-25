@@ -196,10 +196,33 @@
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+          gap: 0;
+
+          .note-icon {
+            display: block;
+          }
+
+          .note-button-text {
+            display: none;
+          }
 
           @include screen-mobile {
-            width: 36px;
-            height: 36px;
+            width: auto;
+            height: 28px;
+            min-width: auto;
+            padding: 0 8px;
+            gap: 4px;
+
+            .note-icon {
+              display: block;
+              font-size: 16px;
+            }
+
+            .note-button-text {
+              display: inline-block;
+              font-size: utils.rpx(26);
+              white-space: nowrap;
+            }
           }
         }
 
