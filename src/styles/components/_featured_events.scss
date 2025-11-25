@@ -10,10 +10,18 @@
   .main-content {
     display: flex;
     gap: 24px;
-    margin-top:40px;
+    width: 100%;
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+    margin-top: 40px;
+
     @include screen-mobile {
       flex-direction: column;
       gap: 16px;
+      padding: 0 5px;
+      box-sizing: border-box;
     }
   }
 
@@ -24,6 +32,8 @@
 
     @include screen-mobile {
       width: 100%;
+      padding: 0;
+      box-sizing: border-box;
     }
 
     .selector-header {
@@ -55,6 +65,11 @@
         font-weight: 700;
         color: #1e40af;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+
+        @include screen-mobile {
+          font-size: rpx(20);
+        }
       }
 
       .conference-search-container {
@@ -325,10 +340,10 @@
   .conference-details {
     flex: 1;
     min-width: 0;
-    margin-right: 24px;
 
     @include screen-mobile {
-      margin-right: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .event-header {
@@ -341,8 +356,7 @@
 
       @include screen-mobile {
         box-sizing: border-box;
-
-        padding: 16px 0px;
+        padding: 16px;
       }
 
       // Conference Header (reuse styles from my_events)
@@ -511,7 +525,7 @@
       .conference-description {
         margin-bottom: 24px;
         @include screen-mobile {
-          padding: 0 10px;
+          padding: 0;
         }
         h3 {
           font-size: utils.rpx(24);
@@ -709,7 +723,7 @@
       width: 100%;
       max-width: 100%;
       box-sizing: border-box;
-      padding: 0 10px;
+      padding: 0;
     }
 
     .papers-header {

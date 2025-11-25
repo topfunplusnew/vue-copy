@@ -174,30 +174,40 @@ const sessionsByDate = computed(() => {
     <commonHeader />
 
     <section class="main-content">
-      <!-- Back Button -->
-      <div class="back-button-wrapper">
-        <button class="back-btn" @click="backToConference">
-          <span class="back-icon">←</span> Back to Conference
-        </button>
-      </div>
+      <section class="right-panel">
+        <!-- Back Button -->
+        <div class="back-button-wrapper">
+          <button class="back-btn" @click="backToConference">
+            <span class="back-icon">←</span> Back to Conference
+          </button>
+        </div>
 
-      <!-- Conference Header -->
-      <header class="conference-header-section">
-            <div class="logo" v-if="conferenceDetail?.logo">
-              <img :src="getImageUrl(conferenceDetail.logo)" :alt="conferenceDetail.abbreviation" />
+        <!-- Conference Header -->
+        <header class="event-header">
+        <div class="conference-header">
+          <div class="logo" v-if="conferenceDetail?.logo">
+            <img :src="getImageUrl(conferenceDetail.logo)" :alt="conferenceDetail.abbreviation" />
+          </div>
+          <div class="conference-info">
+            <div class="conference-name">{{ conferenceDetail?.abbreviation }}</div>
+            <div class="conference-full-name">{{ conferenceDetail?.name }}</div>
+          </div>
+        </div>
+        
+        <div class="meta">
+          <div class="session-notice">
+            <div class="session-header">
+              <div class="conference-details">
+                <div class="detail-row">
+                  <span class="detail-icon">📅</span>
+                  <span class="detail-text">{{ formatRange(conferenceDetail?.start_time, conferenceDetail?.end_time) }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-icon">📍</span>
+                  <span class="detail-text">{{ conferenceDetail?.city }}, {{ conferenceDetail?.country }}</span>
+                </div>
+              </div>
             </div>
-        <div class="conference-info">
-          <h1 class="conference-title">{{ conferenceDetail?.abbreviation }}</h1>
-          <div class="conference-subtitle">{{ conferenceDetail?.name }}</div>
-              <div class="conference-meta">
-                <span class="meta-item">
-                  <span class="meta-icon">📅</span>
-                  {{ formatRange(conferenceDetail?.start_time, conferenceDetail?.end_time) }}
-                </span>
-                <span class="meta-item">
-                  <span class="meta-icon">📍</span>
-                  {{ conferenceDetail?.city }}, {{ conferenceDetail?.country }}
-                </span>
           </div>
         </div>
       </header>
@@ -303,6 +313,7 @@ const sessionsByDate = computed(() => {
             {{ searchQuery ? 'No sessions match your search criteria.' : 'No sessions have been scheduled for this conference yet.' }}
           </p>
         </div>
+      </section>
       </section>
     </section>
   </div>
