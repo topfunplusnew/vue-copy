@@ -268,6 +268,7 @@ function toggleFollowUser(follower: IUser) {
 
 // 路由菜单
 const menuItems = [
+  { name: 'Home', route: 'userpage-home' },
   { name: 'Blogs', route: 'userpage-blogs' },
   { name: 'My Presentations', route: 'userpage-presentations' },
   { name: 'Resume (PDF)', route: 'userpage-resume' },
