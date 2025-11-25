@@ -34,6 +34,10 @@ export interface IConferenceInfo {
   name: string;
   abbreviation: string;
   logo: string;
+  start_time:string;
+  end_time:string;
+  city:string;
+  country:string;
 }
 
 export interface IpaperDetail {
