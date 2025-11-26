@@ -430,7 +430,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
 
               <!-- Graphical Abstract (Mobile only) -->
               <div class="graphical-abstract-mobile" v-if="paperDetail?.graphic_abstract?.length">
-                <div class="mobile-title">Graphical Abstract</div>
+                
                 <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
                   <img :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract-image-mobile" />
                 </template>

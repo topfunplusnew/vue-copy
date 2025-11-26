@@ -231,7 +231,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+  @include screen-mobile {
+    margin-top: 10px;
+  }
 }
 
 .conf-link {
@@ -364,7 +367,7 @@
       margin-bottom: 12px;
 
       .conference-details {
-        flex-direction: column;
+        flex-direction: flex;
         gap: 12px;
       }
     }
