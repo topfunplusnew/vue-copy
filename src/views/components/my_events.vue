@@ -762,7 +762,7 @@ const handleNoteModalClose = () => {
           <div v-if="activeTab === 'details'" class="tab-content">
             <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
               @submit.prevent>
-              <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
+              <el-form-item label="DOI" prop="doi" class="form-item">
                 <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable  @change="saveDetails()"/>
               </el-form-item>
               <el-form-item label="Abstract" class="form-item full">

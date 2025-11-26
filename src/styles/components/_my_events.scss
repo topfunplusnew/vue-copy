@@ -488,8 +488,51 @@
               gap: 10px;
 
               @include screen-mobile {
-                flex-direction: column;
-                font-size: utils.rpx(22);
+                flex-wrap: wrap;
+                font-size: utils.rpx(18);
+                gap: 8px;
+              }
+
+              .detail-row {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                flex-shrink: 0;
+
+                @include screen-mobile {
+                  &:nth-child(1),
+                  &:nth-child(2) {
+                    flex: 0 0 auto;
+                    max-width: calc(50% - 4px);
+                  }
+
+                  &:nth-child(3) {
+                    flex: 0 0 100%;
+                    width: 100%;
+                  }
+                }
+
+                .detail-icon {
+                  font-size: utils.rpx(20);
+                  flex-shrink: 0;
+
+                  @include screen-mobile {
+                    font-size: utils.rpx(18);
+                  }
+                }
+
+                .detail-text {
+                  font-size: utils.rpx(20);
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+
+                  @include screen-mobile {
+                    font-size: utils.rpx(18);
+                    white-space: normal;
+                    word-break: break-word;
+                  }
+                }
               }
             }
           }
