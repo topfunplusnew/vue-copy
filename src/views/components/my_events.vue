@@ -614,7 +614,7 @@ const handleNoteModalClose = () => {
               <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
             </div>
             <div class="conference-info">
-              <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div>
+              <!-- <div class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</div> -->
               <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
             </div>
           </div>

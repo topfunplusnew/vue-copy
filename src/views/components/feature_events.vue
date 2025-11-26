@@ -194,7 +194,7 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
             <div class="conference-info">
               <div class="conference-name">{{ selectedConference?.name }}</div>
-              <div class="conference-full-name">{{ selectedConference?.abbreviation }}</div>
+              <!-- <div class="conference-full-name">{{ selectedConference?.abbreviation }}</div> -->
 
               <div class="conference-details">
                 <div class="detail-row">
