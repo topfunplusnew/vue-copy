@@ -110,9 +110,9 @@ const cancelEdit = () => {
 .latex-content-wrapper {
   width: 100%;
   box-sizing: border-box;
-@include screen-mobile{
-  width:80vw;
-}
+// @include screen-mobile{
+//   width:80vw;
+// }
 }
 
 .latex-view-mode {
