@@ -281,6 +281,10 @@ const navigateTo = (routeName: string) => {
 
 // 检查当前激活的路由
 const isActiveRoute = (routeName: string) => {
+  // 如果当前是父路由 userpage，默认激活 Home
+  if (route.name === 'userpage' && routeName === 'user-home') {
+    return true;
+  }
   return route.name === routeName;
 };
 
@@ -305,10 +309,6 @@ const formattedTimezone = computed(() => {
       <section class="main-content">
         <!-- 左侧用户信息面板 -->
         <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
-          <div class="profile-buttons">
-            <button class="edit-profile-btn" @click="openEditProfile">EDIT PROFILE</button>
-            <!-- <button class="logout-btn" @click="handleLogout">LOGOUT</button> -->
-          </div>
           <div class="user-info">
             <div class="avatar-section">
               <div class="avatar-container">
@@ -359,6 +359,7 @@ const formattedTimezone = computed(() => {
               <div v-for="item in menuItems" :key="item.route" class="menu-item" :class="{ active: isActiveRoute(item.route) }" @click="navigateTo(item.route)">
                 {{ item.name }}
               </div>
+              <div class="menu-item" @click="openEditProfile">Edit Profile</div>
             </div>
           </div>
 

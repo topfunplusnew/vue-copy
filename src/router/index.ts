@@ -98,7 +98,7 @@ const router = createRouter({
       path: '/user',
       name: 'userpage',
       component: () => import('@/views/user/user-page.vue'),
-      redirect: '/user/blogs',
+      redirect: '/user/home',
       children: [
         {
           path: 'home',
