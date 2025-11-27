@@ -60,7 +60,7 @@ export interface IpaperDetail {
   full_text?: string;
   is_open_access?: boolean;
   can_edit?: boolean;
-  conference?: IConferenceInfo;
+  conference: IConferenceInfo;
   key_points?: string[];
   session?: {
     id: number;
