@@ -95,29 +95,29 @@ const router = createRouter({
       component: () => import('@/views/user/forget-password.vue'),
     },
     {
-      path: '/userpage',
+      path: '/user',
       name: 'userpage',
       component: () => import('@/views/user/user-page.vue'),
-      redirect: '/userpage/blogs',
+      redirect: '/user/blogs',
       children: [
         {
           path: 'home',
-          name: 'userpage-home',
+          name: 'user-home',
           component: () => import('@/views/user/user-home.vue'),
         },
         {
           path: 'blogs',
-          name: 'userpage-blogs',
+          name: 'user-blogs',
           component: () => import('@/views/user/user-blogs.vue'),
         },
         {
           path: 'presentations',
-          name: 'userpage-presentations',
+          name: 'user-presentations',
           component: () => import('@/views/user/user-presentations.vue'),
         },
         {
           path: 'resume',
-          name: 'userpage-resume',
+          name: 'user-resume',
           component: () => import('@/views/user/user-resume.vue'),
         },
       ],

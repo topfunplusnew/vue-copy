@@ -268,10 +268,10 @@ function toggleFollowUser(follower: IUser) {
 
 // 路由菜单
 const menuItems = [
-  { name: 'Home', route: 'userpage-home' },
-  { name: 'Blogs', route: 'userpage-blogs' },
-  { name: 'My Presentations', route: 'userpage-presentations' },
-  { name: 'Resume (PDF)', route: 'userpage-resume' },
+  { name: 'Home', route: 'user-home' },
+  { name: 'Blogs', route: 'user-blogs' },
+  { name: 'My Presentations', route: 'user-presentations' },
+  { name: 'Resume (PDF)', route: 'user-resume' },
 ];
 
 // 导航到指定路由
