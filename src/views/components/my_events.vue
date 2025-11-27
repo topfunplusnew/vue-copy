@@ -614,8 +614,8 @@ const handleNoteModalClose = () => {
               <img :src="getImageUrl(myPaperDetailInfo.conference.logo)" alt="Conference Logo" />
             </div>
             <div class="conference-info">
-              <router-link v-if="myPaperDetailInfo?.conference.id" :to="{name:'FeaturedEvents',params:{conferenceId:myPaperDetailInfo?.conference.id}}" class="conference-name">{{ myPaperDetailInfo?.conference.abbreviation }}</router-link>
-              <div class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</div>
+              <router-link v-if="myPaperDetailInfo?.conference.id" :to="{name:'FeaturedEvents',params:{conferenceId:myPaperDetailInfo?.conference.id}}" class="conference-full-name">{{ myPaperDetailInfo?.conference.name }}</router-link>
+              
             </div>
           </div>
           <div class="meta">

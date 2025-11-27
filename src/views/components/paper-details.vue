@@ -379,8 +379,8 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                 <img :src="getImageUrl(paperDetail.conference.logo)" :alt="paperDetail.conference.abbreviation" />
               </div>
               <div class="conference-info">
-                <router-link v-if="paperDetail?.conference.id" :to="{name:'FeaturedEvents',params:{conferenceId:paperDetail?.conference.id}}" class="conference-name">{{ paperDetail?.conference?.abbreviation }}</router-link>
-                <div class="conference-full-name">{{ paperDetail?.conference?.name }}</div>
+                <router-link v-if="paperDetail?.conference.id" :to="{name:'FeaturedEvents',params:{conferenceId:paperDetail?.conference.id}}" class="conference-full-name">{{ paperDetail?.conference?.name }}</router-link>
+            
               </div>
             </div>
             <div class="meta">
