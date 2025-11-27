@@ -87,3 +87,65 @@ export interface PaperCommentResponse {
   /** 评论信息 */
   comment: Comment;
 }
+
+/**
+ * 论文笔记请求数据（创建/更新共用）
+ */
+export interface PaperNoteData {
+  /** 笔记内容 */
+  content: string;
+}
+
+/**
+ * 论文笔记信息
+ */
+export interface PaperNote {
+  /** 笔记ID */
+  id: number;
+  /** 论文ID */
+  paper_id: number;
+  /** 用户ID */
+  user_id: number;
+  /** 笔记标题（可选） */
+  title?: string | null;
+  /** 笔记内容 */
+  content: string;
+  /** 创建时间 */
+  created_at: string;
+  /** 更新时间 */
+  updated_at: string;
+}
+
+/**
+ * 获取论文笔记列表响应数据
+ */
+export interface GetPaperNotesResponse {
+  /** 笔记列表 */
+  items: PaperNote[];
+  /** 总数 */
+  total: number;
+  /** 当前页码 */
+  page: number;
+  /** 每页数量 */
+  per_page: number;
+  /** 总页数 */
+  pages: number;
+}
+
+/**
+ * 获取单篇论文笔记响应数据
+ */
+export interface GetPaperNoteResponse {
+  /** 笔记信息 */
+  note: PaperNote;
+}
+
+/**
+ * 论文笔记操作响应数据（创建/更新）
+ */
+export interface PaperNoteResponse {
+  /** 响应消息 */
+  message: string;
+  /** 笔记信息 */
+  note: PaperNote;
+}

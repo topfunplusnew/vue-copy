@@ -1,5 +1,5 @@
 import { http } from '../http';
-import type { GetPaperViewHistoryParams, AddPaperViewHistoryData, UploadBioPdfData, UpdateUserProfileData, UserProfileData } from './type';
+import type { GetPaperViewHistoryParams, AddPaperViewHistoryData, UploadBioPdfData, UpdateUserProfileData, UserProfileData, MyConferencesResponse, UserAchievementsResponse } from './type';
 
 /**
  * 获取忘记密码验证码
@@ -118,4 +118,37 @@ export const updateUserProfile = (data: UpdateUserProfileData) =>
     headers: {
       'Content-Type': 'application/json',
     },
+  });
+
+/**
+ * 获取我的会议列表
+ * @param params 查询参数（可选）
+ * @param params.page 页码（可选，默认：1）
+ * @param params.per_page 每页数量（可选，默认：20）
+ * @param params.include_papers 是否包含论文信息（可选，默认：true）
+ * @param params.sort_by 排序字段（可选，默认：start_time）
+ * @param params.sort_order 排序顺序（可选，默认：desc）
+ * @returns Promise 返回我的会议列表
+ */
+export const getMyConferences = (params?: {
+  page?: number;
+  per_page?: number;
+  include_papers?: boolean;
+  sort_by?: 'start_time' | 'end_time' | 'created_at' | 'name';
+  sort_order?: 'asc' | 'desc';
+}) =>
+  http.request<MyConferencesResponse>({
+    method: 'GET',
+    url: '/my-conferences',
+    params,
+  });
+
+/**
+ * 获取用户成就
+ * @returns Promise 返回用户成就数据
+ */
+export const getUserAchievements = () =>
+  http.request<UserAchievementsResponse>({
+    method: 'GET',
+    url: '/user/achievements',
   });

@@ -194,7 +194,7 @@ function formatFirstLetterUppercase(str: string): string {
             </div>
             <div class="conference-info">
               <div class="conference-name">{{ selectedConference?.name }}</div>
-              <div class="conference-full-name">{{ selectedConference?.abbreviation }}</div>
+              <!-- <div class="conference-full-name">{{ selectedConference?.abbreviation }}</div> -->
 
               <div class="conference-details">
                 <div class="detail-row">
@@ -214,9 +214,9 @@ function formatFirstLetterUppercase(str: string): string {
           </div>
 
           <div class="conference-links">
-            <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span> Official Website </a>
+            <!-- <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span> Official Website </a> -->
             <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span class="link-icon">👥</span> Committee </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span class="link-icon">📝</span> Registration </a>
+            <!-- <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span class="link-icon">📝</span> Registration </a> -->
             <router-link :to="{ name: 'ConferenceSessions', params: { conferenceId: selectedConference?.id } }" class="conf-link"> <span class="link-icon">📋</span> View Sessions </router-link>
           </div>
 

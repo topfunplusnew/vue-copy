@@ -430,7 +430,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
 
               <!-- Graphical Abstract (Mobile only) -->
               <div class="graphical-abstract-mobile" v-if="paperDetail?.graphic_abstract?.length">
-                <div class="mobile-title">Graphical Abstract</div>
+                
                 <template v-for="graphical in paperDetail?.graphic_abstract" :key="graphical">
                   <img :src="getImageUrl(graphical)" alt="Graphical Abstract" class="graphical-abstract-image-mobile" />
                 </template>
@@ -504,7 +504,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
                 <button :class="{ active: activeTab === 'additional' }"
                   @click="paperDetail?.addition_files.length && switchTab('additional')"
                   :disabled="!paperDetail?.addition_files.length">
-                  Additional Info
+                  More Info
                 </button>
                 <router-link :to="{ name: 'MyEventDetail', params: { paperId: paperId.valueOf() } }"
                   v-if="paperDetail?.can_edit">
@@ -516,7 +516,7 @@ const getFlattenedReplies = (replies: Comment[] | undefined): Array<{ reply: Com
             <div class="tab-content">
               <div v-if="activeTab === 'details'" class="details-content">
                 <div class="detail-item">
-                  <h5>Digital Object Identifier</h5>
+                  <h5>DOI</h5>
                   <p>{{ paperDetail?.doi }}</p>
                 </div>
                 <div class="detail-item">

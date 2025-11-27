@@ -9,6 +9,38 @@ export const auth = new Auth();
 let loginExpiredMessageShown = false;
 const MESSAGE_THROTTLE_TIME = 1000; // 1秒内不重复显示
 
+// HTTP 状态 code corresponding friendly error messages
+function getFriendlyErrorMessage(status: number, defaultMessage?: string): string {
+  const statusMessages: Record<number, string> = {
+    400: 'Invalid request parameters, please check your input',
+    401: 'Login expired, please login again',
+    403: 'No permission to access this resource',
+    404: 'Requested resource not found, please contact administrator',
+    405: 'Request method not allowed, please contact administrator',
+    408: 'Request timeout, please try again later',
+    409: 'Resource conflict, please check and try again',
+    413: 'Request data too large, please reduce data size',
+    414: 'Request URL too long',
+    415: 'Unsupported media type',
+    422: 'Request parameter validation failed, please check your input',
+    429: 'Too many requests, please try again later',
+    500: 'Internal server error, please contact administrator!',
+    501: 'Server does not support this feature',
+    502: 'Gateway error, please try again later',
+    503: 'Service temporarily unavailable, please try again later',
+    504: 'Gateway timeout, please try again later',
+    505: 'HTTP version not supported',
+  };
+
+  // If it's a 5xx error, return server error message
+  if (status >= 500 && status < 600) {
+    return statusMessages[status] || 'Internal server error, please contact administrator!';
+  }
+
+  // Return corresponding friendly message, or use default message or generic message
+  return statusMessages[status] || defaultMessage || 'Request failed, please try again later';
+}
+
 // 判断请求路径是否在排除列表中
 function shouldSkipErrorMessage(error: unknown): boolean {
   const axiosError = error as {
@@ -69,33 +101,58 @@ http.interceptors.response.use(
   },
   (error) => {
     console.log(`error`, error);
-    if (error && error.response && error.response.status === 401) {
-      // 登录失效 - 避免短时间内重复显示错误消息
-      // 检查是否在排除列表中，如果是则不显示错误消息
+    
+    if (error && error.response) {
+      const status = error.response.status;
+      const responseData = error.response.data;
+      
+      // 获取友好的错误提示信息
+      const friendlyMessage = getFriendlyErrorMessage(
+        status,
+        responseData?.error || responseData?.message || error.message
+      );
+
+      if (status === 401) {
+        // 登录失效 - 避免短时间内重复显示错误消息
+        // 检查是否在排除列表中，如果是则不显示错误消息
+        if (!shouldSkipErrorMessage(error) && !loginExpiredMessageShown) {
+          loginExpiredMessageShown = true;
+          ElMessage.error(friendlyMessage);
+
+          // 设置定时器，1秒后允许再次显示错误消息
+          setTimeout(() => {
+            loginExpiredMessageShown = false;
+          }, MESSAGE_THROTTLE_TIME);
+        }
+        auth.del();
+      } else if (status !== 200) {
+        // 其他错误 - 避免短时间内重复显示错误消息
+        // 检查是否在排除列表中，如果是则不显示错误消息
+        if (!shouldSkipErrorMessage(error) && !loginExpiredMessageShown) {
+          loginExpiredMessageShown = true;
+          ElMessage.error(friendlyMessage);
+
+          // 设置定时器，1秒后允许再次显示错误消息
+          setTimeout(() => {
+            loginExpiredMessageShown = false;
+          }, MESSAGE_THROTTLE_TIME);
+        }
+      }
+    } else if (error && !error.response) {
+      // Network error or other non-HTTP errors
       if (!shouldSkipErrorMessage(error) && !loginExpiredMessageShown) {
         loginExpiredMessageShown = true;
-        ElMessage.error(error.response.data.error || error.message);
+        const networkError = error.code === 'ECONNABORTED' 
+          ? 'Request timeout, please check your network connection' 
+          : 'Network error, please check your network connection and try again';
+        ElMessage.error(networkError);
 
-        // 设置定时器，1秒后允许再次显示错误消息
         setTimeout(() => {
           loginExpiredMessageShown = false;
         }, MESSAGE_THROTTLE_TIME);
       }
-      auth.del();
     }
-    if (error && error.response && error.response.status !== 200 && error.response.status !== 401) {
-      // 其他错误 - 避免短时间内重复显示错误消息
-      // 检查是否在排除列表中，如果是则不显示错误消息
-      if (!shouldSkipErrorMessage(error) && !loginExpiredMessageShown) {
-        loginExpiredMessageShown = true;
-        ElMessage.error(error.response.data.error || error.message);
-
-        // 设置定时器，1秒后允许再次显示错误消息
-        setTimeout(() => {
-          loginExpiredMessageShown = false;
-        }, MESSAGE_THROTTLE_TIME);
-      }
-    }
+    
     return Promise.reject(error);
   },
 );

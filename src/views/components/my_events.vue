@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { ElMessage } from 'element-plus';
 import type { FormInstance, FormRules } from 'element-plus';
 import commonHeader from '@/layout/common-header.vue';
 import { useConferenceStore } from '@/stores/conference';
-import { convertUTCToTimezone, formatRange } from '@/utils/date';
+import { convertUTCToTimezone, formatRange, getUserTimezone } from '@/utils/date';
 import { getImageUrl } from '@/utils';
 import { updateMyPaperDetail } from '@/services/api';
 //, searchKeywords as searchKeywordsAPI
@@ -17,6 +17,9 @@ import { getFileTypeByTabKey } from '@/utils/conference.ts';
 import { getImageFormats, getVideoFormats } from '@/utils/file';
 // import SaveButton from '@/components/save-button.vue';
 import LatexContent from '@/components/latex-content.vue';
+import { DocumentAdd, Document } from '@element-plus/icons-vue';
+import { createPaperNote, getPaperNote, updatePaperNote } from '@/services/paper';
+import type { PaperNote } from '@/services/paper/type';
 
 const store = useConferenceStore();
 const route = useRoute();
@@ -40,10 +43,31 @@ const recordViewHistory = async (id: number) => {
   }
 };
 
+// 窗口大小变化处理
+const handleResize = () => {
+  const constrained = constrainPosition(noteButtonPosition.x, noteButtonPosition.y);
+  noteButtonPosition.x = constrained.x;
+  noteButtonPosition.y = constrained.y;
+};
+
 onMounted(async () => {
   await store.getMyPaper(paperId.value);
   // 记录浏览历史
   recordViewHistory(paperId.value);
+  // 查询 notes
+  await fetchPaperNote();
+  
+  // 监听窗口大小变化，确保按钮位置在窗口内
+  window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  // 清理拖动事件监听
+  document.removeEventListener('mousemove', onDragNote);
+  document.removeEventListener('mouseup', stopDragNote);
+  document.removeEventListener('touchmove', onDragNote);
+  document.removeEventListener('touchend', stopDragNote);
 });
 
 // 监听 paperId 变化，当路由参数变化时重新记录
@@ -52,6 +76,7 @@ watch(
   (newId) => {
     if (newId) {
       recordViewHistory(newId);
+      fetchPaperNote();
     }
   }
 );
@@ -432,6 +457,147 @@ function getAffiliationNumber(originalId: number): number {
   const affiliation = affiliations.value.find((aff) => aff.originalId === originalId);
   return affiliation ? affiliation.id : 0;
 }
+
+// Note 相关状态
+const noteModalVisible = ref(false);
+const noteContent = ref('');
+const currentNote = ref<PaperNote | null>(null);
+const noteLoading = ref(false);
+
+// 获取按钮尺寸
+const getButtonSize = () => window.innerWidth <= 768 ? 52 : 56;
+
+// 限制位置在窗口内
+const constrainPosition = (x: number, y: number) => {
+  const buttonSize = getButtonSize();
+  const maxX = window.innerWidth - buttonSize;
+  const maxY = window.innerHeight - buttonSize;
+  return {
+    x: Math.max(0, Math.min(x, maxX)),
+    y: Math.max(0, Math.min(y, maxY))
+  };
+};
+
+// 拖动相关状态
+const initialPos = constrainPosition(window.innerWidth - 100, 100);
+const noteButtonPosition = reactive({ x: initialPos.x, y: initialPos.y });
+const isDraggingNote = ref(false);
+const dragStartPos = reactive({ x: 0, y: 0 });
+const hasMoved = ref(false);
+
+// 开始拖动
+const startDragNote = (e: MouseEvent | TouchEvent) => {
+  hasMoved.value = false;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  dragStartPos.x = clientX - noteButtonPosition.x;
+  dragStartPos.y = clientY - noteButtonPosition.y;
+  document.addEventListener('mousemove', onDragNote);
+  document.addEventListener('mouseup', stopDragNote);
+  document.addEventListener('touchmove', onDragNote);
+  document.addEventListener('touchend', stopDragNote);
+};
+
+// 拖动中
+const onDragNote = (e: MouseEvent | TouchEvent) => {
+  e.preventDefault();
+  hasMoved.value = true;
+  isDraggingNote.value = true;
+  const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+  const newX = clientX - dragStartPos.x;
+  const newY = clientY - dragStartPos.y;
+  
+  // 限制在窗口内，确保按钮完全在视口内
+  const constrained = constrainPosition(newX, newY);
+  noteButtonPosition.x = constrained.x;
+  noteButtonPosition.y = constrained.y;
+};
+
+// 停止拖动
+const stopDragNote = (e?: MouseEvent | TouchEvent) => {
+  const wasMoving = hasMoved.value;
+  isDraggingNote.value = false;
+  
+  document.removeEventListener('mousemove', onDragNote);
+  document.removeEventListener('mouseup', stopDragNote);
+  document.removeEventListener('touchmove', onDragNote);
+  document.removeEventListener('touchend', stopDragNote);
+  
+  // 如果没有移动过，认为是点击，触发打开弹窗
+  if (!wasMoving && e) {
+    e.preventDefault();
+    e.stopPropagation();
+    setTimeout(() => {
+      noteContent.value = currentNote.value?.content || '';
+      noteModalVisible.value = true;
+    }, 10);
+  }
+  
+  hasMoved.value = false;
+};
+
+// Note 按钮点击处理函数（如果拖动过则不触发）
+function handleNoteButtonClick(e: MouseEvent | TouchEvent) {
+  // 如果拖动过则不触发点击
+  if (hasMoved.value) {
+    hasMoved.value = false;
+    return;
+  }
+  // 阻止事件冒泡
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+  noteContent.value = currentNote.value?.content || '';
+  noteModalVisible.value = true;
+}
+
+// 查询论文的 notes
+const fetchPaperNote = async () => {
+  if (!paperId.value) return;
+  try {
+    const response = await getPaperNote(paperId.value);
+    currentNote.value = response.data?.note || null;
+  } catch (error) {
+    // 如果不存在 notes，静默失败
+    currentNote.value = null;
+  }
+};
+
+
+// 创建/更新 notes
+const handleNoteSubmit = async () => {
+  if (!noteContent.value.trim()) {
+    ElMessage.warning('Please enter note content');
+    return;
+  }
+  noteLoading.value = true;
+  try {
+    if (currentNote.value) {
+      // 如果已存在，更新
+      await updatePaperNote(paperId.value, { content: noteContent.value });
+      ElMessage.success('Note updated successfully');
+    } else {
+      // 如果不存在，创建
+      await createPaperNote(paperId.value, { content: noteContent.value });
+      ElMessage.success('Note created successfully');
+    }
+    noteModalVisible.value = false;
+    await fetchPaperNote();
+  } catch (error) {
+    console.error('Failed to save note:', error);
+    ElMessage.error('Failed to save note, please try again');
+  } finally {
+    noteLoading.value = false;
+  }
+};
+
+// 关闭弹窗
+const handleNoteModalClose = () => {
+  noteModalVisible.value = false;
+  noteContent.value = '';
+};
 </script>
 
 <template>
@@ -536,7 +702,7 @@ function getAffiliationNumber(originalId: number): number {
                 <div class="schedule-details" v-if="myPaperDetailInfo && myPaperDetailInfo.session">
                   <div class="schedule-row">
                     <span class="schedule-label">📅 Date And Time:</span>
-                    <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time) }}</span>
+                    <span class="schedule-value">{{ convertUTCToTimezone(myPaperDetailInfo.session.start_time, getUserTimezone(), 'YYYY-MM-DD HH:mm:ss') }}</span>
                   </div>
                   <div class="schedule-row">
                     <span class="schedule-label">🏢 Room:</span>
@@ -573,7 +739,7 @@ function getAffiliationNumber(originalId: number): number {
             <button :class="{ active: activeTab === 'Key Point' }" @click="setActiveTab('Key Point')">Key Point</button>
             <button :class="{ active: activeTab === 'slides' }" @click="setActiveTab('slides')">Slides</button>
             <button :class="{ active: activeTab === 'poster' }" @click="setActiveTab('poster')">Poster</button>
-            <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">Additional
+            <button :class="{ active: activeTab === 'additional' }" @click="setActiveTab('additional')">More
               Info</button>
             <router-link :to="{ name: 'PaperDetail', params: { paperId: paperId } }">
               View Presentation
@@ -596,7 +762,7 @@ function getAffiliationNumber(originalId: number): number {
           <div v-if="activeTab === 'details'" class="tab-content">
             <el-form :model="formData" :rules="detailsRules" ref="detailsFormRef" label-position="top" class="form-grid"
               @submit.prevent>
-              <el-form-item label="Digital Object Identifier" prop="doi" class="form-item">
+              <el-form-item label="DOI" prop="doi" class="form-item">
                 <el-input v-model="formData.doi" :placeholder="`${myPaperDetailInfo?.doi ?? ''}`" clearable  @change="saveDetails()"/>
               </el-form-item>
               <el-form-item label="Abstract" class="form-item full">
@@ -773,6 +939,42 @@ function getAffiliationNumber(originalId: number): number {
         </div>
       </div>
     </div>
+
+    <!-- Note 弹窗 -->
+    <el-dialog
+      v-model="noteModalVisible"
+      :title="currentNote ? 'Edit Note' : 'Add Note'"
+      width="500px"
+      class="note-dialog"
+      @close="handleNoteModalClose"
+    >
+      <el-input
+        v-model="noteContent"
+        type="textarea"
+        :rows="6"
+        placeholder="Please enter your note content"
+        maxlength="1000"
+        show-word-limit
+      />
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleNoteModalClose">Cancel</el-button>
+          <el-button type="primary" @click="handleNoteSubmit" :loading="noteLoading">
+            Confirm
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 可拖动的 Note 按钮 -->
+    <el-button
+      class="draggable-note-button"
+      :style="{ left: `${noteButtonPosition.x}px`, top: `${noteButtonPosition.y}px` }"
+      @mousedown="startDragNote"
+      @touchstart="startDragNote"
+    >
+      <el-icon class="note-icon"><Document v-if="currentNote" /><DocumentAdd v-else /></el-icon>
+    </el-button>
   </div>
 </template>
 
@@ -1080,5 +1282,68 @@ function getAffiliationNumber(originalId: number): number {
   margin: 4px 0 0;
   font-size: 14px;
   color: #666;
+}
+
+// Note 弹窗样式
+:deep(.note-dialog) {
+  @include screen-mobile {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    margin: 0 auto !important;
+    left: 45% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    .el-dialog__body {
+      padding: 15px;
+    }
+
+    .el-dialog__header {
+      padding: 15px 15px 10px;
+    }
+
+    .el-dialog__footer {
+      padding: 10px 15px 15px;
+    }
+  }
+}
+
+// 可拖动的 Note 按钮
+.draggable-note-button {
+  position: fixed;
+  width: 56px !important;
+  height: 56px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000;
+  cursor: move;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: box-shadow 0.3s;
+  user-select: none;
+  -webkit-user-select: none;
+
+  &:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  .note-icon {
+    font-size: 28px;
+  }
+
+  @include screen-mobile {
+    width: 52px !important;
+    height: 52px !important;
+
+    .note-icon {
+      font-size: 26px;
+    }
+  }
 }
 </style>

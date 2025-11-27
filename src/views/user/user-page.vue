@@ -10,8 +10,9 @@ import type { IUser } from '@/types/user';
 import { formatDate } from '@/utils/date';
 import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
-import { getUserProfile, updateUserProfile, uploadBioPdf } from '@/services/user';
+import { getUserProfile, updateUserProfile } from '@/services/user';
 import type { UpdateUserProfileData } from '@/services/user/type';
+import { getUserTimezone } from '@/utils/date';
 
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -161,93 +162,9 @@ function cancelProfileEdit() {
   editForm.bio = '';
   editForm.homepage = '';
   editForm.orcid = '';
-  bioPdfFile.value = null;
-  bioPdfFileName.value = '';
-  uploadingBioPdf.value = false;
   showEditProfile.value = false;
 }
 
-// 简历PDF上传相关状态
-const bioPdfFile = ref<File | null>(null);
-const bioPdfFileName = ref('');
-const uploadingBioPdf = ref(false);
-const bioPdfInputRef = ref<HTMLElement | null>(null);
-
-// 处理简历PDF上传
-function handleBioPdfUpload(event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files ? target.files[0] : null;
-  
-  if (!file) {
-    return;
-  }
-
-  // 判断是否为PDF文件
-  const fileExtension = file.name.split('.').pop()?.toLowerCase();
-  if (fileExtension !== 'pdf') {
-    ElMessage.error('Please upload a PDF file');
-    // 清空input
-    if (target) {
-      target.value = '';
-    }
-    return;
-  }
-
-  // 检查文件大小（可选，例如限制10MB）
-  const maxSize = 10 * 1024 * 1024; // 10MB
-  if (file.size > maxSize) {
-    ElMessage.error('File size should not exceed 10MB');
-    if (target) {
-      target.value = '';
-    }
-    return;
-  }
-
-  bioPdfFile.value = file;
-  bioPdfFileName.value = file.name;
-  
-  // 立即上传
-  uploadBioPdfFile();
-}
-
-// 上传简历PDF文件
-function uploadBioPdfFile() {
-  if (!bioPdfFile.value) {
-    return;
-  }
-
-  uploadingBioPdf.value = true;
-  uploadBioPdf({ file: bioPdfFile.value })
-    .then(() => {
-      ElMessage.success('Resume uploaded successfully');
-      bioPdfFileName.value = bioPdfFile.value?.name || '';
-    })
-    .catch((error) => {
-      console.error('Failed to upload resume:', error);
-      ElMessage.error('Failed to upload resume, please try again later');
-      bioPdfFile.value = null;
-      bioPdfFileName.value = '';
-    })
-    .finally(() => {
-      uploadingBioPdf.value = false;
-    });
-}
-
-// 触发文件选择
-function triggerBioPdfUpload() {
-  if (bioPdfInputRef.value) {
-    bioPdfInputRef.value.click();
-  }
-}
-
-// 删除已选择的简历文件
-function removeBioPdf() {
-  bioPdfFile.value = null;
-  bioPdfFileName.value = '';
-  if (bioPdfInputRef.value) {
-    (bioPdfInputRef.value as HTMLInputElement).value = '';
-  }
-}
 
 // 在编辑页面上传头像
 function handleEditAvatarUpload(event: Event) {
@@ -351,8 +268,10 @@ function toggleFollowUser(follower: IUser) {
 
 // 路由菜单
 const menuItems = [
+  { name: 'Home', route: 'userpage-home' },
   { name: 'Blogs', route: 'userpage-blogs' },
   { name: 'My Presentations', route: 'userpage-presentations' },
+  { name: 'Resume (PDF)', route: 'userpage-resume' },
 ];
 
 // 导航到指定路由
@@ -364,6 +283,16 @@ const navigateTo = (routeName: string) => {
 const isActiveRoute = (routeName: string) => {
   return route.name === routeName;
 };
+
+// 获取用户当前时区
+const userTimezone = computed(() => getUserTimezone());
+
+// 格式化时区显示（将时区名称转换为更友好的格式）
+const formattedTimezone = computed(() => {
+  const tz = userTimezone.value;
+  // 将时区名称中的下划线替换为空格，并美化显示
+  return tz.replace(/_/g, ' ');
+});
 </script>
 
 <template>
@@ -378,7 +307,7 @@ const isActiveRoute = (routeName: string) => {
         <aside class="sidebar" :class="{ 'wallet-connected': isWalletConnected }">
           <div class="profile-buttons">
             <button class="edit-profile-btn" @click="openEditProfile">EDIT PROFILE</button>
-            <button class="logout-btn" @click="handleLogout">LOGOUT</button>
+            <!-- <button class="logout-btn" @click="handleLogout">LOGOUT</button> -->
           </div>
           <div class="user-info">
             <div class="avatar-section">
@@ -392,6 +321,10 @@ const isActiveRoute = (routeName: string) => {
             </div>
             <div class="username">{{ user?.name }}</div>
             <div class="user-id">ID: {{ user?.id }}</div>
+            <div class="user-timezone">
+              <span class="timezone-icon">🕐</span>
+              <span class="timezone-text">{{ formattedTimezone }}</span>
+            </div>
             <div class="user-institution">MUST</div>
             <!-- <div class="registration-time">Joined: {{ user?.created_at }}</div> -->
             <!-- Likes / Coins -->
@@ -428,13 +361,18 @@ const isActiveRoute = (routeName: string) => {
               </div>
             </div>
           </div>
+
+          <!-- 移动端：内容区放在 sidebar 内 -->
+          <div class="content-area mobile-content-area">
+            <router-view />
+          </div>
         </aside>
 
         <!-- 垂直分割线，与 sidebar 同高 (100vh) -->
         <div class="vertical-divider-us"></div>
 
-        <!-- 右侧内容区，使用 router-view 显示子路由 -->
-        <div class="content-area">
+        <!-- 桌面端：右侧内容区，使用 router-view 显示子路由 -->
+        <div class="content-area desktop-content-area">
           <router-view />
         </div>
       </section>
@@ -521,27 +459,6 @@ const isActiveRoute = (routeName: string) => {
               <div class="form-group">
                 <label>ORCID</label>
                 <input v-model="editForm.orcid" type="text" placeholder="Enter your ORCID" />
-              </div>
-              <div class="form-group">
-                <label>Resume (PDF)</label>
-                <div class="bio-pdf-upload">
-                  <input
-                    ref="bioPdfInputRef"
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    style="display: none"
-                    @change="handleBioPdfUpload"
-                  />
-                  <div v-if="!bioPdfFileName" class="upload-placeholder">
-                    <el-button @click="triggerBioPdfUpload" :loading="uploadingBioPdf">
-                      {{ uploadingBioPdf ? 'Uploading...' : 'Upload Resume PDF' }}
-                    </el-button>
-                  </div>
-                  <div v-else class="uploaded-file">
-                    <span class="file-name">{{ bioPdfFileName }}</span>
-                    <el-button size="small" @click="removeBioPdf">Remove</el-button>
-                  </div>
-                </div>
               </div>
             </div>
             <div class="edit-buttons">
@@ -650,12 +567,49 @@ const isActiveRoute = (routeName: string) => {
   font-weight: 500;
 }
 
+/* 时区显示样式 */
+.user-timezone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0;
+  padding: 6px 12px;
+  background-color: transparent;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+}
+
+.timezone-icon {
+  font-size: 16px;
+}
+
+.timezone-text {
+  font-weight: 500;
+  color: #333;
+}
+
 /* 内容区域样式 */
 .content-area {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+/* 桌面端显示，移动端隐藏 */
+.desktop-content-area {
+  display: flex;
+}
+
+/* 移动端显示，桌面端隐藏 */
+.mobile-content-area {
+  display: none;
+  width: 100%;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* 移动端响应式样式 */
@@ -679,18 +633,53 @@ const isActiveRoute = (routeName: string) => {
   .sidebar {
     width: 100% !important;
     max-width: 100% !important;
+    min-height: 100vh !important;
   }
 
   /* 主内容区域在移动端垂直布局 */
   .main-content {
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
   }
 
-  /* 内容区域在移动端占满宽度 */
-  .content-area {
+  /* 移动端：隐藏桌面端内容区域 */
+  .desktop-content-area {
+    display: none !important;
+  }
+
+  /* 移动端：显示 sidebar 内的内容区域 */
+  .mobile-content-area {
+    display: flex !important;
+    flex-direction: column;
     width: 100%;
-    padding: 0 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-left: 0;
+    padding-right: 0;
+    overflow: visible;
+  }
+
+  /* 隐藏垂直分割线 */
+  .vertical-divider-us {
+    display: none;
+  }
+
+  /* 移动端 sidebar 需要包含内容区域 */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 时区显示在移动端调整 */
+  .user-timezone {
+    font-size: 12px;
+    padding: 5px 10px;
+    margin: 6px 0;
+  }
+
+  .timezone-icon {
+    font-size: 14px;
   }
 }
 </style>
