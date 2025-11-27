@@ -812,7 +812,7 @@ watch(selectedLocation, () => {
       </div>
 
       <!-- 社交帖子模块 -->
-      <section class="social-feed">
+      <section class="social-feed" v-if="false">
         <div class="social-header">
           <!-- 标题单独一行 -->
           <div class="social-header-text">Explore iPoloGO Community</div>
