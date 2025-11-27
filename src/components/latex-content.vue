@@ -5,7 +5,7 @@
       <div v-if="!props.latex" class="latex-placeholder">{{ placeholder || 'Click to Edit' }}</div>
       <div v-if="editable && props.latex" class="edit-hint">Click to Edit</div>
     </div>
-    <div v-else class="latex-edit-mode">
+    <div v-if="isEditing" class="latex-edit-mode">
       <el-input ref="textareaRef" v-model="editValue" type="textarea" :rows="rows"
         :placeholder="placeholder || 'Please input Markdown content (LaTeX formulas are supported)...'"
         resize="vertical" class="latex-textarea" @blur="saveEdit"/>
@@ -314,14 +314,18 @@ const cancelEdit = () => {
   box-sizing: border-box;
   .latex-textarea {
     width: 100%;
-
+        
     margin-bottom: 12px;
     box-sizing: border-box;
 
     :deep(.el-textarea__inner) {
+      font-size: 16px !important;
       width: 100% !important;
       max-width: 100%;
       box-sizing: border-box;
+     @include screen-mobile{
+      font-size: 14px !important;
+     }
     }
   }
 
@@ -329,6 +333,7 @@ const cancelEdit = () => {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    
   }
 }
 </style> 

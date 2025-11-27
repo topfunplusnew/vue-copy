@@ -269,22 +269,6 @@ const handleClickOutside = (event: Event) => {
           <router-link :to="{ name: 'signup' }" class="nav-btn">SIGN UP</router-link>
         </template>
       </nav>
-      <div class="font-controller">
-        <!-- 汉堡按钮 -->
-        <div class="hamburger" @click.stop="fontControllerActive = !fontControllerActive">
-          {{ fontControllerActive ? '✕' : '☰' }}
-        </div>
-
-        <!-- 按钮组 -->
-        <div class="control-font" :class="{ open: fontControllerActive }">
-          <button @click.stop="handleFontSizeChange('large')" :class="{ active: activeFontSize === 'large' }"
-            data-size="large">big</button>
-          <button @click.stop="handleFontSizeChange('medium')" :class="{ active: activeFontSize === 'medium' }"
-            data-size="medium">medium</button>
-          <button @click.stop="handleFontSizeChange('small')" :class="{ active: activeFontSize === 'small' }"
-            data-size="small">small</button>
-        </div>
-      </div>
     </div>
   </header>
 
