@@ -475,7 +475,7 @@ header.layout {
       align-items: center;
       position: relative;
       gap: rpx(15);
-
+      padding:0px;
       // 显示移动端导航区域 - 居中显示
       .mobile-nav {
         display: flex;
