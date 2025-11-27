@@ -125,10 +125,10 @@ function registerInterest(conferenceId: number) {
 
 function openPaperModal(paper: SelectedPaperLite) {
   // 跳转到论文详情页
-router.push({
-  name: 'PaperDetail',
-  params: { paperId: paper.id }
-});
+  router.push({
+    name: 'PaperDetail',
+    params: { paperId: paper.id }
+  });
 
 }
 
@@ -155,24 +155,22 @@ function formatFirstLetterUppercase(str: string): string {
         <div class="selector-header">
           <h2>Featured Conferences</h2>
           <div class="conference-search-container">
-            <input v-model="conferenceSearchQuery" type="text" placeholder="Search conferences by name..." class="conference-search-input" @keyup.enter="searchConferences()" />
+            <input v-model="conferenceSearchQuery" type="text" placeholder="Search conferences by name..."
+              class="conference-search-input" @keyup.enter="searchConferences()" />
             <el-button icon="Search" class="conference-search-btn" @click="searchConferences()" />
           </div>
           <div v-if="conferenceStats.isSearching" class="stats">
-            <span class="stat-item"> {{ conferenceStats.totalConferences }} Conferences Searched , {{ conferenceStats.categories.length }} Categories Searched </span>
+            <span class="stat-item"> {{ conferenceStats.totalConferences }} Conferences Searched , {{
+              conferenceStats.categories.length }} Categories Searched </span>
           </div>
         </div>
 
         <div class="conference-list">
-          <router-link
-            v-for="conf in featuredConferences"
-            :key="conf.id"
-            :class="['conference-card', { active: selectedConference?.id === conf.id }]"
-            :to="{
+          <router-link v-for="conf in featuredConferences" :key="conf.id"
+            :class="['conference-card', { active: selectedConference?.id === conf.id }]" :to="{
               name: 'FeaturedEvents',
               params: { conferenceId: conf.id },
-            }"
-          >
+            }">
             <div class="card-logo">
               <img :src="getImageUrl(conf.logo)" :alt="conf.abbreviation" />
             </div>
@@ -199,14 +197,18 @@ function formatFirstLetterUppercase(str: string): string {
               <div class="conference-details">
                 <div class="detail-row">
                   <span class="detail-icon">📅</span>
-                  <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time) }}</span>
-                </div>
-                <div class="detail-row">
+                  <span class="detail-text">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
+                    }}</span>
                   <span class="detail-icon">📍</span>
                   <span class="detail-text">{{ selectedConference?.city }}, {{ selectedConference?.country }}</span>
+
                 </div>
                 <div class="detail-row">
-                  <span class="detail-icon">🏢</span>
+                </div>
+                <div class="detail-row">
+                  <span class="icon iconfont">&#xe7b0;</span>
+                  <span class="icon iconfont">&#xe616; </span>
+
                   <span class="detail-text">{{ selectedConference?.address }}</span>
                 </div>
               </div>
@@ -215,9 +217,11 @@ function formatFirstLetterUppercase(str: string): string {
 
           <div class="conference-links">
             <!-- <a :href="selectedConference?.website" target="_blank" class="conf-link"> <span class="link-icon">🌐</span> Official Website </a> -->
-            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span class="link-icon">👥</span> Committee </a>
+            <a :href="selectedConference?.committee_website" target="_blank" class="conf-link"> <span
+                class="link-icon">👥</span> Committee </a>
             <!-- <a :href="selectedConference?.registration_website" target="_blank" class="conf-link"> <span class="link-icon">📝</span> Registration </a> -->
-            <router-link :to="{ name: 'ConferenceSessions', params: { conferenceId: selectedConference?.id } }" class="conf-link"> <span class="link-icon">📋</span> View Sessions </router-link>
+            <router-link :to="{ name: 'ConferenceSessions', params: { conferenceId: selectedConference?.id } }"
+              class="conf-link"> <span class="link-icon">📋</span> View Sessions </router-link>
           </div>
 
           <!-- Conference Description -->
@@ -258,7 +262,8 @@ function formatFirstLetterUppercase(str: string): string {
                 <div class="date-icon">🎯</div>
                 <div class="date-info">
                   <div class="date-label">Conference Dates</div>
-                  <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time) }}</div>
+                  <div class="date-value">{{ formatRange(selectedConference?.start_time, selectedConference?.end_time)
+                    }}</div>
                 </div>
               </div>
             </div>
@@ -266,12 +271,14 @@ function formatFirstLetterUppercase(str: string): string {
 
           <!-- Action Buttons -->
           <div class="action-buttons">
-            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)" class="interest-btn"
-              ><span class="btn-icon">💡</span>
+            <el-button :loading="addFavorLoading" @click="registerInterest(selectedConference!.id)"
+              class="interest-btn"><span class="btn-icon">💡</span>
               {{ isLoggedIn ? 'Add to Favourite' : 'Login To Add Favourite' }}
             </el-button>
-            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span> Visit Website </a>
-            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span class="btn-icon">📝</span> Register Now </a>
+            <a :href="selectedConference?.website" target="_blank" class="visit-btn"> <span class="btn-icon">🔗</span>
+              Visit Website </a>
+            <a :href="selectedConference?.registration_website" target="_blank" class="register-btn"> <span
+                class="btn-icon">📝</span> Register Now </a>
           </div>
         </header>
 
@@ -280,7 +287,9 @@ function formatFirstLetterUppercase(str: string): string {
           <div class="papers-header">
             <h3>Conference Papers</h3>
             <div class="search-container">
-              <input v-model="searchQuery" type="text" placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input" @keyup.enter="seachPaper()" />
+              <input v-model="searchQuery" type="text"
+                placeholder="Search papers by title, author, institution, or keywords..." class="paper-search-input"
+                @keyup.enter="seachPaper()" />
               <el-button icon="Search" class="search-btn" @click="seachPaper()" />
             </div>
           </div>
@@ -288,11 +297,11 @@ function formatFirstLetterUppercase(str: string): string {
           <div class="papers-list">
             <div v-for="paper in conferencePapers" :key="paper.id" class="paper-item" @click="openPaperModal(paper)">
               <div class="paper-title">
-                <span class="paper-title-text" :class="{ 'paper-full': paper.full_text, 'paper-video': paper.video }">{{ paper.paper_title }}</span>
+                <span class="paper-title-text" :class="{ 'paper-full': paper.full_text, 'paper-video': paper.video }">{{
+                  paper.paper_title }}</span>
               </div>
               <template v-for="(authors, index) in paper.paper_authors" :key="authors.id">
-                <span class="paper-authors"
-                  ><span class="author">{{ authors.name }}</span>
+                <span class="paper-authors"><span class="author">{{ authors.name }}</span>
                   <span v-if="index < paper.paper_authors.length - 1">,</span>
                 </span>
                 <!-- <div class="paper-institutions">{{ authors.affiliation }}</div> -->

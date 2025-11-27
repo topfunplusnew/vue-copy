@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "11057538",
+      "name": "澳门",
+      "font_class": "aomen3",
+      "unicode": "e7b0",
+      "unicode_decimal": 59312
+    },
+    {
+      "icon_id": "6341842",
+      "name": "中文",
+      "font_class": "zhongwen",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
       "icon_id": "43802392",
       "name": "69_F03A__list",
       "font_class": "a-69_F03A__list",

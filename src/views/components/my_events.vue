@@ -693,7 +693,8 @@ const handleNoteModalClose = () => {
                       myPaperDetailInfo?.conference.country }}</span>
                   </div>
                   <div class="detail-row">
-                    <span class="detail-icon">🏢</span>
+                   <span class="icon iconfont">&#xe7b0;</span>
+                  <span class="icon iconfont">&#xe616; </span>
                     <span class="detail-text">{{ myPaperDetailInfo?.conference.address }}</span>
                   </div>
                 </div>
