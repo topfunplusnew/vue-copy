@@ -152,3 +152,28 @@ export const getUserAchievements = () =>
     method: 'GET',
     url: '/user/achievements',
   });
+
+/**
+ * 获取用户时区
+ * @returns Promise 返回用户时区数据
+ */
+export const getUserTimezone = () =>
+  http.request<{ timezone: string | null }>({
+    method: 'GET',
+    url: '/user/timezone',
+  });
+
+/**
+ * 设置用户时区
+ * @param timezone 时区字符串（如 'Asia/Shanghai'）
+ * @returns Promise
+ */
+export const updateUserTimezone = (timezone: string) =>
+  http.request<{ message: string; timezone: string }>({
+    method: 'PUT',
+    url: '/user/timezone',
+    data: { timezone },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });

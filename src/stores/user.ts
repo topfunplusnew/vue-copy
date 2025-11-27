@@ -5,6 +5,7 @@ import { userLogin, userProfile, accountActivate, userModify, userLogout, upload
   comment2Blog,comment2Comment,commentDel,comments,
   myblogedit,userFollow,userIsFollowing, userFollowings, userFollowers, userUnfollow, invitationAuth, joinWaitlist, 
   getMyNote,getManagers,getUserCustom,updateUserCustom} from '@/services/api';
+import { getUserTimezone, updateUserTimezone } from '@/services/user';
 import type { ILogin, IUser, IUserEdit, IUserSignup,IManager,IUserCustom } from '@/types/user';
 import type { IBlogPage, IBlog, IBlogEdit } from '@/types/blog';
 import { INIT_PAGINATION } from '@/types/service';
@@ -21,6 +22,7 @@ export const useUserStore = defineStore('user', () => {
   const notes = ref<INote[]>([]);
   const manager = ref<IManager[]>([]);
   const userCustom=ref<IUserCustom>()
+  const timezone = ref<string | null>(null)
 /* 
  * 获取用户note列表
 */
@@ -299,6 +301,29 @@ function getManagerList() {
   });
 }
 
+/**
+ * 获取用户时区
+ * @returns promise
+ */
+function getUserTimezoneInfo() {
+  return getUserTimezone().then((res) => {
+    timezone.value = res.data.timezone;
+    return res;
+  });
+}
+
+/**
+ * 更新用户时区
+ * @param tz 时区字符串
+ * @returns promise
+ */
+function updateUserTimezoneInfo(tz: string) {
+  return updateUserTimezone(tz).then((res) => {
+    timezone.value = res.data.timezone;
+    return res;
+  });
+}
+
 
 
   return {
@@ -311,6 +336,7 @@ function getManagerList() {
     followings,
     followers,
     manager,
+    timezone,
     // invitation
     invitation,
     joinWait,
@@ -342,6 +368,8 @@ function getManagerList() {
     getMyNoteList,
     getManagerList,
     getUserCustomInfo,
-    updateUserCustomInfo
+    updateUserCustomInfo,
+    getUserTimezoneInfo,
+    updateUserTimezoneInfo
   };
 });

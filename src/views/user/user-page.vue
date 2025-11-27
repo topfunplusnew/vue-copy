@@ -12,7 +12,8 @@ import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
 import { getUserProfile, updateUserProfile } from '@/services/user';
 import type { UpdateUserProfileData } from '@/services/user/type';
-import { getUserTimezone } from '@/utils/date';
+// @ts-expect-error - moment-timezone 类型定义问题
+import moment from 'moment-timezone';
 
 // 关闭博客详情弹出层
 const closeBlogDetail = () => {
@@ -37,6 +38,12 @@ onMounted(() => {
     editForm.name = data.name;
     editForm.avatar = data.avatar;
   });
+  
+  // 获取用户时区
+  store.getUserTimezoneInfo().then(({ data }) => {
+    selectedTimezone.value = data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  });
+  
   // 如果当前路由是 blogs，加载博客列表
   if (route.name === 'userpage-blogs') {
     store.getUserBlogList(true);
@@ -288,15 +295,26 @@ const isActiveRoute = (routeName: string) => {
   return route.name === routeName;
 };
 
-// 获取用户当前时区
-const userTimezone = computed(() => getUserTimezone());
-
-// 格式化时区显示（将时区名称转换为更友好的格式）
-const formattedTimezone = computed(() => {
-  const tz = userTimezone.value;
-  // 将时区名称中的下划线替换为空格，并美化显示
-  return tz.replace(/_/g, ' ');
+// 获取所有时区列表
+const timezoneOptions = computed(() => {
+  return moment.tz.names().map((tz: string) => ({
+    value: tz,
+    label: tz.replace(/_/g, ' ')
+  }));
 });
+
+// 选中的时区
+const selectedTimezone = ref<string>('');
+
+// 时区变更处理
+function handleTimezoneChange(value: string) {
+  store.updateUserTimezoneInfo(value).then(() => {
+    ElMessage.success('Timezone updated successfully');
+  }).catch((error) => {
+    console.error('Failed to update timezone:', error);
+    ElMessage.error('Failed to update timezone');
+  });
+}
 </script>
 
 <template>
@@ -323,7 +341,20 @@ const formattedTimezone = computed(() => {
             <div class="user-id">ID: {{ user?.id }}</div>
             <div class="user-timezone">
               <span class="timezone-icon">🕐</span>
-              <span class="timezone-text">{{ formattedTimezone }}</span>
+              <el-select
+                v-model="selectedTimezone"
+                placeholder="Select timezone"
+                filterable
+                @change="handleTimezoneChange"
+                class="timezone-select"
+              >
+                <el-option
+                  v-for="option in timezoneOptions"
+                  :key="option.value"
+                  :label="option.label"
+                  :value="option.value"
+                />
+              </el-select>
             </div>
             <div class="user-institution">MUST</div>
             <!-- <div class="registration-time">Joined: {{ user?.created_at }}</div> -->
@@ -586,9 +617,16 @@ const formattedTimezone = computed(() => {
   font-size: 16px;
 }
 
-.timezone-text {
-  font-weight: 500;
-  color: #333;
+.timezone-select {
+  flex: 1;
+  min-width: 0;
+}
+
+.timezone-select :deep(.el-input__inner) {
+  font-size: 14px;
+  padding: 4px 8px;
+  height: 32px;
+  line-height: 32px;
 }
 
 /* 内容区域样式 */

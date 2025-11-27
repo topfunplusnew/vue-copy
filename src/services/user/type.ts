@@ -82,6 +82,8 @@ export interface UserProfileData {
   orcid?: string;
   /** 简历PDF路径（可选） */
   bio_pdf?: string;
+  /** 时区（可选） */
+  timezone?: string | null;
 }
 
 /**
