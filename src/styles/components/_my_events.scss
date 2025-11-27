@@ -380,6 +380,9 @@
           font-size: utils.rpx(25);
           margin-bottom: 8px;
           color: #374151;
+          @include screen-mobile {
+            margin-bottom: 0px;
+          }
         }
 
         .authors {
