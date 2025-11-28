@@ -66,7 +66,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-          path: dist
+          path: .
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -97,13 +97,16 @@ jobs:
       - name: Deploy to Server via rsync
         run: |
           DEPLOY_PATH_REMOTE=$(ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'; echo \${DEPLOY_PATH/#\~/\$HOME}")
+            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'
+             DEPLOY_PATH=\${DEPLOY_PATH/#\~/\$HOME}
+             echo \$DEPLOY_PATH")
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='.DS_Store' \
+            --exclude='file-checksums.txt' \
             -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }}" \
             ./dist/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:\$DEPLOY_PATH_REMOTE/
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$DEPLOY_PATH_REMOTE/
 
       - name: Verify deployment
         run: |
