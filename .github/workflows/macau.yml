@@ -80,66 +80,68 @@ jobs:
           name: node-app
           path: .
 
-      - name: Setup SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
-
-      - name: Add server to known hosts
+      - name: Setup SSH key
         run: |
-          ssh-keyscan -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p ${{ secrets.DEPLOY_PORT || 22 }} \
+            -o StrictHostKeyChecking=no \
+            -o UserKnownHostsFile=~/.ssh/known_hosts \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "echo 'SSH connection successful'"
 
       - name: Backup current deployment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          script: |
-            if [ -d "${{ env.DEPLOY_PATH }}" ]; then
-              BACKUP_DIR="/data/backups/ipologo"
-              mkdir -p $BACKUP_DIR
-              BACKUP_FILE="$BACKUP_DIR/dist-$(date +%Y%m%d-%H%M%S).tar.gz"
-              tar -czf $BACKUP_FILE -C ${{ env.DEPLOY_PATH }} .
-              echo "Backup created: $BACKUP_FILE"
-              # 保留最近7个备份
-              ls -t $BACKUP_DIR/dist-*.tar.gz | tail -n +8 | xargs -r rm -f
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p ${{ secrets.DEPLOY_PORT || 22 }} \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "if [ -d '${{ env.DEPLOY_PATH }}' ]; then
+              BACKUP_DIR='/data/backups/ipologo'
+              mkdir -p \$BACKUP_DIR
+              BACKUP_FILE=\$BACKUP_DIR/dist-\$(date +%Y%m%d-%H%M%S).tar.gz
+              tar -czf \$BACKUP_FILE -C ${{ env.DEPLOY_PATH }} .
+              echo 'Backup created: '\$BACKUP_FILE
+              ls -t \$BACKUP_DIR/dist-*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm -f || true
             else
-              echo "Deploy path does not exist, skipping backup"
-            fi
+              echo 'Deploy path does not exist, skipping backup'
+            fi"
 
       - name: Deploy to Server via rsync (Incremental Update)
         run: |
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='.DS_Store' \
-            -e "ssh -p ${{ secrets.DEPLOY_PORT || 22 }} -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.DEPLOY_PORT || 22 }} -o StrictHostKeyChecking=no" \
             ./dist/ \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/
           echo "Deployment completed with incremental update"
 
       - name: Verify deployment on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          port: ${{ secrets.DEPLOY_PORT || 22 }}
-          script: |
-            echo "=== Deployment Verification ==="
-            echo ""
-            echo "Files in ${{ env.DEPLOY_PATH }}:"
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p ${{ secrets.DEPLOY_PORT || 22 }} \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "echo '=== Deployment Verification ==='
+            echo ''
+            echo 'Files in ${{ env.DEPLOY_PATH }}:'
             ls -lah ${{ env.DEPLOY_PATH }}/ | head -20
-            echo ""
-            echo "Total files:"
+            echo ''
+            echo 'Total files:'
             find ${{ env.DEPLOY_PATH }} -type f | wc -l
-            echo ""
-            echo "Directory size:"
+            echo ''
+            echo 'Directory size:'
             du -sh ${{ env.DEPLOY_PATH }}
-            echo ""
-            echo "Latest files modified:"
-            find ${{ env.DEPLOY_PATH }} -type f -printf '%T@ %p\n' | sort -n | tail -5 | awk '{print strftime("%Y-%m-%d %H:%M:%S", $1), $2}'
-            echo ""
-            echo "Nginx status:"
-            sudo systemctl status nginx --no-pager || true
+            echo ''
+            echo 'Latest files modified:'
+            find ${{ env.DEPLOY_PATH }} -type f -printf '%T@ %p\n' | sort -n | tail -5 | awk '{print strftime(\"%Y-%m-%d %H:%M:%S\", \$1), \$2}'
+            echo ''
+            echo 'Nginx status:'
+            sudo systemctl status nginx --no-pager || true"
