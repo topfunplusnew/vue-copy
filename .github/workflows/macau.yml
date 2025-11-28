@@ -96,56 +96,94 @@ jobs:
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
             "echo 'SSH connection successful'"
 
+      - name: Prepare server directories
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p ${{ secrets.DEPLOY_PORT || 22 }} \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "set -e
+             echo '=== Preparing server directories ==='
+             
+             # 创建部署目录
+             echo 'Creating deployment directory: ${{ env.DEPLOY_PATH }}'
+             if sudo mkdir -p ${{ env.DEPLOY_PATH }} 2>/dev/null; then
+               sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }}
+               sudo chmod 755 ${{ env.DEPLOY_PATH }}
+               echo '✓ Deployment directory created with sudo'
+             elif mkdir -p ${{ env.DEPLOY_PATH }} 2>/dev/null; then
+               chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }} 2>/dev/null || true
+               chmod 755 ${{ env.DEPLOY_PATH }} 2>/dev/null || true
+               echo '✓ Deployment directory created without sudo'
+             else
+               echo '✗ ERROR: Failed to create deployment directory'
+               exit 1
+             fi
+             
+             # 验证部署目录
+             if [ ! -d '${{ env.DEPLOY_PATH }}' ]; then
+               echo '✗ ERROR: Deployment directory does not exist after creation'
+               exit 1
+             fi
+             
+             # 创建备份目录
+             BACKUP_DIR='/data/backups/ipologo'
+             echo 'Creating backup directory: '\$BACKUP_DIR
+             if sudo mkdir -p \$BACKUP_DIR 2>/dev/null; then
+               sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} \$BACKUP_DIR
+               sudo chmod 755 \$BACKUP_DIR
+               echo '✓ Backup directory created with sudo'
+             elif mkdir -p \$BACKUP_DIR 2>/dev/null; then
+               chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} \$BACKUP_DIR 2>/dev/null || true
+               chmod 755 \$BACKUP_DIR 2>/dev/null || true
+               echo '✓ Backup directory created without sudo'
+             else
+               echo '⚠ WARNING: Failed to create backup directory, backup will be skipped'
+             fi
+             
+             echo '=== Directory preparation completed ==='"
+
       - name: Backup current deployment
         run: |
           ssh -i ~/.ssh/deploy_key \
             -p ${{ secrets.DEPLOY_PORT || 22 }} \
             -o StrictHostKeyChecking=no \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "if [ -d '${{ env.DEPLOY_PATH }}' ]; then
+            "if [ -d '${{ env.DEPLOY_PATH }}' ] && [ -n \"\$(ls -A ${{ env.DEPLOY_PATH }} 2>/dev/null)\" ]; then
               BACKUP_DIR='/data/backups/ipologo'
-              mkdir -p \$BACKUP_DIR
-              BACKUP_FILE=\$BACKUP_DIR/dist-\$(date +%Y%m%d-%H%M%S).tar.gz
-              tar -czf \$BACKUP_FILE -C ${{ env.DEPLOY_PATH }} .
-              echo 'Backup created: '\$BACKUP_FILE
-              ls -t \$BACKUP_DIR/dist-*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm -f || true
+              mkdir -p \$BACKUP_DIR 2>/dev/null || sudo mkdir -p \$BACKUP_DIR 2>/dev/null || true
+              if [ -w \$BACKUP_DIR ] || sudo test -w \$BACKUP_DIR; then
+                BACKUP_FILE=\$BACKUP_DIR/dist-\$(date +%Y%m%d-%H%M%S).tar.gz
+                if sudo tar -czf \$BACKUP_FILE -C ${{ env.DEPLOY_PATH }} . 2>/dev/null || tar -czf \$BACKUP_FILE -C ${{ env.DEPLOY_PATH }} . 2>/dev/null; then
+                  echo '✓ Backup created: '\$BACKUP_FILE
+                  ls -t \$BACKUP_DIR/dist-*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm -f 2>/dev/null || true
+                else
+                  echo '⚠ WARNING: Failed to create backup, continuing deployment'
+                fi
+              else
+                echo '⚠ WARNING: Backup directory not writable, skipping backup'
+              fi
             else
-              echo 'Deploy path does not exist, skipping backup'
+              echo 'ℹ Deploy path does not exist or is empty, skipping backup'
             fi"
-
-      - name: Create deployment directory
-        run: |
-          ssh -i ~/.ssh/deploy_key \
-            -p ${{ secrets.DEPLOY_PORT || 22 }} \
-            -o StrictHostKeyChecking=no \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "echo 'Ensuring deployment directory exists...'
-             if sudo mkdir -p ${{ env.DEPLOY_PATH }} 2>/dev/null; then
-               sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }}
-               sudo chmod 755 ${{ env.DEPLOY_PATH }}
-               echo 'Directory created with sudo: ${{ env.DEPLOY_PATH }}'
-             elif mkdir -p ${{ env.DEPLOY_PATH }} 2>/dev/null; then
-               chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }} 2>/dev/null || true
-               chmod 755 ${{ env.DEPLOY_PATH }}
-               echo 'Directory created without sudo: ${{ env.DEPLOY_PATH }}'
-             else
-               echo 'ERROR: Failed to create directory ${{ env.DEPLOY_PATH }}'
-               exit 1
-             fi
-             if [ ! -d '${{ env.DEPLOY_PATH }}' ]; then
-               echo 'ERROR: Directory does not exist after creation attempt'
-               exit 1
-             fi
-             echo 'Directory verified: ${{ env.DEPLOY_PATH }}'"
 
       - name: Deploy to Server via rsync (Incremental Update)
         run: |
-          # 确保目标目录存在（双重保险）
+          # 最终确认目录存在
           ssh -i ~/.ssh/deploy_key \
             -p ${{ secrets.DEPLOY_PORT || 22 }} \
             -o StrictHostKeyChecking=no \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "mkdir -p ${{ env.DEPLOY_PATH }} || sudo mkdir -p ${{ env.DEPLOY_PATH }}"
+            "if [ ! -d '${{ env.DEPLOY_PATH }}' ]; then
+              echo 'ERROR: Deployment directory does not exist, attempting to create...'
+              sudo mkdir -p ${{ env.DEPLOY_PATH }} || mkdir -p ${{ env.DEPLOY_PATH }} || exit 1
+              sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }} || chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }} || true
+            fi
+            if [ ! -d '${{ env.DEPLOY_PATH }}' ]; then
+              echo 'ERROR: Failed to ensure deployment directory exists'
+              exit 1
+            fi
+            echo '✓ Deployment directory verified'"
           
           # 执行 rsync 部署
           rsync -avz --delete \
@@ -154,7 +192,7 @@ jobs:
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.DEPLOY_PORT || 22 }} -o StrictHostKeyChecking=no" \
             ./dist/ \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/
-          echo "Deployment completed with incremental update"
+          echo "✓ Deployment completed with incremental update"
 
       - name: Verify deployment on server
         run: |
@@ -164,17 +202,24 @@ jobs:
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
             "echo '=== Deployment Verification ==='
             echo ''
-            echo 'Files in ${{ env.DEPLOY_PATH }}:'
-            ls -lah ${{ env.DEPLOY_PATH }}/ | head -20
-            echo ''
-            echo 'Total files:'
-            find ${{ env.DEPLOY_PATH }} -type f | wc -l
-            echo ''
-            echo 'Directory size:'
-            du -sh ${{ env.DEPLOY_PATH }}
-            echo ''
-            echo 'Latest files modified:'
-            find ${{ env.DEPLOY_PATH }} -type f -printf '%T@ %p\n' | sort -n | tail -5 | awk '{print strftime(\"%Y-%m-%d %H:%M:%S\", \$1), \$2}'
+            if [ -d '${{ env.DEPLOY_PATH }}' ]; then
+              echo '✓ Deployment directory exists: ${{ env.DEPLOY_PATH }}'
+              echo ''
+              echo 'Files in ${{ env.DEPLOY_PATH }}:'
+              ls -lah ${{ env.DEPLOY_PATH }}/ 2>/dev/null | head -20 || echo '⚠ Cannot list files'
+              echo ''
+              echo 'Total files:'
+              find ${{ env.DEPLOY_PATH }} -type f 2>/dev/null | wc -l || echo '0'
+              echo ''
+              echo 'Directory size:'
+              du -sh ${{ env.DEPLOY_PATH }} 2>/dev/null || echo 'Unknown'
+              echo ''
+              echo 'Latest files modified:'
+              find ${{ env.DEPLOY_PATH }} -type f -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -5 | awk '{print strftime(\"%Y-%m-%d %H:%M:%S\", \$1), \$2}' || echo 'Cannot determine file modification times'
+            else
+              echo '✗ ERROR: Deployment directory does not exist: ${{ env.DEPLOY_PATH }}'
+              exit 1
+            fi
             echo ''
             echo 'Nginx status:'
-            sudo systemctl status nginx --no-pager || true"
+            sudo systemctl status nginx --no-pager 2>/dev/null || systemctl status nginx --no-pager 2>/dev/null || echo '⚠ Cannot check Nginx status'"
