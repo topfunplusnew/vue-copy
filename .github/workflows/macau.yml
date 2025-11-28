@@ -113,6 +113,16 @@ jobs:
               echo 'Deploy path does not exist, skipping backup'
             fi"
 
+      - name: Create deployment directory
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p ${{ secrets.DEPLOY_PORT || 22 }} \
+            -o StrictHostKeyChecking=no \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "mkdir -p ${{ env.DEPLOY_PATH }} && \
+             chmod 755 ${{ env.DEPLOY_PATH }} && \
+             echo 'Deployment directory created: ${{ env.DEPLOY_PATH }}'"
+
       - name: Deploy to Server via rsync (Incremental Update)
         run: |
           rsync -avz --delete \
