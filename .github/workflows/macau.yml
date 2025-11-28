@@ -266,37 +266,32 @@ jobs:
 
       - name: Deploy to Server via rsync (Incremental Update)
         run: |
-          # 最终确认目录存在
-          ssh -i ~/.ssh/deploy_key \
+          # 最终确认目录存在并获取展开后的路径
+          DEPLOY_PATH_REMOTE=$(ssh -i ~/.ssh/deploy_key \
             -p ${{ secrets.DEPLOY_PORT || 22 }} \
             -o StrictHostKeyChecking=no \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
             "DEPLOY_PATH='${{ env.DEPLOY_PATH }}'
              DEPLOY_PATH=\${DEPLOY_PATH/#\~/\$HOME}
              if [ ! -d \"\$DEPLOY_PATH\" ]; then
-               echo 'ERROR: Deployment directory does not exist, attempting to create...'
+               echo 'ERROR: Deployment directory does not exist, attempting to create...' >&2
                mkdir -p \"\$DEPLOY_PATH\" || exit 1
                chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} \"\$DEPLOY_PATH\" 2>/dev/null || true
              fi
              if [ ! -d \"\$DEPLOY_PATH\" ]; then
-               echo 'ERROR: Failed to ensure deployment directory exists'
+               echo 'ERROR: Failed to ensure deployment directory exists' >&2
                exit 1
              fi
-             echo '✓ Deployment directory verified: '\$DEPLOY_PATH"
+             echo '✓ Deployment directory verified: '\$DEPLOY_PATH >&2
+             echo \$DEPLOY_PATH")
           
-          # 执行 rsync 部署（获取服务器端展开后的路径）
-          DEPLOY_PATH_REMOTE=\$(ssh -i ~/.ssh/deploy_key \
-            -p ${{ secrets.DEPLOY_PORT || 22 }} \
-            -o StrictHostKeyChecking=no \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "DEPLOY_PATH='${{ env.DEPLOY_PATH }}'; echo \${DEPLOY_PATH/#\~/\$HOME}")
-          
+          # 执行 rsync 部署
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='.DS_Store' \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.DEPLOY_PORT || 22 }} -o StrictHostKeyChecking=no" \
             ./dist/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:\$DEPLOY_PATH_REMOTE/
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$DEPLOY_PATH_REMOTE/
           echo "✓ Deployment completed with incremental update"
 
       - name: Verify deployment on server
