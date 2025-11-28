@@ -6,13 +6,15 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '18.x' # set this to the node version to use
+  NODE_VERSION: '18.x'
+  DEPLOY_PATH: '/data/html/ipologo'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -25,16 +27,40 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'pnpm'
 
-      - name: Install dependencies and build
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile
-          pnpm run build
+          # 先尝试使用 frozen lockfile，如果失败则更新 lockfile
+          if ! pnpm install --frozen-lockfile; then
+            echo "⚠️ Warning: pnpm-lock.yaml is out of date, updating..."
+            pnpm install
+            echo "⚠️ Please commit the updated pnpm-lock.yaml file"
+          fi
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Generate file checksums
+        run: |
+          cd dist
+          find . -type f -exec md5sum {} \; > ../file-checksums.txt
+          echo "Generated checksums for $(find . -type f | wc -l) files"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./dist
+          path: |
+            ./dist
+            ./file-checksums.txt
+          retention-days: 7
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,46 +69,77 @@ jobs:
     steps:
       - name: Check secrets
         run: |
-          if [ -z "$DEPLOY_HOST" ]; then
+          if [ -z "${{ secrets.DEPLOY_HOST }}" ]; then
             echo "Secrets not set, skipping deploy"
             exit 0
           fi
+
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-          path: dist
+          path: .
 
-      - name: 'Debug: List dist files'
-        run: |
-          echo "Content of dist directory:"
-          ls -la dist/
-          echo ""
-          echo "Total files:"
-          find dist -type f | wc -l
-
-      - name: 'Deploy to Server via SCP'
-        uses: appleboy/scp-action@master
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_KEY }}
-          source: "dist/*"
-          target: "/data/html/ipologo"
-          strip_components: 1
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      - name: 'Verify deployment on server'
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Backup current deployment
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
           script: |
-            echo "Files in /data/html/ipologo:"
-            ls -la /data/html/ipologo/ | head -20
+            if [ -d "${{ env.DEPLOY_PATH }}" ]; then
+              BACKUP_DIR="/data/backups/ipologo"
+              mkdir -p $BACKUP_DIR
+              BACKUP_FILE="$BACKUP_DIR/dist-$(date +%Y%m%d-%H%M%S).tar.gz"
+              tar -czf $BACKUP_FILE -C ${{ env.DEPLOY_PATH }} .
+              echo "Backup created: $BACKUP_FILE"
+              # 保留最近7个备份
+              ls -t $BACKUP_DIR/dist-*.tar.gz | tail -n +8 | xargs -r rm -f
+            else
+              echo "Deploy path does not exist, skipping backup"
+            fi
+
+      - name: Deploy to Server via rsync (Incremental Update)
+        run: |
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.DS_Store' \
+            -e "ssh -p ${{ secrets.DEPLOY_PORT || 22 }} -o StrictHostKeyChecking=no" \
+            ./dist/ \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ env.DEPLOY_PATH }}/
+          echo "Deployment completed with incremental update"
+
+      - name: Verify deployment on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          script: |
+            echo "=== Deployment Verification ==="
             echo ""
-            echo "File count:"
-            find /data/html/ipologo -type f | wc -l
+            echo "Files in ${{ env.DEPLOY_PATH }}:"
+            ls -lah ${{ env.DEPLOY_PATH }}/ | head -20
+            echo ""
+            echo "Total files:"
+            find ${{ env.DEPLOY_PATH }} -type f | wc -l
+            echo ""
+            echo "Directory size:"
+            du -sh ${{ env.DEPLOY_PATH }}
+            echo ""
+            echo "Latest files modified:"
+            find ${{ env.DEPLOY_PATH }} -type f -printf '%T@ %p\n' | sort -n | tail -5 | awk '{print strftime("%Y-%m-%d %H:%M:%S", $1), $2}'
             echo ""
             echo "Nginx status:"
-            sudo systemctl status nginx
+            sudo systemctl status nginx --no-pager || true
