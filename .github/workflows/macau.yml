@@ -102,45 +102,111 @@ jobs:
             -p ${{ secrets.DEPLOY_PORT || 22 }} \
             -o StrictHostKeyChecking=no \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "set -e
-             echo '=== Preparing server directories ==='
+            "echo '=== Preparing server directories ==='
+             echo 'Current user: '\$(whoami)
+             echo 'Current directory: '\$(pwd)
+             echo ''
+             
+             # 诊断信息
+             DEPLOY_PATH='${{ env.DEPLOY_PATH }}'
+             DEPLOY_USER='${{ secrets.DEPLOY_USER }}'
+             PARENT_DIR=\$(dirname \$DEPLOY_PATH)
+             
+             echo 'Target deployment path: '\$DEPLOY_PATH
+             echo 'Parent directory: '\$PARENT_DIR
+             echo ''
+             
+             # 检查父目录
+             echo 'Checking parent directory: '\$PARENT_DIR
+             if [ ! -d \$PARENT_DIR ]; then
+               echo 'Parent directory does not exist, attempting to create...'
+               if sudo mkdir -p \$PARENT_DIR 2>/dev/null; then
+                 sudo chown root:root \$PARENT_DIR 2>/dev/null || true
+                 sudo chmod 755 \$PARENT_DIR 2>/dev/null || true
+                 echo '✓ Parent directory created with sudo'
+               elif mkdir -p \$PARENT_DIR 2>/dev/null; then
+                 echo '✓ Parent directory created without sudo'
+               else
+                 echo '✗ ERROR: Cannot create parent directory '\$PARENT_DIR
+                 echo 'Please ensure the parent directory exists or configure sudo permissions'
+                 exit 1
+               fi
+             else
+               echo '✓ Parent directory exists'
+               ls -ld \$PARENT_DIR
+             fi
+             echo ''
              
              # 创建部署目录
-             echo 'Creating deployment directory: ${{ env.DEPLOY_PATH }}'
-             if sudo mkdir -p ${{ env.DEPLOY_PATH }} 2>/dev/null; then
-               sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }}
-               sudo chmod 755 ${{ env.DEPLOY_PATH }}
+             echo 'Creating deployment directory: '\$DEPLOY_PATH
+             if sudo mkdir -p \$DEPLOY_PATH 2>/dev/null; then
+               sudo chown -R \$DEPLOY_USER:\$DEPLOY_USER \$DEPLOY_PATH
+               sudo chmod 755 \$DEPLOY_PATH
                echo '✓ Deployment directory created with sudo'
-             elif mkdir -p ${{ env.DEPLOY_PATH }} 2>/dev/null; then
-               chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} ${{ env.DEPLOY_PATH }} 2>/dev/null || true
-               chmod 755 ${{ env.DEPLOY_PATH }} 2>/dev/null || true
+             elif mkdir -p \$DEPLOY_PATH 2>/dev/null; then
+               chown -R \$DEPLOY_USER:\$DEPLOY_USER \$DEPLOY_PATH 2>/dev/null || true
+               chmod 755 \$DEPLOY_PATH 2>/dev/null || true
                echo '✓ Deployment directory created without sudo'
              else
                echo '✗ ERROR: Failed to create deployment directory'
+               echo 'Attempted paths:'
+               echo '  - '\$DEPLOY_PATH
+               echo ''
+               echo 'Diagnostic information:'
+               echo '  Parent directory exists: '\$([ -d \$PARENT_DIR ] && echo 'yes' || echo 'no')
+               echo '  Parent directory writable: '\$([ -w \$PARENT_DIR ] && echo 'yes' || echo 'no')
+               echo '  Has sudo access: '\$(sudo -n true 2>/dev/null && echo 'yes' || echo 'no')
+               echo ''
+               echo 'SOLUTION: Please run on server as root:'
+               echo '  sudo mkdir -p '\$DEPLOY_PATH
+               echo '  sudo chown -R '\$DEPLOY_USER':'\$DEPLOY_USER' '\$DEPLOY_PATH
+               echo '  sudo chmod 755 '\$DEPLOY_PATH
                exit 1
              fi
              
              # 验证部署目录
-             if [ ! -d '${{ env.DEPLOY_PATH }}' ]; then
-               echo '✗ ERROR: Deployment directory does not exist after creation'
+             if [ ! -d \$DEPLOY_PATH ]; then
+               echo '✗ ERROR: Deployment directory does not exist after creation attempt'
                exit 1
              fi
              
+             # 检查目录权限
+             if [ ! -w \$DEPLOY_PATH ]; then
+               echo '⚠ WARNING: Deployment directory is not writable'
+               echo 'Attempting to fix permissions...'
+               sudo chown -R \$DEPLOY_USER:\$DEPLOY_USER \$DEPLOY_PATH 2>/dev/null || \
+               chown -R \$DEPLOY_USER:\$DEPLOY_USER \$DEPLOY_PATH 2>/dev/null || true
+               sudo chmod 755 \$DEPLOY_PATH 2>/dev/null || \
+               chmod 755 \$DEPLOY_PATH 2>/dev/null || true
+             fi
+             
+             echo '✓ Deployment directory verified and ready'
+             echo ''
+             
              # 创建备份目录
              BACKUP_DIR='/data/backups/ipologo'
+             BACKUP_PARENT=\$(dirname \$BACKUP_DIR)
              echo 'Creating backup directory: '\$BACKUP_DIR
+             
+             # 确保备份父目录存在
+             if [ ! -d \$BACKUP_PARENT ]; then
+               sudo mkdir -p \$BACKUP_PARENT 2>/dev/null || mkdir -p \$BACKUP_PARENT 2>/dev/null || true
+             fi
+             
              if sudo mkdir -p \$BACKUP_DIR 2>/dev/null; then
-               sudo chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} \$BACKUP_DIR
+               sudo chown -R \$DEPLOY_USER:\$DEPLOY_USER \$BACKUP_DIR
                sudo chmod 755 \$BACKUP_DIR
                echo '✓ Backup directory created with sudo'
              elif mkdir -p \$BACKUP_DIR 2>/dev/null; then
-               chown -R ${{ secrets.DEPLOY_USER }}:${{ secrets.DEPLOY_USER }} \$BACKUP_DIR 2>/dev/null || true
+               chown -R \$DEPLOY_USER:\$DEPLOY_USER \$BACKUP_DIR 2>/dev/null || true
                chmod 755 \$BACKUP_DIR 2>/dev/null || true
                echo '✓ Backup directory created without sudo'
              else
                echo '⚠ WARNING: Failed to create backup directory, backup will be skipped'
+               echo 'Backup directory will be created in user home if needed'
              fi
              
+             echo ''
              echo '=== Directory preparation completed ==='"
 
       - name: Backup current deployment
