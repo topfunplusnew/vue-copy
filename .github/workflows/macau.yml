@@ -76,41 +76,58 @@ jobs:
       - name: Prepare server directories
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'
-             DEPLOY_PATH=\${DEPLOY_PATH/#\~/\$HOME}
-             mkdir -p \$DEPLOY_PATH
+            "SERVER_DEST_PATH='${{ secrets.SERVER_DEST_PATH }}'
+             SERVER_DEST_PATH=\${SERVER_DEST_PATH/#\~/\$HOME}
+             SERVER_DEST_PATH_PRE='${{ secrets.SERVER_DEST_PATH_PRE }}'
+             SERVER_DEST_PATH_PRE=\${SERVER_DEST_PATH_PRE/#\~/\$HOME}
+             mkdir -p \$SERVER_DEST_PATH
+             mkdir -p \$SERVER_DEST_PATH_PRE
              mkdir -p \$HOME/backups/ipologo"
 
       - name: Backup current deployment
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'
-             DEPLOY_PATH=\${DEPLOY_PATH/#\~/\$HOME}
-             if [ -d \"\$DEPLOY_PATH\" ] && [ -n \"\$(ls -A \"\$DEPLOY_PATH\" 2>/dev/null)\" ]; then
+            "SERVER_DEST_PATH='${{ secrets.SERVER_DEST_PATH }}'
+             SERVER_DEST_PATH=\${SERVER_DEST_PATH/#\~/\$HOME}
+             if [ -d \"\$SERVER_DEST_PATH\" ] && [ -n \"\$(ls -A \"\$SERVER_DEST_PATH\" 2>/dev/null)\" ]; then
                BACKUP_DIR=\$HOME/backups/ipologo
                BACKUP_FILE=\$BACKUP_DIR/dist-\$(date +%Y%m%d-%H%M%S).tar.gz
                mkdir -p \$BACKUP_DIR
-               tar -czf \$BACKUP_FILE -C \"\$DEPLOY_PATH\" . 2>/dev/null || true
+               tar -czf \$BACKUP_FILE -C \"\$SERVER_DEST_PATH\" . 2>/dev/null || true
                ls -t \$BACKUP_DIR/dist-*.tar.gz 2>/dev/null | tail -n +8 | xargs -r rm -f 2>/dev/null || true
              fi"
 
-      - name: Deploy to Server via rsync
+      - name: Backup build artifacts to SERVER_DEST_PATH_PRE
         run: |
-          DEPLOY_PATH_REMOTE=$(ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'
-             DEPLOY_PATH=\${DEPLOY_PATH/#\~/\$HOME}
-             echo \$DEPLOY_PATH")
+          SERVER_DEST_PATH_PRE_REMOTE=$(ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "SERVER_DEST_PATH_PRE='${{ secrets.SERVER_DEST_PATH_PRE }}'
+             SERVER_DEST_PATH_PRE=\${SERVER_DEST_PATH_PRE/#\~/\$HOME}
+             echo \$SERVER_DEST_PATH_PRE")
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='.DS_Store' \
             --exclude='file-checksums.txt' \
             -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }}" \
             ./dist/ \
-            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$DEPLOY_PATH_REMOTE/
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$SERVER_DEST_PATH_PRE_REMOTE/
+
+      - name: Deploy to Server via rsync
+        run: |
+          SERVER_DEST_PATH_REMOTE=$(ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
+            "SERVER_DEST_PATH='${{ secrets.SERVER_DEST_PATH }}'
+             SERVER_DEST_PATH=\${SERVER_DEST_PATH/#\~/\$HOME}
+             echo \$SERVER_DEST_PATH")
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.DS_Store' \
+            --exclude='file-checksums.txt' \
+            -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }}" \
+            ./dist/ \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:$SERVER_DEST_PATH_REMOTE/
 
       - name: Verify deployment
         run: |
           ssh -o StrictHostKeyChecking=no -p ${{ secrets.DEPLOY_PORT || 22 }} ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} \
-            "DEPLOY_PATH='${{ secrets.DEPLOY_PATH }}'
-             DEPLOY_PATH=\${DEPLOY_PATH/#\~/\$HOME}
-             [ -d \"\$DEPLOY_PATH\" ] || exit 1"
+            "SERVER_DEST_PATH='${{ secrets.SERVER_DEST_PATH }}'
+             SERVER_DEST_PATH=\${SERVER_DEST_PATH/#\~/\$HOME}
+             [ -d \"\$SERVER_DEST_PATH\" ] || exit 1"
