@@ -40,7 +40,7 @@ jobs:
           # 先尝试使用 frozen lockfile，如果失败则更新 lockfile
           if ! pnpm install --frozen-lockfile; then
             echo "⚠️ Warning: pnpm-lock.yaml is out of date, updating..."
-            pnpm install
+            pnpm install --no-frozen-lockfile
             echo "⚠️ Please commit the updated pnpm-lock.yaml file"
           fi
 
