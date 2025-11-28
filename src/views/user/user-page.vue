@@ -12,7 +12,6 @@ import UserPageDialog from '@/views/user/user-page-dialog.vue';
 import commonHeader from '@/layout/common-header.vue';
 import { getUserProfile, updateUserProfile } from '@/services/user';
 import type { UpdateUserProfileData } from '@/services/user/type';
-// @ts-expect-error - moment-timezone 类型定义问题
 import moment from 'moment-timezone';
 
 // 关闭博客详情弹出层
